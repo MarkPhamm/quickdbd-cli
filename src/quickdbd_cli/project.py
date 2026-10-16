@@ -16,6 +16,17 @@ from .targets import has_table
 SCHEMA_SUFFIXES = (".txt", ".dbml")
 
 
+class SourceError(ValueError):
+    """A schema file that can't be read as text."""
+
+
+def read_source(f: Path) -> str:
+    try:
+        return f.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        raise SourceError(f"{display_path(f)}: not valid UTF-8 text (save the file as UTF-8)") from None
+
+
 def _is_notes(f: Path) -> bool:
     """A non-empty .txt with no table that isn't DBML: a README or notes file, not a schema."""
     if f.suffix != ".txt":
@@ -81,10 +92,7 @@ class Project:
     def sources(self, overrides: dict[Path, str] | None = None) -> list[tuple[str, str]]:
         """``overrides``: text to use instead of a file on disk, by resolved path (an editor's unsaved buffer)."""
         over = {p.resolve(): t for p, t in (overrides or {}).items()}
-        return [
-            (display_path(f), over[f.resolve()] if f.resolve() in over else f.read_text(encoding="utf-8"))
-            for f in self.files
-        ]
+        return [(display_path(f), over[f.resolve()] if f.resolve() in over else read_source(f)) for f in self.files]
 
     def compile(self, overrides: dict[Path, str] | None = None) -> Schema:
         return compile_sources(self.sources(overrides))

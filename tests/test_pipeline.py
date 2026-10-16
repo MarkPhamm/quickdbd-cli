@@ -509,3 +509,13 @@ def test_folder_skips_notes_txt_but_a_named_file_still_errors(tmp_path, capsys):
     err = capsys.readouterr().err
     assert "README.txt" in err and "no tables" in err and "empty.txt" not in err
     assert main(["check", str(erd / "README.txt")]) == 1
+
+
+@pytest.mark.parametrize("cmd", ["check", "build", "layout"])
+def test_non_utf8_schema_is_a_clean_error(tmp_path, capsys, cmd):
+    f = tmp_path / "s.txt"
+    f.write_bytes("users\n-----\nid int PK\n".encode("utf-16"))
+    args = [cmd, str(f)] + (["-o", str(tmp_path / "o.html")] if cmd == "build" else [])
+    assert main(args) == 2
+    err = capsys.readouterr().err
+    assert "s.txt" in err and "UTF-8" in err
