@@ -178,13 +178,30 @@ def _handler(state: State, title: str):
     return Handler
 
 
-def serve(project: Project, port: int = 8765, open_browser: bool = True) -> int:
+def make_server(project: Project, port: int = 8765) -> tuple[ThreadingHTTPServer, State]:
+    """Bind the HTTP server (port 0 picks a free port) without starting it."""
     state = State(project)
-    for d in state.diagnostics:
-        print(d["text"], file=sys.stderr)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
     server = ThreadingHTTPServer(("127.0.0.1", port), _handler(state, title))
     server.daemon_threads = True
+    return server, state
+
+
+def poll_once(state: State) -> bool:
+    """Reload if any schema file changed; returns True when a reload happened."""
+    if not state.changed():
+        return False
+    try:
+        state.reload()
+    except Exception as e:  # keep serving on unexpected errors
+        print(f"[qdbd] reload failed: {e}", file=sys.stderr, flush=True)
+    return True
+
+
+def serve(project: Project, port: int = 8765, open_browser: bool = True) -> int:
+    server, state = make_server(project, port)
+    for d in state.diagnostics:
+        print(d["text"], file=sys.stderr)
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(f"[qdbd] serving {len(state.files)} file(s) at {url}  (layout: {display_path(project.sidecar)})")
     print("[qdbd] Ctrl+C to stop", flush=True)
@@ -192,11 +209,7 @@ def serve(project: Project, port: int = 8765, open_browser: bool = True) -> int:
     def watch() -> None:
         while True:
             time.sleep(0.3)
-            if state.changed():
-                try:
-                    state.reload()
-                except Exception as e:  # keep serving on unexpected errors
-                    print(f"[qdbd] reload failed: {e}", file=sys.stderr, flush=True)
+            poll_once(state)
 
     threading.Thread(target=watch, daemon=True).start()
     if open_browser:

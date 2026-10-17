@@ -67,7 +67,7 @@ SIDE = """
 
 
 def render_page(model: dict, positions: dict, title: str, serve: bool = False) -> str:
-    data = {"model": model, "positions": positions, "serve": serve, "title": title, "fontCss": font_css()}
+    data = {"model": model, "positions": positions, "serve": serve, "title": title}
     hint = (
         "Drag tables to move them (saved). Click a table to focus. Esc clears."
         if serve
@@ -88,7 +88,10 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False) -
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<meta name="generator" content="qdbd">'
         f"<title>{_escape(title)}</title>"
-        f"<style>{font_css()}{_asset('style.css')}</style>{head_extra}</head><body>"
+        # The font CSS lives in its own <style> so the viewer can reuse it for SVG/PNG export
+        # instead of embedding the fonts a second time.
+        f'<style id="qdbd-font">{font_css()}</style>'
+        f"<style>{_asset('style.css')}</style>{head_extra}</head><body>"
         f"{body}"
         f'<script type="application/json" id="qdbd-data">{_json_for_script(data)}</script>'
         f"<script>{_asset('render.js')}</script>"

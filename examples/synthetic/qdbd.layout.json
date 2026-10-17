@@ -1,0 +1,805 @@
+{
+  "tables": {
+    "Account": {
+      "x": 2531,
+      "y": 3479
+    },
+    "Accrual": {
+      "x": 3633,
+      "y": 4762
+    },
+    "Activity": {
+      "x": 1942,
+      "y": 2002
+    },
+    "Ad": {
+      "x": 7480,
+      "y": 167
+    },
+    "AdCampaign": {
+      "x": 0,
+      "y": 5447
+    },
+    "AdGroup": {
+      "x": 4951,
+      "y": 6657
+    },
+    "Adjustment": {
+      "x": 1959,
+      "y": 5795
+    },
+    "Agency": {
+      "x": 603,
+      "y": 3752
+    },
+    "Allocation": {
+      "x": 1655,
+      "y": 2711
+    },
+    "Application": {
+      "x": 3233,
+      "y": 2254
+    },
+    "Appointment": {
+      "x": 2597,
+      "y": 4148
+    },
+    "Approval": {
+      "x": 1879,
+      "y": 2444
+    },
+    "Asset": {
+      "x": 2779,
+      "y": 3431
+    },
+    "Asset2": {
+      "x": 8332,
+      "y": 550
+    },
+    "Assignment": {
+      "x": 2349,
+      "y": 4328
+    },
+    "Attribute": {
+      "x": 2440,
+      "y": 2332
+    },
+    "Audience": {
+      "x": 3689,
+      "y": 3351
+    },
+    "AudienceMember": {
+      "x": 696,
+      "y": 6059
+    },
+    "AuditLog": {
+      "x": 3693,
+      "y": 3916
+    },
+    "BankAccount": {
+      "x": 3176,
+      "y": 3327
+    },
+    "BankTransaction": {
+      "x": 7129,
+      "y": 356
+    },
+    "Basket": {
+      "x": 2522,
+      "y": 1993
+    },
+    "Batch": {
+      "x": 2133,
+      "y": 5168
+    },
+    "Benefit": {
+      "x": 910,
+      "y": 1833
+    },
+    "Bill": {
+      "x": 3932,
+      "y": 2151
+    },
+    "BillLine": {
+      "x": 888,
+      "y": 3850
+    },
+    "Bin": {
+      "x": 3868,
+      "y": 688
+    },
+    "Bom": {
+      "x": 3708,
+      "y": 6657
+    },
+    "BomLine": {
+      "x": 5395,
+      "y": 1982
+    },
+    "Budget": {
+      "x": 6128,
+      "y": 234
+    },
+    "BudgetLine": {
+      "x": 1294,
+      "y": 5611
+    },
+    "Campaign": {
+      "x": 2067,
+      "y": 3214
+    },
+    "Candidate": {
+      "x": 5306,
+      "y": 0
+    },
+    "Carrier": {
+      "x": 6925,
+      "y": 112
+    },
+    "Cart": {
+      "x": 1688,
+      "y": 2116
+    },
+    "Certification": {
+      "x": 2239,
+      "y": 6657
+    },
+    "Channel": {
+      "x": 4635,
+      "y": 3252
+    },
+    "Chargeback": {
+      "x": 2503,
+      "y": 1624
+    },
+    "Click": {
+      "x": 384,
+      "y": 3058
+    },
+    "Commission": {
+      "x": 1775,
+      "y": 3125
+    },
+    "Consolidation": {
+      "x": 4061,
+      "y": 5049
+    },
+    "Content": {
+      "x": 2817,
+      "y": 684
+    },
+    "ContentTag": {
+      "x": 651,
+      "y": 7281
+    },
+    "Contract": {
+      "x": 2081,
+      "y": 4364
+    },
+    "Contractor": {
+      "x": 257,
+      "y": 5183
+    },
+    "Conversion": {
+      "x": 5566,
+      "y": 6657
+    },
+    "CostCenter": {
+      "x": 6407,
+      "y": 57
+    },
+    "Coupon": {
+      "x": 3059,
+      "y": 3991
+    },
+    "Course": {
+      "x": 4147,
+      "y": 567
+    },
+    "CreditNote": {
+      "x": 588,
+      "y": 6657
+    },
+    "Currency": {
+      "x": 4213,
+      "y": 2884
+    },
+    "Customer": {
+      "x": 1522,
+      "y": 3593
+    },
+    "CycleCount": {
+      "x": 2999,
+      "y": 1282
+    },
+    "Deal": {
+      "x": 4167,
+      "y": 1935
+    },
+    "DealStage": {
+      "x": 4570,
+      "y": 2805
+    },
+    "Defect": {
+      "x": 1431,
+      "y": 6657
+    },
+    "Department": {
+      "x": 5902,
+      "y": 14
+    },
+    "Depreciation": {
+      "x": 5235,
+      "y": 6657
+    },
+    "Dock": {
+      "x": 923,
+      "y": 5393
+    },
+    "Driver": {
+      "x": 3843,
+      "y": 2419
+    },
+    "Email": {
+      "x": 497,
+      "y": 5393
+    },
+    "EmailOpen": {
+      "x": 3395,
+      "y": 2767
+    },
+    "EmailSend": {
+      "x": 1927,
+      "y": 1638
+    },
+    "Employee": {
+      "x": 5899,
+      "y": 6657
+    },
+    "EmployeeSkill": {
+      "x": 1634,
+      "y": 1322
+    },
+    "Enrollment": {
+      "x": 1392,
+      "y": 2332
+    },
+    "Entity": {
+      "x": 2927,
+      "y": 3187
+    },
+    "Event": {
+      "x": 2792,
+      "y": 1210
+    },
+    "EventAttendee": {
+      "x": 4200,
+      "y": 225
+    },
+    "Exit": {
+      "x": 4011,
+      "y": 2806
+    },
+    "Expense": {
+      "x": 3356,
+      "y": 815
+    },
+    "ExpenseClaim": {
+      "x": 3024,
+      "y": 2619
+    },
+    "Experiment": {
+      "x": 3665,
+      "y": 5054
+    },
+    "Fee": {
+      "x": 852,
+      "y": 5799
+    },
+    "FiscalPeriod": {
+      "x": 3742,
+      "y": 1835
+    },
+    "FiscalYear": {
+      "x": 2802,
+      "y": 3928
+    },
+    "Form": {
+      "x": 913,
+      "y": 1226
+    },
+    "FormSubmission": {
+      "x": 7688,
+      "y": 363
+    },
+    "GLAccount": {
+      "x": 3388,
+      "y": 4602
+    },
+    "GLGroup": {
+      "x": 3399,
+      "y": 3571
+    },
+    "Goal": {
+      "x": 2335,
+      "y": 4608
+    },
+    "Holiday": {
+      "x": 3280,
+      "y": 3035
+    },
+    "Impression": {
+      "x": 2544,
+      "y": 3887
+    },
+    "Influencer": {
+      "x": 3106,
+      "y": 6657
+    },
+    "Intercompany": {
+      "x": 4087,
+      "y": 3755
+    },
+    "Interview": {
+      "x": 1883,
+      "y": 6349
+    },
+    "Invoice": {
+      "x": 880,
+      "y": 3654
+    },
+    "JobGrade": {
+      "x": 1489,
+      "y": 3301
+    },
+    "Journal": {
+      "x": 1592,
+      "y": 4518
+    },
+    "JournalLine": {
+      "x": 1017,
+      "y": 3017
+    },
+    "Journey": {
+      "x": 1371,
+      "y": 1346
+    },
+    "Keyword": {
+      "x": 5581,
+      "y": 117
+    },
+    "Kit": {
+      "x": 1598,
+      "y": 3968
+    },
+    "KitItem": {
+      "x": 8057,
+      "y": 246
+    },
+    "LandingPage": {
+      "x": 1156,
+      "y": 1101
+    },
+    "Lead": {
+      "x": 1323,
+      "y": 4946
+    },
+    "Leave": {
+      "x": 6692,
+      "y": 349
+    },
+    "LeaveType": {
+      "x": 906,
+      "y": 6657
+    },
+    "Ledger": {
+      "x": 3541,
+      "y": 2427
+    },
+    "LedgerEntry": {
+      "x": 2512,
+      "y": 2804
+    },
+    "Loan": {
+      "x": 1738,
+      "y": 4164
+    },
+    "Location": {
+      "x": 4241,
+      "y": 1461
+    },
+    "Machine": {
+      "x": 1937,
+      "y": 6117
+    },
+    "Manager": {
+      "x": 4887,
+      "y": 2805
+    },
+    "Mention": {
+      "x": 1985,
+      "y": 6657
+    },
+    "Offer": {
+      "x": 3899,
+      "y": 5394
+    },
+    "Onboarding": {
+      "x": 3059,
+      "y": 3571
+    },
+    "Operation": {
+      "x": 8,
+      "y": 2414
+    },
+    "Opportunity": {
+      "x": 1140,
+      "y": 1590
+    },
+    "Order": {
+      "x": 1158,
+      "y": 2773
+    },
+    "OrderLine": {
+      "x": 3789,
+      "y": 3624
+    },
+    "PageView": {
+      "x": 1986,
+      "y": 4120
+    },
+    "Pallet": {
+      "x": 4413,
+      "y": 4609
+    },
+    "Partner": {
+      "x": 2237,
+      "y": 2898
+    },
+    "Payment": {
+      "x": 3119,
+      "y": 4307
+    },
+    "PaymentMethod": {
+      "x": 3920,
+      "y": 1519
+    },
+    "Payroll": {
+      "x": 4474,
+      "y": 552
+    },
+    "PayrollLine": {
+      "x": 2358,
+      "y": 4924
+    },
+    "Pension": {
+      "x": 648,
+      "y": 1078
+    },
+    "Persona": {
+      "x": 4385,
+      "y": 3416
+    },
+    "Plan": {
+      "x": 2318,
+      "y": 3216
+    },
+    "PlanFeature": {
+      "x": 3959,
+      "y": 3259
+    },
+    "Position": {
+      "x": 3138,
+      "y": 453
+    },
+    "Post": {
+      "x": 1069,
+      "y": 5733
+    },
+    "PriceList": {
+      "x": 865,
+      "y": 2711
+    },
+    "PriceListItem": {
+      "x": 5175,
+      "y": 2211
+    },
+    "Product": {
+      "x": 3015,
+      "y": 976
+    },
+    "ProductCategory": {
+      "x": 4621,
+      "y": 6657
+    },
+    "Project": {
+      "x": 986,
+      "y": 7281
+    },
+    "ProjectRole": {
+      "x": 289,
+      "y": 4484
+    },
+    "Promotion": {
+      "x": 4119,
+      "y": 2466
+    },
+    "Provision": {
+      "x": 3681,
+      "y": 4256
+    },
+    "PurchaseOrder": {
+      "x": 2190,
+      "y": 1322
+    },
+    "PurchaseOrderLine": {
+      "x": 4409,
+      "y": 1793
+    },
+    "QualityCheck": {
+      "x": 4849,
+      "y": 2067
+    },
+    "Quota": {
+      "x": 1799,
+      "y": 3457
+    },
+    "Quote": {
+      "x": 1425,
+      "y": 2576
+    },
+    "Receipt": {
+      "x": 3538,
+      "y": 1107
+    },
+    "ReceiptLine": {
+      "x": 2220,
+      "y": 1992
+    },
+    "Refund": {
+      "x": 3480,
+      "y": 1630
+    },
+    "Registration": {
+      "x": 5667,
+      "y": 2030
+    },
+    "Renewal": {
+      "x": 3223,
+      "y": 1890
+    },
+    "Repayment": {
+      "x": 333,
+      "y": 3695
+    },
+    "Reseller": {
+      "x": 3043,
+      "y": 2791
+    },
+    "Reservation": {
+      "x": 3614,
+      "y": 1303
+    },
+    "Return": {
+      "x": 1113,
+      "y": 3858
+    },
+    "Review": {
+      "x": 604,
+      "y": 2752
+    },
+    "Route": {
+      "x": 1167,
+      "y": 6657
+    },
+    "Routing": {
+      "x": 4166,
+      "y": 4877
+    },
+    "Salary": {
+      "x": 1113,
+      "y": 3625
+    },
+    "SalesNote": {
+      "x": 644,
+      "y": 5101
+    },
+    "SalesRep": {
+      "x": 1303,
+      "y": 4434
+    },
+    "Score": {
+      "x": 1852,
+      "y": 5346
+    },
+    "ScoreRule": {
+      "x": 4093,
+      "y": 3511
+    },
+    "Segment": {
+      "x": 3091,
+      "y": 758
+    },
+    "SerialNumber": {
+      "x": 1959,
+      "y": 2808
+    },
+    "Settlement": {
+      "x": 4625,
+      "y": 2657
+    },
+    "Shift": {
+      "x": 4325,
+      "y": 6657
+    },
+    "Shipment": {
+      "x": 1411,
+      "y": 1724
+    },
+    "Skill": {
+      "x": 1032,
+      "y": 5077
+    },
+    "Sku": {
+      "x": 3396,
+      "y": 6657
+    },
+    "Sponsor": {
+      "x": 6496,
+      "y": 6657
+    },
+    "StockMove": {
+      "x": 61,
+      "y": 2966
+    },
+    "Stop": {
+      "x": 1382,
+      "y": 4798
+    },
+    "Subscription": {
+      "x": 2791,
+      "y": 1550
+    },
+    "Supplier": {
+      "x": 2550,
+      "y": 1330
+    },
+    "Survey": {
+      "x": 1487,
+      "y": 2916
+    },
+    "SurveyAnswer": {
+      "x": 3999,
+      "y": 6657
+    },
+    "Tag": {
+      "x": 4463,
+      "y": 3104
+    },
+    "TaxCode": {
+      "x": 3333,
+      "y": 2426
+    },
+    "TaxRate": {
+      "x": 4769,
+      "y": 871
+    },
+    "Team": {
+      "x": 2676,
+      "y": 148
+    },
+    "TeamMember": {
+      "x": 3561,
+      "y": 499
+    },
+    "Territory": {
+      "x": 4405,
+      "y": 2522
+    },
+    "Timesheet": {
+      "x": 1701,
+      "y": 6657
+    },
+    "TimesheetLine": {
+      "x": 2812,
+      "y": 6657
+    },
+    "Unit": {
+      "x": 2949,
+      "y": 76
+    },
+    "UnitConversion": {
+      "x": 300,
+      "y": 2626
+    },
+    "UtmSource": {
+      "x": 280,
+      "y": 2430
+    },
+    "Variant": {
+      "x": 1290,
+      "y": 5295
+    },
+    "Vehicle": {
+      "x": 5436,
+      "y": 1595
+    },
+    "Vendor": {
+      "x": 329,
+      "y": 6925
+    },
+    "Visit": {
+      "x": 2133,
+      "y": 5479
+    },
+    "Warehouse": {
+      "x": 2843,
+      "y": 368
+    },
+    "Webinar": {
+      "x": 2540,
+      "y": 6657
+    },
+    "finance.DebitNote": {
+      "x": 343,
+      "y": 3956
+    },
+    "finance.ExchangeRate": {
+      "x": 4908,
+      "y": 2407
+    },
+    "finance.Reconciliation": {
+      "x": 329,
+      "y": 7281
+    },
+    "hr.Bonus": {
+      "x": 6817,
+      "y": 6657
+    },
+    "hr.Deduction": {
+      "x": 1560,
+      "y": 5153
+    },
+    "hr.Training": {
+      "x": 1357,
+      "y": 3813
+    },
+    "inventory.Container": {
+      "x": 2503,
+      "y": 1158
+    },
+    "inventory.StockLevel": {
+      "x": 590,
+      "y": 4493
+    },
+    "inventory.WorkOrder": {
+      "x": 3069,
+      "y": 1550
+    },
+    "marketing.Attribution": {
+      "x": 1302,
+      "y": 7281
+    },
+    "marketing.EmailClick": {
+      "x": 584,
+      "y": 2350
+    },
+    "marketing.SocialAccount": {
+      "x": 1631,
+      "y": 7281
+    },
+    "sales.Discount": {
+      "x": 888,
+      "y": 4761
+    },
+    "sales.Forecast": {
+      "x": 6211,
+      "y": 6657
+    },
+    "sales.Region": {
+      "x": 1671,
+      "y": 1773
+    }
+  },
+  "version": 1
+}
