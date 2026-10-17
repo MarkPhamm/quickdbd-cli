@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from functools import cache
 from importlib import resources
+from pathlib import PurePosixPath
 
 from .model import Column, Schema, Table
 
@@ -99,8 +100,25 @@ def table_json(table: Table) -> dict:
     return out
 
 
+def _groups(schema: Schema) -> dict[str, str]:
+    """Explorer group per source file: the path without the common folder and ``.txt``; "" for one file."""
+    paths = sorted({t.path for t in schema.tables.values()})
+    if len(paths) <= 1:
+        return {p: "" for p in paths}
+    parts = [PurePosixPath(p.replace("\\", "/")).parts for p in paths]
+    common = 0
+    while all(len(x) > common + 1 for x in parts) and len({x[common] for x in parts}) == 1:
+        common += 1
+    out = {}
+    for p, x in zip(paths, parts, strict=True):
+        rel = "/".join(x[common:])
+        out[p] = rel[:-4] if rel.endswith(".txt") else rel
+    return out
+
+
 def model_json(schema: Schema) -> dict:
     """Plain-JSON diagram model (no positions)."""
+    groups = _groups(schema)
     rels = []
     for r in schema.valid_relationships():
         rels.append(
@@ -111,7 +129,9 @@ def model_json(schema: Schema) -> dict:
         )
     return {
         "style": STYLE,
-        "tables": [table_json(t) for t in schema.tables.values()],
+        "tables": [
+            {**table_json(t), "group": groups[t.path], "file": t.path, "line": t.line} for t in schema.tables.values()
+        ],
         "rels": rels,
         "zoom": schema.zoom,
         "position": list(schema.position) if schema.position else None,
