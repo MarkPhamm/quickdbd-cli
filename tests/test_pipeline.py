@@ -8,6 +8,7 @@ import pytest
 
 from quickdbd_cli import export, layout
 from quickdbd_cli.cli import main
+from quickdbd_cli.html import render_page
 from quickdbd_cli.measure import model_json, text_width
 from quickdbd_cli.parser import compile_text
 from quickdbd_cli.project import Project
@@ -138,6 +139,7 @@ def test_check_strict_warnings(tmp_path):
 def test_build_is_deterministic_and_does_not_write_sidecar(tmp_path):
     work = tmp_path / "s"
     shutil.copytree(SYNTH, work)
+    (work / "qdbd.layout.json").unlink(missing_ok=True)
     a, b = tmp_path / "a.html", tmp_path / "b.html"
     assert main(["build", str(work), "-o", str(a)]) == 0
     assert main(["build", str(work), "-o", str(b)]) == 0
@@ -157,6 +159,24 @@ def test_layout_command_writes_sidecar_and_reset(tmp_path):
     layout.write_sidecar(side, {"Customer": (9999, 9999), "Order": (0, 0)})
     assert main(["layout", str(f), "--reset"]) == 0
     assert json.loads(side.read_text())["tables"]["Customer"] != {"x": 9999, "y": 9999}
+
+
+def test_build_uses_but_never_rewrites_committed_sidecar(tmp_path):
+    work = tmp_path / "s"
+    shutil.copytree(SYNTH, work)
+    side = work / "qdbd.layout.json"
+    before = side.read_bytes()
+    assert main(["build", str(work), "-o", str(tmp_path / "d.html")]) == 0
+    assert side.read_bytes() == before
+    html = (tmp_path / "d.html").read_text()
+    customer = layout.read_sidecar(side)["Customer"]
+    assert f'"Customer":[{customer[0]},{customer[1]}]' in html
+
+
+def test_html_embeds_font_once():
+    html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
+    assert html.count("@font-face") == 2  # regular + bold, once each
+    assert 'id="qdbd-font"' in html
 
 
 def test_missing_path(capsys):

@@ -288,7 +288,7 @@
   }
   function exportSvg() {
     var only = S.focus ? Object.keys(neighbours(S.focus)) : null;
-    return Q.renderSvg(S.model, S.pos, { mode: S.mode, only: only, fontCss: data.fontCss });
+    return Q.renderSvg(S.model, S.pos, { mode: S.mode, only: only, fontCss: document.getElementById("qdbd-font").textContent });
   }
   document.getElementById("xsvg").onclick = function () {
     download((data.title || "diagram") + ".svg", new Blob([exportSvg()], { type: "image/svg+xml" }));
