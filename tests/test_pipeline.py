@@ -217,3 +217,19 @@ def test_doc_marks_only_in_viewer_not_exports():
     viewer = rt.call("qdbd.renderInner", m, pos, "full", {"docMarks": True})
     assert viewer.count('class="dm"') == 2  # table header + Email
     assert 'class="dm"' not in export.render_svg(m, pos, embed_font=False)
+
+
+def test_model_has_explorer_groups_and_locations():
+    p = Project.open([SYNTH])
+    m = model_json(p.compile())
+    assert sorted({t["group"] for t in m["tables"]}) == ["finance", "hr", "inventory", "marketing", "sales"]
+    cust = next(t for t in m["tables"] if t["name"] == "Customer")
+    assert cust["file"].endswith("examples/synthetic/sales.txt") and cust["line"] > 0
+    single = model_json(compile_text(SMALL, "one.txt"))
+    assert {t["group"] for t in single["tables"]} == {""}  # one file: flat list, no group headers
+
+
+def test_page_has_explorer_and_details():
+    html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
+    for marker in ('id="explorer"', 'id="tree"', 'id="details"', 'id="q"'):
+        assert marker in html

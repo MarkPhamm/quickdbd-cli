@@ -206,8 +206,7 @@
     var d = drag;
     drag = null;
     if (!d.moved) {
-      S.focus = d.table && S.focus !== d.table ? d.table : null;
-      applyFocus();
+      select(d.table && S.focus !== d.table ? d.table : null);
       return;
     }
     if (d.start) {
@@ -224,7 +223,7 @@
     zoomAt(factor, ev.clientX - r.left, ev.clientY - r.top);
   }, { passive: false });
   document.addEventListener("keydown", function (ev) {
-    if (ev.key === "Escape") { S.focus = null; applyFocus(); }
+    if (ev.key === "Escape" && document.activeElement !== input) select(null);
   });
 
   /* ------------------------------------------------------------- toolbar */
@@ -240,47 +239,171 @@
     };
   });
 
-  /* ------------------------------------------------------------- search */
-  var input = document.getElementById("q"), results = document.getElementById("results"), sel = 0, hits = [];
-  function search() {
-    var q = input.value.trim().toLowerCase();
-    hits = !q ? [] : S.model.tables.filter(function (t) {
-      return t.name.toLowerCase().indexOf(q) >= 0 || t.aliases.some(function (a) { return a.toLowerCase().indexOf(q) >= 0; });
-    }).slice(0, 50);
-    sel = 0;
-    results.innerHTML = hits.map(function (t, i) {
-      return '<div data-i="' + i + '"' + (i === 0 ? ' class="sel"' : "") + ">" + Q.esc(t.name) +
-        (t.aliases.length ? "<small>as " + Q.esc(t.aliases.join(", ")) + "</small>" : "") + "</div>";
+  /* ------------------------------------------------------------- selection: focus + details */
+  function select(id, opts) {
+    S.focus = id && byId[id] ? id : null;
+    applyFocus();
+    if (S.focus) showDetails(S.focus);
+    else closeDetails();
+    markTree();
+    if (S.focus && opts && opts.center) centerOn(S.focus);
+  }
+
+  /* ------------------------------------------------------------- explorer: search + table tree */
+  var input = document.getElementById("q"), tree = document.getElementById("tree");
+  var explorer = document.getElementById("explorer"), shut = {}, visible = [], sel = -1;
+  function matches(t, q) {
+    if (!q) return true;
+    return t.name.toLowerCase().indexOf(q) >= 0 || t.aliases.some(function (a) { return a.toLowerCase().indexOf(q) >= 0; }) ||
+      (t.group || "").toLowerCase().indexOf(q) >= 0;
+  }
+  function drawTree() {
+    var q = input.value.trim().toLowerCase(), groups = {}, names = [];
+    S.model.tables.forEach(function (t) {
+      if (!matches(t, q)) return;
+      var g = t.group || "";
+      if (!groups[g]) { groups[g] = []; names.push(g); }
+      groups[g].push(t);
+    });
+    names.sort();
+    var flat = names.length <= 1 && (names[0] || "") === "";
+    tree.classList.toggle("flat", flat);
+    visible = [];
+    var html = names.map(function (g) {
+      var items = groups[g].slice().sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+      var open = q || !shut[g];
+      var rows = items.map(function (t) {
+        if (open) visible.push(t.id);
+        return '<div class="ti" data-id="' + Q.esc(t.id) + '">' + Q.esc(t.name) +
+          (t.aliases.length ? "<small>as " + Q.esc(t.aliases.join(", ")) + "</small>" : "") + "</div>";
+      }).join("");
+      if (flat) return rows;
+      return '<div class="grp' + (open ? "" : " shut") + '" data-g="' + Q.esc(g) + '"><div class="gh"><span class="gname">' +
+        Q.esc(g || "(root)") + "</span><span>" + items.length + '</span></div><div class="gl">' + rows + "</div></div>";
     }).join("");
-    results.classList.toggle("open", hits.length > 0);
+    tree.innerHTML = html || '<div class="empty">No tables match</div>';
+    sel = q && visible.length ? bestMatch(q) : -1;
+    markTree();
   }
-  function pick(i) {
-    var t = hits[i];
-    if (!t) return;
-    results.classList.remove("open");
-    input.blur();
-    centerOn(t.id);
+  /* Enter goes to an exact name match first, then a prefix match, then the first row. */
+  function bestMatch(q) {
+    var best = 0, score = -1;
+    visible.forEach(function (id, i) {
+      var n = byId[id].name.toLowerCase(), sc = n === q ? 3 : n.indexOf(q) === 0 ? 2 : 1;
+      if (sc > score) { score = sc; best = i; }
+    });
+    return best;
   }
-  input.addEventListener("input", search);
+  function markTree() {
+    tree.querySelectorAll(".ti").forEach(function (el) {
+      var id = el.getAttribute("data-id");
+      el.classList.toggle("cur", id === S.focus);
+      el.classList.toggle("sel", sel >= 0 && visible[sel] === id);
+    });
+  }
+  tree.addEventListener("click", function (ev) {
+    var gh = ev.target.closest(".gh");
+    if (gh) {
+      var g = gh.parentNode.getAttribute("data-g");
+      shut[g] = !shut[g];
+      drawTree();
+      return;
+    }
+    var ti = ev.target.closest(".ti");
+    if (ti) select(ti.getAttribute("data-id"), { center: true });
+  });
+  input.addEventListener("input", function () { explorer.classList.remove("collapsed"); drawTree(); });
   input.addEventListener("keydown", function (ev) {
-    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
-      sel = Math.max(0, Math.min(hits.length - 1, sel + (ev.key === "ArrowDown" ? 1 : -1)));
-      results.querySelectorAll("div").forEach(function (d, i) { d.classList.toggle("sel", i === sel); });
+    if ((ev.key === "ArrowDown" || ev.key === "ArrowUp") && visible.length) {
+      sel = Math.max(0, Math.min(visible.length - 1, sel + (ev.key === "ArrowDown" ? 1 : -1)));
+      markTree();
+      var el = tree.querySelector(".ti.sel");
+      if (el) el.scrollIntoView({ block: "nearest" });
       ev.preventDefault();
-    } else if (ev.key === "Enter") pick(sel);
-    else if (ev.key === "Escape") { input.value = ""; search(); input.blur(); }
+    } else if (ev.key === "Enter" && visible.length) {
+      select(visible[sel >= 0 ? sel : 0], { center: true });
+    } else if (ev.key === "Escape") {
+      input.value = "";
+      drawTree();
+      input.blur();
+    }
   });
-  results.addEventListener("mousedown", function (ev) {
-    var d = ev.target.closest("div[data-i]");
-    if (d) pick(+d.getAttribute("data-i"));
-  });
+  document.getElementById("extoggle").onclick = function () { explorer.classList.toggle("collapsed"); };
   document.addEventListener("keydown", function (ev) {
     if ((ev.key === "/" || (ev.key === "f" && (ev.metaKey || ev.ctrlKey))) && document.activeElement.tagName !== "TEXTAREA" &&
         !(document.activeElement.closest && document.activeElement.closest(".CodeMirror"))) {
       ev.preventDefault();
+      explorer.classList.remove("collapsed");
       input.focus();
     }
   });
+
+  /* ------------------------------------------------------------- details panel (dbt-docs style, for relationships) */
+  var details = document.getElementById("details"), dbody = document.getElementById("dbody");
+  var CARD = { one: "1", many: "N", zeroOne: "0..1", zeroMany: "0..N" };
+  function colName(t, cid) {
+    var c = t.cols.filter(function (x) { return x.id === cid; })[0];
+    return c ? c.name : cid;
+  }
+  function colLabel(t, cid) {
+    return cid && cid !== "qdbdvirtualfield" ? Q.esc(colName(t, cid)) : "<em>table</em>";
+  }
+  function link(tid, cid) {
+    var t = byId[tid];
+    if (!t) return Q.esc(tid);
+    return '<a data-go="' + Q.esc(tid) + '">' + Q.esc(t.name) + "</a>" +
+      (cid && cid !== "qdbdvirtualfield" ? "." + Q.esc(colName(t, cid)) : "");
+  }
+  /* mine: {t, c, card} of this table; other: the far end. */
+  function refItem(t, mine, other) {
+    return "<li>" + colLabel(t, mine.c) + " &rarr; " + link(other.t, other.c) +
+      '<span class="card">' + CARD[mine.card] + ":" + CARD[other.card] + "</span></li>";
+  }
+  function backItem(t, mine, other) {
+    return "<li>" + link(other.t, other.c) + " &rarr; " + colLabel(t, mine.c) +
+      '<span class="card">' + CARD[other.card] + ":" + CARD[mine.card] + "</span></li>";
+  }
+  function showDetails(id) {
+    var t = byId[id], out = [], refs = [], back = [];
+    S.model.rels.forEach(function (r) {
+      // "References": this table holds the many/FK side; "Referenced by": the other side points here.
+      var aMany = r.a.card === "many" || r.a.card === "zeroMany", bMany = r.b.card === "many" || r.b.card === "zeroMany";
+      var aIsChild = aMany || !bMany;
+      var child = aIsChild ? r.a : r.b, parent = aIsChild ? r.b : r.a;
+      if (child.t === id) refs.push(refItem(t, child, parent));
+      if (parent.t === id) back.push(backItem(t, parent, child));
+    });
+    out.push("<h2>" + Q.esc(t.name) + "</h2>");
+    var meta = [];
+    if (t.aliases.length) meta.push("as " + Q.esc(t.aliases.join(", ")));
+    if (t.file) meta.push(Q.esc(t.file) + ":" + t.line);
+    if (meta.length) out.push('<div class="meta">' + meta.join(" &middot; ") + "</div>");
+    if (t.doc) out.push('<div class="doc">' + Q.esc(t.doc) + "</div>");
+    out.push("<h3>Columns (" + t.cols.length + ")</h3><table>");
+    t.cols.forEach(function (c) {
+      var tags = [];
+      if (c.pk) tags.push('<span class="tag pk">PK</span>');
+      if (c.fk) tags.push('<span class="tag fk">FK</span>');
+      c.badges.forEach(function (b) { tags.push('<span class="tag">' + Q.esc(b.t) + "</span>"); });
+      out.push('<tr><td class="cn">' + Q.esc(c.name) + " " + tags.join("") + (c.doc ? '<div class="cd">' + Q.esc(c.doc) + "</div>" : "") +
+        '</td><td class="ct">' + Q.esc(c.type) + "</td></tr>");
+    });
+    out.push("</table>");
+    out.push("<h3>References (" + refs.length + ")</h3>" + (refs.length ? "<ul>" + refs.join("") + "</ul>" : '<div class="none">None</div>'));
+    out.push("<h3>Referenced by (" + back.length + ")</h3>" + (back.length ? "<ul>" + back.join("") + "</ul>" : '<div class="none">None</div>'));
+    dbody.innerHTML = out.join("");
+    details.classList.add("open");
+    document.getElementById("stage").classList.add("has-details");
+  }
+  function closeDetails() {
+    details.classList.remove("open");
+    document.getElementById("stage").classList.remove("has-details");
+  }
+  dbody.addEventListener("click", function (ev) {
+    var a = ev.target.closest("a[data-go]");
+    if (a) select(a.getAttribute("data-go"), { center: true });
+  });
+  document.getElementById("dclose").onclick = function () { select(null); };
 
   /* ------------------------------------------------------------- minimap */
   var mini = document.getElementById("mini"), miniB = null;
@@ -361,6 +484,9 @@
       index();
       render();
       applyView();
+      drawTree();
+      if (S.focus && byId[S.focus]) showDetails(S.focus);
+      else select(null);
     },
     state: S,
   };
@@ -368,6 +494,7 @@
   index();
   if (S.serve) document.body.classList.add("serve");
   render();
+  drawTree();
   if (S.model.zoom) {
     var k = S.model.zoom / 100, p = S.model.position || [0, 0];
     S.view = { k: k, x: -p[0] * k, y: -p[1] * k };

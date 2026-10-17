@@ -28,10 +28,17 @@ BODY = """
   {side}
   <div id="stage">
     <svg id="canvas" xmlns="http://www.w3.org/2000/svg"><g id="vp"></g></svg>
-    <div class="search">
-      <input id="q" type="search" placeholder="Search {count} tables  ( / )" autocomplete="off" spellcheck="false">
-      <div id="results" class="results"></div>
+    <div class="explorer" id="explorer">
+      <div class="exhead">
+        <button id="extoggle" title="Show/hide table list">&#9776;</button>
+        <input id="q" type="search" placeholder="Search {count} tables  ( / )" autocomplete="off" spellcheck="false">
+      </div>
+      <div id="tree" class="tree"></div>
     </div>
+    <aside class="details" id="details" aria-label="Table details">
+      <button class="close" id="dclose" title="Close (Esc)">&times;</button>
+      <div id="dbody"></div>
+    </aside>
     <div class="bar">
       <div class="seg" id="modes" title="Collapse tables">
         <button data-mode="full" class="on">Full</button>

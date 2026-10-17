@@ -25,7 +25,8 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
 
 - **Same syntax as QuickDBD:** tables, aliases, quoted names, all 9 relationship operators, `rel` lines, PK/FK/NULL/UNIQUE/INDEX/IDENTITY, `default=`, doc comments, `[settings]` and `[layout]` sections. Error messages are QuickDBD's own.
 - **Interactive page:**
-  - search and jump to a table (`/`)
+  - explorer sidebar: tables grouped by file or dbt folder, with search (`/`, Enter jumps to the best match)
+  - table detail panel (dbt-docs style, for relationships): description, columns with type/keys/docs, and clickable **References** / **Referenced by** lists
   - minimap
   - click a table to focus on it and its neighbours
   - collapse tables: full / keys only / names only
