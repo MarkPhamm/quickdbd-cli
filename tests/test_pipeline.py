@@ -233,3 +233,8 @@ def test_page_has_explorer_and_details():
     html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
     for marker in ('id="explorer"', 'id="tree"', 'id="details"', 'id="q"'):
         assert marker in html
+
+
+def test_page_has_share_link_controls():
+    html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
+    assert 'id="xlink"' in html and 'id="toast"' in html

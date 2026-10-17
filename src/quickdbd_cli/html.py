@@ -51,6 +51,8 @@ BODY = """
         <button data-mode="header">Names</button>
       </div>
       <div class="sep"></div>
+      <button id="xlink" title="Copy a link to this exact view (filter, selected table, zoom)">Link</button>
+      <div class="sep"></div>
       <button id="xsvg" title="Export SVG">SVG</button>
       <button id="xpng" title="Export PNG">PNG</button>
       <div class="sep"></div>
@@ -63,6 +65,7 @@ BODY = """
       <svg id="mini" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="tip" id="tip" role="tooltip"></div>
+    <div class="toast" id="toast" role="status"></div>
     <div class="hint">{hint}</div>
   </div>
 </div>
