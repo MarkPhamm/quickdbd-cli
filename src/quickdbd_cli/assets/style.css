@@ -46,6 +46,15 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .exhead input { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid transparent; border-radius: 5px; font: inherit;
   background: #f4f5f6; outline: none; }
 .exhead input:focus { border-color: var(--blue); background: #fff; }
+.exfilter { padding: 6px 6px 4px; border-bottom: 1px solid var(--line); }
+.explorer.collapsed .exfilter { display: none; }
+.exfilter input { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; font: 12px Menlo, Consolas, monospace;
+  outline: none; }
+.exfilter input:focus { border-color: var(--blue); }
+.exfilter input.bad { border-color: #e57373; }
+.fstat { font-size: 11px; color: var(--muted); padding: 3px 2px 0; min-height: 14px; }
+.fstat.bad { color: #c0392b; }
+.fstat a { color: var(--blue); cursor: pointer; margin-left: 6px; }
 .tree { overflow: auto; padding: 4px 0 8px; }
 .explorer.collapsed .tree { display: none; }
 .gh { padding: 6px 12px 4px; font-size: 11px; font-weight: bold; color: var(--muted); text-transform: uppercase;
@@ -89,6 +98,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .details a:hover { text-decoration: underline; }
 .details .card { color: var(--muted); font-size: 11px; margin-left: 4px; }
 .details .none { color: var(--muted); }
+.details .hidden { color: var(--muted); }
 
 /* minimap (bottom right) */
 .minimap { position: absolute; right: 16px; bottom: 16px; width: 200px; height: 140px; background: rgba(255,255,255,.9);

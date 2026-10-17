@@ -225,7 +225,85 @@
     return out;
   }
 
+  /* ------------------------------------------------------------------ selectors (dbt-style, over relationships)
+   * Space-separated atoms are unioned; a comma inside an atom intersects (a,b); a leading ! excludes.
+   * Atom: [N]+  method:pattern  +[N]
+   *   method: name (default; also matches aliases), group, file, col
+   *   pattern: glob with * and ?
+   *   +x   x plus the tables it references (parents), any depth; 2+x limits to 2 hops
+   *   x+   x plus the tables referencing it (children); x+1 limits to 1 hop
+   */
+  function globRe(p) {
+    return new RegExp("^" + p.replace(/[.^$|()[\]{}\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$", "i");
+  }
+  function edges(model) {
+    var up = {}, down = {};
+    model.rels.forEach(function (r) {
+      var aMany = r.a.card === "many" || r.a.card === "zeroMany", bMany = r.b.card === "many" || r.b.card === "zeroMany";
+      var aIsChild = aMany || !bMany, child = aIsChild ? r.a.t : r.b.t, parent = aIsChild ? r.b.t : r.a.t;
+      if (child === parent) return;
+      (up[child] = up[child] || []).push(parent);
+      (down[parent] = down[parent] || []).push(child);
+    });
+    return { up: up, down: down };
+  }
+  function walk(start, adj, depth, into) {
+    var frontier = start, d = 0;
+    while (frontier.length && d < depth) {
+      var next = [];
+      frontier.forEach(function (id) {
+        (adj[id] || []).forEach(function (o) { if (!into[o]) { into[o] = true; next.push(o); } });
+      });
+      frontier = next;
+      d++;
+    }
+  }
+  function atomSet(model, atom, g) {
+    var m = /^(\d*\+)?(.*?)(\+\d*)?$/.exec(atom), up = m[1], body = m[2], down = m[3];
+    var method = "name", pat = body, i = body.indexOf(":");
+    if (i > 0) { method = body.slice(0, i).toLowerCase(); pat = body.slice(i + 1); }
+    var re = globRe(pat || "*"), out = {}, base = [];
+    model.tables.forEach(function (t) {
+      var ok;
+      if (method === "name") ok = re.test(t.name) || t.aliases.some(function (a) { return re.test(a); });
+      else if (method === "group") ok = re.test(t.group || "") || (t.group || "").toLowerCase().indexOf(pat.toLowerCase() + "/") === 0;
+      else if (method === "file") ok = re.test(t.file || "") || re.test((t.file || "").split("/").pop());
+      else if (method === "col" || method === "column") ok = t.cols.some(function (c) { return re.test(c.name); });
+      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col)");
+      if (ok) { out[t.id] = true; base.push(t.id); }
+    });
+    function hops(op, before) {
+      var n = before ? op.slice(0, -1) : op.slice(1);
+      return n ? parseInt(n, 10) : Infinity;
+    }
+    if (up) walk(base, g.up, hops(up, true), out);
+    if (down) walk(base, g.down, hops(down, false), out);
+    return out;
+  }
+  /* Returns the ids matching `expr`, in model order, or null when expr is blank (= everything). */
+  function select(model, expr) {
+    var tokens = String(expr || "").trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return null;
+    var g = edges(model), inc = null, exc = {};
+    tokens.forEach(function (tok) {
+      var neg = tok.charAt(0) === "!";
+      if (neg) tok = tok.slice(1);
+      var parts = tok.split(",").filter(Boolean), set = null;
+      parts.forEach(function (p) {
+        var s = atomSet(model, p, g);
+        if (set === null) set = s;
+        else { var k = {}; Object.keys(set).forEach(function (id) { if (s[id]) k[id] = true; }); set = k; }
+      });
+      set = set || {};
+      if (neg) Object.keys(set).forEach(function (id) { exc[id] = true; });
+      else { inc = inc || {}; Object.keys(set).forEach(function (id) { inc[id] = true; }); }
+    });
+    return model.tables.filter(function (t) { return (inc === null || inc[t.id]) && !exc[t.id]; }).map(function (t) { return t.id; });
+  }
+
   root.qdbd = {
+    select: select,
+    subset: subset,
     colors: C,
     geometry: geometry,
     renderTable: renderTable,
@@ -237,5 +315,6 @@
     esc: esc,
   };
   root.qdbdRenderSvg = renderSvg;
+  root.qdbdSelect = select;
   root.qdbdNeighbourhood = neighbourhood;
 })(typeof window !== "undefined" ? window : globalThis);

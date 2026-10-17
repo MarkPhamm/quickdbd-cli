@@ -8,7 +8,7 @@ from pathlib import Path
 
 from . import __version__
 from .model import Schema
-from .project import Project
+from .project import Project, SelectionError, selector_expr
 
 OK = "No errors found. Good job!"
 
@@ -53,7 +53,11 @@ def cmd_build(args) -> int:
     schema = project.compile()
     if not _print_diagnostics(schema, args.strict):
         return 1
-    model, pos = project.build(schema)
+    try:
+        model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
+    except SelectionError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render_page(model, pos, _title(project)), encoding="utf-8")
@@ -68,8 +72,15 @@ def cmd_export(args) -> int:
     schema = project.compile()
     if not _print_diagnostics(schema, args.strict):
         return 1
-    model, pos = project.build(schema)
+    try:
+        model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
+    except SelectionError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
     only = None
+    if not args.focus and (args.select or args.exclude):
+        only = [t["id"] for t in model["tables"]]
+        pos = export.focus_positions(model, pos, only)  # compact layout for the selection
     if args.focus:
         t = export.find_table(model, args.focus)
         if t is None:
@@ -155,6 +166,17 @@ def build_parser() -> argparse.ArgumentParser:
     def paths(sp):
         sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt file(s) or folder(s) (recursive)")
 
+    def selectors(sp):
+        sp.add_argument(
+            "-s",
+            "--select",
+            action="append",
+            metavar="SELECTOR",
+            help="dbt-style: name glob, +name (and what it references), name+ (and what references it), "
+            "N+name+N (hops), group:/file:/col: methods, a,b intersects (repeatable)",
+        )
+        sp.add_argument("--exclude", action="append", metavar="SELECTOR", help="drop tables matching (repeatable)")
+
     sp = sub.add_parser("check", help="validate schema files")
     paths(sp)
     sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
@@ -163,6 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("build", help="write an interactive HTML diagram")
     paths(sp)
     sp.add_argument("-o", "--output", default="diagram.html")
+    selectors(sp)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
@@ -170,6 +193,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("export", help="write a PNG or SVG image")
     paths(sp)
     sp.add_argument("-o", "--output", required=True, help="out.png or out.svg")
+    selectors(sp)
     sp.add_argument("--focus", metavar="TABLE", help="only this table and its neighbours")
     sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")
     sp.add_argument("--mode", choices=["full", "keys", "header"], default="full", help="collapse mode")

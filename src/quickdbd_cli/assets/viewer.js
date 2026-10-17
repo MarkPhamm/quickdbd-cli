@@ -11,6 +11,9 @@
     focus: null,
     view: { x: 0, y: 0, k: 1 },
     serve: !!data.serve,
+    filter: "",
+    vm: data.model, // view model: the tables/relationships left after the filter
+    shown: {},
   };
   var svg = document.getElementById("canvas");
   var vp = document.getElementById("vp");
@@ -24,14 +27,14 @@
 
   /* ------------------------------------------------------------- render */
   function render() {
-    vp.innerHTML = Q.renderInner(S.model, S.pos, S.mode, { docMarks: true });
+    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true });
     applyFocus();
     drawMinimap();
   }
 
   function renderEdges() {
     var g = vp.querySelector(".edges");
-    if (g) g.innerHTML = Q.renderEdges(S.model, S.pos, S.mode);
+    if (g) g.innerHTML = Q.renderEdges(S.vm, S.pos, S.mode);
     applyFocus();
   }
 
@@ -48,7 +51,7 @@
   }
 
   function fit() {
-    var b = Q.bounds(S.model, S.pos, S.mode), sz = stageSize(), pad = 40;
+    var b = Q.bounds(S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), (sz[1] - 2 * pad) / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.05);
     S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: (sz[1] - (b[3] - b[1]) * k) / 2 - b[1] * k };
@@ -64,7 +67,8 @@
   function centerOn(id) {
     var t = byId[id], p = S.pos[id];
     if (!t || !p) return;
-    var g = Q.geometry(S.model, S.mode)[id], sz = stageSize();
+    var g = Q.geometry(S.vm, S.mode)[id], sz = stageSize();
+    if (!g) return;
     var k = Math.max(S.view.k, 0.9);
     S.view = { k: k, x: sz[0] / 2 - (p[0] + g.w / 2) * k, y: sz[1] / 2 - (p[1] + g.h / 2) * k };
     applyView();
@@ -81,7 +85,7 @@
   function neighbours(id) {
     var set = {};
     set[id] = true;
-    S.model.rels.forEach(function (r) {
+    S.vm.rels.forEach(function (r) {
       if (r.a.t === id) set[r.b.t] = true;
       if (r.b.t === id) set[r.a.t] = true;
     });
@@ -259,7 +263,7 @@
   }
   function drawTree() {
     var q = input.value.trim().toLowerCase(), groups = {}, names = [];
-    S.model.tables.forEach(function (t) {
+    S.vm.tables.forEach(function (t) {
       if (!matches(t, q)) return;
       var g = t.group || "";
       if (!groups[g]) { groups[g] = []; names.push(g); }
@@ -338,6 +342,42 @@
     }
   });
 
+  /* ------------------------------------------------------------- filter (dbt-style selectors) */
+  var finput = document.getElementById("filter"), fstat = document.getElementById("fstat"), ftimer = null;
+  function computeView() {
+    var ids = null, err = null;
+    try { ids = Q.select(S.model, S.filter); } catch (e) { err = e.message; }
+    S.vm = ids ? Q.subset(S.model, ids) : S.model;
+    S.shown = {};
+    S.vm.tables.forEach(function (t) { S.shown[t.id] = true; });
+    finput.classList.toggle("bad", !!err);
+    fstat.classList.toggle("bad", !!err);
+    if (err) fstat.textContent = err;
+    else if (ids) fstat.innerHTML = "Showing " + ids.length + " of " + S.model.tables.length + ' tables<a id="fclear">clear</a>';
+    else fstat.textContent = "";
+  }
+  function applyFilter(expr, keepView) {
+    S.filter = (expr || "").trim();
+    if (finput.value.trim() !== S.filter) finput.value = S.filter;
+    computeView();
+    if (S.focus && !S.shown[S.focus]) S.focus = null;
+    render();
+    drawTree();
+    if (S.focus) showDetails(S.focus);
+    else closeDetails();
+    if (!keepView) fit();
+    if (window.qdbdOnState) window.qdbdOnState();
+  }
+  finput.addEventListener("input", function () {
+    clearTimeout(ftimer);
+    ftimer = setTimeout(function () { applyFilter(finput.value); }, 350);
+  });
+  finput.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { clearTimeout(ftimer); applyFilter(finput.value); }
+    else if (ev.key === "Escape") { clearTimeout(ftimer); applyFilter(""); finput.blur(); }
+  });
+  fstat.addEventListener("click", function (ev) { if (ev.target.id === "fclear") applyFilter(""); });
+
   /* ------------------------------------------------------------- details panel (dbt-docs style, for relationships) */
   var details = document.getElementById("details"), dbody = document.getElementById("dbody");
   var CARD = { one: "1", many: "N", zeroOne: "0..1", zeroMany: "0..N" };
@@ -351,6 +391,10 @@
   function link(tid, cid) {
     var t = byId[tid];
     if (!t) return Q.esc(tid);
+    if (!S.shown[tid]) {
+      return '<span class="hidden" title="Hidden by the filter">' + Q.esc(t.name) + "</span>" +
+        (cid && cid !== "qdbdvirtualfield" ? "." + Q.esc(colName(t, cid)) : "");
+    }
     return '<a data-go="' + Q.esc(tid) + '">' + Q.esc(t.name) + "</a>" +
       (cid && cid !== "qdbdvirtualfield" ? "." + Q.esc(colName(t, cid)) : "");
   }
@@ -408,11 +452,11 @@
   /* ------------------------------------------------------------- minimap */
   var mini = document.getElementById("mini"), miniB = null;
   function drawMinimap() {
-    miniB = Q.bounds(S.model, S.pos, S.mode);
+    miniB = Q.bounds(S.vm, S.pos, S.mode);
     var pad = 40, b = miniB;
     mini.setAttribute("viewBox", (b[0] - pad) + " " + (b[1] - pad) + " " + (b[2] - b[0] + 2 * pad) + " " + (b[3] - b[1] + 2 * pad));
-    var geo = Q.geometry(S.model, S.mode), parts = [];
-    S.model.tables.forEach(function (t) {
+    var geo = Q.geometry(S.vm, S.mode), parts = [];
+    S.vm.tables.forEach(function (t) {
       var p = S.pos[t.id];
       if (p) parts.push('<rect x="' + p[0] + '" y="' + p[1] + '" width="' + geo[t.id].w + '" height="' + geo[t.id].h + '" fill="#2b5797" opacity=".55"/>');
     });
@@ -454,7 +498,7 @@
   }
   function exportSvg() {
     var only = S.focus ? Object.keys(neighbours(S.focus)) : null;
-    return Q.renderSvg(S.model, S.pos, { mode: S.mode, only: only, fontCss: document.getElementById("qdbd-font").textContent });
+    return Q.renderSvg(S.vm, S.pos, { mode: S.mode, only: only, fontCss: document.getElementById("qdbd-font").textContent });
   }
   document.getElementById("xsvg").onclick = function () {
     download((data.title || "diagram") + ".svg", new Blob([exportSvg()], { type: "image/svg+xml" }));
@@ -482,6 +526,7 @@
       S.model = model;
       S.pos = positions;
       index();
+      computeView();
       render();
       applyView();
       drawTree();
@@ -493,6 +538,7 @@
 
   index();
   if (S.serve) document.body.classList.add("serve");
+  computeView();
   render();
   drawTree();
   if (S.model.zoom) {
