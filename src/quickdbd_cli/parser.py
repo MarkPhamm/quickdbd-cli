@@ -260,7 +260,9 @@ class _FileParser:
         before = SECTIONS[: SECTIONS.index(name)]
         later = [s for s in seen if s not in before]
         if later:
-            self.fp.error(line, f"Section '[{name}]' is out of order. It must be defined before: '[{', '.join(later)}]'")
+            self.fp.error(
+                line, f"Section '[{name}]' is out of order. It must be defined before: '[{', '.join(later)}]'"
+            )
             return False
         return True
 
@@ -453,13 +455,17 @@ class _FileParser:
                 col.nullable = True
             elif h == "pk":
                 if col.unique:
-                    fp.error(e.line, "The field cannot be a primary key and an unique key, since a primary key is unique")
+                    fp.error(
+                        e.line, "The field cannot be a primary key and an unique key, since a primary key is unique"
+                    )
                 if col.index:
                     fp.error(e.line, "The field cannot be a primary key and an index, since a primary key is an index")
                 col.pk = True
             elif h == "unique":
                 if col.pk:
-                    fp.error(e.line, "The field cannot be a primary key and an unique key, since a primary key is unique")
+                    fp.error(
+                        e.line, "The field cannot be a primary key and an unique key, since a primary key is unique"
+                    )
                 if col.index:
                     fp.error(e.line, "The field cannot be an unique key and an index, since an unique key is an index")
                 col.unique = True
@@ -554,7 +560,11 @@ class _Resolver:
             for ident, table in f.tables.items():
                 if ident in s.tables:
                     first = s.tables[ident]
-                    self.error(f.path, table.line, f"Table '{table.name}' already defined (first defined at {first.path}:{first.line})")
+                    self.error(
+                        f.path,
+                        table.line,
+                        f"Table '{table.name}' already defined (first defined at {first.path}:{first.line})",
+                    )
                     continue
                 s.tables[ident] = table
             self.aliases.update(f.aliases)
@@ -571,7 +581,9 @@ class _Resolver:
                 if s.position is None:
                     s.position = pos
                 elif s.position != pos:
-                    self.error(f.path, lines["position"], "Position differs from an earlier file; using the first", "warning")
+                    self.error(
+                        f.path, lines["position"], "Position differs from an earlier file; using the first", "warning"
+                    )
 
     def parse_token(self, text: str, rel: PendingRel) -> End | None:
         t = text.strip()
@@ -632,7 +644,9 @@ class _Resolver:
             c = self.get_column(t, end.column, cs)
             if c is None:
                 if end.column != VIRTUAL_FIELD:
-                    self.error(r.path, r.line, f"Invalid relationship, the field '{end.table}.{end.column}' does not exist")
+                    self.error(
+                        r.path, r.line, f"Invalid relationship, the field '{end.table}.{end.column}' does not exist"
+                    )
                     cols.append(None)
                     continue
                 c = Column(VIRTUAL_FIELD, "", r.line, order=len(t.columns), virtual=True)
@@ -660,8 +674,10 @@ class _Resolver:
                 t = self.get_table(ident, cs)
                 if t is None:
                     self.error(
-                        f.path, e.line,
-                        REJECT + f"Invalid layout definition name, the table '{name}' does not exist", "warning",
+                        f.path,
+                        e.line,
+                        REJECT + f"Invalid layout definition name, the table '{name}' does not exist",
+                        "warning",
                     )
                     continue
                 if t.id in s.layout:

@@ -91,7 +91,10 @@ def test_fk_flag_set_on_non_pk_member():
 def test_doc_comments():
     s = c(SAMPLE)
     assert s.tables["Product"].comments == ["Table documentation comment 1", "Table documentation comment 2"]
-    assert s.tables["Product"].columns["Name"].comments == ["Field documentation comment 1", "Field documentation comment 3"]
+    assert s.tables["Product"].columns["Name"].comments == [
+        "Field documentation comment 1",
+        "Field documentation comment 3",
+    ]
 
 
 @pytest.mark.parametrize(
@@ -125,7 +128,8 @@ def test_all_operators(op, cards):
 
 
 def test_forward_reference_ok():
-    assert errs("""
+    assert (
+        errs("""
         A
         -
         BId int FK >- B.Id
@@ -133,7 +137,9 @@ def test_forward_reference_ok():
         B
         -
         Id PK int
-        """) == []
+        """)
+        == []
+    )
 
 
 def test_separator_any_length():
@@ -168,9 +174,18 @@ def test_whitespace_only_line_breaks_table():
         ("T\n-\nA int FK >- U.Id", [(3, "Invalid relationship, the table 'U' does not exist")]),
         ("T\n-\nA int FK >- T.Nope", [(3, "Invalid relationship, the field 'T.Nope' does not exist")]),
         ("T\n-\nA int FK >- T.A.B", [(3, "Multi-nested relationships are not allowed")]),
-        ("T\n-\nA PK UNIQUE int", [(3, "The field cannot be a primary key and an unique key, since a primary key is unique")]),
-        ("T\n-\nA PK INDEX int", [(3, "The field cannot be a primary key and an index, since a primary key is an index")]),
-        ("T\n-\nA UNIQUE INDEX int", [(3, "The field cannot be an unique key and an index, since an unique key is an index")]),
+        (
+            "T\n-\nA PK UNIQUE int",
+            [(3, "The field cannot be a primary key and an unique key, since a primary key is unique")],
+        ),
+        (
+            "T\n-\nA PK INDEX int",
+            [(3, "The field cannot be a primary key and an index, since a primary key is an index")],
+        ),
+        (
+            "T\n-\nA UNIQUE INDEX int",
+            [(3, "The field cannot be an unique key and an index, since an unique key is an index")],
+        ),
         ("[foo]", [(1, "Invalid section name '[foo]' (allowed: tables, settings, layout)")]),
         ("[settings]\nZoom 100\n[settings]", [(3, "Section '[settings]' is already defined")]),
         ("[layout]\n[settings]", [(2, "Section '[settings]' is out of order. It must be defined before: '[layout]'")]),

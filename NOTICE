@@ -1,1 +1,19 @@
-Apache
+quickdbd-cli
+Copyright 2026 Minh (Mark) Pham
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product bundles third-party components, distributed unmodified:
+
+* elkjs 0.12.0 (src/quickdbd_cli/assets/elk.bundled.js)
+  Eclipse Layout Kernel compiled to JavaScript. Licensed under the Eclipse Public
+  License 2.0 (src/quickdbd_cli/assets/elk-LICENSE.md).
+  Source code: https://github.com/kieler/elkjs and https://github.com/eclipse/elk
+
+* Inter 4.1 font (src/quickdbd_cli/assets/Inter-*.ttf, Inter-*.woff2)
+  Copyright The Inter Project Authors. Licensed under the SIL Open Font License 1.1
+  (src/quickdbd_cli/assets/Inter-LICENSE.txt). Source: https://github.com/rsms/inter
+
+`qdbd serve` loads CodeMirror 5 (MIT) from cdnjs at runtime; it is not bundled.
+
+QuickDBD is a product of its respective owners; this project is not affiliated with it.
