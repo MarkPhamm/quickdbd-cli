@@ -103,6 +103,43 @@ def cmd_layout(args) -> int:
     return 0
 
 
+def cmd_import_dbt(args) -> int:
+    from .dbt import DbtImportError, import_dbt, write_result
+    from .parser import compile_sources
+
+    out = Path(args.output)
+    split = out.suffix != ".txt"
+    try:
+        result = import_dbt(
+            Path(args.manifest),
+            Path(args.catalog) if args.catalog else None,
+            packages=args.package,
+            select=args.select,
+            sources=not args.no_sources,
+            split=split,
+        )
+    except DbtImportError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    # Self-check: the generated text must compile cleanly.
+    schema = compile_sources([(name, text) for name, text in result.files.items()])
+    if schema.errors:
+        for d in schema.errors:
+            print(d.format(), file=sys.stderr)
+        print("error: generated schema did not compile (please report this as a bug)", file=sys.stderr)
+        return 1
+    written = write_result(result, out)
+    for s in result.skipped:
+        print(f"skipped: {s}", file=sys.stderr)
+    where = str(out) if not split else f"{out}/ ({len(written)} files)"
+    print(f"Wrote {where}: {result.tables} tables, {result.relationships} relationships")
+    if result.tables and not result.relationships:
+        print(
+            "hint: no relationships found; add `relationships` tests or foreign_key constraints in dbt", file=sys.stderr
+        )
+    return 0
+
+
 def cmd_serve(args) -> int:
     from .serve import serve
 
@@ -146,6 +183,28 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--reset", action="store_true", help="discard saved positions and auto-layout everything")
     sp.add_argument("--layout")
     sp.set_defaults(func=cmd_layout)
+
+    sp = sub.add_parser("import", help="generate QuickDBD schema files from another source")
+    isub = sp.add_subparsers(dest="source", required=True)
+    dp = isub.add_parser(
+        "dbt",
+        help="from a dbt project's target/manifest.json",
+        description="Tables from models/seeds/snapshots/sources, relationships from `relationships` tests and "
+        "foreign_key constraints, types from catalog.json (run `dbt docs generate` first for types).",
+    )
+    dp.add_argument("manifest", help="path to manifest.json (or the target/ directory)")
+    dp.add_argument("-o", "--output", default="schema.txt", help="a .txt file, or a directory for one file per folder")
+    dp.add_argument("--catalog", help="catalog.json for column types (default: next to the manifest, if present)")
+    dp.add_argument(
+        "--package",
+        action="append",
+        help="dbt package(s) to include (default: the root project; 'all' for every package)",
+    )
+    dp.add_argument(
+        "--select", action="append", help="glob on model name, fqn (a.b.c) or file path, e.g. 'marts.*' (repeatable)"
+    )
+    dp.add_argument("--no-sources", action="store_true", help="leave out dbt sources")
+    dp.set_defaults(func=cmd_import_dbt)
 
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)
