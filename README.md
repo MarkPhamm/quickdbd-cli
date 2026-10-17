@@ -37,6 +37,26 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
 - **Pip-only install:** no Graphviz, Node or browser needed. Layout uses [ELK](https://eclipse.dev/elk/), running in an embedded V8.
 - **CI-friendly:** builds are deterministic, and errors are `file:line: error: …` with exit code 1.
 
+## From a dbt project
+
+```bash
+dbt docs generate                                   # optional: adds real column types (catalog.json)
+qdbd import dbt target/manifest.json -o erd/        # one .txt per folder (staging, marts, sources, ...)
+qdbd build erd/ -o erd.html
+```
+
+- **Tables:** models, seeds and snapshots of your project, plus sources.
+- **Relationships:** `relationships` tests (including dbt_utils `relationships_where`) and `foreign_key` constraints.
+- **Primary keys:** `primary_key` constraints, or else a column with both `unique` and `not_null` tests.
+- **Docs:** model and column descriptions become doc comments, shown as tooltips.
+- **Options:**
+  - `--select 'marts.*'` narrows by name, fqn or path (repeatable)
+  - `--package all` includes installed packages
+  - `--no-sources` drops sources
+  - `-o schema.txt` writes a single file
+
+Re-running the import overwrites the generated files. Table positions survive because they live in the layout file, keyed by table name.
+
 ## Commands
 
 ```bash
@@ -45,6 +65,7 @@ qdbd build  PATH... -o diagram.html            # shareable interactive HTML (pos
 qdbd serve  PATH... [--port 8765]              # live editor + drag-to-arrange
 qdbd export PATH... -o out.png [--focus Customer --depth 1]   # PNG or SVG image
 qdbd layout PATH... [--reset]                  # (re)write the layout file
+qdbd import dbt target/manifest.json -o erd/   # generate schema files from a dbt project
 ```
 
 `PATH` is a `.txt` file or a folder. Every `*.txt` under a folder is read recursively.

@@ -20,7 +20,7 @@ STYLE = {
     "rowSize": 12,
     "padX": 12,
     "gap": 20,
-    "keyW": 16,
+    "keyW": 19,
     "badgeSize": 9,
     "badgePad": 4,
     "badgeGap": 4,

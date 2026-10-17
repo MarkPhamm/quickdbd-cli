@@ -99,7 +99,7 @@
           '" font-family="' + FONT + '" font-size="' + st.badgeSize + '">' + esc(b.t) + "</text>");
         bx += b.w + st.badgeGap;
       });
-      if (c.pk) out.push(keyIcon(w - st.padX - c.typeW - st.keyW + 1, cy));
+      if (c.pk) out.push(keyIcon(w - st.padX - c.typeW - st.keyW, cy));
       out.push('<text x="' + (w - st.padX) + '" y="' + base + '" text-anchor="end" fill="' + C.type + '" font-family="' + FONT +
         '" font-size="' + st.rowSize + '">' + esc(c.type) + "</text>");
       out.push("</g>");
