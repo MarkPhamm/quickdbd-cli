@@ -60,7 +60,7 @@ def _column_json(col: Column) -> dict:
     name_w = text_width(col.name, s["rowSize"], bold)
     bs = [{"t": b, "w": round(text_width(b, s["badgeSize"]) + 2 * s["badgePad"], 2)} for b in badges(col)]
     type_w = text_width(col.type or "", s["rowSize"])
-    return {
+    out = {
         "id": col.id,
         "name": col.name,
         "type": col.type or "",
@@ -75,12 +75,16 @@ def _column_json(col: Column) -> dict:
         "typeW": type_w,
         "badges": bs,
     }
+    if col.comments:
+        out["doc"] = "\n".join(col.comments)
+    return out
 
 
 def table_json(table: Table) -> dict:
     s = STYLE
     cols = [_column_json(c) for c in table.columns.values() if not c.virtual]
-    w = text_width(table.name, s["headerSize"]) + 2 * s["padX"]
+    name_w = text_width(table.name, s["headerSize"])
+    w = name_w + 2 * s["padX"]
     for c in cols:
         row = c["nameW"] + c["typeW"] + 2 * s["padX"] + s["gap"]
         row += sum(b["w"] + s["badgeGap"] for b in c["badges"])
@@ -89,7 +93,10 @@ def table_json(table: Table) -> dict:
         w = max(w, row)
     w = max(round(w), s["minW"])
     h = s["headerH"] + len(cols) * s["rowH"] + s["bottomPad"]
-    return {"id": table.id, "name": table.name, "aliases": table.aliases, "w": w, "h": h, "cols": cols}
+    out = {"id": table.id, "name": table.name, "aliases": table.aliases, "w": w, "h": h, "nameW": name_w, "cols": cols}
+    if table.comments:
+        out["doc"] = "\n".join(table.comments)
+    return out
 
 
 def model_json(schema: Schema) -> dict:

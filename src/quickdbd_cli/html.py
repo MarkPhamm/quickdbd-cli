@@ -50,6 +50,7 @@ BODY = """
     <div class="minimap">
       <svg id="mini" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
+    <div class="tip" id="tip" role="tooltip"></div>
     <div class="hint">{hint}</div>
   </div>
 </div>
