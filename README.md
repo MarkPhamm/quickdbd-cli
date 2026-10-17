@@ -58,6 +58,26 @@ qdbd build erd/ -o erd.html
 
 Re-running the import overwrites the generated files. Table positions survive because they live in the layout file, keyed by table name.
 
+## Selecting tables
+
+Like dbt's `--select`, but it follows relationships instead of lineage. It works in the page's filter box and as `-s/--select` / `--exclude` on `build` and `export`.
+
+| Selector | Tables |
+|---|---|
+| `orders` / `stg_*` | by name or alias (glob, case-insensitive) |
+| `+orders` | `orders` and every table it references (any depth); `1+orders` limits to one hop |
+| `orders+` | `orders` and every table that references it; `orders+2` limits to two hops |
+| `+orders+1` | both directions |
+| `group:marts` | a file or dbt folder (and its subfolders) |
+| `file:core.txt` | a schema file (glob) |
+| `col:customer_id` | tables with a matching column |
+| `a b` / `a,b` / `!a` | union / intersection / exclude |
+
+```bash
+qdbd build erd/ -s 'group:marts' --exclude '*_tmp' -o marts.html
+qdbd export erd/ -s '+orders+1' -o orders.png
+```
+
 ## Commands
 
 ```bash

@@ -33,6 +33,11 @@ BODY = """
         <button id="extoggle" title="Show/hide table list">&#9776;</button>
         <input id="q" type="search" placeholder="Search {count} tables  ( / )" autocomplete="off" spellcheck="false">
       </div>
+      <div class="exfilter">
+        <input id="filter" type="text" placeholder="Filter: orders+1  group:marts  !stg_*" autocomplete="off"
+          spellcheck="false" title="{filter_help}">
+        <div class="fstat" id="fstat"></div>
+      </div>
       <div id="tree" class="tree"></div>
     </div>
     <aside class="details" id="details" aria-label="Table details">
@@ -74,6 +79,12 @@ SIDE = """
 """
 
 
+FILTER_HELP = (
+    "dbt-style selectors. +x: x and what it references. x+: x and what references it. "
+    "N+x+N: hops. group:/file:/col: methods. a,b: both. !x: exclude."
+)
+
+
 def render_page(model: dict, positions: dict, title: str, serve: bool = False) -> str:
     data = {"model": model, "positions": positions, "serve": serve, "title": title}
     hint = (
@@ -81,7 +92,7 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False) -
         if serve
         else "Click a table to focus its relationships. Esc clears. Scroll to zoom, drag to pan."
     )
-    body = BODY.format(side=SIDE if serve else "", count=len(model["tables"]), hint=hint)
+    body = BODY.format(side=SIDE if serve else "", count=len(model["tables"]), hint=hint, filter_help=FILTER_HELP)
     head_extra = ""
     scripts = ""
     if serve:
