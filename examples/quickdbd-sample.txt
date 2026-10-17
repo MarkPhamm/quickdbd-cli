@@ -1,0 +1,54 @@
+# Online shop: a small schema exercising every QuickDBD feature.
+# Paste it into app.quickdatabasediagrams.com or run `qdbd build` on it.
+
+Customer as c
+-
+CustomerId PK int IDENTITY
+Email varchar(255) UNIQUE
+Name string INDEX
+Phone NULL string
+CreatedAt datetime default=GETUTCDATE()
+
+# Every order belongs to one customer.
+Order as o
+----
+OrderId PK int IDENTITY
+CustomerId int FK >- c.CustomerId
+Status string="pending" # current fulfilment state
+Total decimal(10,2)
+
+OrderLine
+rel >- Product
+---
+OrderId PK int FK >- o.OrderId
+LineNo PK int
+ProductId int FK >0- Product.ProductId
+Quantity int=1
+
+"Product Catalog" as cat
+-
+CatalogId PK int
+Title string
+
+Product
+------------
+ProductId PK int
+CatalogId int FK >- cat.CatalogId
+Sku varchar(64) UNIQUE
+Price money
+
+Address
+-
+AddressId PK int
+CustomerId int FK -0 Customer.CustomerId
+Line1 string
+"Post Code" NULL string
+
+Wishlist
+-
+WishlistId PK int
+CustomerId int FK >-< Customer.CustomerId
+
+[settings]
+Zoom 100
+CaseSensitive off

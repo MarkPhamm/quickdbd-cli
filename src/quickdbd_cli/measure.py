@@ -1,0 +1,111 @@
+"""Text measurement and the diagram model handed to render.js.
+
+Widths come from a committed per-glyph table for the bundled Inter font
+(see scripts/gen_font_metrics.py), so Python, the browser, and the PNG export agree.
+"""
+
+from __future__ import annotations
+
+import json
+from functools import cache
+from importlib import resources
+
+from .model import Column, Schema, Table
+
+STYLE = {
+    "font": "Inter",
+    "headerH": 32,
+    "headerSize": 14,
+    "rowH": 24,
+    "rowSize": 12,
+    "padX": 12,
+    "gap": 20,
+    "keyW": 16,
+    "badgeSize": 9,
+    "badgePad": 4,
+    "badgeGap": 4,
+    "bottomPad": 4,
+    "minW": 120,
+}
+
+
+@cache
+def _metrics() -> dict:
+    return json.loads(resources.files("quickdbd_cli").joinpath("assets/font-metrics.json").read_text())
+
+
+def text_width(text: str, size: float, bold: bool = False) -> float:
+    table = _metrics()["bold" if bold else "regular"]
+    return round(sum(table.get(ch, 0.6) for ch in text) * size, 2)
+
+
+def badges(col: Column) -> list[str]:
+    out = []
+    if col.identity:
+        out.append("auto")
+    if col.unique:
+        out.append("unique")
+    if col.index:
+        out.append("index")
+    if col.nullable:
+        out.append("null")
+    if col.default is not None:
+        out.append(f"={col.default}")
+    return out
+
+
+def _column_json(col: Column) -> dict:
+    s = STYLE
+    bold = col.pk or col.fk
+    name_w = text_width(col.name, s["rowSize"], bold)
+    bs = [{"t": b, "w": round(text_width(b, s["badgeSize"]) + 2 * s["badgePad"], 2)} for b in badges(col)]
+    type_w = text_width(col.type or "", s["rowSize"])
+    return {
+        "id": col.id,
+        "name": col.name,
+        "type": col.type or "",
+        "pk": col.pk,
+        "fk": col.fk,
+        "nullable": col.nullable,
+        "unique": col.unique,
+        "index": col.index,
+        "identity": col.identity,
+        "default": col.default,
+        "nameW": name_w,
+        "typeW": type_w,
+        "badges": bs,
+    }
+
+
+def table_json(table: Table) -> dict:
+    s = STYLE
+    cols = [_column_json(c) for c in table.columns.values() if not c.virtual]
+    w = text_width(table.name, s["headerSize"]) + 2 * s["padX"]
+    for c in cols:
+        row = c["nameW"] + c["typeW"] + 2 * s["padX"] + s["gap"]
+        row += sum(b["w"] + s["badgeGap"] for b in c["badges"])
+        if c["pk"]:
+            row += s["keyW"]
+        w = max(w, row)
+    w = max(round(w), s["minW"])
+    h = s["headerH"] + len(cols) * s["rowH"] + s["bottomPad"]
+    return {"id": table.id, "name": table.name, "aliases": table.aliases, "w": w, "h": h, "cols": cols}
+
+
+def model_json(schema: Schema) -> dict:
+    """Plain-JSON diagram model (no positions)."""
+    rels = []
+    for r in schema.valid_relationships():
+        rels.append(
+            {
+                "a": {"t": r.a.table, "c": r.a.column, "card": r.a.card},
+                "b": {"t": r.b.table, "c": r.b.column, "card": r.b.card},
+            }
+        )
+    return {
+        "style": STYLE,
+        "tables": [table_json(t) for t in schema.tables.values()],
+        "rels": rels,
+        "zoom": schema.zoom,
+        "position": list(schema.position) if schema.position else None,
+    }

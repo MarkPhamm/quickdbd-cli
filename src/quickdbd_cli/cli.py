@@ -1,0 +1,169 @@
+"""`qdbd` command line."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from . import __version__
+from .model import Schema
+from .project import Project
+
+OK = "No errors found. Good job!"
+
+
+def _print_diagnostics(schema: Schema, strict: bool) -> bool:
+    """Print diagnostics; returns True when the schema is usable."""
+    for d in schema.diagnostics:
+        print(d.format(), file=sys.stderr)
+    failed = bool(schema.errors) or (strict and bool(schema.warnings))
+    if failed:
+        n_e, n_w = len(schema.errors), len(schema.warnings)
+        print(f"{n_e} error(s), {n_w} warning(s)", file=sys.stderr)
+    return not failed
+
+
+def _open(args) -> Project:
+    return Project.open([Path(p) for p in args.paths], Path(args.layout) if getattr(args, "layout", None) else None)
+
+
+def _title(project: Project) -> str:
+    if len(project.inputs) == 1:
+        p = project.inputs[0]
+        return p.stem if p.is_file() else (p.resolve().name or "diagram")
+    return "diagram"
+
+
+def cmd_check(args) -> int:
+    project = _open(args)
+    schema = project.compile()
+    ok = _print_diagnostics(schema, args.strict)
+    if ok and not schema.diagnostics:
+        print(OK)
+    elif ok:
+        print(f"No errors found ({len(schema.warnings)} warning(s)).")
+    return 0 if ok else 1
+
+
+def cmd_build(args) -> int:
+    from .html import render_page
+
+    project = _open(args)
+    schema = project.compile()
+    if not _print_diagnostics(schema, args.strict):
+        return 1
+    model, pos = project.build(schema)
+    out = Path(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_page(model, pos, _title(project)), encoding="utf-8")
+    print(f"Wrote {out} ({len(model['tables'])} tables, {len(model['rels'])} relationships)")
+    return 0
+
+
+def cmd_export(args) -> int:
+    from . import export
+
+    project = _open(args)
+    schema = project.compile()
+    if not _print_diagnostics(schema, args.strict):
+        return 1
+    model, pos = project.build(schema)
+    only = None
+    if args.focus:
+        t = export.find_table(model, args.focus)
+        if t is None:
+            print(f"error: table '{args.focus}' not found", file=sys.stderr)
+            return 1
+        only = export.focus_ids(model, t["id"], args.depth)
+        pos = export.focus_positions(model, pos, only)
+    out = Path(args.output)
+    fmt = out.suffix.lower().lstrip(".")
+    if fmt not in ("svg", "png"):
+        print("error: output must end in .svg or .png", file=sys.stderr)
+        return 2
+    svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if fmt == "svg":
+        out.write_text(svg, encoding="utf-8")
+    else:
+        out.write_bytes(export.svg_to_png(svg, args.scale))
+    print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
+    return 0
+
+
+def cmd_layout(args) -> int:
+    project = _open(args)
+    schema = project.compile()
+    if not _print_diagnostics(schema, False):
+        return 1
+    model, pos = project.build(schema, reset=args.reset)
+    project.save_positions(model, pos)
+    print(f"Wrote {project.sidecar} ({len(pos)} tables)")
+    return 0
+
+
+def cmd_serve(args) -> int:
+    from .serve import serve
+
+    project = _open(args)
+    return serve(project, port=args.port, open_browser=not args.no_open)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="qdbd", description="Compile QuickDBD schema files into interactive ER diagrams.")
+    p.add_argument("--version", action="version", version=f"qdbd {__version__}")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    def paths(sp):
+        sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt file(s) or folder(s) (recursive)")
+
+    sp = sub.add_parser("check", help="validate schema files")
+    paths(sp)
+    sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
+    sp.set_defaults(func=cmd_check)
+
+    sp = sub.add_parser("build", help="write an interactive HTML diagram")
+    paths(sp)
+    sp.add_argument("-o", "--output", default="diagram.html")
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
+    sp.add_argument("--strict", action="store_true")
+    sp.set_defaults(func=cmd_build)
+
+    sp = sub.add_parser("export", help="write a PNG or SVG image")
+    paths(sp)
+    sp.add_argument("-o", "--output", required=True, help="out.png or out.svg")
+    sp.add_argument("--focus", metavar="TABLE", help="only this table and its neighbours")
+    sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")
+    sp.add_argument("--mode", choices=["full", "keys", "header"], default="full", help="collapse mode")
+    sp.add_argument("--scale", type=float, default=2.0, help="PNG pixel scale (default 2)")
+    sp.add_argument("--layout")
+    sp.add_argument("--strict", action="store_true")
+    sp.set_defaults(func=cmd_export)
+
+    sp = sub.add_parser("layout", help="write table positions to the layout sidecar")
+    paths(sp)
+    sp.add_argument("--reset", action="store_true", help="discard saved positions and auto-layout everything")
+    sp.add_argument("--layout")
+    sp.set_defaults(func=cmd_layout)
+
+    sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
+    paths(sp)
+    sp.add_argument("--port", type=int, default=8765)
+    sp.add_argument("--layout")
+    sp.add_argument("--no-open", action="store_true", help="don't open a browser")
+    sp.set_defaults(func=cmd_serve)
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        return args.func(args)
+    except FileNotFoundError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
