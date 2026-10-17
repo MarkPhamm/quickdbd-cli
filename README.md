@@ -132,7 +132,7 @@ TWINE_USERNAME=__token__
 TWINE_PASSWORD=pypi-...
 ```
 
-Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, commit, then run `scripts/release.sh`. It builds, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release.
+Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, commit, then run `PATH="$PWD/.venv/bin:$PATH" scripts/release.sh`. It builds, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release.
 
 ## License
 
