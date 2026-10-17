@@ -55,6 +55,7 @@ BODY = """
       <div class="sep"></div>
       <button id="xsvg" title="Export SVG">SVG</button>
       <button id="xpng" title="Export PNG">PNG</button>
+      <button id="xdrawio" title="Export an editable draw.io / diagrams.net file">draw.io</button>
       <div class="sep"></div>
       <button id="zout" title="Zoom out">&#8722;</button>
       <span class="zoomval" id="zoomval">100%</span>
