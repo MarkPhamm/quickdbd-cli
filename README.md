@@ -33,6 +33,7 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
   - hover a column to highlight its relationship
   - hover a dotted-underlined table or column to read its `#` doc comments
   - PNG/SVG export buttons
+  - shareable links: the URL keeps the filter, selected table, collapse mode and zoom; **Link** copies it
 - **Live editing:** `qdbd serve` reloads when you save, has a browser editor pane with autosave, and remembers where you drag tables.
 - **Many files, one diagram:** point it at a folder and foreign keys can cross files.
 - **Pip-only install:** no Graphviz, Node or browser needed. Layout uses [ELK](https://eclipse.dev/elk/), running in an embedded V8.

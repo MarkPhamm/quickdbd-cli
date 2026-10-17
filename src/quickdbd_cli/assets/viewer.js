@@ -43,6 +43,7 @@
     vp.setAttribute("transform", "translate(" + v.x + "," + v.y + ") scale(" + v.k + ")");
     zoomval.textContent = Math.round(v.k * 100) + "%";
     drawViewportRect();
+    scheduleHash();
   }
 
   function stageSize() {
@@ -237,15 +238,21 @@
   document.getElementById("zfit").onclick = fit;
   document.querySelectorAll("#modes button").forEach(function (b) {
     b.onclick = function () {
-      S.mode = b.getAttribute("data-mode");
-      document.querySelectorAll("#modes button").forEach(function (o) { o.classList.toggle("on", o === b); });
-      render();
+      setMode(b.getAttribute("data-mode"));
     };
   });
+
+  function setMode(mode) {
+    S.mode = ["full", "keys", "header"].indexOf(mode) >= 0 ? mode : "full";
+    document.querySelectorAll("#modes button").forEach(function (o) { o.classList.toggle("on", o.getAttribute("data-mode") === S.mode); });
+    render();
+    scheduleHash();
+  }
 
   /* ------------------------------------------------------------- selection: focus + details */
   function select(id, opts) {
     S.focus = id && byId[id] ? id : null;
+    scheduleHash();
     applyFocus();
     if (S.focus) showDetails(S.focus);
     else closeDetails();
@@ -366,7 +373,7 @@
     if (S.focus) showDetails(S.focus);
     else closeDetails();
     if (!keepView) fit();
-    if (window.qdbdOnState) window.qdbdOnState();
+    scheduleHash();
   }
   finput.addEventListener("input", function () {
     clearTimeout(ftimer);
@@ -541,13 +548,80 @@
   computeView();
   render();
   drawTree();
-  if (S.model.zoom) {
-    var k = S.model.zoom / 100, p = S.model.position || [0, 0];
-    S.view = { k: k, x: -p[0] * k, y: -p[1] * k };
-    applyView();
-    if (!S.model.position) fit();
-  } else {
-    fit();
+  /* ------------------------------------------------------------- shareable links
+   * The URL hash holds the view: #f=<filter>&t=<table>&m=<mode>&z=<zoom>&c=<x>,<y> (centre, diagram coords).
+   * It is kept up to date with history.replaceState, so copying the address bar shares exactly this view. */
+  var hashTimer = null, applyingHash = false;
+  function scheduleHash() {
+    if (applyingHash) return;
+    clearTimeout(hashTimer);
+    hashTimer = setTimeout(writeHash, 250);
+  }
+  function currentHash() {
+    var p = new URLSearchParams(), v = S.view, sz = stageSize();
+    if (S.filter) p.set("f", S.filter);
+    if (S.focus && byId[S.focus]) p.set("t", byId[S.focus].name);
+    if (S.mode !== "full") p.set("m", S.mode);
+    p.set("z", String(Math.round(v.k * 1000) / 1000));
+    p.set("c", Math.round((sz[0] / 2 - v.x) / v.k) + "," + Math.round((sz[1] / 2 - v.y) / v.k));
+    return "#" + p.toString();
+  }
+  function writeHash() {
+    var h = currentHash();
+    if (location.hash !== h) {
+      try { history.replaceState(null, "", h); } catch (e) { /* sandboxed iframe */ }
+    }
+  }
+  function readHash() {
+    var raw = location.hash.replace(/^#/, "");
+    if (!raw) return false;
+    var p = new URLSearchParams(raw);
+    applyingHash = true;
+    try {
+      if (p.has("m")) setMode(p.get("m"));
+      applyFilter(p.get("f") || "", true);
+      var name = p.get("t"), id = null;
+      if (name) S.model.tables.forEach(function (t) { if (t.name === name) id = t.id; });
+      select(id && S.shown[id] ? id : null);
+      var z = parseFloat(p.get("z")), c = (p.get("c") || "").split(",").map(Number);
+      if (z > 0 && c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) {
+        var sz = stageSize();
+        S.view = { k: Math.min(4, Math.max(0.03, z)), x: sz[0] / 2 - c[0] * z, y: sz[1] / 2 - c[1] * z };
+        applyView();
+      } else if (id) centerOn(id);
+      else fit();
+    } finally {
+      applyingHash = false;
+    }
+    return true;
+  }
+  window.addEventListener("hashchange", function () { if (location.hash !== currentHash()) readHash(); });
+
+  var toast = document.getElementById("toast"), toastTimer = null;
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add("open");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("open"); }, 1800);
+  }
+  document.getElementById("xlink").onclick = function () {
+    writeHash();
+    var url = location.href;
+    function fallback() { window.prompt("Copy this link:", url); }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { showToast("Link copied: this exact view"); }, fallback);
+    } else fallback();
+  };
+
+  if (!readHash()) {
+    if (S.model.zoom) {
+      var k = S.model.zoom / 100, p0 = S.model.position || [0, 0];
+      S.view = { k: k, x: -p0[0] * k, y: -p0[1] * k };
+      applyView();
+      if (!S.model.position) fit();
+    } else {
+      fit();
+    }
   }
   window.addEventListener("resize", drawViewportRect);
 })();
