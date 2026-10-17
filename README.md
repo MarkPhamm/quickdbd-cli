@@ -32,7 +32,7 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
   - collapse tables: full / keys only / names only
   - hover a column to highlight its relationship
   - hover a dotted-underlined table or column to read its `#` doc comments
-  - PNG/SVG export buttons
+  - PNG/SVG export buttons, and **draw.io**: an editable diagrams.net file using draw.io's ER table shapes and crow's-foot arrows
   - shareable links: the URL keeps the filter, selected table, collapse mode and zoom; **Link** copies it
 - **Live editing:** `qdbd serve` reloads when you save, has a browser editor pane with autosave, and remembers where you drag tables.
 - **Many files, one diagram:** point it at a folder and foreign keys can cross files.
@@ -85,7 +85,7 @@ qdbd export erd/ -s '+orders+1' -o orders.png
 qdbd check  PATH... [--strict]                 # validate; "No errors found. Good job!"
 qdbd build  PATH... -o diagram.html            # shareable interactive HTML (positions locked)
 qdbd serve  PATH... [--port 8765]              # live editor + drag-to-arrange
-qdbd export PATH... -o out.png [--focus Customer --depth 1]   # PNG or SVG image
+qdbd export PATH... -o out.png [--focus Customer --depth 1]   # PNG, SVG or .drawio
 qdbd layout PATH... [--reset]                  # (re)write the layout file
 qdbd import dbt target/manifest.json -o erd/   # generate schema files from a dbt project
 ```

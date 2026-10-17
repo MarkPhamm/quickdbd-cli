@@ -225,6 +225,69 @@
     return out;
   }
 
+  /* ------------------------------------------------------------------ draw.io export
+   * mxGraph XML using draw.io's own Entity Relation table shapes, so tables stay editable
+   * (rows can be added, lines re-attached) and crow's-foot arrows are draw.io's ER arrows. */
+  var DRAWIO_ARROW = { one: "ERmandOne", many: "ERmany", zeroOne: "ERzeroToOne", zeroMany: "ERzeroToMany" };
+  function renderDrawio(model, pos, opts) {
+    opts = opts || {};
+    var mode = opts.mode || "full", m = subset(model, opts.only), geo = geometry(m, mode);
+    var KEYW = 44, ROWH = 26, HEADH = 32, cells = [], rowId = {}, n = 2;
+    function id() { return "q" + n++; }
+    function cell(attrs, geom) {
+      var a = Object.keys(attrs).map(function (k) { return k + '="' + esc(attrs[k]) + '"'; }).join(" ");
+      return "<mxCell " + a + ">" + geom + "</mxCell>";
+    }
+    function g(x, y, w, h) {
+      return '<mxGeometry x="' + n2(x) + '" y="' + n2(y) + '" width="' + n2(w) + '" height="' + n2(h) + '" as="geometry"/>';
+    }
+    function n2(v) { return Math.round(v); }
+    var b = bounds(m, pos, mode);
+    m.tables.forEach(function (t) {
+      var p = pos[t.id];
+      if (!p) return;
+      var tg = geo[t.id], w = tg.w + KEYW, tid = id();
+      rowId[t.id] = { _table: tid };
+      cells.push(cell({
+        id: tid, value: t.name, vertex: "1", parent: "1",
+        style: "shape=table;startSize=" + HEADH + ";container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;" +
+          "fontStyle=1;align=left;spacingLeft=10;resizeLast=1;html=0;whiteSpace=wrap;fillColor=#2b5797;fontColor=#ffffff;" +
+          "strokeColor=#dfe3e8;swimlaneFillColor=#ffffff;fontSize=14;",
+      }, g(p[0] - b[0] + 40, p[1] - b[1] + 40, w, HEADH + Math.max(tg.cols.length, 0) * ROWH)));
+      tg.cols.forEach(function (c, i) {
+        var rid = id(), key = c.pk && c.fk ? "PK,FK" : c.pk ? "PK" : c.fk ? "FK" : "";
+        rowId[t.id][c.id] = rid;
+        cells.push(cell({
+          id: rid, value: "", vertex: "1", parent: tid,
+          style: "shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;" +
+            "dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;",
+        }, g(0, HEADH + i * ROWH, w, ROWH)));
+        var base = "shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;html=0;";
+        var flags = c.badges.map(function (x) { return x.t; }).join(" ");
+        cells.push(cell({ id: id(), value: key, vertex: "1", parent: rid, style: base + "fontStyle=1;fontColor=#2b5797;align=center;fontSize=11;" },
+          g(0, 0, KEYW, ROWH)));
+        cells.push(cell({
+          id: id(), value: c.name + (flags ? "  [" + flags + "]" : "") + (c.type ? " : " + c.type : ""), vertex: "1", parent: rid,
+          style: base + "align=left;spacingLeft=6;fontSize=12;" + (c.pk ? "fontStyle=5;" : c.fk ? "fontStyle=1;" : ""),
+        }, g(KEYW, 0, w - KEYW, ROWH)));
+      });
+    });
+    m.rels.forEach(function (r) {
+      var ra = rowId[r.a.t], rb = rowId[r.b.t];
+      if (!ra || !rb) return;
+      var src = ra[r.a.c] || ra._table, dst = rb[r.b.c] || rb._table;
+      cells.push(cell({
+        id: id(), value: "", edge: "1", parent: "1", source: src, target: dst,
+        style: "edgeStyle=entityRelationEdgeStyle;fontSize=12;html=0;endFill=0;startFill=0;strokeColor=#9aa0a6;" +
+          "startArrow=" + DRAWIO_ARROW[r.a.card] + ";endArrow=" + DRAWIO_ARROW[r.b.card] + ";",
+      }, '<mxGeometry relative="1" as="geometry"/>'));
+    });
+    return '<mxfile host="qdbd" type="device"><diagram id="erd" name="' + esc(opts.title || "ERD") + '">' +
+      '<mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" ' +
+      'page="0" pageScale="1" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>' +
+      cells.join("") + "</root></mxGraphModel></diagram></mxfile>";
+  }
+
   /* ------------------------------------------------------------------ selectors (dbt-style, over relationships)
    * Space-separated atoms are unioned; a comma inside an atom intersects (a,b); a leading ! excludes.
    * Atom: [N]+  method:pattern  +[N]
@@ -302,6 +365,7 @@
   }
 
   root.qdbd = {
+    renderDrawio: renderDrawio,
     select: select,
     subset: subset,
     colors: C,
@@ -316,5 +380,6 @@
   };
   root.qdbdRenderSvg = renderSvg;
   root.qdbdSelect = select;
+  root.qdbdRenderDrawio = renderDrawio;
   root.qdbdNeighbourhood = neighbourhood;
 })(typeof window !== "undefined" ? window : globalThis);

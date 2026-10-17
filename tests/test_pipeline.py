@@ -238,3 +238,33 @@ def test_page_has_explorer_and_details():
 def test_page_has_share_link_controls():
     html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
     assert 'id="xlink"' in html and 'id="toast"' in html
+
+
+def test_drawio_export(tmp_path):
+    import xml.etree.ElementTree as ET
+
+    out = tmp_path / "erd.drawio"
+    assert main(["export", str(SAMPLE), "-o", str(out)]) == 0
+    root = ET.parse(out).getroot()
+    assert root.tag == "mxfile"
+    cells = list(root.iter("mxCell"))
+    tables = [c for c in cells if "shape=table;" in (c.get("style") or "")]
+    edges = [c for c in cells if c.get("edge") == "1"]
+    assert sorted(t.get("value") for t in tables) == sorted(
+        ["Customer", "Order", "OrderLine", "Product Catalog", "Product", "Address", "Wishlist"]
+    )
+    ids = {c.get("id") for c in cells}
+    assert len(edges) == 7 and all(e.get("source") in ids and e.get("target") in ids for e in edges)
+    styles = " ".join(e.get("style") for e in edges)
+    for arrow in ("ERmany", "ERmandOne", "ERzeroToOne", "ERzeroToMany"):
+        assert arrow in styles
+    values = {c.get("value") for c in cells}
+    assert "PK,FK" in values  # OrderLine.OrderId
+    assert any(v and v == "CreatedAt  [=GETUTCDATE()] : datetime" for v in values)
+
+
+def test_drawio_export_with_selection(tmp_path, capsys):
+    out = tmp_path / "x.drawio"
+    assert main(["export", str(SYNTH), "-s", "Customer+1", "-o", str(out)]) == 0
+    assert "Wrote" in capsys.readouterr().out
+    assert out.read_text().count("shape=table;") >= 2

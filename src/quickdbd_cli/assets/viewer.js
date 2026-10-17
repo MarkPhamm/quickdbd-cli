@@ -510,6 +510,11 @@
   document.getElementById("xsvg").onclick = function () {
     download((data.title || "diagram") + ".svg", new Blob([exportSvg()], { type: "image/svg+xml" }));
   };
+  document.getElementById("xdrawio").onclick = function () {
+    var only = S.focus ? Object.keys(neighbours(S.focus)) : null;
+    var xml = Q.renderDrawio(S.vm, S.pos, { mode: S.mode, only: only, title: data.title || "ERD" });
+    download((data.title || "diagram") + ".drawio", new Blob([xml], { type: "application/xml" }));
+  };
   document.getElementById("xpng").onclick = function () {
     var text = exportSvg();
     var m = /width="([\d.]+)" height="([\d.]+)"/.exec(text);

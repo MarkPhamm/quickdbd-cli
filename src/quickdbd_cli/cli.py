@@ -90,11 +90,17 @@ def cmd_export(args) -> int:
         pos = export.focus_positions(model, pos, only)
     out = Path(args.output)
     fmt = out.suffix.lower().lstrip(".")
-    if fmt not in ("svg", "png"):
-        print("error: output must end in .svg or .png", file=sys.stderr)
+    if fmt not in ("svg", "png", "drawio"):
+        print("error: output must end in .svg, .png or .drawio", file=sys.stderr)
         return 2
-    svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"))
     out.parent.mkdir(parents=True, exist_ok=True)
+    if fmt == "drawio":
+        out.write_text(
+            export.render_drawio(model, pos, only=only, mode=args.mode, title=_title(project)), encoding="utf-8"
+        )
+        print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
+        return 0
+    svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"))
     if fmt == "svg":
         out.write_text(svg, encoding="utf-8")
     else:
@@ -190,9 +196,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
 
-    sp = sub.add_parser("export", help="write a PNG or SVG image")
+    sp = sub.add_parser("export", help="write a PNG, SVG or draw.io file")
     paths(sp)
-    sp.add_argument("-o", "--output", required=True, help="out.png or out.svg")
+    sp.add_argument("-o", "--output", required=True, help="out.png, out.svg or out.drawio")
     selectors(sp)
     sp.add_argument("--focus", metavar="TABLE", help="only this table and its neighbours")
     sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")

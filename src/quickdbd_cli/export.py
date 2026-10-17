@@ -55,6 +55,15 @@ def render_svg(
     return rt.call("qdbdRenderSvg", model, positions, opts)
 
 
+def render_drawio(
+    model: dict, positions: dict, only: list[str] | None = None, mode: str = "full", title: str = "ERD"
+) -> str:
+    """draw.io / diagrams.net file (mxGraph XML) with editable ER tables."""
+    rt = runtime()
+    rt.load("render.js")
+    return rt.call("qdbdRenderDrawio", model, positions, {"mode": mode, "only": only, "title": title})
+
+
 def focus_positions(model: dict, positions: dict, ids: list[str]) -> dict:
     """Fresh compact ELK layout for a focus subset, so the image isn't mostly empty space."""
     keep = set(ids)
