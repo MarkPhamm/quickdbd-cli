@@ -53,6 +53,15 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .minimap svg { width: 100%; height: 100%; display: block; }
 .minimap .vpr { fill: rgba(43,87,151,.12); stroke: var(--blue); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 
+/* doc-comment tooltip */
+.tip { position: absolute; display: none; max-width: 340px; background: #23272b; color: #eee; border-radius: 6px;
+  padding: 8px 10px; font-size: 12px; line-height: 1.45; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  z-index: 5; }
+.tip.open { display: block; }
+.tip .tt { font-weight: bold; margin-bottom: 3px; }
+.tip .tt span { font-weight: normal; color: #9aa4ad; margin-left: 8px; }
+.tip .td { white-space: pre-wrap; color: #d8dde2; }
+
 .hint { position: absolute; left: 16px; bottom: 14px; color: var(--muted); font-size: 12px; }
 
 /* serve: editor pane */

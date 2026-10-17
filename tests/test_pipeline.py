@@ -186,3 +186,34 @@ def test_missing_path(capsys):
 @pytest.mark.parametrize("bad_suffix", ["out.jpg"])
 def test_export_rejects_unknown_format(tmp_path, bad_suffix):
     assert main(["export", str(SAMPLE), "-o", str(tmp_path / bad_suffix)]) == 2
+
+
+DOCS = """# Customers who placed at least one order
+Customer # one row per person
+-
+CustomerId PK int
+# Contact address
+Email string # verified
+Name string
+"""
+
+
+def test_doc_comments_in_model():
+    m = model_json(compile_text(DOCS))
+    t = m["tables"][0]
+    assert t["doc"] == "Customers who placed at least one order\none row per person"
+    cols = {c["id"]: c for c in t["cols"]}
+    assert cols["Email"]["doc"] == "Contact address\nverified"
+    assert "doc" not in cols["Name"]
+
+
+def test_doc_marks_only_in_viewer_not_exports():
+    from quickdbd_cli.jsrt import runtime
+
+    m = model_json(compile_text(DOCS))
+    pos = {"Customer": [0, 0]}
+    rt = runtime()
+    rt.load("render.js")
+    viewer = rt.call("qdbd.renderInner", m, pos, "full", {"docMarks": True})
+    assert viewer.count('class="dm"') == 2  # table header + Email
+    assert 'class="dm"' not in export.render_svg(m, pos, embed_font=False)

@@ -30,6 +30,7 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
   - click a table to focus on it and its neighbours
   - collapse tables: full / keys only / names only
   - hover a column to highlight its relationship
+  - hover a dotted-underlined table or column to read its `#` doc comments
   - PNG/SVG export buttons
 - **Live editing:** `qdbd serve` reloads when you save, has a browser editor pane with autosave, and remembers where you drag tables.
 - **Many files, one diagram:** point it at a folder and foreign keys can cross files.

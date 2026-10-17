@@ -24,7 +24,7 @@
 
   /* ------------------------------------------------------------- render */
   function render() {
-    vp.innerHTML = Q.renderInner(S.model, S.pos, S.mode);
+    vp.innerHTML = Q.renderInner(S.model, S.pos, S.mode, { docMarks: true });
     applyFocus();
     drawMinimap();
   }
@@ -124,7 +124,50 @@
       if (t) t.classList.add("hl");
     });
   });
-  vp.addEventListener("mouseleave", clearHover);
+  vp.addEventListener("mouseleave", function () { clearHover(); hideTip(); });
+
+  /* ------------------------------------------------------------- doc-comment tooltips */
+  var tip = document.getElementById("tip");
+  function hideTip() { tip.classList.remove("open"); }
+  function showTip(ev, title, sub, doc) {
+    tip.innerHTML = "";
+    var h = document.createElement("div");
+    h.className = "tt";
+    h.textContent = title;
+    if (sub) {
+      var s = document.createElement("span");
+      s.textContent = sub;
+      h.appendChild(s);
+    }
+    var d = document.createElement("div");
+    d.className = "td";
+    d.textContent = doc;
+    tip.appendChild(h);
+    tip.appendChild(d);
+    tip.classList.add("open");
+    moveTip(ev);
+  }
+  function moveTip(ev) {
+    var r = svg.getBoundingClientRect(), x = ev.clientX - r.left + 14, y = ev.clientY - r.top + 14;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    if (x + w > r.width - 8) x = ev.clientX - r.left - w - 14;
+    if (y + h > r.height - 8) y = ev.clientY - r.top - h - 14;
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  vp.addEventListener("mousemove", function (ev) {
+    if (drag && drag.moved) { hideTip(); return; }
+    var tEl = ev.target.closest && ev.target.closest(".t");
+    if (!tEl) { hideTip(); return; }
+    var t = byId[tEl.getAttribute("data-id")], row = ev.target.closest(".r");
+    if (row) {
+      var cid = row.getAttribute("data-c"), c = t.cols.filter(function (x) { return x.id === cid; })[0];
+      if (c && c.doc) showTip(ev, t.name + "." + c.name, c.type, c.doc);
+      else hideTip();
+    } else if (t.doc && ev.target.closest(".th, text")) {
+      showTip(ev, t.name, t.aliases.length ? "as " + t.aliases.join(", ") : "", t.doc);
+    } else hideTip();
+  });
 
   /* ------------------------------------------------------------- pointer: pan, click, drag */
   var drag = null;

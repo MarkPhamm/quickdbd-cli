@@ -66,13 +66,22 @@
       '<path d="M' + n(x + 6.5) + " " + n(cy) + "h7m-2 0v3m-2.5-3v2" + '"/></g>';
   }
 
-  function renderTable(model, t, g, p) {
+  /* Dotted underline marking text that has a doc comment (interactive viewer only). */
+  function docMark(x, y, w, color) {
+    return '<line class="dm" x1="' + n(x) + '" y1="' + n(y) + '" x2="' + n(x + w) + '" y2="' + n(y) +
+      '" stroke="' + color + '" stroke-width="1" stroke-dasharray="1.5 2"/>';
+  }
+
+  function renderTable(model, t, g, p, docMarks) {
     var st = model.style, w = g.w, h = g.h, out = [];
     out.push('<g class="t" data-id="' + esc(t.id) + '" transform="translate(' + n(p[0]) + "," + n(p[1]) + ')">');
     out.push('<rect class="tb" width="' + w + '" height="' + h + '" rx="2" fill="' + C.body + '" stroke="' + C.border + '"/>');
     out.push('<path class="th" d="M0 2a2 2 0 0 1 2-2h' + (w - 4) + "a2 2 0 0 1 2 2v" + (st.headerH - 2) + "h-" + w + 'z" fill="' + C.header + '"/>');
     out.push('<text x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + C.headerText +
       '" font-family="' + FONT + '" font-size="' + st.headerSize + '">' + esc(t.name) + "</text>");
+    if (docMarks && t.doc) {
+      out.push(docMark(st.padX, st.headerH / 2 + st.headerSize * 0.36 + 3, t.nameW, "rgba(255,255,255,.7)"));
+    }
     g.cols.forEach(function (c, i) {
       var y = st.headerH + i * st.rowH, cy = y + st.rowH / 2, base = n(cy + st.rowSize * 0.36);
       var weight = c.pk || c.fk ? ' font-weight="bold"' : "";
@@ -81,6 +90,7 @@
       out.push('<rect class="rb" y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + C.body + '" fill-opacity="0"/>');
       out.push('<text x="' + st.padX + '" y="' + base + '" fill="' + color + '" font-family="' + FONT + '" font-size="' +
         st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
+      if (docMarks && c.doc) out.push(docMark(st.padX, cy + st.rowSize * 0.36 + 2.5, c.nameW, color));
       var bx = st.padX + c.nameW + 6;
       c.badges.forEach(function (b) {
         var bh = st.badgeSize + 5;
@@ -164,9 +174,10 @@
     return model.rels.map(function (r) { return renderEdge(model, geo, pos, r); }).join("");
   }
 
-  function renderInner(model, pos, mode) {
-    var geo = geometry(model, mode);
-    var tables = model.tables.map(function (t) { return pos[t.id] ? renderTable(model, t, geo[t.id], pos[t.id]) : ""; }).join("");
+  /* opts.docMarks: underline tables/columns that have doc comments (viewer only, not exports). */
+  function renderInner(model, pos, mode, opts) {
+    var geo = geometry(model, mode), marks = !!(opts && opts.docMarks);
+    var tables = model.tables.map(function (t) { return pos[t.id] ? renderTable(model, t, geo[t.id], pos[t.id], marks) : ""; }).join("");
     return '<g class="edges">' + renderEdges(model, pos, mode, geo) + '</g><g class="tables">' + tables + "</g>";
   }
 
