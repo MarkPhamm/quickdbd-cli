@@ -123,6 +123,17 @@ python scripts/gen_font_metrics.py  # regenerate font width table
 
 Design notes: `docs/superpowers/specs/2026-10-17-qdbd-design.md`.
 
+### Releasing
+
+Put PyPI credentials in `.env` (gitignored):
+
+```
+TWINE_USERNAME=__token__
+TWINE_PASSWORD=pypi-...
+```
+
+Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, commit, then run `scripts/release.sh`. It builds, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release.
+
 ## License
 
 Apache-2.0. Bundled third-party files are listed in [NOTICE](NOTICE).
