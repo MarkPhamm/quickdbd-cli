@@ -651,6 +651,7 @@
 
   index();
   if (S.serve) document.body.classList.add("serve");
+  if (stageSize()[0] < 900) explorer.classList.add("collapsed"); // small screens / embedded frames
   regionBtn.classList.toggle("on", S.regions);
   regionBtn.style.display = groupCount() > 1 ? "" : "none";
   computeView();

@@ -1,5 +1,5 @@
-# Dogfoods the qdbd GitHub Action (action.yml) on the example schema:
-# pull requests get a schema-diff comment; main publishes the demo diagram to GitHub Pages.
+# Dogfoods the qdbd GitHub Action (action.yml) on the example schema, and publishes the site:
+# pull requests get a schema-diff comment; main deploys the docs (/) and live demos (/demo/) to GitHub Pages.
 name: ERD
 on:
   pull_request:
@@ -14,11 +14,24 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: ./
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build docs
+        run: |
+          pip install -q ".[docs]"
+          mkdocs build --strict -d site
+      - name: Demo (200 tables) + PR diff comment
+        uses: ./
         with:
           path: examples/synthetic
-          output: site/index.html
+          output: site/demo/index.html
           qdbd-version: source
+      - name: Demo (dbt jaffle_shop)
+        run: |
+          work="$RUNNER_TEMP/jaffle" && mkdir -p "$work"
+          qdbd import dbt tests/fixtures/jaffle -o "$work/erd"
+          (cd "$work" && qdbd build erd -o "$GITHUB_WORKSPACE/site/demo/jaffle/index.html")
       - if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:

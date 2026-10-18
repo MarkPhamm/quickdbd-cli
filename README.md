@@ -19,7 +19,7 @@ pipx install quickdbd-cli        # or: uvx --from quickdbd-cli qdbd ...
 qdbd build schema.txt -o schema.html
 ```
 
-**Live demo (200 tables):** https://markphamm.github.io/quickdbd-cli/
+**Docs:** https://markphamm.github.io/quickdbd-cli/ · **Live demo (200 tables):** https://markphamm.github.io/quickdbd-cli/demo/
 
 Not affiliated with QuickDBD. It reads the same text syntax, so schemas move freely between the two.
 
