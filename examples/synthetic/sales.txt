@@ -444,8 +444,3 @@ SegmentId PK int IDENTITY
 Field0Segment date
 Field1Segment decimal(10,2) default=1
 Field2Segment money default=9
-
-LoyaltyProgram
--
-LoyaltyProgramId PK int
-CustomerId int FK >- Customer.CustomerId
