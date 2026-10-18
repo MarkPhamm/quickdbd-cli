@@ -268,3 +268,20 @@ def test_drawio_export_with_selection(tmp_path, capsys):
     assert main(["export", str(SYNTH), "-s", "Customer+1", "-o", str(out)]) == 0
     assert "Wrote" in capsys.readouterr().out
     assert out.read_text().count("shape=table;") >= 2
+
+
+def test_small_schema_layout_is_landscape():
+    p = Project.open([SAMPLE])
+    m = model_json(p.compile())
+    pos = layout.elk_layout(m["tables"], m["rels"])
+    w, h = layout._bbox(m["tables"], pos)
+    assert w >= h  # chain-shaped schemas used to come out tall and narrow
+
+
+def test_landscape_rotation_keeps_tables_upright():
+    tables = [{"id": "a", "w": 100, "h": 50}, {"id": "b", "w": 100, "h": 50}]
+    tall = {"a": (0, 0), "b": (0, 400)}
+    out = layout._landscape(tables, tall)
+    w, h = layout._bbox(tables, out)
+    assert w > h
+    assert layout._landscape(tables, out) == out  # already landscape: unchanged
