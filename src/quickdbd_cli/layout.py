@@ -63,6 +63,7 @@ def elk_layout(tables: list[dict], rels: list[dict]) -> Positions:
         "edges": edges,
     }
     first = rt.call_async("qdbdElkLayout", graph)
+    first = _landscape(tables, {k: (v[0], v[1]) for k, v in first.items()})
     graph = {
         "id": "root",
         "layoutOptions": OVERLAP_OPTIONS,
@@ -76,6 +77,25 @@ def elk_layout(tables: list[dict], rels: list[dict]) -> Positions:
     min_x = min(v[0] for v in raw.values())
     min_y = min(v[1] for v in raw.values())
     return {k: (int(v[0] - min_x), int(v[1] - min_y)) for k, v in raw.items()}
+
+
+def _bbox(tables: list[dict], pos: dict) -> tuple[float, float]:
+    xs = [pos[t["id"]][0] for t in tables] + [pos[t["id"]][0] + t["w"] for t in tables]
+    ys = [pos[t["id"]][1] for t in tables] + [pos[t["id"]][1] + t["h"] for t in tables]
+    return max(xs) - min(xs), max(ys) - min(ys)
+
+
+def _landscape(tables: list[dict], pos: dict) -> dict:
+    """Stress layout picks an arbitrary orientation; turn tall results 90 degrees so they fit screens."""
+    w, h = _bbox(tables, pos)
+    if h <= w * 1.15:
+        return pos
+    out = {}
+    for t in tables:
+        cx, cy = pos[t["id"]][0] + t["w"] / 2, pos[t["id"]][1] + t["h"] / 2
+        nx, ny = cy, -cx  # rotate centres; table boxes stay upright
+        out[t["id"]] = (nx - t["w"] / 2, ny - t["h"] / 2)
+    return out
 
 
 def _overlaps(x: float, y: float, w: float, h: float, rects: list[tuple[float, float, float, float]]) -> bool:
