@@ -72,12 +72,31 @@ Like dbt's `--select`, but it follows relationships instead of lineage. It works
 | `group:marts` | a file or dbt folder (and its subfolders) |
 | `file:core.txt` | a schema file (glob) |
 | `col:customer_id` | tables with a matching column |
+| `diff:modified` / `diff:added` / `diff:changed` | changed since `--diff-base` (like dbt `state:modified`) |
 | `a b` / `a,b` / `!a` | union / intersection / exclude |
 
 ```bash
 qdbd build erd/ -s 'group:marts' --exclude '*_tmp' -o marts.html
 qdbd export erd/ -s '+orders+1' -o orders.png
 ```
+
+## Schema diffs
+
+```bash
+qdbd diff old.txt new.txt                         # two versions
+qdbd diff --base origin/main erd/                 # git ref vs working tree
+qdbd diff --base origin/main erd/ --format markdown -o diff.md   # for a PR comment
+qdbd build erd/ --diff-base origin/main -o erd.html              # colour what changed
+```
+
+`diff` reports tables added and removed, column changes (added, removed, type and flag changes) and relationships added and removed. `--format json` is available, and `--exit-code` exits 1 when anything changed.
+
+With `--diff-base`, the page:
+- marks new tables green and changed tables amber, with a bar on each changed column;
+- shows a summary banner, and its **Show changes** link filters to the changes plus their neighbours;
+- lists each table's changes in the detail panel.
+
+The selector `diff:modified` (or `diff:added` / `diff:changed`) works like dbt's `state:modified`, e.g. `-s 'diff:modified+1'`.
 
 ## Commands
 

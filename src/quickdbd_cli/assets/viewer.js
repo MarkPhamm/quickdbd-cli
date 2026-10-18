@@ -424,12 +424,26 @@
       if (child.t === id) refs.push(refItem(t, child, parent));
       if (parent.t === id) back.push(backItem(t, parent, child));
     });
-    out.push("<h2>" + Q.esc(t.name) + "</h2>");
+    out.push("<h2>" + Q.esc(t.name) + (t.diff ? '<span class="state ' + t.diff.state + '">' +
+      (t.diff.state === "added" ? "NEW" : "CHANGED") + "</span>" : "") + "</h2>");
     var meta = [];
     if (t.aliases.length) meta.push("as " + Q.esc(t.aliases.join(", ")));
     if (t.file) meta.push(Q.esc(t.file) + ":" + t.line);
     if (meta.length) out.push('<div class="meta">' + meta.join(" &middot; ") + "</div>");
     if (t.doc) out.push('<div class="doc">' + Q.esc(t.doc) + "</div>");
+    if (t.diff && t.diff.state === "changed") {
+      var base = (S.model.diff && S.model.diff.base) || "base", ch = [];
+      t.cols.forEach(function (c) {
+        var cs = t.diff.cols[c.id];
+        if (cs === "added") ch.push('<div class="chg"><span class="add">+ ' + Q.esc(c.name) + "</span></div>");
+        else if (cs === "changed") {
+          ch.push('<div class="chg"><span class="mod">~ ' + Q.esc(c.name) + "</span>: " +
+            Q.esc((t.diff.changes[c.name] || []).join("; ")) + "</div>");
+        }
+      });
+      (t.diff.removedCols || []).forEach(function (n) { ch.push('<div class="chg"><span class="del">- ' + Q.esc(n) + "</span></div>"); });
+      out.push("<h3>Changes since " + Q.esc(base) + "</h3>" + ch.join(""));
+    }
     out.push("<h3>Columns (" + t.cols.length + ")</h3><table>");
     t.cols.forEach(function (c) {
       var tags = [];
@@ -553,6 +567,23 @@
   computeView();
   render();
   drawTree();
+  /* ------------------------------------------------------------- diff banner (build --diff-base) */
+  function drawDiffBar() {
+    var bar = document.getElementById("diffbar"), d = S.model.diff;
+    if (!d) { bar.classList.remove("open"); return; }
+    var removed = d.removed || [];
+    bar.innerHTML = "Changes since <code>" + Q.esc(d.base) + "</code>: " +
+      '<b class="add">' + d.added + " new</b> &middot; " + '<b class="chg">' + d.changed + " changed</b> &middot; " +
+      '<b class="del" title="' + Q.esc(removed.join(", ") || "none") + '">' + removed.length + " removed</b>" +
+      " &middot; relationships +" + d.relsAdded.length + " / -" + d.relsRemoved.length +
+      (d.added + d.changed ? '<a id="diffonly">Show changes</a>' : "");
+    bar.classList.add("open");
+  }
+  document.getElementById("diffbar").addEventListener("click", function (ev) {
+    if (ev.target.id === "diffonly") applyFilter("diff:modified+1 +diff:modified");
+  });
+  drawDiffBar();
+
   /* ------------------------------------------------------------- shareable links
    * The URL hash holds the view: #f=<filter>&t=<table>&m=<mode>&z=<zoom>&c=<x>,<y> (centre, diagram coords).
    * It is kept up to date with history.replaceState, so copying the address bar shares exactly this view. */

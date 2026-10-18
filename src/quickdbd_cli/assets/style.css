@@ -110,6 +110,24 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   padding: 8px 14px; border-radius: 6px; font-size: 12px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 6; }
 .toast.open { opacity: 1; }
 
+/* diff banner (build --diff-base) */
+.diffbar { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 12px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.06); display: none; z-index: 2;
+  white-space: nowrap; }
+.diffbar.open { display: block; }
+.diffbar b.add { color: #2e7d32; }
+.diffbar b.chg { color: #d48806; }
+.diffbar b.del { color: #c0392b; cursor: help; }
+.diffbar a { color: var(--blue); cursor: pointer; margin-left: 10px; }
+.details .chg { margin: 4px 0; }
+.details .chg .add { color: #2e7d32; }
+.details .chg .del { color: #c0392b; }
+.details .chg .mod { color: #b07000; }
+.details .state { display: inline-block; font-size: 10px; font-weight: bold; color: #fff; border-radius: 3px; padding: 1px 6px;
+  margin-left: 6px; vertical-align: middle; }
+.details .state.added { background: #2e7d32; }
+.details .state.changed { background: #d48806; }
+
 /* doc-comment tooltip */
 .tip { position: absolute; display: none; max-width: 340px; background: #23272b; color: #eee; border-radius: 6px;
   padding: 8px 10px; font-size: 12px; line-height: 1.45; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.25);

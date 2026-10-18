@@ -54,10 +54,31 @@ def cmd_build(args) -> int:
     if not _print_diagnostics(schema, args.strict):
         return 1
     try:
-        model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
+        if args.diff_base:
+            # Diff first so `diff:` selectors work; then select.
+            from . import diff
+
+            model, pos = project.build(schema)
+            old = diff.schema_at_ref(args.diff_base, project.inputs)
+            diff.annotate_model(model, diff.diff_schemas(old, schema), args.diff_base)
+            expr = selector_expr(args.select, args.exclude)
+            if expr:
+                from .project import select_model
+
+                model = select_model(model, expr)
+                pos = {k: v for k, v in pos.items() if any(t["id"] == k for t in model["tables"])}
+        else:
+            model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
     except SelectionError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
+    except Exception as e:
+        from .diff import DiffError
+
+        if isinstance(e, DiffError):
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        raise
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render_page(model, pos, _title(project)), encoding="utf-8")
@@ -157,6 +178,42 @@ def cmd_import_dbt(args) -> int:
     return 0
 
 
+def cmd_diff(args) -> int:
+    from . import diff
+
+    paths = [Path(p) for p in args.paths]
+    try:
+        if args.base:
+            new = Project.open(paths).compile()
+            old = diff.schema_at_ref(args.base, paths)
+            old_label, new_label = args.base, "working tree"
+        else:
+            if len(paths) != 2:
+                print("error: give two paths (OLD NEW), or --base REF with the schema path(s)", file=sys.stderr)
+                return 2
+            old = Project.open([paths[0]]).compile()
+            new = Project.open([paths[1]]).compile()
+            old_label, new_label = str(paths[0]), str(paths[1])
+    except diff.DiffError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    for label, schema in ((old_label, old), (new_label, new)):
+        if schema.errors:
+            print(f"warning: {label} has {len(schema.errors)} error(s); comparing what parsed", file=sys.stderr)
+    d = diff.diff_schemas(old, new)
+    if args.format == "markdown":
+        text = diff.format_markdown(d, old_label, new_label)
+    elif args.format == "json":
+        text = diff.format_json(d)
+    else:
+        text = diff.format_text(d, old_label, new_label)
+    if args.output:
+        Path(args.output).write_text(text if text.endswith("\n") else text + "\n", encoding="utf-8")
+    else:
+        print(text)
+    return 1 if (args.exit_code and not d.empty) else 0
+
+
 def cmd_serve(args) -> int:
     from .serve import serve
 
@@ -192,6 +249,9 @@ def build_parser() -> argparse.ArgumentParser:
     paths(sp)
     sp.add_argument("-o", "--output", default="diagram.html")
     selectors(sp)
+    sp.add_argument(
+        "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
+    )
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
@@ -213,6 +273,14 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--reset", action="store_true", help="discard saved positions and auto-layout everything")
     sp.add_argument("--layout")
     sp.set_defaults(func=cmd_layout)
+
+    sp = sub.add_parser("diff", help="compare schema versions (two paths, or --base GIT_REF vs working tree)")
+    sp.add_argument("paths", nargs="+", metavar="PATH", help="OLD NEW, or the schema path(s) with --base")
+    sp.add_argument("--base", metavar="GIT_REF", help="compare PATH(s) at this git ref with the working tree")
+    sp.add_argument("--format", choices=["text", "markdown", "json"], default="text")
+    sp.add_argument("-o", "--output", help="write to a file instead of stdout")
+    sp.add_argument("--exit-code", action="store_true", help="exit 1 when there are changes (like git diff)")
+    sp.set_defaults(func=cmd_diff)
 
     sp = sub.add_parser("import", help="generate QuickDBD schema files from another source")
     isub = sp.add_subparsers(dest="source", required=True)
