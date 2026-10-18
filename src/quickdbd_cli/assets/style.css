@@ -22,8 +22,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .r.hl .rb { fill: #dbe6f6; fill-opacity: 1; }
 .r:hover .rb { fill: #eef3fa; fill-opacity: 1; }
 .t.flash .tb { stroke: #f0a020; stroke-width: 3; }
-.t { cursor: pointer; }
-.serve .t { cursor: move; }
+.t { cursor: grab; }
+#canvas.panning .t { cursor: grabbing; }
 
 /* toolbar (top right, like QuickDBD's zoom controls) */
 .bar { position: absolute; top: 14px; right: 16px; display: flex; gap: 6px; align-items: center; }

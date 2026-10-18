@@ -94,9 +94,9 @@ FILTER_HELP = (
 def render_page(model: dict, positions: dict, title: str, serve: bool = False) -> str:
     data = {"model": model, "positions": positions, "serve": serve, "title": title}
     hint = (
-        "Drag tables to move them (saved). Click a table to focus. Esc clears."
+        "Drag tables to arrange them (saved). Click a table for details. Esc clears."
         if serve
-        else "Click a table to focus its relationships. Esc clears. Scroll to zoom, drag to pan."
+        else "Drag tables to rearrange (not saved). Click a table for details. Scroll to zoom, drag empty space to pan."
     )
     body = BODY.format(side=SIDE if serve else "", count=len(model["tables"]), hint=hint, filter_help=FILTER_HELP)
     head_extra = ""

@@ -57,9 +57,11 @@
     var b = Q.bounds(only ? Q.subset(S.vm, only) : S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
     if (S.regions && !only) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
     if (only) sz = [sz[0] - (details.classList.contains("open") ? 400 : 0), sz[1]]; // keep clear of the details panel
-    var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), (sz[1] - 2 * pad) / (b[3] - b[1]), 1.5);
+    // Keep clear of the floating search box / toolbar at the top and, on narrow screens, the toolbar at the bottom.
+    var top = 70, bottom = sz[0] < 900 ? 70 : pad, availH = sz[1] - top - bottom;
+    var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), availH / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.05);
-    S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: (sz[1] - (b[3] - b[1]) * k) / 2 - b[1] * k };
+    S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k };
     applyView();
   }
 
@@ -206,12 +208,13 @@
     if (ev.button !== 0) return;
     var tEl = ev.target.closest && ev.target.closest(".t");
     drag = { sx: ev.clientX, sy: ev.clientY, moved: false, table: tEl ? tEl.getAttribute("data-id") : null, el: tEl };
-    if (drag.table && S.serve) {
+    if (drag.table) { // tables are draggable everywhere; only `qdbd serve` saves the new position
       drag.start = S.pos[drag.table].slice();
+      tEl.parentNode.appendChild(tEl); // bring the grabbed table to the front
     } else {
       drag.view = { x: S.view.x, y: S.view.y };
-      svg.classList.add("panning");
     }
+    svg.classList.add("panning");
     svg.setPointerCapture(ev.pointerId);
   });
   var raf = null;
@@ -241,6 +244,7 @@
       return;
     }
     if (d.start) {
+      if (S.regions) render(); // regions are sized from table positions
       drawMinimap();
       var name = byId[d.table].name, body = {};
       body[name] = S.pos[d.table];
