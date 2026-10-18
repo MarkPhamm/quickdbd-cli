@@ -35,6 +35,7 @@ Not affiliated with QuickDBD. It reads the same text syntax, so schemas move fre
   - hover a column to highlight its relationship
   - hover a dotted-underlined table or column to read its `#` doc comments
   - PNG/SVG export buttons, and **draw.io**: an editable diagrams.net file using draw.io's ER table shapes and crow's-foot arrows
+  - **Regions:** a shaded, labelled area per file or dbt folder (toolbar toggle). `--by-group` on `build` / `export` / `layout` arranges tables so each folder sits together
   - shareable links: the URL keeps the filter, selected table, collapse mode and zoom; **Link** copies it
 - **Live editing:** `qdbd serve` reloads when you save, has a browser editor pane with autosave, and remembers where you drag tables.
 - **Many files, one diagram:** point it at a folder and foreign keys can cross files.

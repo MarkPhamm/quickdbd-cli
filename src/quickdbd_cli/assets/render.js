@@ -178,6 +178,41 @@
     };
   }
 
+  /* ------------------------------------------------------------------ regions: one shaded area per group */
+  var REGION_COLORS = ["#4c78a8", "#59a14f", "#e15759", "#b07aa1", "#f28e2b", "#76b7b2", "#9c755f", "#edc948"];
+  var REGION_PAD = 28, REGION_LABEL = 30;
+  function regions(model, pos, mode) {
+    var geo = geometry(model, mode), groups = {}, names = [];
+    model.tables.forEach(function (t) {
+      var g = t.group || "", p = pos[t.id];
+      if (!g || !p) return;
+      if (!groups[g]) { groups[g] = [Infinity, Infinity, -Infinity, -Infinity]; names.push(g); }
+      var b = groups[g], tg = geo[t.id];
+      b[0] = Math.min(b[0], p[0]); b[1] = Math.min(b[1], p[1]);
+      b[2] = Math.max(b[2], p[0] + tg.w); b[3] = Math.max(b[3], p[1] + tg.h);
+    });
+    var all = {};
+    model.tables.forEach(function (t) { if (t.group) all[t.group] = true; });
+    var order = Object.keys(all).sort();
+    return names.sort().map(function (g) {
+      var b = groups[g];
+      return {
+        name: g,
+        color: REGION_COLORS[order.indexOf(g) % REGION_COLORS.length],
+        x: b[0] - REGION_PAD, y: b[1] - REGION_PAD - REGION_LABEL,
+        w: b[2] - b[0] + 2 * REGION_PAD, h: b[3] - b[1] + 2 * REGION_PAD + REGION_LABEL,
+      };
+    });
+  }
+  function renderRegions(model, pos, mode) {
+    return regions(model, pos, mode).map(function (r) {
+      return '<g class="rg" data-g="' + esc(r.name) + '"><rect x="' + n(r.x) + '" y="' + n(r.y) + '" width="' + n(r.w) + '" height="' + n(r.h) +
+        '" rx="14" fill="' + r.color + '" fill-opacity="0.07" stroke="' + r.color + '" stroke-opacity="0.45" stroke-width="1.5"/>' +
+        '<text x="' + n(r.x + 16) + '" y="' + n(r.y + 22) + '" fill="' + r.color + '" font-family="' + FONT +
+        '" font-size="16" font-weight="bold">' + esc(r.name) + "</text></g>";
+    }).join("");
+  }
+
   function renderEdges(model, pos, mode, geo) {
     geo = geo || geometry(model, mode);
     return model.rels.map(function (r) { return renderEdge(model, geo, pos, r); }).join("");
@@ -186,8 +221,9 @@
   /* opts.docMarks: underline tables/columns that have doc comments (viewer only, not exports). */
   function renderInner(model, pos, mode, opts) {
     var geo = geometry(model, mode), marks = !!(opts && opts.docMarks);
+    var rg = opts && opts.regions ? '<g class="regions">' + renderRegions(model, pos, mode) + "</g>" : "";
     var tables = model.tables.map(function (t) { return pos[t.id] ? renderTable(model, t, geo[t.id], pos[t.id], marks) : ""; }).join("");
-    return '<g class="edges">' + renderEdges(model, pos, mode, geo) + '</g><g class="tables">' + tables + "</g>";
+    return rg + '<g class="edges">' + renderEdges(model, pos, mode, geo) + '</g><g class="tables">' + tables + "</g>";
   }
 
   function bounds(model, pos, mode) {
@@ -208,11 +244,16 @@
     var mode = opts.mode || "full", m = subset(model, opts.only), pad = opts.pad == null ? 40 : opts.pad;
     var edgePad = 60;
     var b = bounds(m, pos, mode);
+    if (opts.regions) {
+      regions(m, pos, mode).forEach(function (r) {
+        b = [Math.min(b[0], r.x), Math.min(b[1], r.y), Math.max(b[2], r.x + r.w), Math.max(b[3], r.y + r.h)];
+      });
+    }
     var x0 = b[0] - pad - edgePad, y0 = b[1] - pad, w = b[2] - b[0] + 2 * (pad + edgePad), h = b[3] - b[1] + 2 * pad;
     var style = opts.fontCss ? "<style>" + opts.fontCss + "</style>" : "";
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + n(w) + '" height="' + n(h) + '" viewBox="' + n(x0) + " " + n(y0) + " " + n(w) + " " + n(h) + '">' +
       style + '<rect x="' + n(x0) + '" y="' + n(y0) + '" width="' + n(w) + '" height="' + n(h) + '" fill="' + C.bg + '"/>' +
-      renderInner(m, pos, mode) + "</svg>";
+      renderInner(m, pos, mode, { regions: opts.regions }) + "</svg>";
   }
 
   /* Tables within `depth` relationship hops of `focus`. */
@@ -252,6 +293,15 @@
     }
     function n2(v) { return Math.round(v); }
     var b = bounds(m, pos, mode);
+    if (opts.regions) {
+      regions(m, pos, mode).forEach(function (r) {
+        cells.push(cell({
+          id: id(), value: r.name, vertex: "1", parent: "1",
+          style: "rounded=1;arcSize=4;whiteSpace=wrap;html=0;fillColor=" + r.color + ";opacity=12;strokeColor=" + r.color +
+            ";verticalAlign=top;align=left;spacingLeft=12;spacingTop=4;fontStyle=1;fontSize=16;fontColor=" + r.color + ";",
+        }, g(r.x - b[0] + 40, r.y - b[1] + 40, r.w + KEYW, r.h)));
+      });
+    }
     m.tables.forEach(function (t) {
       var p = pos[t.id];
       if (!p) return;
@@ -379,6 +429,7 @@
 
   root.qdbd = {
     renderDrawio: renderDrawio,
+    regions: regions,
     select: select,
     subset: subset,
     colors: C,

@@ -58,7 +58,9 @@ class Project:
     def compile(self) -> Schema:
         return compile_sources(self.sources())
 
-    def build(self, schema: Schema, reset: bool = False, select: str | None = None) -> tuple[dict, dict]:
+    def build(
+        self, schema: Schema, reset: bool = False, select: str | None = None, by_group: bool = False
+    ) -> tuple[dict, dict]:
         """Returns (model, positions) with positions keyed by table id as [x, y].
 
         ``select`` is a dbt-style selector expression (see ``select_model``); unselected tables are dropped.
@@ -66,6 +68,10 @@ class Project:
         model = model_json(schema)
         if select:
             model = select_model(model, select)
+        if by_group:  # fresh grouped layout; saved positions are ignored
+            model["regions"] = True
+            pos = layout.group_layout(model["tables"], model["rels"])
+            return model, {k: [v[0], v[1]] for k, v in pos.items()}
         side = {} if reset else layout.read_sidecar(self.sidecar)
         pos = layout.resolve_positions(model, side, schema.layout, reset=reset)
         return model, {k: [v[0], v[1]] for k, v in pos.items()}

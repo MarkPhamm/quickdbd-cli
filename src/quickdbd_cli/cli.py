@@ -11,6 +11,7 @@ from .model import Schema
 from .project import Project, SelectionError, selector_expr
 
 OK = "No errors found. Good job!"
+BY_GROUP_HELP = "fresh layout that keeps each file / dbt folder together, with regions (ignores saved positions)"
 
 
 def _print_diagnostics(schema: Schema, strict: bool) -> bool:
@@ -58,7 +59,7 @@ def cmd_build(args) -> int:
             # Diff first so `diff:` selectors work; then select.
             from . import diff
 
-            model, pos = project.build(schema)
+            model, pos = project.build(schema, by_group=args.by_group)
             old = diff.schema_at_ref(args.diff_base, project.inputs)
             diff.annotate_model(model, diff.diff_schemas(old, schema), args.diff_base)
             expr = selector_expr(args.select, args.exclude)
@@ -68,7 +69,7 @@ def cmd_build(args) -> int:
                 model = select_model(model, expr)
                 pos = {k: v for k, v in pos.items() if any(t["id"] == k for t in model["tables"])}
         else:
-            model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
+            model, pos = project.build(schema, select=selector_expr(args.select, args.exclude), by_group=args.by_group)
     except SelectionError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
@@ -94,12 +95,13 @@ def cmd_export(args) -> int:
     if not _print_diagnostics(schema, args.strict):
         return 1
     try:
-        model, pos = project.build(schema, select=selector_expr(args.select, args.exclude))
+        model, pos = project.build(schema, select=selector_expr(args.select, args.exclude), by_group=args.by_group)
     except SelectionError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
+    regions = args.regions or args.by_group
     only = None
-    if not args.focus and (args.select or args.exclude):
+    if not args.focus and (args.select or args.exclude) and not args.by_group:
         only = [t["id"] for t in model["tables"]]
         pos = export.focus_positions(model, pos, only)  # compact layout for the selection
     if args.focus:
@@ -117,11 +119,12 @@ def cmd_export(args) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     if fmt == "drawio":
         out.write_text(
-            export.render_drawio(model, pos, only=only, mode=args.mode, title=_title(project)), encoding="utf-8"
+            export.render_drawio(model, pos, only=only, mode=args.mode, title=_title(project), regions=regions),
+            encoding="utf-8",
         )
         print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
         return 0
-    svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"))
+    svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"), regions=regions)
     if fmt == "svg":
         out.write_text(svg, encoding="utf-8")
     else:
@@ -135,7 +138,7 @@ def cmd_layout(args) -> int:
     schema = project.compile()
     if not _print_diagnostics(schema, False):
         return 1
-    model, pos = project.build(schema, reset=args.reset)
+    model, pos = project.build(schema, reset=args.reset, by_group=args.by_group)
     project.save_positions(model, pos)
     print(f"Wrote {project.sidecar} ({len(pos)} tables)")
     return 0
@@ -252,6 +255,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
     )
+    sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
@@ -264,6 +268,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")
     sp.add_argument("--mode", choices=["full", "keys", "header"], default="full", help="collapse mode")
     sp.add_argument("--scale", type=float, default=2.0, help="PNG pixel scale (default 2)")
+    sp.add_argument("--regions", action="store_true", help="draw a shaded area per file / dbt folder")
+    sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout")
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_export)
@@ -271,6 +277,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("layout", help="write table positions to the layout sidecar")
     paths(sp)
     sp.add_argument("--reset", action="store_true", help="discard saved positions and auto-layout everything")
+    sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout")
     sp.set_defaults(func=cmd_layout)
 

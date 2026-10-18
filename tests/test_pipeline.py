@@ -285,3 +285,44 @@ def test_landscape_rotation_keeps_tables_upright():
     w, h = layout._bbox(tables, out)
     assert w > h
     assert layout._landscape(tables, out) == out  # already landscape: unchanged
+
+
+def test_group_layout_keeps_folders_apart():
+    p = Project.open([SYNTH])
+    m = model_json(p.compile())
+    pos = layout.group_layout(m["tables"], m["rels"])
+    assert len(pos) == 200
+    boxes = {}
+    for t in m["tables"]:
+        x, y = pos[t["id"]]
+        b = boxes.setdefault(t["group"], [x, y, x + t["w"], y + t["h"]])
+        b[:] = [min(b[0], x), min(b[1], y), max(b[2], x + t["w"]), max(b[3], y + t["h"])]
+    rects = [(b[0], b[1], b[2] - b[0], b[3] - b[1]) for b in boxes.values()]
+    assert len(rects) == 5
+    assert not any(_overlap(r1, r2) for i, r1 in enumerate(rects) for r2 in rects[i + 1 :])
+
+
+def test_by_group_cli(tmp_path, capsys):
+    work = tmp_path / "s"
+    shutil.copytree(SYNTH, work)
+    html = tmp_path / "g.html"
+    assert main(["build", str(work), "--by-group", "-o", str(html)]) == 0
+    assert '"regions":true' in html.read_text()
+    svg = tmp_path / "g.svg"
+    assert main(["export", str(work), "--by-group", "-o", str(svg)]) == 0
+    assert svg.read_text().count('class="rg"') == 5
+    drawio = tmp_path / "g.drawio"
+    assert main(["export", str(work), "--regions", "-o", str(drawio)]) == 0
+    assert drawio.read_text().count("verticalAlign=top;align=left;spacingLeft=12") == 5
+    before = (work / "qdbd.layout.json").read_text()
+    assert main(["layout", str(work), "--by-group"]) == 0
+    assert (work / "qdbd.layout.json").read_text() != before
+
+
+def test_regions_skip_ungrouped_tables():
+    from quickdbd_cli.jsrt import runtime
+
+    m = model_json(compile_text(SMALL, "one.txt"))
+    rt = runtime()
+    rt.load("render.js")
+    assert rt.call("qdbd.regions", m, {"Customer": [0, 0], "Order": [300, 0]}, "full") == []

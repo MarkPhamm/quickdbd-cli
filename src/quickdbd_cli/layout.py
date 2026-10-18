@@ -98,6 +98,40 @@ def _landscape(tables: list[dict], pos: dict) -> dict:
     return out
 
 
+GROUP_GAP = 140  # room for region padding + label between groups
+
+
+def group_layout(tables: list[dict], rels: list[dict]) -> Positions:
+    """Lay out each group (file / dbt folder) on its own, then pack the groups as blocks.
+
+    Keeps a folder's tables together so regions don't overlap. Cross-group relationships are drawn
+    but don't influence placement.
+    """
+    groups: dict[str, list[dict]] = {}
+    for t in tables:
+        groups.setdefault(t.get("group") or "", []).append(t)
+    if len(groups) <= 1:
+        return elk_layout(tables, rels)
+    blocks = []
+    for name in sorted(groups):
+        members = groups[name]
+        pos = elk_layout(members, rels)
+        w, h = _bbox(members, pos)
+        blocks.append((name, pos, w, h))
+    total = sum((w + GROUP_GAP) * (h + GROUP_GAP) for _, _, w, h in blocks)
+    row_w = max(max(w for _, _, w, _ in blocks), (total * 1.6) ** 0.5)
+    out: Positions = {}
+    x = y = row_h = 0.0
+    for _name, pos, w, h in sorted(blocks, key=lambda b: (-b[3], b[0])):
+        if x > 0 and x + w > row_w:
+            x, y, row_h = 0.0, y + row_h + GROUP_GAP, 0.0
+        for k, (px, py) in pos.items():
+            out[k] = (int(px + x), int(py + y))
+        x += w + GROUP_GAP
+        row_h = max(row_h, h)
+    return out
+
+
 def _overlaps(x: float, y: float, w: float, h: float, rects: list[tuple[float, float, float, float]]) -> bool:
     for rx, ry, rw, rh in rects:
         if x < rx + rw + MARGIN and rx < x + w + MARGIN and y < ry + rh + MARGIN and ry < y + h + MARGIN:

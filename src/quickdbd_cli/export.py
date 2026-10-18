@@ -45,23 +45,35 @@ def focus_ids(model: dict, table_id: str, depth: int) -> list[str]:
 
 
 def render_svg(
-    model: dict, positions: dict, only: list[str] | None = None, mode: str = "full", embed_font: bool = True
+    model: dict,
+    positions: dict,
+    only: list[str] | None = None,
+    mode: str = "full",
+    embed_font: bool = True,
+    regions: bool = False,
 ) -> str:
     rt = runtime()
     rt.load("render.js")
-    opts = {"mode": mode, "only": only}
+    opts = {"mode": mode, "only": only, "regions": regions}
     if embed_font:
         opts["fontCss"] = font_css()
     return rt.call("qdbdRenderSvg", model, positions, opts)
 
 
 def render_drawio(
-    model: dict, positions: dict, only: list[str] | None = None, mode: str = "full", title: str = "ERD"
+    model: dict,
+    positions: dict,
+    only: list[str] | None = None,
+    mode: str = "full",
+    title: str = "ERD",
+    regions: bool = False,
 ) -> str:
     """draw.io / diagrams.net file (mxGraph XML) with editable ER tables."""
     rt = runtime()
     rt.load("render.js")
-    return rt.call("qdbdRenderDrawio", model, positions, {"mode": mode, "only": only, "title": title})
+    return rt.call(
+        "qdbdRenderDrawio", model, positions, {"mode": mode, "only": only, "title": title, "regions": regions}
+    )
 
 
 def focus_positions(model: dict, positions: dict, ids: list[str]) -> dict:
