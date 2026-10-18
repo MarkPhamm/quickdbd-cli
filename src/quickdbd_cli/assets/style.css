@@ -111,6 +111,20 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   padding: 8px 14px; border-radius: 6px; font-size: 12px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 6; }
 .toast.open { opacity: 1; }
 
+/* path finder (in the details panel) */
+.details .pathbox { display: flex; gap: 6px; margin: 10px 0 4px; }
+.details .pathbox input { flex: 1; min-width: 0; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; font: inherit; outline: none; }
+.details .pathbox input:focus { border-color: var(--blue); }
+.details .pathres ol { margin: 6px 0 8px 18px; padding: 0; }
+.details .pathres li { border: 0; padding: 2px 0; }
+.details .pathres pre { background: #f6f8fa; border: 1px solid #eceff2; border-radius: 6px; padding: 8px; font-size: 11px;
+  overflow-x: auto; margin: 6px 0; }
+.details .pathres .acts a { margin-right: 12px; font-size: 12px; }
+.details .pathres .none { margin-top: 6px; }
+.e.ph .ep { stroke: #f0a020; stroke-width: 3; }
+.e.ph path, .e.ph circle { stroke: #f0a020; }
+.t.ph .tb { stroke: #f0a020; stroke-width: 2.5; }
+
 /* diff banner (build --diff-base) */
 .diffbar { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid var(--line);
   border-radius: 8px; padding: 6px 12px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.06); display: none; z-index: 2;
