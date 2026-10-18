@@ -18,6 +18,8 @@
     badgeBg: "#eef1f5",
     badgeText: "#7a8899",
     edge: "#b8bcc2",
+    added: "#2e7d32",
+    changed: "#d48806",
   };
   var FONT = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
@@ -76,7 +78,12 @@
     var st = model.style, w = g.w, h = g.h, out = [];
     out.push('<g class="t" data-id="' + esc(t.id) + '" transform="translate(' + n(p[0]) + "," + n(p[1]) + ')">');
     out.push('<rect class="tb" width="' + w + '" height="' + h + '" rx="2" fill="' + C.body + '" stroke="' + C.border + '"/>');
-    out.push('<path class="th" d="M0 2a2 2 0 0 1 2-2h' + (w - 4) + "a2 2 0 0 1 2 2v" + (st.headerH - 2) + "h-" + w + 'z" fill="' + C.header + '"/>');
+    var state = t.diff && t.diff.state, hcol = state === "added" ? C.added : state === "changed" ? C.changed : C.header;
+    out.push('<path class="th" d="M0 2a2 2 0 0 1 2-2h' + (w - 4) + "a2 2 0 0 1 2 2v" + (st.headerH - 2) + "h-" + w + 'z" fill="' + hcol + '"/>');
+    if (state) {
+      out.push('<text x="' + (w - st.padX) + '" y="' + n(st.headerH / 2 + 4) + '" text-anchor="end" fill="#fff" font-family="' + FONT +
+        '" font-size="10" font-weight="bold">' + (state === "added" ? "NEW" : "CHANGED") + "</text>");
+    }
     out.push('<text x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + C.headerText +
       '" font-family="' + FONT + '" font-size="' + st.headerSize + '">' + esc(t.name) + "</text>");
     if (docMarks && t.doc) {
@@ -88,6 +95,8 @@
       var color = c.pk ? C.pk : c.fk ? C.fk : C.text;
       out.push('<g class="r" data-c="' + esc(c.id) + '">');
       out.push('<rect class="rb" y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + C.body + '" fill-opacity="0"/>');
+      var cstate = t.diff && t.diff.cols && t.diff.cols[c.id];
+      if (cstate) out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + C[cstate] + '"/>');
       out.push('<text x="' + st.padX + '" y="' + base + '" fill="' + color + '" font-family="' + FONT + '" font-size="' +
         st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
       if (docMarks && c.doc) out.push(docMark(st.padX, cy + st.rowSize * 0.36 + 2.5, c.nameW, color));
@@ -332,7 +341,11 @@
       else if (method === "group") ok = re.test(t.group || "") || (t.group || "").toLowerCase().indexOf(pat.toLowerCase() + "/") === 0;
       else if (method === "file") ok = re.test(t.file || "") || re.test((t.file || "").split("/").pop());
       else if (method === "col" || method === "column") ok = t.cols.some(function (c) { return re.test(c.name); });
-      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col)");
+      else if (method === "diff" || method === "state") {
+        var ds = t.diff && t.diff.state, want = pat.toLowerCase();
+        ok = !!ds && (want === "modified" || want === "*" || want === ds || (want === "new" && ds === "added"));
+      }
+      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col, diff)");
       if (ok) { out[t.id] = true; base.push(t.id); }
     });
     function hops(op, before) {

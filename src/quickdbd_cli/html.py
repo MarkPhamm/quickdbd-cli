@@ -67,6 +67,7 @@ BODY = """
     </div>
     <div class="tip" id="tip" role="tooltip"></div>
     <div class="toast" id="toast" role="status"></div>
+    <div class="diffbar" id="diffbar"></div>
     <div class="hint">{hint}</div>
   </div>
 </div>
