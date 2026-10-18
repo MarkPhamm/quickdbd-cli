@@ -1,0 +1,21 @@
+{#- modelith-style header: brand + Docs/Demo on the left, GitHub and a ⌘K search pill on the right -#}
+<header class="md-header qd-header" data-md-component="header">
+  <nav class="md-header__inner qd-header__inner" aria-label="{{ lang.t('header') }}">
+    <label class="md-header__button md-icon qd-drawer" for="__drawer">
+      {% include ".icons/material/menu.svg" %}
+    </label>
+    <a class="qd-brand" href="{{ nav.homepage.url | url }}">{{ config.site_name }}</a>
+    <a class="qd-navlink" href="{{ nav.homepage.url | url }}">Docs</a>
+    <a class="qd-navlink" href="{{ 'demo/' | url }}">Demo</a>
+    <div class="md-header__title qd-header__title" data-md-component="header-title"></div>
+    <a class="qd-navlink qd-github" href="{{ config.repo_url }}" target="_blank" rel="noopener">GitHub
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
+    </a>
+    {% if "material/search" in config.plugins %}
+      <label class="md-header__button md-icon qd-search-btn" for="__search">
+        {% include ".icons/material/magnify.svg" %}
+      </label>
+      {% include "partials/search.html" %}
+    {% endif %}
+  </nav>
+</header>
