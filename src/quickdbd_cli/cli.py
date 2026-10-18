@@ -181,6 +181,48 @@ def cmd_import_dbt(args) -> int:
     return 0
 
 
+def cmd_path(args) -> int:
+    from . import export
+    from .jsrt import runtime
+
+    project = _open(args)
+    schema = project.compile()
+    if not _print_diagnostics(schema, False):
+        return 1
+    from .measure import model_json
+
+    model = model_json(schema)
+    ends = []
+    for name in (args.source, args.target):
+        t = export.find_table(model, name)
+        if t is None:
+            print(f"error: table '{name}' not found", file=sys.stderr)
+            return 1
+        ends.append(t)
+    rt = runtime()
+    rt.load("render.js")
+    steps = rt.call("qdbdFindPath", model, ends[0]["id"], ends[1]["id"])
+    a, b = ends[0]["name"], ends[1]["name"]
+    if steps is None:
+        print(f"No relationship path between {a} and {b}.")
+        return 1
+    by_id = {t["id"]: t for t in model["tables"]}
+    card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
+
+    def end(e):
+        t = by_id[e["t"]]
+        col = next((c["name"] for c in t["cols"] if c["id"] == e["c"]), None)
+        return f"{t['name']}.{col}" if col else t["name"]
+
+    print(f"{a} -> {b}: {len(steps)} join(s)")
+    for st in steps:
+        print(f"  {end(st['from'])} -> {end(st['to'])} ({card[st['from']['card']]}:{card[st['to']['card']]})")
+    if steps:
+        print()
+        print(rt.call("qdbdPathSql", model, ends[0]["id"], steps))
+    return 0
+
+
 def cmd_diff(args) -> int:
     from . import diff
 
@@ -280,6 +322,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout")
     sp.set_defaults(func=cmd_layout)
+
+    sp = sub.add_parser("path", help="shortest join path between two tables, with a SQL JOIN snippet")
+    paths(sp)
+    sp.add_argument("--from", dest="source", required=True, metavar="TABLE")
+    sp.add_argument("--to", dest="target", required=True, metavar="TABLE")
+    sp.set_defaults(func=cmd_path)
 
     sp = sub.add_parser("diff", help="compare schema versions (two paths, or --base GIT_REF vs working tree)")
     sp.add_argument("paths", nargs="+", metavar="PATH", help="OLD NEW, or the schema path(s) with --base")

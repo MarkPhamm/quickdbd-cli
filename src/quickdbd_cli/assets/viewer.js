@@ -15,6 +15,7 @@
     vm: data.model, // view model: the tables/relationships left after the filter
     shown: {},
     regions: !!data.model.regions,
+    path: null, // {to: id, steps: [...]} from the selected table
   };
   var svg = document.getElementById("canvas");
   var vp = document.getElementById("vp");
@@ -52,9 +53,10 @@
     return [r.width || 800, r.height || 600];
   }
 
-  function fit() {
-    var b = Q.bounds(S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
-    if (S.regions) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
+  function fit(only) {
+    var b = Q.bounds(only ? Q.subset(S.vm, only) : S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
+    if (S.regions && !only) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
+    if (only) sz = [sz[0] - (details.classList.contains("open") ? 400 : 0), sz[1]]; // keep clear of the details panel
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), (sz[1] - 2 * pad) / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.05);
     S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: (sz[1] - (b[3] - b[1]) * k) / 2 - b[1] * k };
@@ -96,6 +98,28 @@
   }
 
   function applyFocus() {
+    vp.querySelectorAll(".ph").forEach(function (el) { el.classList.remove("ph"); });
+    if (S.path && S.focus && S.path.steps) {
+      var on = {}, edges = [];
+      on[S.focus] = true;
+      S.path.steps.forEach(function (st) { on[st.to.t] = true; edges.push(st); });
+      svg.classList.add("focus");
+      vp.querySelectorAll(".t").forEach(function (el) {
+        var id = el.getAttribute("data-id");
+        el.classList.toggle("dim", !on[id]);
+        el.classList.toggle("ph", !!on[id]);
+      });
+      vp.querySelectorAll(".e").forEach(function (el) {
+        var a = el.getAttribute("data-a"), ac = el.getAttribute("data-ac"), b = el.getAttribute("data-b"), bc = el.getAttribute("data-bc");
+        var hit = edges.some(function (st) {
+          return (st.from.t === a && st.from.c === ac && st.to.t === b && st.to.c === bc) ||
+            (st.from.t === b && st.from.c === bc && st.to.t === a && st.to.c === ac);
+        });
+        el.classList.toggle("dim", !hit);
+        el.classList.toggle("ph", hit);
+      });
+      return;
+    }
     if (!S.focus || !byId[S.focus]) {
       S.focus = null;
       svg.classList.remove("focus");
@@ -237,7 +261,7 @@
   function center() { var s = stageSize(); return [s[0] / 2, s[1] / 2]; }
   document.getElementById("zin").onclick = function () { var c = center(); zoomAt(1.25, c[0], c[1]); };
   document.getElementById("zout").onclick = function () { var c = center(); zoomAt(0.8, c[0], c[1]); };
-  document.getElementById("zfit").onclick = fit;
+  document.getElementById("zfit").onclick = function () { fit(); };
   document.querySelectorAll("#modes button").forEach(function (b) {
     b.onclick = function () {
       setMode(b.getAttribute("data-mode"));
@@ -268,6 +292,7 @@
 
   /* ------------------------------------------------------------- selection: focus + details */
   function select(id, opts) {
+    if ((id || null) !== S.focus) S.path = null;
     S.focus = id && byId[id] ? id : null;
     scheduleHash();
     applyFocus();
@@ -448,6 +473,10 @@
     if (t.file) meta.push(Q.esc(t.file) + ":" + t.line);
     if (meta.length) out.push('<div class="meta">' + meta.join(" &middot; ") + "</div>");
     if (t.doc) out.push('<div class="doc">' + Q.esc(t.doc) + "</div>");
+    out.push('<div class="pathbox"><input id="pathto" list="pathlist" placeholder="Path to another table…" autocomplete="off" value="' +
+      (S.path && byId[S.path.to] ? Q.esc(byId[S.path.to].name) : "") + '"></div><datalist id="pathlist">' +
+      S.vm.tables.filter(function (x) { return x.id !== id; }).map(function (x) { return '<option value="' + Q.esc(x.name) + '">'; }).join("") +
+      '</datalist><div class="pathres" id="pathres">' + pathHtml(id) + "</div>");
     if (t.diff && t.diff.state === "changed") {
       var base = (S.model.diff && S.model.diff.base) || "base", ch = [];
       t.cols.forEach(function (c) {
@@ -477,6 +506,47 @@
     details.classList.add("open");
     document.getElementById("stage").classList.add("has-details");
   }
+  /* ------------------------------------------------------------- path finder */
+  function pathHtml(id) {
+    if (!S.path) return "";
+    var to = byId[S.path.to];
+    if (!S.path.steps) return '<div class="none">No relationship path from ' + Q.esc(byId[id].name) + " to " + Q.esc(to.name) + " (with the current filter).</div>";
+    var items = S.path.steps.map(function (st) {
+      return "<li>" + link(st.from.t, st.from.c) + " &rarr; " + link(st.to.t, st.to.c) +
+        '<span class="card">' + CARD[st.from.card] + ":" + CARD[st.to.card] + "</span></li>";
+    }).join("");
+    return "<h3>Path to " + Q.esc(to.name) + " (" + S.path.steps.length + " join" + (S.path.steps.length === 1 ? "" : "s") + ")</h3><ol>" + items +
+      "</ol><pre>" + Q.esc(Q.pathSql(S.vm, id, S.path.steps)) + '</pre><div class="acts"><a id="pathsql">Copy SQL</a><a id="pathonly">Show only this path</a><a id="pathclear">Clear</a></div>';
+  }
+  function findPathTo(name) {
+    var target = null;
+    S.vm.tables.forEach(function (t) { if (t.name.toLowerCase() === String(name).trim().toLowerCase()) target = t.id; });
+    if (!S.focus || !target || target === S.focus) return false;
+    S.path = { to: target, steps: Q.findPath(S.vm, S.focus, target) };
+    showDetails(S.focus);
+    applyFocus();
+    if (S.path.steps && !applyingHash) fit([S.focus].concat(S.path.steps.map(function (st) { return st.to.t; })));
+    scheduleHash();
+    return true;
+  }
+  dbody.addEventListener("keydown", function (ev) {
+    if (ev.target.id === "pathto" && ev.key === "Enter") findPathTo(ev.target.value);
+    if (ev.target.id === "pathto" && ev.key === "Escape") ev.stopPropagation();
+  });
+  dbody.addEventListener("change", function (ev) { if (ev.target.id === "pathto") findPathTo(ev.target.value); });
+  dbody.addEventListener("click", function (ev) {
+    if (ev.target.id === "pathclear") { S.path = null; showDetails(S.focus); applyFocus(); scheduleHash(); }
+    else if (ev.target.id === "pathonly" && S.path && S.path.steps) {
+      var names = [byId[S.focus].name].concat(S.path.steps.map(function (st) { return byId[st.to.t].name; }));
+      // Selector syntax treats spaces, commas, + and a leading ! specially; match those characters with "?".
+      applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
+    } else if (ev.target.id === "pathsql" && S.path && S.path.steps) {
+      var sql = Q.pathSql(S.vm, S.focus, S.path.steps);
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(sql).then(function () { showToast("SQL copied"); });
+      else window.prompt("Copy SQL:", sql);
+    }
+  });
+
   function closeDetails() {
     details.classList.remove("open");
     document.getElementById("stage").classList.remove("has-details");
@@ -616,6 +686,7 @@
     var p = new URLSearchParams(), v = S.view, sz = stageSize();
     if (S.filter) p.set("f", S.filter);
     if (S.focus && byId[S.focus]) p.set("t", byId[S.focus].name);
+    if (S.path && byId[S.path.to]) p.set("p", byId[S.path.to].name);
     if (S.mode !== "full") p.set("m", S.mode);
     if (S.regions !== !!S.model.regions) p.set("r", S.regions ? "1" : "0");
     p.set("z", String(Math.round(v.k * 1000) / 1000));
@@ -640,6 +711,7 @@
       var name = p.get("t"), id = null;
       if (name) S.model.tables.forEach(function (t) { if (t.name === name) id = t.id; });
       select(id && S.shown[id] ? id : null);
+      if (p.get("p") && S.focus) findPathTo(p.get("p"));
       var z = parseFloat(p.get("z")), c = (p.get("c") || "").split(",").map(Number);
       if (z > 0 && c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) {
         var sz = stageSize();

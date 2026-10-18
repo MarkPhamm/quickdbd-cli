@@ -427,7 +427,68 @@
     return model.tables.filter(function (t) { return (inc === null || inc[t.id]) && !exc[t.id]; }).map(function (t) { return t.id; });
   }
 
+  /* ------------------------------------------------------------------ path finder
+   * Shortest chain of relationships between two tables (relationships are walked in either
+   * direction). Each step says which columns join. */
+  function findPath(model, from, to) {
+    if (from === to) return [];
+    var adj = {};
+    model.rels.forEach(function (r, i) {
+      (adj[r.a.t] = adj[r.a.t] || []).push({ to: r.b.t, i: i, fwd: true });
+      (adj[r.b.t] = adj[r.b.t] || []).push({ to: r.a.t, i: i, fwd: false });
+    });
+    var prev = {}, queue = [from], seen = {};
+    seen[from] = true;
+    while (queue.length) {
+      var cur = queue.shift();
+      if (cur === to) break;
+      (adj[cur] || []).forEach(function (e) {
+        if (seen[e.to]) return;
+        seen[e.to] = true;
+        prev[e.to] = { from: cur, e: e };
+        queue.push(e.to);
+      });
+    }
+    if (!seen[to]) return null;
+    var steps = [], at = to;
+    while (at !== from) {
+      var pv = prev[at], r = model.rels[pv.e.i];
+      var here = pv.e.fwd ? r.a : r.b, there = pv.e.fwd ? r.b : r.a; // here = side of pv.from
+      steps.unshift({ rel: pv.e.i, from: { t: pv.from, c: here.c, card: here.card }, to: { t: at, c: there.c, card: there.card } });
+      at = pv.from;
+    }
+    return steps;
+  }
+
+  var SQL_RESERVED = ("all and any as asc between by case check column constraint create cross default delete desc distinct " +
+    "drop else end exists foreign from full grant group having in index inner insert intersect into is join key left like " +
+    "limit not null offset on or order outer primary references right select set table then to union unique update user " +
+    "using values view when where with").split(" ");
+  function sqlIdent(name) {
+    var plain = /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) && SQL_RESERVED.indexOf(name.toLowerCase()) < 0;
+    return plain ? name : '"' + name.replace(/"/g, '""') + '"';
+  }
+
+  /* SQL FROM/JOIN clause following a path. */
+  function pathSql(model, from, steps) {
+    var byId = {};
+    model.tables.forEach(function (t) { byId[t.id] = t; });
+    function col(t, c) {
+      var x = byId[t].cols.filter(function (k) { return k.id === c; })[0];
+      return x ? sqlIdent(x.name) : null;
+    }
+    var lines = ["FROM " + sqlIdent(byId[from].name)];
+    steps.forEach(function (s) {
+      var a = byId[s.from.t].name, b = byId[s.to.t].name, ca = col(s.from.t, s.from.c), cb = col(s.to.t, s.to.c);
+      if (ca && cb) lines.push("JOIN " + sqlIdent(b) + " ON " + sqlIdent(b) + "." + cb + " = " + sqlIdent(a) + "." + ca);
+      else lines.push("JOIN " + sqlIdent(b) + " ON ...  -- table-level relationship: join columns not specified");
+    });
+    return lines.join("\n");
+  }
+
   root.qdbd = {
+    findPath: findPath,
+    pathSql: pathSql,
     renderDrawio: renderDrawio,
     regions: regions,
     select: select,
@@ -445,5 +506,7 @@
   root.qdbdRenderSvg = renderSvg;
   root.qdbdSelect = select;
   root.qdbdRenderDrawio = renderDrawio;
+  root.qdbdFindPath = findPath;
+  root.qdbdPathSql = pathSql;
   root.qdbdNeighbourhood = neighbourhood;
 })(typeof window !== "undefined" ? window : globalThis);
