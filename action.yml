@@ -1,0 +1,156 @@
+name: qdbd ERD
+description: >-
+  Check QuickDBD-syntax schemas, build the interactive ERD, and on pull requests post a schema-diff
+  comment with changed tables highlighted in the diagram.
+author: Minh (Mark) Pham
+branding:
+  icon: database
+  color: blue
+
+inputs:
+  path:
+    description: Schema file(s) or folder(s), space-separated.
+    required: true
+  output:
+    description: Where to write the HTML diagram.
+    default: erd/index.html
+  qdbd-version:
+    description: quickdbd-cli version from PyPI ("latest" or e.g. "0.1.4"), or "source" to install the action's own checkout.
+    default: latest
+  python-version:
+    description: Python used to run qdbd.
+    default: "3.12"
+  check:
+    description: Fail the job on schema errors (`qdbd check`).
+    default: "true"
+  strict:
+    description: Also fail on QuickDBD-compatibility warnings (`qdbd check --strict`).
+    default: "false"
+  comment:
+    description: On pull requests, post (and keep updating) one comment with the schema diff. Needs `pull-requests write`.
+    default: "true"
+  select:
+    description: Optional dbt-style selector for the diagram, e.g. "group:marts".
+    default: ""
+  upload-artifact:
+    description: Upload the HTML as a workflow artifact named "erd".
+    default: "true"
+  github-token:
+    description: Token used to post the PR comment.
+    default: ${{ github.token }}
+
+outputs:
+  html:
+    description: Path of the built HTML diagram.
+    value: ${{ steps.build.outputs.html }}
+  changed:
+    description: '"true" when the pull request changes the schema.'
+    value: ${{ steps.diff.outputs.changed }}
+  diff-file:
+    description: Markdown schema diff (pull requests only).
+    value: ${{ steps.diff.outputs.file }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install qdbd
+      shell: bash
+      env:
+        QDBD_VERSION: ${{ inputs.qdbd-version }}
+      run: |
+        if [ "$QDBD_VERSION" = "latest" ]; then pip install -q quickdbd-cli
+        elif [ "$QDBD_VERSION" = "source" ]; then pip install -q "$GITHUB_ACTION_PATH"
+        else pip install -q "quickdbd-cli==$QDBD_VERSION"; fi
+        qdbd --version
+
+    - name: Check schema
+      if: inputs.check == 'true'
+      shell: bash
+      env:
+        QDBD_PATH: ${{ inputs.path }}
+        QDBD_STRICT: ${{ inputs.strict }}
+      run: |
+        args=()
+        if [ "$QDBD_STRICT" = "true" ]; then args+=(--strict); fi
+        # shellcheck disable=SC2086
+        qdbd check "${args[@]}" $QDBD_PATH
+
+    - name: Fetch base branch
+      if: github.event_name == 'pull_request'
+      shell: bash
+      env:
+        BASE_REF: ${{ github.base_ref }}
+      run: git fetch --no-tags --depth=1 origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+
+    - name: Schema diff
+      id: diff
+      if: github.event_name == 'pull_request'
+      shell: bash
+      env:
+        QDBD_PATH: ${{ inputs.path }}
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        file="$RUNNER_TEMP/qdbd-diff.md"
+        # shellcheck disable=SC2086
+        if qdbd diff --base "origin/$BASE_REF" $QDBD_PATH --format markdown -o "$file" --exit-code; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          code=$?
+          if [ "$code" -ne 1 ]; then exit "$code"; fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+        echo "file=$file" >> "$GITHUB_OUTPUT"
+
+    - name: Build diagram
+      id: build
+      shell: bash
+      env:
+        QDBD_PATH: ${{ inputs.path }}
+        QDBD_OUTPUT: ${{ inputs.output }}
+        QDBD_SELECT: ${{ inputs.select }}
+        BASE_REF: ${{ github.base_ref }}
+        IS_PR: ${{ github.event_name == 'pull_request' }}
+      run: |
+        args=(-o "$QDBD_OUTPUT")
+        if [ "$IS_PR" = "true" ]; then args+=(--diff-base "origin/$BASE_REF"); fi
+        if [ -n "$QDBD_SELECT" ]; then args+=(--select "$QDBD_SELECT"); fi
+        # shellcheck disable=SC2086
+        qdbd build $QDBD_PATH "${args[@]}"
+        echo "html=$QDBD_OUTPUT" >> "$GITHUB_OUTPUT"
+
+    - name: Upload diagram
+      if: inputs.upload-artifact == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: erd
+        path: ${{ inputs.output }}
+
+    - name: Comment on pull request
+      if: github.event_name == 'pull_request' && inputs.comment == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        DIFF_FILE: ${{ steps.diff.outputs.file }}
+        PR: ${{ github.event.pull_request.number }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: |
+        marker="<!-- qdbd-erd-diff -->"
+        {
+          echo "$marker"
+          cat "$DIFF_FILE"
+          echo
+          echo "<sub>Interactive diagram with changes highlighted: download the **erd** artifact from [this run]($RUN_URL). Generated by [qdbd](https://github.com/MarkPhamm/quickdbd-cli).</sub>"
+        } > "$RUNNER_TEMP/qdbd-comment.md"
+        id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+          --jq "[.[] | select(.body | startswith(\"$marker\"))][0].id // empty")
+        if [ -n "$id" ]; then
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F "body=@$RUNNER_TEMP/qdbd-comment.md" >/dev/null
+          echo "Updated comment $id"
+        else
+          gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F "body=@$RUNNER_TEMP/qdbd-comment.md" >/dev/null
+          echo "Posted comment"
+        fi

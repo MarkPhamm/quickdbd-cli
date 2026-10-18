@@ -1,0 +1,39 @@
+# Dogfoods the qdbd GitHub Action (action.yml) on the example schema:
+# pull requests get a schema-diff comment; main publishes the demo diagram to GitHub Pages.
+name: ERD
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  erd:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          path: examples/synthetic
+          output: site/index.html
+          qdbd-version: source
+      - if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  pages:
+    if: github.event_name == 'push'
+    needs: erd
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
