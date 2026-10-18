@@ -139,27 +139,45 @@ Once a layout exists, a new table is placed next to the tables it's related to, 
 
 ## CI
 
+**GitHub Action:** checks the schema and builds the diagram. On pull requests it also posts one schema-diff comment, updated on every push, and highlights the changes in the diagram artifact.
+
+```yaml
+name: ERD
+on: [pull_request, push]
+jobs:
+  erd:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, pull-requests: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: MarkPhamm/quickdbd-cli@v0.1.4
+        with:
+          path: erd/                 # schema file(s) or folder(s)
+          output: site/index.html
+```
+
+| Input | Default | |
+|---|---|---|
+| `path` | (required) | schema files or folders |
+| `output` | `erd/index.html` | HTML diagram path |
+| `check` / `strict` | `true` / `false` | fail on errors / also on QuickDBD-compatibility warnings |
+| `comment` | `true` | post the diff comment on PRs |
+| `select` | | dbt-style selector for the diagram |
+| `qdbd-version` | `latest` | PyPI version |
+
+Outputs are `html`, `changed` and `diff-file`.
+
+**Publishing:** to publish the diagram on GitHub Pages, add `actions/upload-pages-artifact` + `actions/deploy-pages` after it. See [`.github/workflows/erd.yml`](.github/workflows/erd.yml), which publishes this repo's demo.
+
 **pre-commit:**
 
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.1.0
+    rev: v0.1.4
     hooks:
       - id: qdbd-check
-        files: ^schema/.*\.txt$   # point at your schema files
-```
-
-**GitHub Actions:**
-
-```yaml
-- uses: actions/setup-python@v5
-  with: { python-version: "3.12" }
-- run: pip install quickdbd-cli
-- run: qdbd check schema/
-- run: qdbd build schema/ -o site/schema.html
-- uses: actions/upload-artifact@v4
-  with: { name: schema-diagram, path: site/schema.html }
+        files: ^erd/.*\.txt$   # point at your schema files
 ```
 
 **GitLab CI:**
@@ -169,10 +187,10 @@ erd:
   image: python:3.12
   script:
     - pip install quickdbd-cli
-    - qdbd check schema/
-    - qdbd build schema/ -o public/schema.html
+    - qdbd check erd/
+    - qdbd build erd/ -o public/index.html
   artifacts:
-    paths: [public/schema.html]
+    paths: [public/index.html]
 ```
 
 ## Development
