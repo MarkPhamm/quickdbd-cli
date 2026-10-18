@@ -14,6 +14,7 @@
     filter: "",
     vm: data.model, // view model: the tables/relationships left after the filter
     shown: {},
+    regions: !!data.model.regions,
   };
   var svg = document.getElementById("canvas");
   var vp = document.getElementById("vp");
@@ -27,7 +28,7 @@
 
   /* ------------------------------------------------------------- render */
   function render() {
-    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true });
+    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true, regions: S.regions });
     applyFocus();
     drawMinimap();
   }
@@ -53,6 +54,7 @@
 
   function fit() {
     var b = Q.bounds(S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
+    if (S.regions) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), (sz[1] - 2 * pad) / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.05);
     S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: (sz[1] - (b[3] - b[1]) * k) / 2 - b[1] * k };
@@ -241,6 +243,21 @@
       setMode(b.getAttribute("data-mode"));
     };
   });
+
+  var regionBtn = document.getElementById("xregions");
+  function groupCount() {
+    var g = {};
+    S.model.tables.forEach(function (t) { if (t.group) g[t.group] = true; });
+    return Object.keys(g).length;
+  }
+  function setRegions(on) {
+    S.regions = !!on && groupCount() > 0;
+    regionBtn.classList.toggle("on", S.regions);
+    regionBtn.style.display = groupCount() > 1 ? "" : "none";
+    render();
+    scheduleHash();
+  }
+  regionBtn.onclick = function () { setRegions(!S.regions); };
 
   function setMode(mode) {
     S.mode = ["full", "keys", "header"].indexOf(mode) >= 0 ? mode : "full";
@@ -519,14 +536,14 @@
   }
   function exportSvg() {
     var only = S.focus ? Object.keys(neighbours(S.focus)) : null;
-    return Q.renderSvg(S.vm, S.pos, { mode: S.mode, only: only, fontCss: document.getElementById("qdbd-font").textContent });
+    return Q.renderSvg(S.vm, S.pos, { mode: S.mode, only: only, regions: S.regions, fontCss: document.getElementById("qdbd-font").textContent });
   }
   document.getElementById("xsvg").onclick = function () {
     download((data.title || "diagram") + ".svg", new Blob([exportSvg()], { type: "image/svg+xml" }));
   };
   document.getElementById("xdrawio").onclick = function () {
     var only = S.focus ? Object.keys(neighbours(S.focus)) : null;
-    var xml = Q.renderDrawio(S.vm, S.pos, { mode: S.mode, only: only, title: data.title || "ERD" });
+    var xml = Q.renderDrawio(S.vm, S.pos, { mode: S.mode, only: only, title: data.title || "ERD", regions: S.regions });
     download((data.title || "diagram") + ".drawio", new Blob([xml], { type: "application/xml" }));
   };
   document.getElementById("xpng").onclick = function () {
@@ -564,6 +581,8 @@
 
   index();
   if (S.serve) document.body.classList.add("serve");
+  regionBtn.classList.toggle("on", S.regions);
+  regionBtn.style.display = groupCount() > 1 ? "" : "none";
   computeView();
   render();
   drawTree();
@@ -598,6 +617,7 @@
     if (S.filter) p.set("f", S.filter);
     if (S.focus && byId[S.focus]) p.set("t", byId[S.focus].name);
     if (S.mode !== "full") p.set("m", S.mode);
+    if (S.regions !== !!S.model.regions) p.set("r", S.regions ? "1" : "0");
     p.set("z", String(Math.round(v.k * 1000) / 1000));
     p.set("c", Math.round((sz[0] / 2 - v.x) / v.k) + "," + Math.round((sz[1] / 2 - v.y) / v.k));
     return "#" + p.toString();
@@ -615,6 +635,7 @@
     applyingHash = true;
     try {
       if (p.has("m")) setMode(p.get("m"));
+      if (p.has("r")) setRegions(p.get("r") === "1");
       applyFilter(p.get("f") || "", true);
       var name = p.get("t"), id = null;
       if (name) S.model.tables.forEach(function (t) { if (t.name === name) id = t.id; });

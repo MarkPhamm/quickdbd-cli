@@ -51,6 +51,7 @@ BODY = """
         <button data-mode="header">Names</button>
       </div>
       <div class="sep"></div>
+      <button id="xregions" title="Shade an area per file / dbt folder">Regions</button>
       <button id="xlink" title="Copy a link to this exact view (filter, selected table, zoom)">Link</button>
       <div class="sep"></div>
       <button id="xsvg" title="Export SVG">SVG</button>
