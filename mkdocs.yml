@@ -11,39 +11,33 @@ exclude_docs: |
 
 theme:
   name: material
+  custom_dir: overrides
   font:
     text: Figtree
     code: JetBrains Mono
   palette:
-    - scheme: slate
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/weather-sunny
-        name: Light mode
-    - scheme: default
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/weather-night
-        name: Dark mode
+    scheme: slate
+    primary: custom
+    accent: custom
   icon:
     logo: material/database-outline
     repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.sections
+    - navigation.indexes
     - navigation.footer
     - navigation.top
     - toc.follow
     - search.suggest
     - search.highlight
     - content.code.copy
-    - content.action.edit
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/shortcuts.js
 
 markdown_extensions:
   - admonition

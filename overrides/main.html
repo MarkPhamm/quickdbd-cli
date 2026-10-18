@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{#- breadcrumb above every page title: home › section › page -#}
+{% block content %}
+  <nav class="qd-crumbs" aria-label="Breadcrumb">
+    <a class="qd-crumbs__home" href="{{ nav.homepage.url | url }}" title="Home">
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5Z"/></svg>
+    </a>
+    {% for section in page.ancestors | reverse %}
+      <span class="qd-crumbs__sep">&rsaquo;</span>
+      <span class="qd-crumbs__item">{{ section.title }}</span>
+    {% endfor %}
+    <span class="qd-crumbs__sep">&rsaquo;</span>
+    <span class="qd-crumbs__item qd-crumbs__item--current">{{ page.title }}</span>
+  </nav>
+  {{ super() }}
+{% endblock %}
