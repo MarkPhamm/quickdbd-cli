@@ -1,0 +1,82 @@
+site_name: qdbd
+site_description: ERD tooling for QuickDBD schemas and dbt projects. Check, render, explore and review database diagrams with hundreds of tables.
+site_url: https://markphamm.github.io/quickdbd-cli/
+repo_url: https://github.com/MarkPhamm/quickdbd-cli
+repo_name: MarkPhamm/quickdbd-cli
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Minh (Mark) Pham · Apache-2.0 · Not affiliated with QuickDBD
+
+exclude_docs: |
+  superpowers/
+
+theme:
+  name: material
+  font:
+    text: Figtree
+    code: JetBrains Mono
+  palette:
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+  icon:
+    logo: material/database-outline
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - qdbd - ERDs for QuickDBD & dbt: index.md
+  - Getting Started: getting-started.md
+  - Reading the Diagram: reading-the-diagram.md
+  - "Worked example: jaffle_shop":
+      - example/index.md
+      - 1. Import from dbt: example/import.md
+      - 2. Explore the model: example/explore.md
+      - 3. Review a change: example/review.md
+      - 4. Automate in CI: example/ci.md
+  - Schema Syntax: syntax.md
+  - Selecting Tables: selectors.md
+  - Table Positions: layout.md
+  - Exports: exports.md
+  - Schema Diffs: diffs.md
+  - dbt Import: dbt.md
+  - The qdbd CLI: cli.md
+  - GitHub Action: github-action.md
+  - Local Development: development.md

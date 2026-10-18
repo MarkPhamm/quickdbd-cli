@@ -180,3 +180,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .CodeMirror-cursor { border-left-color: #fff !important; }
 .CodeMirror-selected { background: #4a525a !important; }
 .lineerr { background: rgba(229,115,115,.18); }
+
+/* narrow screens and embedded frames: toolbar to the bottom, smaller minimap */
+@media (max-width: 900px) {
+  .bar { top: auto; bottom: 12px; right: auto; left: 12px; flex-wrap: wrap; max-width: calc(100% - 24px);
+    background: rgba(255,255,255,.92); border-radius: 8px; padding: 2px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .hint { display: none; }
+  .minimap { width: 140px; height: 100px; bottom: auto; top: 14px; right: 12px; }
+  .explorer { max-width: calc(100% - 180px); }
+  .details { left: 12px; right: 12px; width: auto; top: 12px; bottom: 64px; }
+}

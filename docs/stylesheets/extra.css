@@ -1,0 +1,58 @@
+/* modelith-style: deep teal, serif headings, mint accents */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap");
+
+:root, [data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0f3d47;
+  --md-primary-fg-color--light: #1b5563;
+  --md-primary-fg-color--dark: #0a2c34;
+  --md-accent-fg-color: #2f9e8f;
+  --md-typeset-a-color: #1f7f73;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 190;
+  --md-default-bg-color: #072a31;
+  --md-default-bg-color--light: #0b343c;
+  --md-default-fg-color: #e6eef0;
+  --md-default-fg-color--light: #b9c9cd;
+  --md-default-fg-color--lighter: #7f9aa1;
+  --md-default-fg-color--lightest: #3d5b62;
+  --md-primary-fg-color: #072a31;
+  --md-primary-bg-color: #e6eef0;
+  --md-accent-fg-color: #7fd6c2;
+  --md-typeset-a-color: #8fd9c6;
+  --md-code-bg-color: #0d3a44;
+  --md-code-fg-color: #dbe7ea;
+  --md-footer-bg-color: #051f25;
+  --md-footer-bg-color--dark: #041a1f;
+}
+
+[data-md-color-scheme="slate"] .md-header { border-bottom: 1px solid #12424c; box-shadow: none; }
+[data-md-color-scheme="slate"] .md-sidebar--primary .md-nav__link--active { color: #8fd9c6; }
+
+.md-typeset h1, .md-typeset h2, .md-typeset h3 {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-weight: 450;
+  letter-spacing: -0.01em;
+}
+.md-typeset h1 { font-size: 2.6em; margin-bottom: .4em; color: var(--md-default-fg-color); }
+.md-typeset h2 { font-size: 1.75em; border-bottom: 1px solid var(--md-default-fg-color--lightest); padding-bottom: .25em; }
+
+/* workflow diagrams in plain code blocks */
+.md-typeset pre > code { border-radius: 8px; }
+.md-typeset .workflow pre > code { font-size: .78rem; line-height: 1.55; }
+
+/* screenshots */
+.md-typeset img.shot { border-radius: 10px; border: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+/* hero buttons */
+.md-typeset .md-button { border-radius: 8px; color: var(--md-typeset-a-color); border-color: var(--md-typeset-a-color); }
+.md-typeset .md-button:hover { color: #fff; background: #2f9e8f; border-color: #2f9e8f; }
+.md-typeset .md-button--primary { background: #2f9e8f; border-color: #2f9e8f; color: #fff; }
+.md-typeset .md-button--primary:hover { background: #3cb3a2; border-color: #3cb3a2; }
+
+/* "where to start" cards */
+.md-typeset .grid.cards > ul > li { border-radius: 10px; }
+
+iframe.demo { width: 100%; height: 620px; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; background: #f4f5f4; }
