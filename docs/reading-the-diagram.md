@@ -32,6 +32,10 @@ Lines run from column to column; a table-level relationship attaches to the head
 
 Hovering a column highlights its lines and the columns at the other end.
 
+## Moving tables
+
+Drag any table to rearrange the diagram; lines follow. In a built page or the live demo the new arrangement lasts until you reload. In [`qdbd serve`](#in-qdbd-serve) it's saved to the layout file. Drag empty space to pan.
+
 ## Explorer
 
 The left panel lists every table, grouped by file (or by dbt folder after [`qdbd import dbt`](dbt.md)).
@@ -91,5 +95,5 @@ See [Schema Diffs](diffs.md).
 The live editor adds:
 
 - an editor pane with one tab per file (autosaves 1 s after you stop typing) and an error panel;
-- **drag to move tables**: positions save to the layout file;
+- dragged positions are **saved** to the layout file;
 - if a file changes on disk while you have unsaved edits, a banner lets you keep yours or reload.

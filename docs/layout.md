@@ -6,7 +6,7 @@ The first time qdbd sees a schema, it arranges the tables automatically with the
 
 ## The layout file
 
-When you drag tables in `qdbd serve`, positions are saved to a sidecar file:
+Tables can be dragged in any diagram. In `qdbd serve`, the positions are saved to a sidecar file:
 
 | Input | Layout file |
 |---|---|

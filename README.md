@@ -106,7 +106,7 @@ The selector `diff:modified` (or `diff:added` / `diff:changed`) works like dbt's
 
 ```bash
 qdbd check  PATH... [--strict]                 # validate; "No errors found. Good job!"
-qdbd build  PATH... -o diagram.html            # shareable interactive HTML (positions locked)
+qdbd build  PATH... -o diagram.html            # shareable interactive HTML
 qdbd serve  PATH... [--port 8765]              # live editor + drag-to-arrange
 qdbd export PATH... -o out.png [--focus Customer --depth 1]   # PNG, SVG or .drawio
 qdbd layout PATH... [--reset]                  # (re)write the layout file
