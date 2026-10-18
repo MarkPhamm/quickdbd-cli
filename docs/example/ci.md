@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       # ... your dbt setup: dbt deps && dbt build && dbt docs generate
       - run: pipx run --spec quickdbd-cli qdbd import dbt target/ -o erd/
-      - uses: MarkPhamm/quickdbd-cli@v0.1.4
+      - uses: MarkPhamm/quickdbd-cli@v0.1.5
         with:
           path: erd/
           output: site/index.html

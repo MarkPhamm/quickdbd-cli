@@ -155,7 +155,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.1.4
+      - uses: MarkPhamm/quickdbd-cli@v0.1.5
         with:
           path: erd/                 # schema file(s) or folder(s)
           output: site/index.html
@@ -179,7 +179,7 @@ Outputs are `html`, `changed` and `diff-file`.
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.1.4
+    rev: v0.1.5
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.txt$   # point at your schema files
