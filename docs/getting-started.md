@@ -53,7 +53,7 @@ A browser tab opens with the diagram and an editor pane.
 qdbd build schema.txt -o schema.html
 ```
 
-`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)).
+`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)). To send a **link** instead, run `qdbd share schema.txt` ([4.4 Sharing a Link](sharing.md)).
 
 In the page, click a table to see its details, type `+Order` in the filter, or press **Link** to copy a URL to exactly what you're looking at. The tour is in [4.1 Reading the Diagram](reading-the-diagram.md).
 
@@ -73,5 +73,6 @@ qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and it
 | Split a big schema into several files | [3.2 Many Files, One Diagram](files.md) |
 | Filter to part of the schema, or find how two tables join | [4.2 Selecting Tables](selectors.md), [4.1 Reading the Diagram](reading-the-diagram.md#details-panel) |
 | Generate the schema from a dbt project | [5.1 dbt Import](dbt.md) |
+| Send someone a link to the diagram | [4.4 Sharing a Link](sharing.md) |
 | See what a branch changes | [6. Reviewing Changes](diffs.md) |
 | Run it on every pull request | [7. CI and Automation](github-action.md) |

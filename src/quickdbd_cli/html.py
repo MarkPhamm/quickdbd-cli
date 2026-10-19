@@ -92,13 +92,27 @@ FILTER_HELP = (
 )
 
 
-def render_page(model: dict, positions: dict, title: str, serve: bool = False) -> str:
+# Read-only live view: refetch the model whenever the server's version changes. Relative URLs, so it
+# also works behind a tunnel or a path prefix.
+LIVE_JS = (
+    "(function(){var v=null;new EventSource('events').onmessage=function(e){"
+    "if(v!==null&&e.data!==v)fetch('state').then(function(r){return r.json();})"
+    ".then(function(s){window.qdbdViewer.setData(s.model,s.positions);});v=e.data;};})();"
+)
+
+
+def render_page(model: dict, positions: dict, title: str, serve: bool = False, live: bool = False) -> str:
+    """The self-contained page. ``serve``: editor pane and saved dragging. ``live``: read-only, but reloads
+    when the server's schema changes (``qdbd serve --read-only``)."""
     data = {"model": model, "positions": positions, "serve": serve, "title": title}
-    hint = (
-        "Drag tables to arrange them (saved). Click a table for details. Esc clears."
-        if serve
-        else "Drag tables to rearrange (not saved). Click a table for details. Scroll to zoom, drag empty space to pan."
-    )
+    if serve:
+        hint = "Drag tables to arrange them (saved). Click a table for details. Esc clears."
+    elif live:
+        hint = "Live, read-only view: updates when the schema changes. Drag tables to rearrange (not saved)."
+    else:
+        hint = (
+            "Drag tables to rearrange (not saved). Click a table for details. Scroll to zoom, drag empty space to pan."
+        )
     body = BODY.format(side=SIDE if serve else "", count=len(model["tables"]), hint=hint, filter_help=FILTER_HELP)
     head_extra = ""
     scripts = ""
@@ -109,6 +123,8 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False) -
             f'<script src="{CODEMIRROR}/addon/mode/simple.min.js"></script>'
             f"<script>{_asset('editor.js')}</script>"
         )
+    elif live:
+        scripts = f"<script>{LIVE_JS}</script>"
     return (
         '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'

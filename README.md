@@ -93,7 +93,7 @@ A browser tab opens with the diagram and an editor pane.
 qdbd build schema.txt -o schema.html
 ```
 
-`schema.html` is a single self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.1](#71-github-action)).
+`schema.html` is a single self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.1](#71-github-action)). To send a link instead of the file, see [4.4](#44-share-a-link).
 
 ### 2.5 Export an image
 
@@ -262,6 +262,25 @@ qdbd path schema/ --from Invoice --to Campaign
 
 ![Path from Invoice to Campaign](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/path.png)
 
+### 4.4 Share a link
+
+`qdbd serve`'s address only works on your machine. To send someone a **link**:
+
+```bash
+qdbd share schema.txt          # needs the GitHub CLI: brew install gh && gh auth login
+```
+
+```text
+Shared 12 tables (secret gist https://gist.github.com/you/1a2b3c…)
+Link: https://gist.githack.com/you/1a2b3c…/raw/schema.html
+```
+
+- The link opens the full interactive page. Running `qdbd share` again updates the same link.
+- Gists are secret (link-only) by default; `--public` lists it.
+- For a **live** view while you edit, run `qdbd serve schema.txt --read-only` (no editor, nothing written to disk) behind a tunnel such as `cloudflared tunnel --url http://127.0.0.1:8765`. Never tunnel a plain `qdbd serve`: viewers could edit your files.
+
+More: [Sharing a Link](https://markphamm.github.io/quickdbd-cli/sharing/).
+
 ## 5. dbt projects
 
 ### 5.1 Generate the schema from dbt
@@ -403,8 +422,9 @@ Builds are deterministic (no timestamps or randomness), so the output only chang
 
 ```bash
 qdbd check  PATH... [--strict]                      # validate
-qdbd serve  PATH... [--port 8765]                   # live editor + drag to arrange
+qdbd serve  PATH... [--port 8765] [--read-only]     # live editor + drag to arrange
 qdbd build  PATH... -o diagram.html                 # interactive HTML
+qdbd share  PATH... [--public]                      # publish as a gist, print a link
 qdbd export PATH... -o out.png|.svg|.drawio [--focus T --depth 1]
 qdbd layout PATH... [--reset]                       # (re)write the layout file
 qdbd path   PATH... --from A --to B                 # shortest join path + SQL JOIN
