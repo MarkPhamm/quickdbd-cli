@@ -1,6 +1,6 @@
-# Schema Diffs
+# 6. Reviewing Schema Changes
 
-## Compare two versions
+## 6.1 Compare two versions { #compare-two-versions }
 
 ```bash
 qdbd diff old.txt new.txt                 # two files or folders
@@ -23,7 +23,7 @@ Tables match by name, columns by name within a table, and relationships by their
 | `-o FILE` | write to a file |
 | `--exit-code` | exit 1 when anything changed, like `git diff --exit-code` |
 
-## See the changes in the diagram
+## 6.2 See the changes in the diagram { #see-the-changes-in-the-diagram }
 
 ```bash
 qdbd build erd/ --diff-base origin/main -o erd.html

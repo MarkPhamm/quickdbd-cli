@@ -1,4 +1,4 @@
-# 2. Explore the model
+# 5.4 Step 2: Explore the Model
 
 ## Open it
 

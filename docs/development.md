@@ -1,4 +1,4 @@
-# Local Development
+# 9. Development
 
 ```bash
 git clone https://github.com/MarkPhamm/quickdbd-cli && cd quickdbd-cli
@@ -6,7 +6,7 @@ uv venv && uv pip install -e ".[dev,docs]"
 .venv/bin/pytest
 ```
 
-## Layout of the repo
+## 9.1 Layout of the repo { #layout-of-the-repo }
 
 | Path | |
 |---|---|
@@ -18,7 +18,7 @@ uv venv && uv pip install -e ".[dev,docs]"
 | `action.yml` | the GitHub Action |
 | `docs/`, `mkdocs.yml` | this site |
 
-## Docs
+## 9.2 Docs { #docs }
 
 ```bash
 .venv/bin/mkdocs serve        # http://127.0.0.1:8000
@@ -26,14 +26,14 @@ uv venv && uv pip install -e ".[dev,docs]"
 
 The site deploys to GitHub Pages from `main`, with the live demos built into `/demo/`.
 
-## Example data
+## 9.3 Example data { #example-data }
 
 ```bash
 python scripts/gen_schema.py         # regenerate examples/synthetic (200 tables)
 python scripts/gen_font_metrics.py   # regenerate the font width table
 ```
 
-## Releasing
+## 9.4 Releasing { #releasing }
 
 Put PyPI credentials in `.env` (gitignored): `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=pypi-…`. Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, commit, then:
 

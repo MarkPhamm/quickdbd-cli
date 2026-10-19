@@ -1,10 +1,13 @@
-# dbt Import
+# 5.1 dbt Import
 
 ```bash
 qdbd import dbt target/manifest.json -o erd/
 ```
 
 `manifest.json` (or the `target/` directory) is all qdbd needs. If `catalog.json` sits next to it (`dbt docs generate`), column types come from it automatically.
+
+!!! tip "Run `dbt docs generate` first"
+    `manifest.json` only knows the columns you've documented in YAML. `catalog.json`, written by `dbt docs generate`, lists every column in the warehouse with its type. Without it, undocumented models show up with no columns, and qdbd prints a hint saying how many.
 
 ## What gets imported
 
@@ -52,7 +55,7 @@ Wrote erd/ (3 files): 8 tables, 4 relationships (3 inferred)
 How a column is matched:
 
 1. Its name ends in `_id`, `_key`, `_sk`, `Id` or `Key`; the rest is the entity (`customer_id` → `customer`).
-2. Candidate parents are tables named after the entity, after removing a dbt layer prefix (`stg_`, `int_`, `dim_`, `fct_`, `raw_`, …), in singular or plural (`customer`, `customers`, `categories`).
+2. Candidate parents are tables named after the entity, after removing a dbt layer prefix (`stg_`, `int_`, `dim_`, `fct_`, `raw_`, …) and any source qualifier (`stg_shop__customers` → `customers`), in singular or plural (`customer`, `customers`, `categories`).
 3. The parent needs a matching key: a column with the same name (`customer_id`, `customerId`) or `id`.
 4. If several tables qualify, qdbd picks `dim_` parents for `fct_` children, else the same layer as the child (`stg_` → `stg_`), then the same folder, then a declared primary key. If that still leaves a tie, the column is **skipped** and reported, never guessed.
 
