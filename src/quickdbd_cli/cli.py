@@ -318,7 +318,9 @@ def cmd_serve(args) -> int:
     from .serve import serve
 
     project = _open(args)
-    return serve(project, port=args.port, open_browser=not args.no_open, read_only=args.read_only)
+    # Without --port, a busy 8765 (e.g. a second `qdbd serve`) moves on to the next free port.
+    port, tries = (args.port, 1) if args.port is not None else (8765, 20)
+    return serve(project, port=port, open_browser=not args.no_open, read_only=args.read_only, tries=tries)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -437,7 +439,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)
-    sp.add_argument("--port", type=int, default=8765)
+    sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
     sp.add_argument("--layout")
     sp.add_argument("--no-open", action="store_true", help="don't open a browser")
     sp.add_argument(
