@@ -174,7 +174,32 @@ Where the layout file goes:
 
 `qdbd build` never writes the layout file, so CI builds leave your working tree clean. More: [Table Positions](https://markphamm.github.io/quickdbd-cli/layout/).
 
-### 3.4 Differences from QuickDBD
+### 3.4 Tags and colours
+
+Give tables a role and a header colour. Tags are comments, so the file still pastes into QuickDBD.
+
+```text
+# @color gold #b8860b      # optional: pick a tag's colour
+
+# @tag: gold, pii
+customers
+-
+customer_id PK int
+
+dim_date                   # tagged "dim" automatically from its name
+-
+date_key PK int
+```
+
+A table's tags come from the first source that has any:
+
+1. an explicit `# @tag:` comment;
+2. its name: `dim_*` → dim, `fct_*` / `fact_*` → fact, `stg_*` → staging, `int_*` → intermediate, `raw_*` / `src_*` → raw;
+3. dbt tags, written as `# @dbt-tags:` by `qdbd import dbt`.
+
+The header takes the colour of the first tag. In the page, a chip per tag under the filter box shows only that tag, and the selector `tag:fact` works everywhere. More: [Tags and Colours](https://markphamm.github.io/quickdbd-cli/tags/).
+
+### 3.5 Differences from QuickDBD
 
 `qdbd` accepts a few things QuickDBD rejects, and prints a warning for each:
 
@@ -215,6 +240,7 @@ The explorer's filter box takes dbt-style selectors that follow **relationships*
 | `+orders+1` | one hop in both directions |
 | `group:marts`, `file:core.txt` | a folder or a file |
 | `col:customer_id` | tables with a matching column |
+| `tag:fact` | tables with a matching tag ([3.4](#34-tags-and-colours)) |
 | `a b` / `a,b` / `!a` | union / intersection / exclude |
 
 ```bash
@@ -260,6 +286,7 @@ See it on a real project: the [jaffle_shop demo](https://markphamm.github.io/qui
 | Relationships | `relationships` tests (incl. dbt_utils `relationships_where`) and `foreign_key` constraints |
 | Column types | `catalog.json` |
 | Tooltips | model and column descriptions |
+| Header colours | dbt `tags` (unless the name or an explicit `# @tag` says otherwise) |
 
 Useful options: `--select 'marts.*'` (repeatable), `--no-sources`, `--package all`, `-o schema.txt` for a single file.
 

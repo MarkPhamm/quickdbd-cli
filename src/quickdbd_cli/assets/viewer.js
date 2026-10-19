@@ -331,7 +331,8 @@
       var open = q || !shut[g];
       var rows = items.map(function (t) {
         if (open) visible.push(t.id);
-        return '<div class="ti" data-id="' + Q.esc(t.id) + '">' + Q.esc(t.name) +
+        return '<div class="ti" data-id="' + Q.esc(t.id) + '">' +
+          (t.color ? '<i class="tdot" style="background:' + Q.esc(t.color) + '" title="' + Q.esc(t.tags.join(", ")) + '"></i>' : "") + Q.esc(t.name) +
           (t.aliases.length ? "<small>as " + Q.esc(t.aliases.join(", ")) + "</small>" : "") + "</div>";
       }).join("");
       if (flat) return rows;
@@ -408,7 +409,25 @@
     if (err) fstat.textContent = err;
     else if (ids) fstat.innerHTML = "Showing " + ids.length + " of " + S.model.tables.length + ' tables<a id="fclear">clear</a>';
     else fstat.textContent = "";
+    drawTags();
   }
+  /* Tag legend: one chip per tag (header colour + count); a click filters to tag:NAME, a second click clears. */
+  var tagbar = document.getElementById("tagbar");
+  function drawTags() {
+    var tags = S.model.tags || [];
+    tagbar.style.display = tags.length ? "" : "none";
+    tagbar.innerHTML = tags.map(function (g) {
+      var on = S.filter.toLowerCase() === "tag:" + g.name;
+      return '<button class="tchip' + (on ? " on" : "") + '" data-tag="' + Q.esc(g.name) + '" title="Show only tag:' + Q.esc(g.name) +
+        '"><i style="background:' + Q.esc(g.color) + '"></i>' + Q.esc(g.name) + "<small>" + g.count + "</small></button>";
+    }).join("");
+  }
+  tagbar.addEventListener("click", function (ev) {
+    var b = ev.target.closest(".tchip");
+    if (!b) return;
+    var expr = "tag:" + b.getAttribute("data-tag");
+    applyFilter(S.filter.toLowerCase() === expr ? "" : expr);
+  });
   function applyFilter(expr, keepView) {
     S.filter = (expr || "").trim();
     if (finput.value.trim() !== S.filter) finput.value = S.filter;
@@ -476,6 +495,12 @@
     if (t.aliases.length) meta.push("as " + Q.esc(t.aliases.join(", ")));
     if (t.file) meta.push(Q.esc(t.file) + ":" + t.line);
     if (meta.length) out.push('<div class="meta">' + meta.join(" &middot; ") + "</div>");
+    if (t.tags) {
+      out.push('<div class="ttags">' + t.tags.map(function (g) {
+        var c = (S.model.tags || []).filter(function (x) { return x.name === g; })[0];
+        return '<a class="ttag" data-tag="' + Q.esc(g) + '" style="background:' + Q.esc(c ? c.color : "#2b5797") + '">' + Q.esc(g) + "</a>";
+      }).join("") + "</div>");
+    }
     if (t.doc) out.push('<div class="doc">' + Q.esc(t.doc) + "</div>");
     out.push('<div class="pathbox"><input id="pathto" list="pathlist" placeholder="Path to another table…" autocomplete="off" value="' +
       (S.path && byId[S.path.to] ? Q.esc(byId[S.path.to].name) : "") + '"></div><datalist id="pathlist">' +
@@ -558,6 +583,8 @@
   dbody.addEventListener("click", function (ev) {
     var a = ev.target.closest("a[data-go]");
     if (a) select(a.getAttribute("data-go"), { center: true });
+    var tg = ev.target.closest("a.ttag");
+    if (tg) applyFilter("tag:" + tg.getAttribute("data-tag"));
   });
   document.getElementById("dclose").onclick = function () { select(null); };
 
@@ -570,7 +597,7 @@
     var geo = Q.geometry(S.vm, S.mode), parts = [];
     S.vm.tables.forEach(function (t) {
       var p = S.pos[t.id];
-      if (p) parts.push('<rect x="' + p[0] + '" y="' + p[1] + '" width="' + geo[t.id].w + '" height="' + geo[t.id].h + '" fill="#2b5797" opacity=".55"/>');
+      if (p) parts.push('<rect x="' + p[0] + '" y="' + p[1] + '" width="' + geo[t.id].w + '" height="' + geo[t.id].h + '" fill="' + (t.color || "#2b5797") + '" opacity=".55"/>');
     });
     parts.push('<rect class="vpr" id="vpr"/>');
     mini.innerHTML = parts.join("");

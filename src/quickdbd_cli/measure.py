@@ -11,6 +11,7 @@ from functools import cache
 from importlib import resources
 from pathlib import PurePosixPath
 
+from . import tags
 from .model import Column, Schema, Table
 
 STYLE = {
@@ -127,12 +128,17 @@ def model_json(schema: Schema) -> dict:
                 "b": {"t": r.b.table, "c": r.b.column, "card": r.b.card},
             }
         )
-    return {
+    tables = [
+        {**table_json(t), "group": groups[t.path], "file": t.path, "line": t.line} for t in schema.tables.values()
+    ]
+    legend = tags.annotate(schema, tables)
+    out = {
         "style": STYLE,
-        "tables": [
-            {**table_json(t), "group": groups[t.path], "file": t.path, "line": t.line} for t in schema.tables.values()
-        ],
+        "tables": tables,
         "rels": rels,
         "zoom": schema.zoom,
         "position": list(schema.position) if schema.position else None,
     }
+    if legend:
+        out["tags"] = legend
+    return out

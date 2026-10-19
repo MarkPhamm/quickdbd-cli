@@ -93,7 +93,7 @@ def test_selectors(model, expr, expected):
 
 def test_unknown_method(model):
     with pytest.raises(Exception, match="unknown selector method"):
-        sel(model, "tag:pii")
+        sel(model, "owner:pii")
 
 
 # ------------------------------------------------------------------ CLI --select / --exclude
@@ -132,8 +132,8 @@ def test_select_errors(tmp_path, capsys):
     root = write_files(tmp_path)
     assert main(["build", str(root), "-s", "nope", "-o", str(tmp_path / "d.html")]) == 1
     assert "no tables match 'nope'" in capsys.readouterr().err
-    assert main(["build", str(root), "-s", "tag:x", "-o", str(tmp_path / "d.html")]) == 1
-    assert "error: unknown selector method 'tag'" in capsys.readouterr().err
+    assert main(["build", str(root), "-s", "owner:x", "-o", str(tmp_path / "d.html")]) == 1
+    assert "error: unknown selector method 'owner'" in capsys.readouterr().err
 
 
 def test_selector_expr():

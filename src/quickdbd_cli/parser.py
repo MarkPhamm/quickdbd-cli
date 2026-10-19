@@ -22,6 +22,21 @@ SECTION_ALIASES = {"rels": "relationships"}
 ALLOWED_REL = ", ".join(REL_TYPES)
 REJECT = "QuickDBD would reject this: "
 
+# qdbd directives live in comments, so files stay valid QuickDBD.
+TAG_RE = re.compile(r"^@(tags?|dbt-tags?)\s*:?\s*(.*)$", re.I)
+COLOR_RE = re.compile(r"^@colou?r\b\s*:?\s*(.*)$", re.I)
+TAG_NAME_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
+HEX_RE = re.compile(r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+
+
+def split_tags(text: str) -> list[str]:
+    out: list[str] = []
+    for t in re.split(r"[\s,]+", text.strip()):
+        t = t.lower()
+        if t and t not in out:
+            out.append(t)
+    return out
+
 
 # --------------------------------------------------------------------------- helpers
 
@@ -197,6 +212,7 @@ class FileParse:
     layout_entries: list[Entry] = field(default_factory=list)
     diagnostics: list[Diagnostic] = field(default_factory=list)
     general_comments: list[str] = field(default_factory=list)
+    colors: dict[str, tuple[str, int]] = field(default_factory=dict)  # tag -> (#hex, line)
 
     def error(self, line: int, msg: str) -> None:
         self.diagnostics.append(Diagnostic(self.path, line, msg, "error"))
@@ -227,6 +243,11 @@ class _FileParser:
                 raw = raw.replace("\t", " ")
             blank = raw.rstrip() == ""
             data, comment = line_data(raw)
+            if comment and COLOR_RE.match(comment):
+                # the hex value has its own '#', which line_data treats as the end of the comment
+                full = re.search(r"#\s*(@colou?r\b.*)$", raw, re.I)
+                self._color(full.group(1).strip() if full else comment, lineno)
+                comment = None
             if comment:
                 pending.append(comment)
             elif blank and not seen_data:
@@ -249,6 +270,17 @@ class _FileParser:
             else:
                 out[section].append(entry)
         return out
+
+    def _color(self, comment: str, line: int) -> None:
+        parts = COLOR_RE.match(comment).group(1).split()
+        if len(parts) > 2 and parts[2].startswith("#"):  # a trailing comment after the colour
+            parts = parts[:2]
+        if len(parts) != 2 or not TAG_NAME_RE.match(parts[0]) or not HEX_RE.match(parts[1]):
+            self.fp.diagnostics.append(
+                Diagnostic(self.fp.path, line, "Invalid @color directive (use '# @color TAG #rrggbb')", "warning")
+            )
+            return
+        self.fp.colors[parts[0].lower()] = (parts[1].lower(), line)
 
     def _validate_section(self, name: str, seen: list[str], line: int) -> bool:
         if name not in SECTIONS:
@@ -369,7 +401,16 @@ class _FileParser:
             if ident in fp.tables:
                 fp.error(e.line, f"Table '{caption}' already defined")
                 return None
-            fp.tables[ident] = Table(ident, caption, fp.path, e.line, aliases, {}, list(e.comments))
+            table = Table(ident, caption, fp.path, e.line, aliases, {})
+            for c in e.comments:
+                m = TAG_RE.match(c)
+                if not m:
+                    table.comments.append(c)
+                elif m.group(1).lower().startswith("dbt"):
+                    table.dbt_tags += [t for t in split_tags(m.group(2)) if t not in table.dbt_tags]
+                else:
+                    table.tags += [t for t in split_tags(m.group(2)) if t not in table.tags]
+            fp.tables[ident] = table
             for a in aliases:
                 fp.aliases[a] = ident
             return ident
@@ -569,6 +610,12 @@ class _Resolver:
                 s.tables[ident] = table
             self.aliases.update(f.aliases)
             s.general_comments.extend(f.general_comments)
+            for tag, (color, line) in sorted(f.colors.items()):
+                if tag not in s.tag_colors:
+                    s.tag_colors[tag] = color
+                elif s.tag_colors[tag] != color:
+                    msg = f"@color for '{tag}' differs from an earlier file; using the first"
+                    self.error(f.path, line, msg, "warning")
             zoom = f.settings.get("zoom")
             pos = f.settings.get("position")
             lines = f.settings.get("_lines", {})

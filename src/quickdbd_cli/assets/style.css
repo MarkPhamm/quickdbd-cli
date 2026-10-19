@@ -56,6 +56,17 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .fstat { font-size: 11px; color: var(--muted); padding: 3px 2px 0; min-height: 14px; }
 .fstat.bad { color: #c0392b; }
 .fstat a { color: var(--blue); cursor: pointer; margin-left: 6px; }
+.tagbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0 2px; }
+.tchip { display: inline-flex; align-items: center; gap: 4px; font: 11px/1.6 inherit; padding: 0 7px 0 5px; border: 1px solid var(--line);
+  border-radius: 10px; background: #fff; color: var(--text, #333); cursor: pointer; }
+.tchip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.tchip small { color: var(--muted); }
+.tchip:hover { border-color: #b8c2d0; }
+.tchip.on { border-color: var(--blue); background: #eef3fa; }
+.tdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 6px 1px -13px; vertical-align: middle; }
+.tree.flat .tdot { margin-left: 0; }
+.details .ttags { margin: -4px 0 10px; display: flex; gap: 4px; flex-wrap: wrap; }
+.details .ttag { color: #fff; font-size: 11px; padding: 1px 8px; border-radius: 10px; cursor: pointer; text-decoration: none; }
 .tree { overflow: auto; padding: 4px 0 8px; }
 .explorer.collapsed .tree { display: none; }
 .gh { padding: 6px 12px 4px; font-size: 11px; font-weight: bold; color: var(--muted); text-transform: uppercase;
