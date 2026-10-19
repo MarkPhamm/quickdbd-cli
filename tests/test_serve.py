@@ -158,3 +158,39 @@ def test_events_stream_announces_versions(srv):
     poll_once(state)
     t.join(timeout=10)
     assert len(got) == 2 and got[1] > got[0]
+
+
+# ------------------------------------------------------------------ --read-only
+
+
+@pytest.fixture
+def ro(tmp_path):
+    f = tmp_path / "shop.txt"
+    f.write_text(SCHEMA)
+    server, state = make_server(Project.open([f]), port=0, read_only=True)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_address[1]}", state, f
+    server.shutdown()
+    server.server_close()
+
+
+def test_read_only_page_has_no_editor_and_reloads_live(ro):
+    base, _, _ = ro
+    code, page = call(base, "/")
+    assert code == 200 and b'id="side"' not in page and b'"serve":false' in page
+    assert b"codemirror.min.js" not in page and b"EventSource('events')" in page
+    code, st = call(base, "/state")
+    assert code == 200 and set(st) == {"version", "model", "positions"}  # no file text
+
+
+def test_read_only_refuses_writes_and_never_touches_disk(ro):
+    base, state, f = ro
+    assert not f.with_name("shop.layout.json").exists()
+    assert call(base, "/file", "PUT", {"path": display_path(f), "text": "x", "mtime": None})[0] == 403
+    assert call(base, "/layout", "POST", {"Customer": [1, 2]})[0] == 403
+    assert f.read_text() == SCHEMA
+    f.write_text(SCHEMA + "\nProduct\n-\nProductId PK int\n")
+    bump_mtime(f)
+    assert poll_once(state)
+    assert [t["name"] for t in call(base, "/state")[1]["model"]["tables"]] == ["Customer", "Order", "Product"]
+    assert not f.with_name("shop.layout.json").exists()

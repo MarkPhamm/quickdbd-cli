@@ -67,6 +67,7 @@ nav:
       - 4.1 Reading the Diagram: reading-the-diagram.md
       - 4.2 Selecting Tables: selectors.md
       - 4.3 Exports: exports.md
+      - 4.4 Sharing a Link: sharing.md
   - 5. dbt Projects:
       - 5.1 dbt Import: dbt.md
       - "5.2 Worked Example: jaffle_shop": example/index.md

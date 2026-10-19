@@ -40,7 +40,7 @@ Read it in order the first time; each step builds on the one before.
 | 1 | [Install](install.md) | Install with pip, pipx or uv, or run without installing |
 | 2 | [Quick Start](getting-started.md) | Write, check, edit, build and export your first diagram in 5 minutes |
 | 3 | [Schema Files](syntax.md) | The [syntax](syntax.md), [splitting a schema into files](files.md), [table positions](layout.md), and [tags and colours](tags.md) |
-| 4 | [Exploring a Diagram](reading-the-diagram.md) | [Reading the page](reading-the-diagram.md), [filtering with selectors](selectors.md), and [exports](exports.md) |
+| 4 | [Exploring a Diagram](reading-the-diagram.md) | [Reading the page](reading-the-diagram.md), [filtering with selectors](selectors.md), [exports](exports.md), and [sharing a link](sharing.md) |
 | 5 | [dbt Projects](dbt.md) | Generate the schema from `manifest.json`, then follow [jaffle_shop](example/index.md) from import to CI |
 | 6 | [Reviewing Changes](diffs.md) | What a branch changes, as a report and highlighted in the diagram |
 | 7 | [CI and Automation](github-action.md) | The GitHub Action, GitHub Pages, pre-commit and other CI systems |

@@ -47,7 +47,8 @@ def cmd_check(args) -> int:
     return 0 if ok else 1
 
 
-def cmd_build(args) -> int:
+def _built_page(args) -> tuple[str, dict] | int:
+    """Compile, select and lay out like `build`; returns (html, model) or an exit code."""
     from .html import render_page
 
     project = _open(args)
@@ -80,10 +81,38 @@ def cmd_build(args) -> int:
             print(f"error: {e}", file=sys.stderr)
             return 2
         raise
+    return render_page(model, pos, _title(project)), model
+
+
+def cmd_build(args) -> int:
+    res = _built_page(args)
+    if isinstance(res, int):
+        return res
+    page, model = res
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_page(model, pos, _title(project)), encoding="utf-8")
+    out.write_text(page, encoding="utf-8")
     print(f"Wrote {out} ({len(model['tables'])} tables, {len(model['rels'])} relationships)")
+    return 0
+
+
+def cmd_share(args) -> int:
+    from . import share
+
+    res = _built_page(args)
+    if isinstance(res, int):
+        return res
+    page, model = res
+    key = share.share_key(args.paths, selector_expr(args.select, args.exclude))
+    try:
+        r = share.publish(page, _title(_open(args)), key, public=args.public, new=args.new)
+    except share.ShareError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    verb = "Updated" if r.updated else "Shared"
+    print(f"{verb} {len(model['tables'])} tables ({'public' if r.public else 'secret'} gist {r.gist_url})")
+    print(f"Link: {r.link}")
+    print(f"  (if that doesn't load: {r.alt_link})")
     return 0
 
 
@@ -289,7 +318,7 @@ def cmd_serve(args) -> int:
     from .serve import serve
 
     project = _open(args)
-    return serve(project, port=args.port, open_browser=not args.no_open)
+    return serve(project, port=args.port, open_browser=not args.no_open, read_only=args.read_only)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -327,6 +356,19 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
+
+    sp = sub.add_parser("share", help="publish the diagram as a GitHub gist and print a link (needs the gh CLI)")
+    paths(sp)
+    selectors(sp)
+    sp.add_argument(
+        "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
+    )
+    sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
+    sp.add_argument("--strict", action="store_true")
+    sp.add_argument("--public", action="store_true", help="list the gist publicly (default: secret, link-only)")
+    sp.add_argument("--new", action="store_true", help="make a new gist instead of updating the last one")
+    sp.set_defaults(func=cmd_share)
 
     sp = sub.add_parser("export", help="write a PNG, SVG or draw.io file")
     paths(sp)
@@ -398,6 +440,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--port", type=int, default=8765)
     sp.add_argument("--layout")
     sp.add_argument("--no-open", action="store_true", help="don't open a browser")
+    sp.add_argument(
+        "--read-only",
+        action="store_true",
+        help="live view only: no editor, nothing saved; safe to share through a tunnel",
+    )
     sp.set_defaults(func=cmd_serve)
     return p
 

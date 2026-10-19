@@ -75,6 +75,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 **Other modules:**
 
 - `dbt.py`: manifest/catalog → QuickDBD text. PKs come from `unique` + `not_null` tests or constraints; FKs from `relationships` tests and `foreign_key` constraints. Constraint targets are resolved after collection. Output is self-checked by compiling it before anything is written.
+- `share.py`: `qdbd share` publishes the built page as a gist via `gh api` (POST/PATCH `/gists`), remembering gist ids in `~/.cache/qdbd/shares.json` (`QDBD_CACHE_DIR` overrides; tests fake `subprocess.run`). `serve --read-only` renders the plain viewer plus `LIVE_JS` (SSE reload), omits file text from `/state`, returns 403 on writes, and never writes the layout file.
 - `diff.py`: schema diff by name. `--base` reads files with `git show REF:path`, with no checkout.
 
 ## Conventions

@@ -21,10 +21,12 @@ Writes one self-contained HTML page. Builds are deterministic (same input, same 
 ## 8.3 serve { #serve }
 
 ```bash
-qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open]
+qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only]
 ```
 
 Local live editor on `127.0.0.1`: reloads when files change, browser editor pane with autosave, drag tables to save positions. Ctrl+C stops it.
+
+`--read-only` serves a live view with no editor that never writes to disk, safe to put behind a tunnel ([4.4 Sharing a Link](sharing.md#live-read-only-link)).
 
 ## 8.4 export { #export }
 
@@ -67,10 +69,18 @@ qdbd import dbt target/manifest.json -o erd/ [--catalog FILE] [--package NAME] [
 
 See [5.1 dbt Import](dbt.md).
 
-## 8.9 Exit codes { #exit-codes }
+## 8.9 share { #share }
+
+```bash
+qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--public] [--new]
+```
+
+Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. See [4.4 Sharing a Link](sharing.md).
+
+## 8.10 Exit codes { #exit-codes }
 
 | Code | Meaning |
 |---|---|
 | 0 | success |
 | 1 | schema errors, no matching tables, no path, or (`diff --exit-code`) changes found |
-| 2 | bad arguments, missing files, or git errors |
+| 2 | bad arguments, missing files, git errors, or `share` upload errors |

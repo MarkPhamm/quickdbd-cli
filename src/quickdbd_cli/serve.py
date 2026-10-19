@@ -3,7 +3,8 @@
 Watches the schema files (mtime polling), recompiles on change and pushes a reload event to the
 page over Server-Sent Events. Dragged table positions are saved to the layout sidecar; the
 browser editor pane writes the .txt files, refusing to overwrite a file changed on disk since
-the browser last loaded it.
+the browser last loaded it. With ``read_only`` the page is the plain viewer plus live reload, and
+the server never writes anything.
 """
 
 from __future__ import annotations
@@ -22,8 +23,9 @@ from .project import Project, discover, display_path
 
 
 class State:
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, read_only: bool = False):
         self.project = project
+        self.read_only = read_only  # never write to disk: no editor saves, no layout file
         self.lock = threading.Condition()
         self.version = 0
         self.model: dict = {"style": {}, "tables": [], "rels": [], "zoom": None, "position": None}
@@ -61,7 +63,8 @@ class State:
                 pos = layout.resolve_positions(model, base, schema.layout)
                 self.model = model
                 self.positions = {k: [v[0], v[1]] for k, v in pos.items()}
-                self.project.save_positions(model, self.positions)
+                if not self.read_only:
+                    self.project.save_positions(model, self.positions)
             self.version += 1
             self.lock.notify_all()
         if not initial:
@@ -76,6 +79,8 @@ class State:
 
     def snapshot(self) -> dict:
         with self.lock:
+            if self.read_only:  # the model only: no file text, no diagnostics
+                return {"version": self.version, "model": self.model, "positions": self.positions}
             files = []
             for f in self.files:
                 p = display_path(f)
@@ -134,7 +139,10 @@ def _handler(state: State, title: str):
         def do_GET(self) -> None:
             if self.path == "/":
                 with state.lock:
-                    page = render_page(state.model, state.positions, title, serve=True)
+                    if state.read_only:
+                        page = render_page(state.model, state.positions, title, live=True)
+                    else:
+                        page = render_page(state.model, state.positions, title, serve=True)
                 self._send(200, page.encode(), "text/html; charset=utf-8")
             elif self.path == "/state":
                 self._json(200, state.snapshot())
@@ -161,14 +169,18 @@ def _handler(state: State, title: str):
                 self._send(404, b"not found", "text/plain")
 
         def do_POST(self) -> None:
-            if self.path == "/layout":
+            if state.read_only:
+                self._json(403, {"error": "read-only"})
+            elif self.path == "/layout":
                 state.save_layout(self._body())
                 self._json(200, {"ok": True})
             else:
                 self._send(404, b"not found", "text/plain")
 
         def do_PUT(self) -> None:
-            if self.path == "/file":
+            if state.read_only:
+                self._json(403, {"error": "read-only"})
+            elif self.path == "/file":
                 b = self._body()
                 code, obj = state.write_file(b.get("path", ""), b.get("text", ""), b.get("mtime"))
                 self._json(code, obj)
@@ -178,9 +190,9 @@ def _handler(state: State, title: str):
     return Handler
 
 
-def make_server(project: Project, port: int = 8765) -> tuple[ThreadingHTTPServer, State]:
+def make_server(project: Project, port: int = 8765, read_only: bool = False) -> tuple[ThreadingHTTPServer, State]:
     """Bind the HTTP server (port 0 picks a free port) without starting it."""
-    state = State(project)
+    state = State(project, read_only=read_only)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
     server = ThreadingHTTPServer(("127.0.0.1", port), _handler(state, title))
     server.daemon_threads = True
@@ -198,12 +210,16 @@ def poll_once(state: State) -> bool:
     return True
 
 
-def serve(project: Project, port: int = 8765, open_browser: bool = True) -> int:
-    server, state = make_server(project, port)
+def serve(project: Project, port: int = 8765, open_browser: bool = True, read_only: bool = False) -> int:
+    server, state = make_server(project, port, read_only=read_only)
     for d in state.diagnostics:
         print(d["text"], file=sys.stderr)
     url = f"http://127.0.0.1:{server.server_address[1]}/"
-    print(f"[qdbd] serving {len(state.files)} file(s) at {url}  (layout: {display_path(project.sidecar)})")
+    if read_only:
+        print(f"[qdbd] serving {len(state.files)} file(s) read-only at {url}")
+        print(f"[qdbd] nothing is written to disk. To share it: cloudflared tunnel --url {url}")
+    else:
+        print(f"[qdbd] serving {len(state.files)} file(s) at {url}  (layout: {display_path(project.sidecar)})")
     print("[qdbd] Ctrl+C to stop", flush=True)
 
     def watch() -> None:
