@@ -55,6 +55,8 @@ qdbd build erd/ -o erd.html
 - **Relationships:** `relationships` tests (including dbt_utils `relationships_where`) and `foreign_key` constraints.
 - **Primary keys:** `primary_key` constraints, or else a column with both `unique` and `not_null` tests.
 - **Docs:** model and column descriptions become doc comments, shown as tooltips.
+- **`--infer-fks`:** also links `customer_id`-style columns to the table they name, when no relationship is declared. Ambiguous matches are skipped, never guessed.
+- **`--check`:** in CI, fails when the committed files are out of date.
 - **Options:**
   - `--select 'marts.*'` narrows by name, fqn or path (repeatable)
   - `--package all` includes installed packages

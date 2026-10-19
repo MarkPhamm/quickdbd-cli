@@ -29,12 +29,48 @@ qdbd import dbt target/manifest.json -o erd/
 | `--package NAME` | include an installed package (repeatable; `all` for every package). Default: your project only |
 | `--select GLOB` | only nodes whose name, fqn (`proj.marts.orders`) or path matches (repeatable) |
 | `--no-sources` | leave sources out |
+| `--infer-fks` | also guess relationships from column names (below) |
+| `--check` | don't write; exit 1 if the files at `-o` are out of date (CI) |
 
 The generated text is compiled before anything is written; if qdbd can't read its own output, it stops instead of writing a broken schema.
+
+## Guessing relationships: `--infer-fks`
+
+Most dbt projects declare few `relationships` tests, so a plain import can show 200 tables with hardly any lines. `--infer-fks` adds the obvious ones from column names:
+
+```bash
+qdbd import dbt target/ -o erd/ --infer-fks
+```
+
+```text
+inferred: stg_orders.customer_id -> stg_customers.customer_id
+inferred: stg_payments.order_id -> stg_orders.order_id
+inferred: raw_payments.order_id -> raw_orders.id
+Wrote erd/ (3 files): 8 tables, 4 relationships (3 inferred)
+```
+
+How a column is matched:
+
+1. Its name ends in `_id`, `_key`, `_sk`, `Id` or `Key`; the rest is the entity (`customer_id` → `customer`).
+2. Candidate parents are tables named after the entity, after removing a dbt layer prefix (`stg_`, `int_`, `dim_`, `fct_`, `raw_`, …), in singular or plural (`customer`, `customers`, `categories`).
+3. The parent needs a matching key: a column with the same name (`customer_id`, `customerId`) or `id`.
+4. If several tables qualify, qdbd picks `dim_` parents for `fct_` children, else the same layer as the child (`stg_` → `stg_`), then the same folder, then a declared primary key. If that still leaves a tie, the column is **skipped** and reported, never guessed.
+
+Declared relationships always win, and a table's own single primary key is never turned into a foreign key. Inferred columns say so in their description (and tooltip), so readers can tell them apart.
+
+## Keeping committed files current: `--check`
+
+If you commit the generated files (recommended: pull requests can then diff them), check in CI that they match the project:
+
+```bash
+qdbd import dbt target/ -o erd/ --check
+```
+
+It writes nothing. It exits 0 when everything matches, or prints each stale, missing or no-longer-generated file and exits 1, like a generated-code check.
 
 ## Refreshing
 
 Re-run the import whenever models change. Generated files say so in their header and are overwritten. Positions are in `qdbd.layout.json`, keyed by table name, so your arrangement survives. New models are placed next to their related tables.
 
 !!! note "Relationships come from your tests"
-    dbt has no foreign keys of its own. qdbd draws the relationships your project declares through `relationships` tests or `foreign_key` constraints. If the import reports few relationships, adding those tests both documents and tests your joins.
+    dbt has no foreign keys of its own. qdbd draws the relationships your project declares through `relationships` tests or `foreign_key` constraints, plus, with `--infer-fks`, the ones it can read from column names. Adding `relationships` tests both documents and tests your joins.

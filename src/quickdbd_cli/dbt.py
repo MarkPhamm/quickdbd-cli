@@ -35,6 +35,47 @@ _TYPE_ALIASES = {
 }
 
 
+_ENTITY = re.compile(r"^(.+?)(_id|_key|_sk|Id|ID|Key)$")
+_LAYERS = ("staging_", "stg_", "int_", "base_", "raw_", "src_", "dim_", "fct_", "fact_", "mart_", "d_", "f_")
+
+
+def _layer(name: str) -> tuple[str, str]:
+    """Split a dbt-style layer prefix off a table name: 'stg_orders' -> ('stg_', 'orders')."""
+    low = name.lower()
+    for p in _LAYERS:
+        if low.startswith(p) and len(low) > len(p):
+            return p, low[len(p) :]
+    return "", low
+
+
+def _prefix_rank(child: str, parent: str) -> int:
+    """Lower is better: facts point at dimensions; otherwise stay within the same layer (stg_ -> stg_)."""
+    if child in ("fct_", "fact_", "f_") and parent in ("dim_", "d_"):
+        return 0
+    return 1 if parent == child else 2
+
+
+def _same_entity(table_base: str, entity: str) -> bool:
+    forms = {entity, entity + "s", entity + "es"}
+    if entity.endswith("y"):
+        forms.add(entity[:-1] + "ies")
+    return table_base in forms
+
+
+def _key_column(t: Tbl, name: str) -> Col | None:
+    """The parent column an `<entity>_id` points at: same name, else `id`; primary keys first."""
+
+    def norm(n: str) -> str:  # customer_id == customerId == CUSTOMER_ID
+        return n.lower().replace("_", "")
+
+    cols = {norm(c.name): c for c in t.cols.values()}
+    same, plain = cols.get(norm(name)), cols.get("id")
+    for c in (same, plain):
+        if c is not None and c.pk:
+            return c
+    return same or plain
+
+
 class DbtImportError(Exception):
     pass
 
@@ -74,6 +115,7 @@ class ImportResult:
     tables: int
     relationships: int
     skipped: list[str]
+    inferred: list[str] = field(default_factory=list)
 
 
 def _strip_quotes(s: str) -> str:
@@ -117,9 +159,17 @@ def _comment_lines(text: str) -> list[str]:
 
 class _Importer:
     def __init__(
-        self, manifest: dict, catalog: dict | None, packages: list[str] | None, select: list[str], sources: bool
+        self,
+        manifest: dict,
+        catalog: dict | None,
+        packages: list[str] | None,
+        select: list[str],
+        sources: bool,
+        infer: bool = False,
     ):
         self.m = manifest
+        self.infer = infer
+        self.inferred: list[str] = []
         self.catalog = catalog or {}
         self.select = select
         self.sources = sources
@@ -310,6 +360,62 @@ class _Importer:
             count += 1
         return count
 
+    # -- inference from column names (--infer-fks) ---------------------------
+    def infer_fks(self) -> int:
+        """Link `<entity>_id` columns to the one table named after the entity, when no relationship is declared.
+
+        Candidates are tables whose name, without a dbt layer prefix (stg_, dim_, fct_, ...) and in singular
+        or plural, equals the entity, and that have a matching key column. Among several, prefer a dim_ parent
+        for a fct_ child, else the same prefix as the child, then the same folder, then a declared primary key;
+        a tie is skipped rather than guessed.
+        """
+        # columns already on the parent side of a declared relationship
+        referenced = {(c.fk[1], c.fk[2].lower()) for t in self.tables.values() for c in t.cols.values() if c.fk}
+        count = 0
+        for t in sorted(self.tables.values(), key=lambda t: t.uid):
+            pks = [c for c in t.cols.values() if c.pk]
+            for c in sorted(t.cols.values(), key=lambda c: (c.order, c.name.lower())):
+                if c.fk is not None or (c.pk and len(pks) == 1) or (t.uid, c.name.lower()) in referenced:
+                    continue
+                m = _ENTITY.match(c.name)
+                if not m:
+                    continue
+                entity = m.group(1).rstrip("_").lower()
+                found = self._infer_target(t, c, entity)
+                if found is None:
+                    continue
+                parent, pcol = found
+                c.fk = (">-", parent.uid, pcol.name)
+                note = "Relationship inferred from the column name (qdbd import dbt --infer-fks)."
+                c.description = (c.description + "\n" if c.description else "") + note
+                self.inferred.append(f"{t.name}.{c.name} -> {parent.name}.{pcol.name}")
+                count += 1
+        return count
+
+    def _infer_target(self, child: Tbl, col: Col, entity: str) -> tuple[Tbl, Col] | None:
+        child_prefix = _layer(child.name.split(".")[-1])[0]
+        ranked = []
+        for t in self.tables.values():
+            if t.uid == child.uid:
+                continue
+            prefix, base = _layer(t.name.split(".")[-1])
+            if not _same_entity(base, entity):
+                continue
+            key = _key_column(t, col.name)
+            if key is None:
+                continue
+            score = (_prefix_rank(child_prefix, prefix), t.group != child.group, not key.pk)
+            ranked.append((score, t, key))
+        if not ranked:
+            return None
+        ranked.sort(key=lambda r: r[0])
+        best = [r for r in ranked if r[0] == ranked[0][0]]
+        if len(best) > 1:
+            names = ", ".join(sorted(r[1].name for r in best))
+            self.skipped.append(f"{child.name}.{col.name}: ambiguous ({names}), not inferred")
+            return None
+        return best[0][1], best[0][2]
+
     # -- output -------------------------------------------------------------
     def render_table(self, t: Tbl) -> list[str]:
         lines = _comment_lines(t.description)
@@ -336,6 +442,8 @@ class _Importer:
         self.collect()
         self.tests()
         rels = self.link()
+        if self.infer:
+            rels += self.infer_fks()
         groups: dict[str, list[Tbl]] = {}
         for t in sorted(self.tables.values(), key=lambda t: (t.group, t.name.lower())):
             groups.setdefault(t.group, []).append(t)
@@ -358,6 +466,7 @@ def import_dbt(
     select: list[str] | None = None,
     sources: bool = True,
     split: bool = False,
+    infer_fks: bool = False,
 ) -> ImportResult:
     if manifest_path.is_dir():
         manifest_path = manifest_path / "manifest.json"
@@ -367,7 +476,7 @@ def import_dbt(
     if catalog_path is None and (manifest_path.parent / "catalog.json").exists():
         catalog_path = manifest_path.parent / "catalog.json"
     catalog = load_json(catalog_path) if catalog_path else None
-    imp = _Importer(manifest, catalog, packages, select or [], sources)
+    imp = _Importer(manifest, catalog, packages, select or [], sources, infer=infer_fks)
     groups, rels = imp.run()
     project = (manifest.get("metadata") or {}).get("project_name") or "dbt"
     head = [
@@ -388,7 +497,7 @@ def import_dbt(
             for t in tables:
                 body += imp.render_table(t) + [""]
         files["schema.txt"] = "\n".join(body).rstrip("\n") + "\n"
-    return ImportResult(files, len(imp.tables), rels, imp.skipped)
+    return ImportResult(files, len(imp.tables), rels, imp.skipped, imp.inferred)
 
 
 def write_result(result: ImportResult, out: Path) -> list[Path]:
@@ -410,3 +519,24 @@ def write_result(result: ImportResult, out: Path) -> list[Path]:
         if old.name not in keep and old.read_text(encoding="utf-8").startswith(HEADER):
             old.unlink()
     return written
+
+
+def stale_files(result: ImportResult, out: Path) -> list[str]:
+    """What `write_result` would change: files that differ, are missing, or would be removed. Empty = up to date."""
+    if out.suffix == ".txt":
+        text = next(iter(result.files.values()))
+        if not out.exists():
+            return [f"{out} (missing)"]
+        return [] if out.read_text(encoding="utf-8") == text else [f"{out} (out of date)"]
+    problems = []
+    for name, text in sorted(result.files.items()):
+        p = out / name
+        if not p.exists():
+            problems.append(f"{p} (missing)")
+        elif p.read_text(encoding="utf-8") != text:
+            problems.append(f"{p} (out of date)")
+    if out.is_dir():
+        for old in sorted(out.glob("*.txt")):
+            if old.name not in result.files and old.read_text(encoding="utf-8").startswith(HEADER):
+                problems.append(f"{old} (no longer generated)")
+    return problems

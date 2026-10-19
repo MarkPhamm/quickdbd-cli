@@ -9,8 +9,22 @@ branding:
 
 inputs:
   path:
-    description: Schema file(s) or folder(s), space-separated.
-    required: true
+    description: >-
+      Schema file(s) or folder(s), space-separated. With dbt-manifest, the folder (or .txt file) the import writes to.
+    default: erd/
+  dbt-manifest:
+    description: >-
+      dbt manifest.json (or target/ folder). When set, the schema is generated with `qdbd import dbt` into `path`
+      first. Commit `path` so pull requests can show what changed.
+    default: ""
+  dbt-args:
+    description: Extra `qdbd import dbt` options, e.g. "--infer-fks --no-sources".
+    default: ""
+  dbt-check:
+    description: >-
+      With dbt-manifest: don't regenerate; fail if the committed schema files in `path` are out of date
+      (like a generated-code check).
+    default: "false"
   output:
     description: Where to write the HTML diagram.
     default: erd/index.html
@@ -66,6 +80,20 @@ runs:
         elif [ "$QDBD_VERSION" = "source" ]; then pip install -q "$GITHUB_ACTION_PATH"
         else pip install -q "quickdbd-cli==$QDBD_VERSION"; fi
         qdbd --version
+
+    - name: Import from dbt
+      if: inputs.dbt-manifest != ''
+      shell: bash
+      env:
+        DBT_MANIFEST: ${{ inputs.dbt-manifest }}
+        DBT_ARGS: ${{ inputs.dbt-args }}
+        DBT_CHECK: ${{ inputs.dbt-check }}
+        QDBD_PATH: ${{ inputs.path }}
+      run: |
+        args=()
+        if [ "$DBT_CHECK" = "true" ]; then args+=(--check); fi
+        # shellcheck disable=SC2086
+        qdbd import dbt "$DBT_MANIFEST" -o $QDBD_PATH $DBT_ARGS "${args[@]}"
 
     - name: Check schema
       if: inputs.check == 'true'

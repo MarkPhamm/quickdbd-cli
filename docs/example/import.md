@@ -59,7 +59,7 @@ order_date DATE
 | `# This is a unique identifier…` | the column `description` |
 
 !!! tip "No relationship lines?"
-    qdbd only draws relationships your project declares: `relationships` tests (including dbt_utils `relationships_where`) or `foreign_key` constraints. If the import prints `0 relationships`, add those tests; they're useful as data tests anyway.
+    qdbd draws the relationships your project declares: `relationships` tests (including dbt_utils `relationships_where`) or `foreign_key` constraints. Add `--infer-fks` to also link `customer_id`-style columns to the table they name; on jaffle_shop that adds 3 more (`stg_orders → stg_customers`, `stg_payments → stg_orders`, `raw_payments → raw_orders`). See [dbt Import](../dbt.md#guessing-relationships-infer-fks).
 
 ## Commit it
 
