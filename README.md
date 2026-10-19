@@ -272,7 +272,7 @@ qdbd share schema.txt          # needs the GitHub CLI: brew install gh && gh aut
 
 ```text
 Shared 12 tables (secret gist https://gist.github.com/you/1a2b3c…)
-Link: https://gist.githack.com/you/1a2b3c…/raw/schema.html
+Link: https://gistpreview.github.io/?1a2b3c…
 ```
 
 - The link opens the full interactive page. Running `qdbd share` again updates the same link.

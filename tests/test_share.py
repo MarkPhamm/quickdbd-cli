@@ -60,8 +60,8 @@ def test_share_creates_a_secret_gist_and_prints_links(gh, schema, capsys):
     assert list(payload["files"]) == ["shop.html"]
     assert payload["files"]["shop.html"]["content"].startswith("<!doctype html>")
     assert "Shared 2 tables (secret gist https://gist.github.com/me/g1)" in out
-    assert "Link: https://gist.githack.com/me/g1/raw/shop.html" in out
-    assert "https://gistpreview.github.io/?g1" in out
+    assert "Link: https://gistpreview.github.io/?g1" in out
+    assert "https://gist.githack.com/me/g1/raw/shop.html" in out
 
 
 def test_sharing_again_updates_the_same_gist(gh, schema, capsys):

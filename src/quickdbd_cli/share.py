@@ -21,8 +21,8 @@ class ShareError(Exception):
 
 @dataclass
 class Shared:
-    link: str  # the page, served with a text/html content type
-    alt_link: str  # fallback viewer
+    link: str  # gistpreview: renders the gist's HTML, keeps the #view part of the URL
+    alt_link: str  # githack: serves the raw file as text/html (after a one-click confirmation page)
     gist_url: str
     public: bool
     updated: bool
@@ -101,8 +101,8 @@ def publish(page: str, title: str, key: str, public: bool = False, new: bool = F
     cache[key] = {"id": gist["id"], "owner": owner, "file": fname}
     _save(cache)
     return Shared(
-        link=f"https://gist.githack.com/{owner}/{gist['id']}/raw/{fname}",
-        alt_link=f"https://gistpreview.github.io/?{gist['id']}",
+        link=f"https://gistpreview.github.io/?{gist['id']}",
+        alt_link=f"https://gist.githack.com/{owner}/{gist['id']}/raw/{fname}",
         gist_url=gist.get("html_url", ""),
         public=bool(gist.get("public")),
         updated=updated,

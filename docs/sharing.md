@@ -16,15 +16,15 @@ qdbd share schema.txt
 
 ```text
 Shared 12 tables (secret gist https://gist.github.com/you/1a2b3c…)
-Link: https://gist.githack.com/you/1a2b3c…/raw/schema.html
-  (if that doesn't load: https://gistpreview.github.io/?1a2b3c…)
+Link: https://gistpreview.github.io/?1a2b3c…
+  (if that doesn't load: https://gist.githack.com/you/1a2b3c…/raw/schema.html)
 ```
 
 Send the **Link**. It opens the full interactive page: search, filter, details, path finder and tag legend.
 
 - **Same link every time:** running `qdbd share` again for the same files updates the same gist, so the link keeps working with the new version. It can take a few minutes for viewers to see the update. `--new` makes a separate gist.
 - **Secret by default:** the gist is unlisted. Anyone with the link can open it, but it isn't listed on your profile or in search. `--public` lists it.
-- **A view, not just the page:** press **Link** in the page and append the copied `#…` part to the shared URL to send a filter, selected table or zoom.
+- **A view, not just the page:** on the shared page, press **Link** to copy a URL that also opens your filter, selected table and zoom.
 - **Needs the GitHub CLI:** install it (`brew install gh`) and run `gh auth login` once. The upload uses your GitHub account.
 - **Also takes:** the same options as `build`: `-s/--exclude`, `--by-group`, `--diff-base`, `--layout`.
 
