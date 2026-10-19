@@ -81,9 +81,9 @@
 .md-nav--primary .md-nav__link:hover { color: #fff; background: rgba(255,255,255,.04); }
 .md-nav--primary .md-nav__link--active, .md-nav--primary .md-nav__link--active:hover { color: var(--qd-mint);
   background: var(--qd-pill); }
-/* collapsible groups (the worked example) look like modelith's small-caps label with a chevron */
-.md-nav--primary .md-nav__item--nested > .md-nav__link { font-size: .58rem; text-transform: uppercase;
-  letter-spacing: .09em; color: var(--qd-label); font-weight: 600; }
+/* numbered sections with sub-pages: same look as a page link, plus a chevron; children indented */
+.md-nav--primary .md-nav__item--nested > .md-nav__link { display: flex; align-items: center; cursor: pointer; }
+.md-nav--primary .md-nav__item--nested > .md-nav__link .md-nav__icon { margin-left: auto; }
 .md-nav--primary .md-nav__item--nested > .md-nav .md-nav__link { padding-left: 1.1rem; }
 .md-nav--primary .md-nav__item--nested > .md-nav > .md-nav__title { display: none; }
 
@@ -132,24 +132,6 @@ iframe.demo { width: 100%; height: 620px; border: 1px solid var(--qd-rule); bord
 @media screen and (min-width: 76.25em) {
   .md-sidebar--primary .md-nav--primary, .md-sidebar--primary .md-nav--primary .md-nav { width: 100% !important; }
 }
-/* section index pages: Material renders the group as a container holding a link and a chevron label.
-   Make the pair one row with one pill (the container), never two separate boxes. */
-.md-nav--primary .md-nav__item--nested > .md-nav__container {
-  display: flex; align-items: center; padding: 0; margin: .35rem 0 .1rem; border-radius: 6px;
-  font-size: .58rem; text-transform: uppercase; letter-spacing: .09em; color: var(--qd-label); font-weight: 600;
-}
-.md-nav--primary .md-nav__container > .md-nav__link,
-.md-nav--primary .md-nav__container > .md-nav__link:hover,
-.md-nav--primary .md-nav__container > .md-nav__link--active {
-  background: none; margin: 0; border-radius: 0; font-size: inherit; text-transform: inherit; letter-spacing: inherit;
-  font-weight: inherit; color: inherit;
-}
-.md-nav--primary .md-nav__container > a.md-nav__link { flex: 1; padding: .45rem .6rem; }
-.md-nav--primary .md-nav__container > label.md-nav__link { flex: none; width: auto; padding: .45rem .6rem; }
-.md-nav--primary .md-nav__container:hover { background: rgba(255,255,255,.04); color: #fff; }
-.md-nav--primary .md-nav__container:has(> a.md-nav__link--active) { background: var(--qd-pill); color: var(--qd-mint); }
-.md-nav--primary .md-nav__container .md-ellipsis { white-space: normal; }
-.md-nav--primary .md-nav__item--nested > .md-nav { margin-bottom: .35rem; }
 @media screen and (min-width: 76.25em) {
   .md-sidebar--primary .md-sidebar__inner { padding-right: 0; }
   .md-nav--primary .md-nav__list { padding-right: .6rem; }
