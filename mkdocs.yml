@@ -25,7 +25,6 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.indexes
     - navigation.footer
     - navigation.top
     - toc.follow
