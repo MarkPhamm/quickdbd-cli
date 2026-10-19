@@ -8,7 +8,7 @@ Every `qdbd build` and `qdbd serve` page has the same layout: an **explorer** on
 
 | Element | Meaning |
 |---|---|
-| Blue header | Table name (aliases appear in the explorer and details) |
+| Blue header | Table name (aliases appear in the explorer and details). Another colour means the table has a [tag](tags.md) |
 | **Blue bold** column + key icon | Primary key |
 | **Bold** column | Foreign key, or a column used by a relationship |
 | Grey text, right-aligned | Column type |
@@ -42,6 +42,7 @@ The left panel lists every table, grouped by file (or by dbt folder after [`qdbd
 
 - **Search** with `/`: matches names, aliases and groups. Enter jumps to the best match.
 - **Filter** with dbt-style [selectors](selectors.md): `orders+1`, `group:marts`, `!stg_*`. Only matching tables stay on the canvas, the explorer and the minimap.
+- **Tags:** when tables have [tags](tags.md), a chip per tag sits under the filter. Click one to show only that tag.
 
 ![Filter: +Order+1](assets/img/filter.png){ .shot }
 

@@ -37,6 +37,7 @@ BODY = """
         <input id="filter" type="text" placeholder="Filter: orders+1  group:marts  !stg_*" autocomplete="off"
           spellcheck="false" title="{filter_help}">
         <div class="fstat" id="fstat"></div>
+        <div class="tagbar" id="tagbar"></div>
       </div>
       <div id="tree" class="tree"></div>
     </div>
@@ -87,7 +88,7 @@ SIDE = """
 
 FILTER_HELP = (
     "dbt-style selectors. +x: x and what it references. x+: x and what references it. "
-    "N+x+N: hops. group:/file:/col: methods. a,b: both. !x: exclude."
+    "N+x+N: hops. group:/file:/col:/tag: methods. a,b: both. !x: exclude."
 )
 
 

@@ -78,7 +78,7 @@
     var st = model.style, w = g.w, h = g.h, out = [];
     out.push('<g class="t" data-id="' + esc(t.id) + '" transform="translate(' + n(p[0]) + "," + n(p[1]) + ')">');
     out.push('<rect class="tb" width="' + w + '" height="' + h + '" rx="2" fill="' + C.body + '" stroke="' + C.border + '"/>');
-    var state = t.diff && t.diff.state, hcol = state === "added" ? C.added : state === "changed" ? C.changed : C.header;
+    var state = t.diff && t.diff.state, hcol = state === "added" ? C.added : state === "changed" ? C.changed : t.color || C.header;
     out.push('<path class="th" d="M0 2a2 2 0 0 1 2-2h' + (w - 4) + "a2 2 0 0 1 2 2v" + (st.headerH - 2) + "h-" + w + 'z" fill="' + hcol + '"/>');
     if (state) {
       out.push('<text x="' + (w - st.padX) + '" y="' + n(st.headerH / 2 + 4) + '" text-anchor="end" fill="#fff" font-family="' + FONT +
@@ -310,7 +310,7 @@
       cells.push(cell({
         id: tid, value: t.name, vertex: "1", parent: "1",
         style: "shape=table;startSize=" + HEADH + ";container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;" +
-          "fontStyle=1;align=left;spacingLeft=10;resizeLast=1;html=0;whiteSpace=wrap;fillColor=#2b5797;fontColor=#ffffff;" +
+          "fontStyle=1;align=left;spacingLeft=10;resizeLast=1;html=0;whiteSpace=wrap;fillColor=" + (t.color || C.header) + ";fontColor=#ffffff;" +
           "strokeColor=#dfe3e8;swimlaneFillColor=#ffffff;fontSize=14;",
       }, g(p[0] - b[0] + 40, p[1] - b[1] + 40, w, HEADH + Math.max(tg.cols.length, 0) * ROWH)));
       tg.cols.forEach(function (c, i) {
@@ -350,7 +350,7 @@
   /* ------------------------------------------------------------------ selectors (dbt-style, over relationships)
    * Space-separated atoms are unioned; a comma inside an atom intersects (a,b); a leading ! excludes.
    * Atom: [N]+  method:pattern  +[N]
-   *   method: name (default; also matches aliases), group, file, col
+   *   method: name (default; also matches aliases), group, file, col, tag
    *   pattern: glob with * and ?
    *   +x   x plus the tables it references (parents), any depth; 2+x limits to 2 hops
    *   x+   x plus the tables referencing it (children); x+1 limits to 1 hop
@@ -391,11 +391,12 @@
       else if (method === "group") ok = re.test(t.group || "") || (t.group || "").toLowerCase().indexOf(pat.toLowerCase() + "/") === 0;
       else if (method === "file") ok = re.test(t.file || "") || re.test((t.file || "").split("/").pop());
       else if (method === "col" || method === "column") ok = t.cols.some(function (c) { return re.test(c.name); });
+      else if (method === "tag") ok = (t.tags || []).some(function (x) { return re.test(x); });
       else if (method === "diff" || method === "state") {
         var ds = t.diff && t.diff.state, want = pat.toLowerCase();
         ok = !!ds && (want === "modified" || want === "*" || want === ds || (want === "new" && ds === "added"));
       }
-      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col, diff)");
+      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col, tag, diff)");
       if (ok) { out[t.id] = true; base.push(t.id); }
     });
     function hops(op, before) {

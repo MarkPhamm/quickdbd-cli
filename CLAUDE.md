@@ -70,6 +70,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `t.doc` / `c.doc`: tooltips
 - `t.diff` and `model.diff`: from `diff.annotate_model`, for `build --diff-base`
 - `model.regions`: set by `--by-group`
+- `t.tags` / `t.color` and `model.tags` (legend): from `tags.py`. Tags come from `# @tag:` comments, else the name prefix (`dim_`, `fct_`, …), else `# @dbt-tags:`; `# @color TAG #hex` overrides colours. All are comments, so files stay valid QuickDBD. Diff colours win over tag colours
 
 **Other modules:**
 

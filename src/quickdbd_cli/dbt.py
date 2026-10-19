@@ -113,6 +113,7 @@ class Tbl:
     group: str
     description: str = ""
     cols: dict[str, Col] = field(default_factory=dict)
+    tags: list[str] = field(default_factory=list)
 
     def col(self, name: str) -> Col:
         key = name.lower()
@@ -170,6 +171,17 @@ def _comment_lines(text: str) -> list[str]:
         line = " ".join(line.split()).replace("#", "＃")
         if line:
             out.append(f"# {line}")
+    return out
+
+
+def _node_tags(n: dict) -> list[str]:
+    """dbt tags (node-level and config), lowercased, in order, usable as qdbd tag names."""
+    out: list[str] = []
+    raw = list(n.get("tags") or []) + list((n.get("config") or {}).get("tags") or [])
+    for tag in raw:
+        tag = re.sub(r"[^a-z0-9_.-]+", "-", str(tag).lower()).strip("-.")
+        if tag and tag not in out:
+            out.append(tag)
     return out
 
 
@@ -231,7 +243,7 @@ class _Importer:
             name = self._base_name(n)
             if names[name] > 1:  # same name in two packages
                 name = f"{n.get('package_name')}.{name}"
-            t = Tbl(n["unique_id"], name, self._group(n), n.get("description") or "")
+            t = Tbl(n["unique_id"], name, self._group(n), n.get("description") or "", tags=_node_tags(n))
             self._columns(t, n)
             self.tables[t.uid] = t
             self.by_name.setdefault(n.get("name", "").lower(), []).append(t.uid)
@@ -435,6 +447,8 @@ class _Importer:
     # -- output -------------------------------------------------------------
     def render_table(self, t: Tbl) -> list[str]:
         lines = _comment_lines(t.description)
+        if t.tags:
+            lines.append(f"# @dbt-tags: {', '.join(t.tags)}")
         lines += [quote(t.name), "-"]
         for c in sorted(t.cols.values(), key=lambda c: (c.order, c.name.lower())):
             lines += _comment_lines(c.description)

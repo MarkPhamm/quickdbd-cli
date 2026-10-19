@@ -62,6 +62,7 @@ nav:
       - 3.1 Schema Syntax: syntax.md
       - 3.2 Many Files, One Diagram: files.md
       - 3.3 Table Positions: layout.md
+      - 3.4 Tags and Colours: tags.md
   - 4. Exploring a Diagram:
       - 4.1 Reading the Diagram: reading-the-diagram.md
       - 4.2 Selecting Tables: selectors.md

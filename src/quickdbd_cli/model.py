@@ -58,6 +58,8 @@ class Table:
     aliases: list[str] = field(default_factory=list)
     columns: dict[str, Column] = field(default_factory=dict)
     comments: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)  # `# @tag: ...` comments
+    dbt_tags: list[str] = field(default_factory=list)  # `# @dbt-tags: ...`, written by `qdbd import dbt`
 
 
 @dataclass
@@ -84,6 +86,7 @@ class Schema:
     layout: dict[str, tuple[float, float]] = field(default_factory=dict)
     diagnostics: list[Diagnostic] = field(default_factory=list)
     general_comments: list[str] = field(default_factory=list)
+    tag_colors: dict[str, str] = field(default_factory=dict)  # `# @color TAG #hex`
 
     @property
     def errors(self) -> list[Diagnostic]:

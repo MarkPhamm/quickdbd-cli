@@ -16,6 +16,7 @@ qdbd's selectors are modelled on dbt's `--select`, but they follow **relationshi
 | `group:marts` | a file or dbt folder (and its subfolders, e.g. `marts/finance`) |
 | `file:core.txt` | a schema file, glob |
 | `col:customer_id` | tables with a matching column |
+| `tag:fact` | tables with a matching [tag](tags.md) (explicit, from the name, or from dbt) |
 | `diff:modified` | changed since `--diff-base` (`diff:added`, `diff:changed`), like dbt's `state:modified` |
 
 Combine them:
