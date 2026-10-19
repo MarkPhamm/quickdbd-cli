@@ -313,7 +313,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.1.6
+      - uses: MarkPhamm/quickdbd-cli@v0.1.7
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -336,7 +336,7 @@ Run your dbt setup first, then let the action generate the schema:
 
 ```yaml
       # … dbt deps && dbt build && dbt docs generate
-      - uses: MarkPhamm/quickdbd-cli@v0.1.6
+      - uses: MarkPhamm/quickdbd-cli@v0.1.7
         with:
           dbt-manifest: target/
           dbt-args: --infer-fks
@@ -351,7 +351,7 @@ Commit `erd/` so pull requests can be compared with `main`. Set `dbt-check: true
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.1.6
+    rev: v0.1.7
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.txt$
