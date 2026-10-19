@@ -62,7 +62,7 @@ See [Schema Diffs](diffs.md).
 ## import dbt
 
 ```bash
-qdbd import dbt target/manifest.json -o erd/ [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources]
+qdbd import dbt target/manifest.json -o erd/ [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources] [--infer-fks] [--check]
 ```
 
 See [dbt Import](dbt.md).

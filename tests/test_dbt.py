@@ -229,3 +229,96 @@ def test_helpers():
     assert norm_type("NUMBER(38, 0)") == "NUMBER(38,0)"
     assert norm_type("struct<a int>") == "struct<a_int>"
     assert norm_type(None) is None
+
+
+# ------------------------------------------------------------------ --infer-fks / --check
+
+
+def test_infer_fks_on_jaffle():
+    res = import_dbt(JAFFLE / "manifest.json", infer_fks=True)
+    s = compiled(res)
+    assert res.relationships == 4
+    assert sorted(res.inferred) == [
+        "raw_payments.order_id -> raw_orders.id",  # same raw_ prefix; parent key is plain `id`
+        "stg_orders.customer_id -> stg_customers.customer_id",  # same stg_ prefix wins over marts customers
+        "stg_payments.order_id -> stg_orders.order_id",
+    ]
+    assert "raw_orders.user_id" not in " ".join(res.inferred)  # no `users` table: nothing to link
+    col = s.tables["stg_orders"].columns["customer_id"]
+    assert col.fk and "inferred from the column name" in col.comments[-1]
+    # declared relationships are untouched and not duplicated
+    assert ("orders", "customer_id", "many", "customers", "customer_id", "one") in rels(s)
+
+
+def infer_manifest():
+    def m(uid, name, cols, fqn=None, pk=None):
+        n = node(uid, name, fqn=fqn, cols=[(c, "int", [{"type": "primary_key"}] if c == pk else None) for c in cols])
+        return n
+
+    nodes = {
+        "model.shop.dim_category": m("model.shop.dim_category", "dim_category", ["category_id"], pk="category_id"),
+        "model.shop.categories": m(
+            "model.shop.categories",
+            "categories",
+            ["category_id"],
+            pk="category_id",
+            fqn=["shop", "other", "categories"],
+        ),
+        "model.shop.fct_sales": m(
+            "model.shop.fct_sales",
+            "fct_sales",
+            ["sale_id", "categoryId", "store_key", "owner_id", "region_id"],
+            pk="sale_id",
+        ),
+        "model.shop.dim_stores": m("model.shop.dim_stores", "dim_stores", ["store_key"], pk="store_key"),
+        "model.shop.people": m("model.shop.people", "people", ["id"]),
+        "model.shop.owners_a": m("model.shop.owners_a", "a_owner", ["owner_id"], pk="owner_id"),
+        "model.shop.dim_owner": m(
+            "model.shop.dim_owner", "dim_owner", ["owner_id"], pk="owner_id", fqn=["shop", "x", "dim_owner"]
+        ),
+        "model.shop.dim_region": m("model.shop.dim_region", "dim_region", ["region_id"], pk="region_id"),
+        "model.shop.dim_regions": m("model.shop.dim_regions", "dim_regions", ["region_id"], pk="region_id"),
+        "model.shop.fct_owner": m(
+            "model.shop.fct_owner", "fct_owner", ["owner_id"], pk="owner_id", fqn=["shop", "x", "fct_owner"]
+        ),
+    }
+    return {"metadata": {"project_name": "shop"}, "nodes": nodes, "sources": {}}
+
+
+def test_infer_rules(tmp_path):
+    p = tmp_path / "manifest.json"
+    p.write_text(json.dumps(infer_manifest()))
+    res = import_dbt(p, infer_fks=True)
+    compiled(res)
+    inferred = sorted(res.inferred)
+    # camelCase `categoryId` -> category; both dim_category and categories match, the fct_ child's folder decides
+    assert "fct_sales.categoryId -> dim_category.category_id" in inferred
+    assert "fct_sales.store_key -> dim_stores.store_key" in inferred  # `_key` suffix, plural table
+    # facts point at dimensions: dim_owner beats the same-layer fct_owner
+    assert "fct_sales.owner_id -> dim_owner.owner_id" in inferred
+    # region_id: dim_region and dim_regions tie on every rule -> skipped as ambiguous, never guessed
+    assert not any(x.startswith("fct_sales.region_id") for x in inferred)
+    assert any("fct_sales.region_id: ambiguous (dim_region, dim_regions)" in x for x in res.skipped)
+    # single primary keys are never turned into FKs
+    assert not any(x.startswith(("dim_category.", "dim_stores.")) for x in inferred)
+
+
+def test_infer_off_by_default():
+    res = import_dbt(JAFFLE / "manifest.json")
+    assert res.inferred == [] and res.relationships == 1
+
+
+def test_check_mode(tmp_path, capsys):
+    out = tmp_path / "erd"
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check"]) == 1  # nothing written yet
+    assert "(missing)" in capsys.readouterr().err
+    assert not out.exists()
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out)]) == 0
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check"]) == 0
+    assert "Up to date" in capsys.readouterr().out
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check", "--infer-fks"]) == 1
+    err = capsys.readouterr().err
+    assert "(out of date)" in err and "commit the result" in err
+    (out / "old.txt").write_text(HEADER + " from x\n")
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check"]) == 1
+    assert "no longer generated" in capsys.readouterr().err

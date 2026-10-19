@@ -14,7 +14,7 @@ The job needs `permissions: { contents: read, pull-requests: write }` for the PR
 
 On every run:
 
-1. installs qdbd from PyPI;
+1. installs qdbd from PyPI (and, with `dbt-manifest`, runs `qdbd import dbt`);
 2. runs `qdbd check` and fails the job on errors (or warnings, with `strict: true`);
 3. builds the HTML diagram and uploads it as the **erd** artifact.
 
@@ -28,7 +28,10 @@ On pull requests it also:
 
 | Input | Default | |
 |---|---|---|
-| `path` | required | schema files or folders, space-separated |
+| `path` | `erd/` | schema files or folders, space-separated; with `dbt-manifest`, where the import writes |
+| `dbt-manifest` | | dbt `manifest.json` or `target/`: generate the schema with `qdbd import dbt` first |
+| `dbt-args` | | extra import options, e.g. `--infer-fks --no-sources` |
+| `dbt-check` | `false` | with `dbt-manifest`: don't regenerate; fail if the committed files are out of date |
 | `output` | `erd/index.html` | where to write the HTML |
 | `check` | `true` | fail on schema errors |
 | `strict` | `false` | also fail on QuickDBD-compatibility warnings |
@@ -53,7 +56,17 @@ Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with
 
 ## With dbt
 
-Run your dbt build and `qdbd import dbt` before the action; see the [worked example](example/ci.md).
+Run your dbt build first, then point the action at the manifest:
+
+```yaml
+- uses: MarkPhamm/quickdbd-cli@v0.1.6
+  with:
+    dbt-manifest: target/
+    dbt-args: --infer-fks
+    path: erd/
+```
+
+Commit `erd/` so pull requests have a base to diff against. See the [worked example](example/ci.md).
 
 ## Not on GitHub?
 

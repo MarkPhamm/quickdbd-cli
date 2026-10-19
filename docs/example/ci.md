@@ -13,14 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # ... your dbt setup: dbt deps && dbt build && dbt docs generate
-      - run: pipx run --spec quickdbd-cli qdbd import dbt target/ -o erd/
-      - uses: MarkPhamm/quickdbd-cli@v0.1.5
+      - uses: MarkPhamm/quickdbd-cli@v0.1.6
         with:
+          dbt-manifest: target/
+          dbt-args: --infer-fks
           path: erd/
           output: site/index.html
 ```
 
-On a pull request the action:
+The action regenerates `erd/` from the manifest, then on a pull request it:
 
 1. checks the schema (`qdbd check`) and fails the job on errors;
 2. builds `site/index.html` with `--diff-base origin/<base>` and uploads it as the **erd** artifact;
@@ -39,6 +40,8 @@ The comment looks like this:
 > | Table | Change |
 > |---|---|
 > | `customers` | ➕ `loyalty_tier` |
+
+Commit `erd/` (step 1) so the action can compare the pull request's schema with `main`'s. To make sure nobody forgets to re-run the import, use `dbt-check: true` instead: the action then fails when the committed files are out of date, rather than regenerating them.
 
 ## Publish the diagram
 

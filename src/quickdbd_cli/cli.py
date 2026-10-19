@@ -145,7 +145,7 @@ def cmd_layout(args) -> int:
 
 
 def cmd_import_dbt(args) -> int:
-    from .dbt import DbtImportError, import_dbt, write_result
+    from .dbt import DbtImportError, import_dbt, stale_files, write_result
     from .parser import compile_sources
 
     out = Path(args.output)
@@ -158,6 +158,7 @@ def cmd_import_dbt(args) -> int:
             select=args.select,
             sources=not args.no_sources,
             split=split,
+            infer_fks=args.infer_fks,
         )
     except DbtImportError as e:
         print(f"error: {e}", file=sys.stderr)
@@ -169,14 +170,32 @@ def cmd_import_dbt(args) -> int:
             print(d.format(), file=sys.stderr)
         print("error: generated schema did not compile (please report this as a bug)", file=sys.stderr)
         return 1
-    written = write_result(result, out)
     for s in result.skipped:
         print(f"skipped: {s}", file=sys.stderr)
+    for s in result.inferred:
+        print(f"inferred: {s}", file=sys.stderr)
+    inferred = f" ({len(result.inferred)} inferred)" if args.infer_fks else ""
+    if args.check:
+        stale = stale_files(result, out)
+        if stale:
+            for s in stale:
+                print(f"stale: {s}", file=sys.stderr)
+            print(
+                f"error: schema files are out of date; run `qdbd import dbt {args.manifest} -o {args.output}` "
+                "and commit the result",
+                file=sys.stderr,
+            )
+            return 1
+        print(f"Up to date: {out}: {result.tables} tables, {result.relationships} relationships{inferred}")
+        return 0
+    written = write_result(result, out)
     where = str(out) if not split else f"{out}/ ({len(written)} files)"
-    print(f"Wrote {where}: {result.tables} tables, {result.relationships} relationships")
+    print(f"Wrote {where}: {result.tables} tables, {result.relationships} relationships{inferred}")
     if result.tables and not result.relationships:
         print(
-            "hint: no relationships found; add `relationships` tests or foreign_key constraints in dbt", file=sys.stderr
+            "hint: no relationships found; add `relationships` tests or foreign_key constraints in dbt, "
+            "or try --infer-fks",
+            file=sys.stderr,
         )
     return 0
 
@@ -357,6 +376,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--select", action="append", help="glob on model name, fqn (a.b.c) or file path, e.g. 'marts.*' (repeatable)"
     )
     dp.add_argument("--no-sources", action="store_true", help="leave out dbt sources")
+    dp.add_argument(
+        "--infer-fks",
+        action="store_true",
+        help="also link <entity>_id columns to the table named after the entity when no relationship is declared",
+    )
+    dp.add_argument(
+        "--check", action="store_true", help="don't write; exit 1 if the files at -o are out of date (for CI)"
+    )
     dp.set_defaults(func=cmd_import_dbt)
 
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")

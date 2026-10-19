@@ -27,11 +27,15 @@ jobs:
           path: examples/synthetic
           output: site/demo/index.html
           qdbd-version: source
-      - name: Demo (dbt jaffle_shop)
-        run: |
-          work="$RUNNER_TEMP/jaffle" && mkdir -p "$work"
-          qdbd import dbt tests/fixtures/jaffle -o "$work/erd"
-          (cd "$work" && qdbd build erd -o "$GITHUB_WORKSPACE/site/demo/jaffle/index.html")
+      - name: Demo (dbt jaffle_shop), via the action's dbt input
+        uses: ./
+        with:
+          dbt-manifest: tests/fixtures/jaffle
+          path: jaffle-erd/
+          output: site/demo/jaffle/index.html
+          qdbd-version: source
+          comment: "false"
+          upload-artifact: "false"
       - if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
