@@ -15,7 +15,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }   # write: for the PR comment
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.1.8
+      - uses: MarkPhamm/quickdbd-cli@v0.1.9
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -68,7 +68,7 @@ Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with
 Run your dbt build first, then point the action at the manifest:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.1.8
+- uses: MarkPhamm/quickdbd-cli@v0.1.9
   with:
     dbt-manifest: target/
     dbt-args: --infer-fks
@@ -99,7 +99,7 @@ To check schema files before every commit, add the [pre-commit](https://pre-comm
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.1.8
+    rev: v0.1.9
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.txt$
