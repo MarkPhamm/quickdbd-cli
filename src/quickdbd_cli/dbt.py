@@ -40,12 +40,26 @@ _LAYERS = ("staging_", "stg_", "int_", "base_", "raw_", "src_", "dim_", "fct_", 
 
 
 def _layer(name: str) -> tuple[str, str]:
-    """Split a dbt-style layer prefix off a table name: 'stg_orders' -> ('stg_', 'orders')."""
+    """Split a model name into (layer, entity).
+
+    Handles dbt's naming conventions:
+      stg_orders                    -> ("stg_", "orders")
+      stg_jaffle_shop__orders       -> ("stg_", "orders")       source-qualified staging models
+      conformed__dim_airline        -> ("dim_", "airline")      folder/group__prefix_entity
+      bronze__achievements          -> ("bronze__", "achievements")
+    """
     low = name.lower()
+    head = ""
+    if "__" in low:
+        head, low = low.rsplit("__", 1)
+        head += "__"
     for p in _LAYERS:
         if low.startswith(p) and len(low) > len(p):
             return p, low[len(p) :]
-    return "", low
+    for p in _LAYERS:
+        if head.startswith(p):
+            return p, low
+    return head, low
 
 
 def _prefix_rank(child: str, parent: str) -> int:
@@ -116,6 +130,8 @@ class ImportResult:
     relationships: int
     skipped: list[str]
     inferred: list[str] = field(default_factory=list)
+    no_columns: int = 0  # tables with no known columns (undocumented, and no catalog.json)
+    catalog: bool = False
 
 
 def _strip_quotes(s: str) -> str:
@@ -497,7 +513,8 @@ def import_dbt(
             for t in tables:
                 body += imp.render_table(t) + [""]
         files["schema.txt"] = "\n".join(body).rstrip("\n") + "\n"
-    return ImportResult(files, len(imp.tables), rels, imp.skipped, imp.inferred)
+    no_columns = sum(1 for t in imp.tables.values() if not t.cols)
+    return ImportResult(files, len(imp.tables), rels, imp.skipped, imp.inferred, no_columns, catalog is not None)
 
 
 def write_result(result: ImportResult, out: Path) -> list[Path]:
