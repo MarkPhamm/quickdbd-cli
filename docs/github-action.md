@@ -2,7 +2,7 @@
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: MarkPhamm/quickdbd-cli@v0.1.5
+- uses: MarkPhamm/quickdbd-cli@v0.1.6
   with:
     path: erd/
     output: site/index.html
@@ -88,7 +88,7 @@ There is also a [pre-commit](https://pre-commit.com) hook:
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.1.5
+    rev: v0.1.6
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.txt$
