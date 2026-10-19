@@ -191,10 +191,17 @@ def cmd_import_dbt(args) -> int:
     written = write_result(result, out)
     where = str(out) if not split else f"{out}/ ({len(written)} files)"
     print(f"Wrote {where}: {result.tables} tables, {result.relationships} relationships{inferred}")
+    if result.no_columns and not result.catalog:
+        print(
+            f"hint: {result.no_columns} of {result.tables} tables have no known columns (undocumented in dbt). "
+            "Run `dbt docs generate` so target/catalog.json lists every column and type; "
+            "--infer-fks can only link columns it can see.",
+            file=sys.stderr,
+        )
     if result.tables and not result.relationships:
         print(
-            "hint: no relationships found; add `relationships` tests or foreign_key constraints in dbt, "
-            "or try --infer-fks",
+            "hint: no relationships found; add `relationships` tests or foreign_key constraints in dbt"
+            + ("" if args.infer_fks else ", or try --infer-fks"),
             file=sys.stderr,
         )
     return 0

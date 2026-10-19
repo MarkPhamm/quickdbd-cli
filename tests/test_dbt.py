@@ -322,3 +322,76 @@ def test_check_mode(tmp_path, capsys):
     (out / "old.txt").write_text(HEADER + " from x\n")
     assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check"]) == 1
     assert "no longer generated" in capsys.readouterr().err
+
+
+def test_layer_names():
+    from quickdbd_cli.dbt import _layer
+
+    assert _layer("stg_orders") == ("stg_", "orders")
+    assert _layer("stg_jaffle_shop__orders") == ("stg_", "orders")
+    assert _layer("conformed__dim_airline") == ("dim_", "airline")
+    assert _layer("airlines_reviews__fct_airline_review") == ("fct_", "airline_review")
+    assert _layer("bronze__achievements") == ("bronze__", "achievements")
+    assert _layer("customers") == ("", "customers")
+
+
+def test_infer_with_source_qualified_names(tmp_path):
+    def m(uid, name, cols, pk=None, fqn=None):
+        return node(uid, name, fqn=fqn, cols=[(c, "int", [{"type": "primary_key"}] if c == pk else None) for c in cols])
+
+    nodes = {
+        "model.shop.stg_jaffle_shop__customers": m(
+            "model.shop.stg_jaffle_shop__customers",
+            "stg_jaffle_shop__customers",
+            ["customer_id"],
+            pk="customer_id",
+            fqn=["shop", "staging", "c"],
+        ),
+        "model.shop.stg_jaffle_shop__orders": m(
+            "model.shop.stg_jaffle_shop__orders",
+            "stg_jaffle_shop__orders",
+            ["order_id", "customer_id"],
+            pk="order_id",
+            fqn=["shop", "staging", "o"],
+        ),
+        "model.shop.stg_stripe__payments": m(
+            "model.shop.stg_stripe__payments",
+            "stg_stripe__payments",
+            ["payment_id", "order_id"],
+            pk="payment_id",
+            fqn=["shop", "staging", "p"],
+        ),
+        "model.shop.dim_customers": m(
+            "model.shop.dim_customers", "dim_customers", ["customer_id"], pk="customer_id", fqn=["shop", "marts", "d"]
+        ),
+        "model.shop.fct_orders": m(
+            "model.shop.fct_orders",
+            "fct_orders",
+            ["order_id", "customer_id"],
+            pk="order_id",
+            fqn=["shop", "marts", "f"],
+        ),
+    }
+    p = tmp_path / "manifest.json"
+    p.write_text(json.dumps({"metadata": {"project_name": "shop"}, "nodes": nodes, "sources": {}}))
+    res = import_dbt(p, infer_fks=True)
+    compiled(res)
+    assert sorted(res.inferred) == [
+        "fct_orders.customer_id -> dim_customers.customer_id",  # fact -> dimension
+        "stg_jaffle_shop__orders.customer_id -> stg_jaffle_shop__customers.customer_id",  # same stg_ layer
+        "stg_stripe__payments.order_id -> stg_jaffle_shop__orders.order_id",  # stg_ layer + staging folder
+    ]
+
+
+def test_hint_when_columns_unknown(tmp_path, capsys):
+    p = tmp_path / "manifest.json"
+    m = json.loads((JAFFLE / "manifest.json").read_text())
+    for n in m["nodes"].values():
+        n["columns"] = {}
+    p.write_text(json.dumps(m))
+    assert main(["import", "dbt", str(p), "-o", str(tmp_path / "erd")]) == 0
+    err = capsys.readouterr().err
+    assert "have no known columns" in err and "dbt docs generate" in err
+    # with the catalog next to the manifest, no hint
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(tmp_path / "erd2")]) == 0
+    assert "no known columns" not in capsys.readouterr().err
