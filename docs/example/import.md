@@ -1,4 +1,4 @@
-# 1. Import from dbt
+# 5.3 Step 1: Import from dbt
 
 ## Build the dbt artifacts
 
@@ -59,7 +59,7 @@ order_date DATE
 | `# This is a unique identifier…` | the column `description` |
 
 !!! tip "No relationship lines?"
-    qdbd draws the relationships your project declares: `relationships` tests (including dbt_utils `relationships_where`) or `foreign_key` constraints. Add `--infer-fks` to also link `customer_id`-style columns to the table they name; on jaffle_shop that adds 3 more (`stg_orders → stg_customers`, `stg_payments → stg_orders`, `raw_payments → raw_orders`). See [dbt Import](../dbt.md#guessing-relationships-infer-fks).
+    qdbd draws the relationships your project declares: `relationships` tests (including dbt_utils `relationships_where`) or `foreign_key` constraints. Add `--infer-fks` to also link `customer_id`-style columns to the table they name; on jaffle_shop that adds 3 more (`stg_orders → stg_customers`, `stg_payments → stg_orders`, `raw_payments → raw_orders`). See [5.1 dbt Import](../dbt.md#guessing-relationships-infer-fks).
 
 ## Commit it
 

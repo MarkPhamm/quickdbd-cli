@@ -1,4 +1,4 @@
-# Reading the Diagram
+# 4.1 Reading the Diagram
 
 Every `qdbd build` and `qdbd serve` page has the same layout: an **explorer** on the left, the **canvas** in the middle, the **toolbar** top right, and a **details panel** that opens on the right when you select a table.
 
@@ -73,7 +73,7 @@ The minimap (bottom right) shows where you are; click or drag it to move.
 
 ## Regions
 
-When a schema has several files or dbt folders, **Regions** draws a labelled, coloured area behind each group. They read best with `--by-group`, which arranges each group together ([Table Positions](layout.md)).
+When a schema has several files or dbt folders, **Regions** draws a labelled, coloured area behind each group. They read best with `--by-group`, which arranges each group together ([3.3 Table Positions](layout.md)).
 
 ![Regions](assets/img/regions.png){ .shot }
 
@@ -86,7 +86,7 @@ Pages built with `--diff-base origin/main` mark what changed:
 - a banner summarises the changes, and **Show changes** filters to them plus their neighbours;
 - the details panel lists every change, including removed columns.
 
-See [Schema Diffs](diffs.md).
+See [6. Reviewing Changes](diffs.md).
 
 ![Diff view](assets/img/diff.png){ .shot }
 

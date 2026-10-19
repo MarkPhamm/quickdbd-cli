@@ -1,84 +1,220 @@
-# quickdbd-cli (`qdbd`)
+# qdbd: QuickDBD diagrams from the command line
 
-Compile [QuickDBD](https://www.quickdatabasediagrams.com)-syntax schema files into **interactive HTML ER diagrams**, with no table limit, from the command line. Built to stay readable at 200+ tables.
+`qdbd` turns [QuickDBD](https://www.quickdatabasediagrams.com)-syntax `.txt` schemas, or a dbt project, into **interactive ER diagrams** with **no table limit**. The diagrams stay readable at 200+ tables.
 
+<p>
+  <a href="https://markphamm.github.io/quickdbd-cli/demo/"><b>▶ Live demo (200 tables)</b></a> ·
+  <a href="https://markphamm.github.io/quickdbd-cli/demo/jaffle/"><b>▶ dbt demo (jaffle_shop)</b></a> ·
+  <a href="https://markphamm.github.io/quickdbd-cli/"><b>📖 Docs</b></a> ·
+  <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a>
+</p>
+
+[![The 200-table demo](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/overview.png)](https://markphamm.github.io/quickdbd-cli/demo/)
+
+Not affiliated with QuickDBD. It reads the same text syntax, so schemas can be copied back and forth between the two.
+
+---
+
+**Contents**
+
+1. [Install](#1-install)
+2. [Quick start: your first diagram in 5 minutes](#2-quick-start-your-first-diagram-in-5-minutes)
+3. [Working with schema files](#3-working-with-schema-files)
+4. [Exploring a diagram](#4-exploring-a-diagram)
+5. [dbt projects](#5-dbt-projects)
+6. [Reviewing schema changes](#6-reviewing-schema-changes)
+7. [CI and automation](#7-ci-and-automation)
+8. [Command reference](#8-command-reference)
+9. [Development](#9-development)
+
+---
+
+## 1. Install
+
+```bash
+pipx install quickdbd-cli      # or: pip install quickdbd-cli / uv tool install quickdbd-cli
+qdbd --version
 ```
+
+- **Requirements:** Python 3.11+. Nothing else: no Graphviz, Node or browser. Layout uses [ELK](https://eclipse.dev/elk/) running in an embedded JavaScript engine.
+- **Try it without installing:** prefix any command with `uvx --from quickdbd-cli`, e.g. `uvx --from quickdbd-cli qdbd build schema.txt -o schema.html`.
+- **`qdbd: command not found`?** `pip install` put the script in a directory that isn't on your `PATH`. Use `pipx`, or run `python -m pip show -f quickdbd-cli` to find it.
+
+## 2. Quick start: your first diagram in 5 minutes
+
+### 2.1 Write (or paste) a schema
+
+Save this as `schema.txt`. If you already have a schema in QuickDBD, copy it from the editor and paste it in unchanged.
+
+```text
 Customer
 -
 CustomerId PK int
 Name string
+Email string UNIQUE
 
-Order
--
+Order as o
+----
 OrderId PK int
 CustomerId int FK >- Customer.CustomerId
+OrderDate datetime
+Total decimal(10,2)
 ```
 
+A table is a name, a line of dashes, then one column per line. `FK >- Customer.CustomerId` means *many orders → one customer*. See the [syntax cheat sheet](#31-syntax-cheat-sheet).
+
+### 2.2 Check it
+
 ```bash
-pipx install quickdbd-cli        # or: uvx --from quickdbd-cli qdbd ...
+qdbd check schema.txt
+```
+
+```text
+No errors found. Good job!
+```
+
+Errors print as `schema.txt:12: error: …` (QuickDBD's own messages) and exit with code 1.
+
+### 2.3 Edit it live
+
+```bash
+qdbd serve schema.txt
+```
+
+A browser tab opens with the diagram and an editor pane.
+
+- **Edit** in the pane (it autosaves after 1 s) or in your own editor. The diagram reloads on save.
+- **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it next to the schema.
+- **Stop** with `Ctrl+C`.
+
+### 2.4 Build a page to share
+
+```bash
 qdbd build schema.txt -o schema.html
 ```
 
-**Docs:** https://markphamm.github.io/quickdbd-cli/ · **Live demo (200 tables):** https://markphamm.github.io/quickdbd-cli/demo/
+`schema.html` is a single self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.1](#71-github-action)).
 
-Not affiliated with QuickDBD. It reads the same text syntax, so schemas move freely between the two.
-
-## Features
-
-- **Same syntax as QuickDBD:** tables, aliases, quoted names, all 9 relationship operators, `rel` lines, PK/FK/NULL/UNIQUE/INDEX/IDENTITY, `default=`, doc comments, `[settings]` and `[layout]` sections. Error messages are QuickDBD's own.
-- **Interactive page:**
-  - explorer sidebar: tables grouped by file or dbt folder, with search (`/`, Enter jumps to the best match)
-  - table detail panel (dbt-docs style, for relationships): description, columns with type/keys/docs, and clickable **References** / **Referenced by** lists
-  - minimap
-  - click a table to focus on it and its neighbours
-  - collapse tables: full / keys only / names only
-  - hover a column to highlight its relationship
-  - hover a dotted-underlined table or column to read its `#` doc comments
-  - PNG/SVG export buttons, and **draw.io**: an editable diagrams.net file using draw.io's ER table shapes and crow's-foot arrows
-  - **Path finder:** in a table's detail panel, type another table to see the shortest join path, highlighted on the canvas, with a ready-to-paste SQL `JOIN` (also `qdbd path erd/ --from payments --to customers`)
-  - **Regions:** a shaded, labelled area per file or dbt folder (toolbar toggle). `--by-group` on `build` / `export` / `layout` arranges tables so each folder sits together
-  - shareable links: the URL keeps the filter, selected table, collapse mode and zoom; **Link** copies it
-- **Live editing:** `qdbd serve` reloads when you save, has a browser editor pane with autosave, and remembers where you drag tables.
-- **Many files, one diagram:** point it at a folder and foreign keys can cross files.
-- **Pip-only install:** no Graphviz, Node or browser needed. Layout uses [ELK](https://eclipse.dev/elk/), running in an embedded V8.
-- **CI-friendly:** builds are deterministic, and errors are `file:line: error: …` with exit code 1.
-
-## From a dbt project
+### 2.5 Export an image
 
 ```bash
-dbt docs generate                                   # optional: adds real column types (catalog.json)
-qdbd import dbt target/manifest.json -o erd/        # one .txt per folder (staging, marts, sources, ...)
-qdbd build erd/ -o erd.html
+qdbd export schema.txt -o schema.png                       # whole diagram (.png, .svg or .drawio)
+qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and its neighbours
 ```
 
-- **Tables:** models, seeds and snapshots of your project, plus sources.
-- **Relationships:** `relationships` tests (including dbt_utils `relationships_where`) and `foreign_key` constraints.
-- **Primary keys:** `primary_key` constraints, or else a column with both `unique` and `not_null` tests.
-- **Docs:** model and column descriptions become doc comments, shown as tooltips.
-- **`--infer-fks`:** also links `customer_id`-style columns to the table they name, when no relationship is declared. Ambiguous matches are skipped, never guessed.
-- **`--check`:** in CI, fails when the committed files are out of date.
-- **Options:**
-  - `--select 'marts.*'` narrows by name, fqn or path (repeatable)
-  - `--package all` includes installed packages
-  - `--no-sources` drops sources
-  - `-o schema.txt` writes a single file
+`.drawio` files open in [diagrams.net](https://app.diagrams.net) as editable ER shapes.
 
-Re-running the import overwrites the generated files. Table positions survive because they live in the layout file, keyed by table name.
+## 3. Working with schema files
 
-## Selecting tables
+### 3.1 Syntax cheat sheet
 
-Like dbt's `--select`, but it follows relationships instead of lineage. It works in the page's filter box and as `-s/--select` / `--exclude` on `build` and `export`.
+```text
+# A comment above a table or column becomes its tooltip
+"Sales Order" as so          # quote names with spaces or dots; "as" adds an alias
+--------------
+Id PK int IDENTITY
+CustomerId int FK >- Customer.Id
+Status varchar(20) default=new INDEX
+Notes text NULL              # columns are NOT NULL unless marked NULL
+```
+
+| Column keyword | Meaning |
+|---|---|
+| `PK` | primary key (several `PK` columns make a composite key) |
+| `FK >- Table.Column` | foreign key with a relationship |
+| `NULL` / `NULLABLE` | nullable |
+| `UNIQUE`, `INDEX` | unique key, index |
+| `IDENTITY` / `AUTOINCREMENT` | auto-generated |
+| `default=value` | default value |
+
+| Relationship | Meaning (left → right) |
+|---|---|
+| `-` | one to one |
+| `-<` / `>-` | one to many / many to one |
+| `>-<` | many to many |
+| `-0` / `0-` / `0-0` | involving zero-or-one |
+| `-0<` / `>0-` | involving zero-or-many |
+
+Full reference: [Schema Syntax](https://markphamm.github.io/quickdbd-cli/syntax/).
+
+### 3.2 One folder, many files
+
+Big schemas are easier to manage split into files. Point any command at a folder and every `*.txt` under it (recursively) becomes **one** diagram:
+
+```text
+schema/
+├── sales.txt        # Order, OrderLine, Invoice …
+├── customers.txt    # Customer, Address …
+└── products.txt
+```
+
+```bash
+qdbd build schema/ -o schema.html
+```
+
+- Foreign keys can point at tables in other files.
+- Each file becomes a group in the sidebar and can be shaded as a **region**.
+- `--by-group` arranges the tables so each file's tables sit together.
+
+### 3.3 Table positions
+
+| Situation | What happens |
+|---|---|
+| First build | Tables are auto-arranged by their relationships |
+| You drag tables in `qdbd serve` | Positions are saved to the layout file |
+| You add a new table later | It's placed next to the tables it's related to. Nothing else moves |
+| Schema pasted from QuickDBD with a `[layout]` section | Those positions are used for tables the layout file doesn't cover |
+| You want a fresh arrangement | `qdbd layout PATH --reset` |
+
+Where the layout file goes:
+
+- `schema.txt` → `schema.layout.json`
+- a folder → `<folder>/qdbd.layout.json`
+- anywhere else: `--layout FILE`
+
+`qdbd build` never writes the layout file, so CI builds leave your working tree clean. More: [Table Positions](https://markphamm.github.io/quickdbd-cli/layout/).
+
+### 3.4 Differences from QuickDBD
+
+`qdbd` accepts a few things QuickDBD rejects, and prints a warning for each:
+
+- tab characters
+- a space inside a type: `decimal(10, 2)`
+- an explicit `NOT NULL`
+- indented table names
+- `[layout]` entries for tables that don't exist
+
+`qdbd check --strict` turns these warnings into errors, so a file that passes will paste into QuickDBD cleanly. Also, `default=` values keep their case, where QuickDBD lowercases them.
+
+## 4. Exploring a diagram
+
+Every page from `build` or `serve` works the same way. A full tour is in [Reading the Diagram](https://markphamm.github.io/quickdbd-cli/reading-the-diagram/).
+
+### 4.1 Page tour
+
+![Table details panel](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/details.png)
+
+| Part | What you can do |
+|---|---|
+| **Explorer** (left) | Tables grouped by file. Press `/` to search; Enter jumps to the best match |
+| **Canvas** | Drag tables, drag empty space to pan, scroll to zoom. Hover a column to highlight its relationships |
+| **Details panel** (right) | Click a table: columns, doc comments, *References* / *Referenced by*, path finder |
+| **Toolbar** (top right) | Collapse tables (Full / Keys / Names), Regions, **Link**, SVG / PNG / draw.io download, zoom |
+| **Minimap** (bottom right) | Click or drag to move around |
+
+**Link** copies a URL to exactly what you're looking at: the filter, selected table, path, collapse mode and zoom. Send it to a teammate.
+
+### 4.2 Filter with selectors
+
+The explorer's filter box takes dbt-style selectors that follow **relationships** (not lineage). The same selectors work as `-s/--select` and `--exclude` on `build` and `export`.
 
 | Selector | Tables |
 |---|---|
-| `orders` / `stg_*` | by name or alias (glob, case-insensitive) |
-| `+orders` | `orders` and every table it references (any depth); `1+orders` limits to one hop |
-| `orders+` | `orders` and every table that references it; `orders+2` limits to two hops |
-| `+orders+1` | both directions |
-| `group:marts` | a file or dbt folder (and its subfolders) |
-| `file:core.txt` | a schema file (glob) |
+| `orders`, `stg_*` | by name or alias (glob, case-insensitive) |
+| `+orders` / `orders+` | `orders` and what it references / what references it |
+| `+orders+1` | one hop in both directions |
+| `group:marts`, `file:core.txt` | a folder or a file |
 | `col:customer_id` | tables with a matching column |
-| `diff:modified` / `diff:added` / `diff:changed` | changed since `--diff-base` (like dbt `state:modified`) |
 | `a b` / `a,b` / `!a` | union / intersection / exclude |
 
 ```bash
@@ -86,69 +222,89 @@ qdbd build erd/ -s 'group:marts' --exclude '*_tmp' -o marts.html
 qdbd export erd/ -s '+orders+1' -o orders.png
 ```
 
-## Schema diffs
+![Filter +Order+1](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/filter.png)
+
+More: [Selecting Tables](https://markphamm.github.io/quickdbd-cli/selectors/).
+
+### 4.3 Find how two tables join
+
+In a table's details panel, type another table's name. The shortest join path is highlighted on the canvas, with a ready-to-paste SQL `JOIN`. From the terminal:
 
 ```bash
-qdbd diff old.txt new.txt                         # two versions
-qdbd diff --base origin/main erd/                 # git ref vs working tree
+qdbd path schema/ --from Invoice --to Campaign
+```
+
+![Path from Invoice to Campaign](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/path.png)
+
+## 5. dbt projects
+
+### 5.1 Generate the schema from dbt
+
+```bash
+cd your-dbt-project
+dbt docs generate                                # writes target/manifest.json + catalog.json
+qdbd import dbt target/ -o erd/ --infer-fks      # one .txt per dbt folder
+qdbd build erd/ --by-group -o erd.html           # open erd.html
+```
+
+`dbt docs generate` is what supplies column names and types for models without documented columns. Without it, many tables show up with no columns and `qdbd` prints a hint.
+
+See it on a real project: the [jaffle_shop demo](https://markphamm.github.io/quickdbd-cli/demo/jaffle/) and the [step-by-step walkthrough](https://markphamm.github.io/quickdbd-cli/example/).
+
+### 5.2 What gets imported
+
+| In the diagram | Comes from |
+|---|---|
+| Tables | your project's models, seeds and snapshots, plus sources |
+| Primary keys | `primary_key` constraints, or a column with both `unique` and `not_null` tests |
+| Relationships | `relationships` tests (incl. dbt_utils `relationships_where`) and `foreign_key` constraints |
+| Column types | `catalog.json` |
+| Tooltips | model and column descriptions |
+
+Useful options: `--select 'marts.*'` (repeatable), `--no-sources`, `--package all`, `-o schema.txt` for a single file.
+
+### 5.3 Infer missing relationships
+
+Most dbt projects don't declare every foreign key. `--infer-fks` links columns like `customer_id` to the table they name (`dim_customers`, `stg_shop__customers`, …) when no relationship is declared. Ambiguous matches are skipped, never guessed.
+
+### 5.4 Keep it in sync
+
+Re-run the import whenever models change. It overwrites the generated `.txt` files. Your dragged positions survive, because the layout file is keyed by table name. In CI, `--check` fails if the committed files are out of date ([7.2](#72-dbt-projects-in-ci)).
+
+More: [dbt Import](https://markphamm.github.io/quickdbd-cli/dbt/).
+
+## 6. Reviewing schema changes
+
+### 6.1 See what changed
+
+```bash
+qdbd diff old.txt new.txt                       # two versions
+qdbd diff --base origin/main erd/               # a git branch vs your working tree
 qdbd diff --base origin/main erd/ --format markdown -o diff.md   # for a PR comment
-qdbd build erd/ --diff-base origin/main -o erd.html              # colour what changed
 ```
 
-`diff` reports tables added and removed, column changes (added, removed, type and flag changes) and relationships added and removed. `--format json` is available, and `--exit-code` exits 1 when anything changed.
+It reports tables, columns (added, removed, type and flag changes) and relationships added or removed. `--format json` is also available, and `--exit-code` exits 1 when anything changed.
 
-With `--diff-base`, the page:
-- marks new tables green and changed tables amber, with a bar on each changed column;
-- shows a summary banner, and its **Show changes** link filters to the changes plus their neighbours;
-- lists each table's changes in the detail panel.
-
-The selector `diff:modified` (or `diff:added` / `diff:changed`) works like dbt's `state:modified`, e.g. `-s 'diff:modified+1'`.
-
-## Commands
+### 6.2 Highlight changes in the diagram
 
 ```bash
-qdbd check  PATH... [--strict]                 # validate; "No errors found. Good job!"
-qdbd build  PATH... -o diagram.html            # shareable interactive HTML
-qdbd serve  PATH... [--port 8765]              # live editor + drag-to-arrange
-qdbd export PATH... -o out.png [--focus Customer --depth 1]   # PNG, SVG or .drawio
-qdbd layout PATH... [--reset]                  # (re)write the layout file
-qdbd import dbt target/manifest.json -o erd/   # generate schema files from a dbt project
-qdbd path PATH... --from A --to B              # shortest join path + SQL JOIN snippet
+qdbd build erd/ --diff-base origin/main -o erd.html
 ```
 
-`PATH` is a `.txt` file or a folder. Every `*.txt` under a folder is read recursively.
+New tables are green and changed tables amber, with a bar on each changed column. A banner summarises the changes, and **Show changes** filters to them plus their neighbours. The selector `diff:modified+1` does the same from the CLI.
 
-### Table positions
+![Diff view](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/diff.png)
 
-The first build auto-arranges the tables. In `qdbd serve`, drag tables where you want them. Positions are saved to a sidecar file you can commit:
+More: [Schema Diffs](https://markphamm.github.io/quickdbd-cli/diffs/).
 
-- `schema.txt` → `schema.layout.json`
-- a folder → `<folder>/qdbd.layout.json`
-- override either with `--layout FILE`
+## 7. CI and automation
 
-Once a layout exists, a new table is placed next to the tables it's related to, and nothing else moves. Run `qdbd layout PATH --reset` to re-arrange everything from scratch. A pasted schema's QuickDBD `[layout]` section is used for any table the sidecar doesn't cover.
+### 7.1 GitHub Action
 
-`qdbd build` never writes the sidecar, so CI builds leave the working tree clean.
-
-### Differences from QuickDBD
-
-`qdbd` accepts a few things QuickDBD rejects, and prints a warning for each one:
-
-- tab characters
-- `decimal(10, 2)` (a space inside a type)
-- an explicit `NOT NULL`
-- indented table names
-- `[layout]` entries for unknown tables
-
-`qdbd check --strict` turns these warnings into errors, so a file that passes is guaranteed to paste into QuickDBD.
-
-`default=` values keep their case, where QuickDBD lowercases them.
-
-## CI
-
-**GitHub Action:** checks the schema and builds the diagram. On pull requests it also posts one schema-diff comment, updated on every push, and highlights the changes in the diagram artifact.
+Checks the schema and builds the diagram. On pull requests it also posts **one** schema-diff comment (updated on every push) and uploads the diagram with the changes highlighted.
 
 ```yaml
+# .github/workflows/erd.yml
 name: ERD
 on: [pull_request, push]
 jobs:
@@ -159,24 +315,38 @@ jobs:
       - uses: actions/checkout@v4
       - uses: MarkPhamm/quickdbd-cli@v0.1.6
         with:
-          path: erd/                 # schema file(s) or folder(s)
+          path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
 ```
 
 | Input | Default | |
 |---|---|---|
-| `path` | (required) | schema files or folders |
-| `output` | `erd/index.html` | HTML diagram path |
+| `path` | `erd/` | schema files or folders |
+| `output` | `erd/index.html` | where to write the HTML |
 | `check` / `strict` | `true` / `false` | fail on errors / also on QuickDBD-compatibility warnings |
 | `comment` | `true` | post the diff comment on PRs |
-| `select` | | dbt-style selector for the diagram |
+| `select` | | selector for the diagram, e.g. `group:marts` |
 | `qdbd-version` | `latest` | PyPI version |
 
-Outputs are `html`, `changed` and `diff-file`.
+Outputs: `html`, `changed`, `diff-file`. To publish the diagram on GitHub Pages, add `actions/upload-pages-artifact` + `actions/deploy-pages`; this repo's [`erd.yml`](https://github.com/MarkPhamm/quickdbd-cli/blob/main/.github/workflows/erd.yml) does that for the live demo. All inputs: [GitHub Action](https://markphamm.github.io/quickdbd-cli/github-action/).
 
-**Publishing:** to publish the diagram on GitHub Pages, add `actions/upload-pages-artifact` + `actions/deploy-pages` after it. See [`.github/workflows/erd.yml`](.github/workflows/erd.yml), which publishes this repo's demo.
+### 7.2 dbt projects in CI
 
-**pre-commit:**
+Run your dbt setup first, then let the action generate the schema:
+
+```yaml
+      # … dbt deps && dbt build && dbt docs generate
+      - uses: MarkPhamm/quickdbd-cli@v0.1.6
+        with:
+          dbt-manifest: target/
+          dbt-args: --infer-fks
+          path: erd/
+          output: site/index.html
+```
+
+Commit `erd/` so pull requests can be compared with `main`. Set `dbt-check: true` to fail the job when the committed files are out of date instead of regenerating them. Walkthrough: [Automate in CI](https://markphamm.github.io/quickdbd-cli/example/ci/).
+
+### 7.3 pre-commit
 
 ```yaml
 repos:
@@ -184,10 +354,10 @@ repos:
     rev: v0.1.6
     hooks:
       - id: qdbd-check
-        files: ^erd/.*\.txt$   # point at your schema files
+        files: ^erd/.*\.txt$
 ```
 
-**GitLab CI:**
+### 7.4 GitLab CI (or any CI)
 
 ```yaml
 erd:
@@ -200,28 +370,41 @@ erd:
     paths: [public/index.html]
 ```
 
-## Development
+Builds are deterministic (no timestamps or randomness), so the output only changes when the schema does.
+
+## 8. Command reference
 
 ```bash
-uv venv && uv pip install -e ".[dev]"
-.venv/bin/pytest
-python scripts/gen_schema.py        # regenerate examples/synthetic (200 tables)
-python scripts/gen_font_metrics.py  # regenerate font width table
+qdbd check  PATH... [--strict]                      # validate
+qdbd serve  PATH... [--port 8765]                   # live editor + drag to arrange
+qdbd build  PATH... -o diagram.html                 # interactive HTML
+qdbd export PATH... -o out.png|.svg|.drawio [--focus T --depth 1]
+qdbd layout PATH... [--reset]                       # (re)write the layout file
+qdbd path   PATH... --from A --to B                 # shortest join path + SQL JOIN
+qdbd diff   OLD NEW | --base REF PATH...            # schema changes
+qdbd import dbt target/ -o erd/ [--infer-fks]       # schema files from dbt
 ```
 
-Design notes: `docs/superpowers/specs/2026-10-17-qdbd-design.md`.
+`PATH` is a `.txt` file or a folder (read recursively). Run `qdbd COMMAND --help` for every option, or see [The qdbd CLI](https://markphamm.github.io/quickdbd-cli/cli/).
 
-### Releasing
+## 9. Development
 
-Put PyPI credentials in `.env` (gitignored):
-
+```bash
+uv venv && uv pip install -e ".[dev,docs]"
+.venv/bin/pytest                                      # full suite
+.venv/bin/ruff check src tests scripts && .venv/bin/ruff format src tests scripts
+.venv/bin/mkdocs serve                                # docs site at localhost:8000
+.venv/bin/qdbd serve examples/synthetic               # 200-table playground
 ```
-TWINE_USERNAME=__token__
-TWINE_PASSWORD=pypi-...
-```
 
-Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, commit, then run `PATH="$PWD/.venv/bin:$PATH" scripts/release.sh`. It builds, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release.
+More: [Local Development](https://markphamm.github.io/quickdbd-cli/development/). The design notes are in [`docs/superpowers/specs/`](docs/superpowers/specs/2026-10-17-qdbd-design.md).
+
+### 9.1 Releasing
+
+1. Put PyPI credentials in `.env` (gitignored): `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=pypi-…`.
+2. Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`, then merge.
+3. Run `PATH="$PWD/.venv/bin:$PATH" scripts/release.sh`. It builds, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release.
 
 ## License
 
-Apache-2.0. Bundled third-party files are listed in [NOTICE](NOTICE).
+Apache-2.0. Bundled third-party files (ELK, Inter) are listed in [NOTICE](https://github.com/MarkPhamm/quickdbd-cli/blob/main/NOTICE).

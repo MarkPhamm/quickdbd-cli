@@ -1,4 +1,4 @@
-# 4. Automate in CI
+# 5.6 Step 4: Automate in CI
 
 Add one workflow and every pull request gets a schema-diff comment, plus the diagram with the changes highlighted.
 
@@ -63,4 +63,4 @@ To keep an always-current ERD on GitHub Pages, add a deploy job. This site's own
         uses: actions/deploy-pages@v4
 ```
 
-All inputs are in [GitHub Action](../github-action.md).
+All inputs are in [7.2 Inputs](../github-action.md#inputs).

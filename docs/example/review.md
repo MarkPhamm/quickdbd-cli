@@ -1,4 +1,4 @@
-# 3. Review a change
+# 5.5 Step 3: Review a Change
 
 Say a branch adds a `payments` mart and a `loyalty_tier` column to `customers`. After re-running `qdbd import dbt target/ -o erd/` on the branch:
 

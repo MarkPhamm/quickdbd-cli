@@ -1,32 +1,10 @@
-# Getting Started
+# 2. Quick Start
 
-## Install
+Your first diagram in 5 minutes. You need qdbd [installed](install.md).
 
-=== "pipx"
+## 2.1 Write (or paste) a schema { #write-a-schema }
 
-    ```bash
-    pipx install quickdbd-cli
-    ```
-
-=== "uv"
-
-    ```bash
-    uv tool install quickdbd-cli
-    # or run without installing:
-    uvx --from quickdbd-cli qdbd --help
-    ```
-
-=== "pip"
-
-    ```bash
-    pip install quickdbd-cli
-    ```
-
-You need Python 3.11+. Everything else comes from pip.
-
-## Write a schema
-
-Create `schema.txt`. This is the same syntax you'd type into QuickDBD:
+Save this as `schema.txt`. If you already have a schema in QuickDBD, copy it from QuickDBD's editor and paste it in unchanged.
 
 ```text
 Customer
@@ -43,9 +21,9 @@ OrderDate datetime
 Total decimal(10,2)
 ```
 
-A table is a name, a line of dashes, then one line per column: `name [type] [modifiers]`. `FK >- Customer.CustomerId` declares a many-to-one relationship. The [syntax reference](syntax.md) covers everything else.
+A table is a name, a line of dashes, then one column per line: `name type modifiers`. `FK >- Customer.CustomerId` means *many orders → one customer*. Everything else is in [3.1 Schema Syntax](syntax.md).
 
-## Check it
+## 2.2 Check it { #check-it }
 
 ```bash
 qdbd check schema.txt
@@ -55,39 +33,45 @@ qdbd check schema.txt
 No errors found. Good job!
 ```
 
-Errors print as `schema.txt:12: error: …` and exit with code 1, so the same command works as a CI gate.
+Errors print as `schema.txt:12: error: …`, using QuickDBD's own messages, and exit with code 1. That makes the same command a CI gate ([7. CI and Automation](github-action.md)).
 
-## Edit it live
+## 2.3 Edit it live { #edit-it-live }
 
 ```bash
 qdbd serve schema.txt
 ```
 
-A browser tab opens with the diagram and an editor pane:
+A browser tab opens with the diagram and an editor pane.
 
-- Save in your own editor (or type in the pane, which autosaves) and the diagram reloads.
-- **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema.
-- New tables appear next to the tables they're related to, so your arrangement doesn't move.
+- **Edit** in the pane (it autosaves 1 s after you stop typing) or in your own editor. The diagram reloads on save.
+- **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.3 Table Positions](layout.md)).
+- **Stop** the server with ++ctrl+c++.
 
-## Build and share
+## 2.4 Build a page to share { #build-and-share }
 
 ```bash
 qdbd build schema.txt -o schema.html
 ```
 
-`schema.html` is one file. Email it, attach it, or publish it (the [GitHub Action](github-action.md) can do that). Click a table to see its details, filter with `orders+1`, or press **Link** to copy a URL to the exact view you're looking at.
+`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)).
 
-## Many files
+In the page, click a table to see its details, type `+Order` in the filter, or press **Link** to copy a URL to exactly what you're looking at. The tour is in [4.1 Reading the Diagram](reading-the-diagram.md).
 
-Point qdbd at a folder and every `*.txt` under it becomes one diagram. Foreign keys can cross files:
+## 2.5 Export an image { #export-an-image }
 
 ```bash
-qdbd build schema/ -o schema.html
+qdbd export schema.txt -o schema.png                         # whole diagram: .png, .svg or .drawio
+qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and its neighbours
 ```
 
-Each file becomes a group in the explorer sidebar and can get its own [region](reading-the-diagram.md#regions).
+`.drawio` files open in [diagrams.net](https://app.diagrams.net) as editable ER shapes. More: [4.3 Exports](exports.md).
 
-## Next
+## 2.6 Where next { #next }
 
-- [Reading the Diagram](reading-the-diagram.md): everything the page can do.
-- [Worked example: jaffle_shop](example/index.md): the full flow on a dbt project.
+| You want to… | Go to |
+|---|---|
+| Split a big schema into several files | [3.2 Many Files, One Diagram](files.md) |
+| Filter to part of the schema, or find how two tables join | [4.2 Selecting Tables](selectors.md), [4.1 Reading the Diagram](reading-the-diagram.md#details-panel) |
+| Generate the schema from a dbt project | [5.1 dbt Import](dbt.md) |
+| See what a branch changes | [6. Reviewing Changes](diffs.md) |
+| Run it on every pull request | [7. CI and Automation](github-action.md) |

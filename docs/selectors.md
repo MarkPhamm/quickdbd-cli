@@ -1,4 +1,4 @@
-# Selecting Tables
+# 4.2 Selecting Tables
 
 qdbd's selectors are modelled on dbt's `--select`, but they follow **relationships** instead of lineage. The same syntax works in the page's filter box and as `-s/--select` and `--exclude` on `build` and `export`.
 

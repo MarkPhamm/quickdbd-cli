@@ -1,18 +1,27 @@
-# GitHub Action
+# 7. CI and Automation
 
-```yaml
-- uses: actions/checkout@v4
-- uses: MarkPhamm/quickdbd-cli@v0.1.6
-  with:
-    path: erd/
-    output: site/index.html
+qdbd is a plain CLI, so it runs in any CI. On GitHub, the action below does the whole job; elsewhere, see [7.6](#not-on-github).
+
+## 7.1 GitHub Action { #github-action }
+
+Add this file to your repo:
+
+```yaml title=".github/workflows/erd.yml"
+name: ERD
+on: [pull_request, push]
+jobs:
+  erd:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, pull-requests: write }   # write: for the PR comment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: MarkPhamm/quickdbd-cli@v0.1.6
+        with:
+          path: erd/                  # schema file(s) or folder(s)
+          output: site/index.html
 ```
 
-The job needs `permissions: { contents: read, pull-requests: write }` for the PR comment.
-
-## What it does
-
-On every run:
+**What it does.** On every run, it:
 
 1. installs qdbd from PyPI (and, with `dbt-manifest`, runs `qdbd import dbt`);
 2. runs `qdbd check` and fails the job on errors (or warnings, with `strict: true`);
@@ -24,7 +33,7 @@ On pull requests it also:
 5. builds the diagram with `--diff-base`, so changes are highlighted;
 6. posts **one** comment with the markdown diff, and updates that same comment on later pushes.
 
-## Inputs
+## 7.2 Inputs { #inputs }
 
 | Input | Default | |
 |---|---|---|
@@ -42,7 +51,7 @@ On pull requests it also:
 | `python-version` | `3.12` | |
 | `github-token` | `${{ github.token }}` | token for the comment |
 
-## Outputs
+## 7.3 Outputs { #outputs }
 
 | Output | |
 |---|---|
@@ -50,11 +59,11 @@ On pull requests it also:
 | `changed` | `"true"` when the pull request changes the schema |
 | `diff-file` | markdown diff (pull requests) |
 
-## Publishing to GitHub Pages
+## 7.4 Publishing to GitHub Pages { #publishing-to-github-pages }
 
-Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with `actions/deploy-pages` on pushes to your main branch. The [worked example](example/ci.md#publish-the-diagram) has the full workflow.
+Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with `actions/deploy-pages` on pushes to your main branch. [5.6 Step 4: Automate in CI](example/ci.md#publish-the-diagram) has the full workflow.
 
-## With dbt
+## 7.5 With dbt { #with-dbt }
 
 Run your dbt build first, then point the action at the manifest:
 
@@ -66,9 +75,9 @@ Run your dbt build first, then point the action at the manifest:
     path: erd/
 ```
 
-Commit `erd/` so pull requests have a base to diff against. See the [worked example](example/ci.md).
+Commit `erd/` so pull requests have a base to diff against. Walkthrough: [5.6 Step 4: Automate in CI](example/ci.md).
 
-## Not on GitHub?
+## 7.6 GitLab CI and others { #not-on-github }
 
 The action only wraps the CLI. For example, on GitLab:
 
@@ -83,7 +92,9 @@ erd:
     paths: [public/index.html]
 ```
 
-There is also a [pre-commit](https://pre-commit.com) hook:
+## 7.7 pre-commit { #pre-commit }
+
+To check schema files before every commit, add the [pre-commit](https://pre-commit.com) hook:
 
 ```yaml
 repos:

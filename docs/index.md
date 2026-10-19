@@ -8,7 +8,7 @@ qdbd turns **database schemas into interactive ER diagrams** that stay readable 
 
 The schema is a text file, so it lives in git next to your code. Diagrams are generated from it and never edited by hand. Table positions are the only thing you arrange yourself, and they're saved in a small layout file so the diagram stays put.
 
-[Open the live demo (200 tables)](demo/){ .md-button .md-button--primary } [Get started](getting-started.md){ .md-button }
+[Live demo (200 tables)](demo/){ .md-button .md-button--primary } [dbt demo](demo/jaffle/){ .md-button } [Quick start](getting-started.md){ .md-button }
 
 ![The 200-table demo](assets/img/overview.png){ .shot }
 
@@ -29,29 +29,43 @@ hand-written / pasted ─────────┘           │
 
 </div>
 
-Every command reads the same `.txt` files, so the page, the images and the PR comment always agree. The [GitHub Action](github-action.md) runs `check`, `build` and `diff` on every pull request.
+Every command reads the same `.txt` files, so the page, the images and the PR comment always agree. The [GitHub Action](github-action.md#github-action) runs `check`, `build` and `diff` on every pull request.
 
-## Where to start
+## The guide
+
+Read it in order the first time; each step builds on the one before.
+
+| # | Section | You'll learn |
+|---|---|---|
+| 1 | [Install](install.md) | Install with pip, pipx or uv, or run without installing |
+| 2 | [Quick Start](getting-started.md) | Write, check, edit, build and export your first diagram in 5 minutes |
+| 3 | [Schema Files](syntax.md) | The [syntax](syntax.md), [splitting a schema into files](files.md), and [table positions](layout.md) |
+| 4 | [Exploring a Diagram](reading-the-diagram.md) | [Reading the page](reading-the-diagram.md), [filtering with selectors](selectors.md), and [exports](exports.md) |
+| 5 | [dbt Projects](dbt.md) | Generate the schema from `manifest.json`, then follow [jaffle_shop](example/index.md) from import to CI |
+| 6 | [Reviewing Changes](diffs.md) | What a branch changes, as a report and highlighted in the diagram |
+| 7 | [CI and Automation](github-action.md) | The GitHub Action, GitHub Pages, pre-commit and other CI systems |
+| 8 | [CLI Reference](cli.md) | Every command and exit code |
+| 9 | [Development](development.md) | Working on qdbd itself |
 
 <div class="grid cards" markdown>
 
-- **Writing a schema for the first time?**
+- **New to qdbd?**
 
-    Install qdbd, write a few tables and open the live editor.
+    Install it and build your first diagram.
 
-    [:octicons-arrow-right-24: Getting Started](getting-started.md)
+    [:octicons-arrow-right-24: 1. Install](install.md)
 
 - **Have a dbt project?**
 
-    Generate the schema from `manifest.json` and follow a real project from import to CI.
+    Generate the schema from `manifest.json`, with relationships from your tests.
 
-    [:octicons-arrow-right-24: Worked example: jaffle_shop](example/index.md)
+    [:octicons-arrow-right-24: 5. dbt Projects](dbt.md)
 
 - **Reading a diagram someone shared?**
 
     What the markers, colours, panels and filters mean.
 
-    [:octicons-arrow-right-24: Reading the Diagram](reading-the-diagram.md)
+    [:octicons-arrow-right-24: 4.1 Reading the Diagram](reading-the-diagram.md)
 
 </div>
 
