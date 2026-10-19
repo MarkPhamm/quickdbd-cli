@@ -9,6 +9,7 @@ the server never writes anything.
 
 from __future__ import annotations
 
+import errno
 import json
 import sys
 import threading
@@ -190,11 +191,29 @@ def _handler(state: State, title: str):
     return Handler
 
 
-def make_server(project: Project, port: int = 8765, read_only: bool = False) -> tuple[ThreadingHTTPServer, State]:
-    """Bind the HTTP server (port 0 picks a free port) without starting it."""
+class PortInUse(OSError):
+    pass
+
+
+def make_server(
+    project: Project, port: int = 8765, read_only: bool = False, tries: int = 1
+) -> tuple[ThreadingHTTPServer, State]:
+    """Bind the HTTP server without starting it. Port 0 picks a free port; with ``tries`` > 1, a busy port
+    moves on to the next one (port, port+1, ...)."""
     state = State(project, read_only=read_only)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
-    server = ThreadingHTTPServer(("127.0.0.1", port), _handler(state, title))
+    server = None
+    for p in range(port, port + max(tries, 1)) if port else [0]:
+        try:
+            server = ThreadingHTTPServer(("127.0.0.1", p), _handler(state, title))
+            break
+        except OSError as e:
+            if e.errno != errno.EADDRINUSE:
+                raise
+    if server is None:
+        last = port + max(tries, 1) - 1
+        span = f"ports {port}-{last} are" if last > port else f"port {port} is"
+        raise PortInUse(f"{span} already in use (another qdbd serve?); pick one with --port")
     server.daemon_threads = True
     return server, state
 
@@ -210,8 +229,14 @@ def poll_once(state: State) -> bool:
     return True
 
 
-def serve(project: Project, port: int = 8765, open_browser: bool = True, read_only: bool = False) -> int:
-    server, state = make_server(project, port, read_only=read_only)
+def serve(
+    project: Project, port: int = 8765, open_browser: bool = True, read_only: bool = False, tries: int = 1
+) -> int:
+    try:
+        server, state = make_server(project, port, read_only=read_only, tries=tries)
+    except PortInUse as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
     for d in state.diagnostics:
         print(d["text"], file=sys.stderr)
     url = f"http://127.0.0.1:{server.server_address[1]}/"

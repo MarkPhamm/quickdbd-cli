@@ -37,7 +37,7 @@ To let someone watch the diagram change as you edit, serve it read-only and put 
 ```bash
 brew install cloudflared
 qdbd serve schema.txt --read-only                    # terminal 1
-cloudflared tunnel --url http://127.0.0.1:8765       # terminal 2: prints https://<random>.trycloudflare.com
+cloudflared tunnel --url http://127.0.0.1:8765       # terminal 2 (use the port qdbd printed): prints https://<random>.trycloudflare.com
 ```
 
 With `--read-only`:

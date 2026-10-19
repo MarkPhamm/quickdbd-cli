@@ -194,3 +194,36 @@ def test_read_only_refuses_writes_and_never_touches_disk(ro):
     assert poll_once(state)
     assert [t["name"] for t in call(base, "/state")[1]["model"]["tables"]] == ["Customer", "Order", "Product"]
     assert not f.with_name("shop.layout.json").exists()
+
+
+# ------------------------------------------------------------------ busy ports
+
+
+def test_busy_port_moves_to_the_next_free_one(tmp_path):
+    from quickdbd_cli.serve import PortInUse
+
+    f = tmp_path / "shop.txt"
+    f.write_text(SCHEMA)
+    first, _ = make_server(Project.open([f]), port=0)
+    busy = first.server_address[1]
+    try:
+        with pytest.raises(PortInUse, match=f"port {busy} is already in use"):
+            make_server(Project.open([f]), port=busy)
+        second, _ = make_server(Project.open([f]), port=busy, tries=20)
+        assert second.server_address[1] > busy
+        second.server_close()
+    finally:
+        first.server_close()
+
+
+def test_cli_explicit_busy_port_is_a_clean_error(tmp_path, capsys):
+    from quickdbd_cli.cli import main
+
+    f = tmp_path / "shop.txt"
+    f.write_text(SCHEMA)
+    first, _ = make_server(Project.open([f]), port=0)
+    try:
+        assert main(["serve", str(f), "--no-open", "--port", str(first.server_address[1])]) == 2
+        assert "already in use" in capsys.readouterr().err
+    finally:
+        first.server_close()

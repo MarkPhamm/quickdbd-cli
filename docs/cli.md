@@ -26,6 +26,8 @@ qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only]
 
 Local live editor on `127.0.0.1`: reloads when files change, browser editor pane with autosave, drag tables to save positions. Ctrl+C stops it.
 
+The default port is 8765. If it's busy (for example, a second `qdbd serve` is running), the next free port is used and printed. An explicit `--port` that's busy is an error.
+
 `--read-only` serves a live view with no editor that never writes to disk, safe to put behind a tunnel ([4.4 Sharing a Link](sharing.md#live-read-only-link)).
 
 ## 8.4 export { #export }
