@@ -12,7 +12,9 @@ exclude_docs: |
 theme:
   name: material
   custom_dir: overrides
-  font: false              # Mona Sans + Monaspace Neon, self-hosted in docs/assets/fonts (extra.css)
+  font:
+    text: Figtree
+    code: JetBrains Mono
   palette:
     scheme: slate
     primary: custom
