@@ -1,0 +1,40 @@
+# The online shop schema (examples/quickdbd-sample.txt) as it was before a branch:
+# no Wishlist or Address tables, no Order.Status, and Product had no Sku yet.
+
+Customer as c
+-
+CustomerId PK int IDENTITY
+Email varchar(255) UNIQUE
+Name string INDEX
+Phone NULL string
+CreatedAt datetime default=GETUTCDATE()
+LegacyRef NULL string
+
+Order as o
+----
+OrderId PK int IDENTITY
+CustomerId int FK >- c.CustomerId
+Total money
+
+OrderLine
+rel >- Product
+---
+OrderId PK int FK >- o.OrderId
+LineNo PK int
+ProductId int FK >0- Product.ProductId
+Quantity int=1
+
+"Product Catalog" as cat
+-
+CatalogId PK int
+Title string
+
+Product
+------------
+ProductId PK int
+CatalogId int FK >- cat.CatalogId
+Price money
+
+[settings]
+Zoom 100
+CaseSensitive off

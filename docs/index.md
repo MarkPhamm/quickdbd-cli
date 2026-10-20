@@ -8,9 +8,9 @@ qdbd turns **database schemas into interactive ER diagrams** that stay readable 
 
 The schema is a text file, so it lives in git next to your code. Diagrams are generated from it and never edited by hand. Table positions are the only thing you arrange yourself, and they're saved in a small layout file so the diagram stays put.
 
-[Live demo (200 tables)](demo/){ .md-button .md-button--primary } [dbt demo](demo/jaffle/){ .md-button } [Quick start](getting-started.md){ .md-button }
+[Live demos](demo/){ .md-button .md-button--primary } [200-table demo](demo/synthetic/){ .md-button } [Quick start](getting-started.md){ .md-button }
 
-![The 200-table demo](assets/img/overview.png){ .shot }
+[![The 200-table demo](assets/img/overview.png){ .shot }](demo/synthetic/)
 
 ## The workflow
 

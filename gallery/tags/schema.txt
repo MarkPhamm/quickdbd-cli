@@ -1,0 +1,71 @@
+# A small star schema. Header colours come from tags: `dim_` / `fct_` / `stg_` name prefixes,
+# or an explicit `# @tag:` comment. All tags are comments, so this still pastes into QuickDBD.
+
+# @color gold #b8860b
+
+stg_orders
+-
+order_id PK int
+customer_id int
+product_id int
+ordered_at datetime
+amount decimal(12,2)
+
+stg_customers
+-
+customer_id PK int
+email string
+country string
+
+fct_orders
+-
+order_id PK int FK - stg_orders.order_id
+date_key int FK >- dim_date.date_key
+customer_key int FK >- dim_customer.customer_key
+product_key int FK >- dim_product.product_key
+store_key int FK >- dim_store.store_key
+quantity int
+amount decimal(12,2)
+
+fct_returns
+-
+return_id PK int
+order_id int FK >- fct_orders.order_id
+date_key int FK >- dim_date.date_key
+reason string
+
+dim_date
+-
+date_key PK int
+date date
+month int
+quarter int
+year int
+
+# @tag: dim, pii
+dim_customer
+-
+customer_key PK int
+customer_id int FK - stg_customers.customer_id
+email string
+country string
+
+dim_product
+-
+product_key PK int
+sku string
+category string
+price decimal(12,2)
+
+dim_store
+-
+store_key PK int
+city string
+region string
+
+# @tag: gold
+customer_ltv
+-
+customer_key PK int FK - dim_customer.customer_key
+orders int
+lifetime_value decimal(14,2)

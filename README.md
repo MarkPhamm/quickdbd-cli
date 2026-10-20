@@ -3,13 +3,13 @@
 `qdbd` turns [QuickDBD](https://www.quickdatabasediagrams.com)-syntax `.txt` schemas, or a dbt project, into **interactive ER diagrams** with **no table limit**. The diagrams stay readable at 200+ tables.
 
 <p>
-  <a href="https://markphamm.github.io/quickdbd-cli/demo/"><b>▶ Live demo (200 tables)</b></a> ·
+  <a href="https://markphamm.github.io/quickdbd-cli/demo/"><b>▶ Live demos</b></a> ·
   <a href="https://markphamm.github.io/quickdbd-cli/demo/jaffle/"><b>▶ dbt demo (jaffle_shop)</b></a> ·
   <a href="https://markphamm.github.io/quickdbd-cli/"><b>📖 Docs</b></a> ·
   <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a>
 </p>
 
-[![The 200-table demo](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/overview.png)](https://markphamm.github.io/quickdbd-cli/demo/)
+[![The 200-table demo](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/overview.png)](https://markphamm.github.io/quickdbd-cli/demo/synthetic/)
 
 Not affiliated with QuickDBD. It reads the same text syntax, so schemas can be copied back and forth between the two.
 

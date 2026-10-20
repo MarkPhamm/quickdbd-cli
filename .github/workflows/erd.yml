@@ -1,5 +1,5 @@
 # Dogfoods the qdbd GitHub Action (action.yml) on the example schema, and publishes the site:
-# pull requests get a schema-diff comment; main deploys the docs (/) and live demos (/demo/) to GitHub Pages.
+# pull requests get a schema-diff comment; main deploys the docs (/) and the demo gallery (/demo/) to GitHub Pages.
 name: ERD
 on:
   pull_request:
@@ -25,7 +25,7 @@ jobs:
         uses: ./
         with:
           path: examples/synthetic
-          output: site/demo/index.html
+          output: site/demo/synthetic/index.html
           qdbd-version: source
       - name: Demo (dbt jaffle_shop), via the action's dbt input
         uses: ./
@@ -36,6 +36,10 @@ jobs:
           qdbd-version: source
           comment: "false"
           upload-artifact: "false"
+      # Rebuilds every demo in gallery/demos.toml (overwriting the two above with the same diagrams plus a
+      # back link) and writes the gallery page at /demo/.
+      - name: Demo gallery
+        run: python scripts/build_gallery.py --out site/demo
       - if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:

@@ -78,6 +78,8 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `share.py`: `qdbd share` publishes the built page as a gist via `gh api` (POST/PATCH `/gists`), remembering gist ids in `~/.cache/qdbd/shares.json` (`QDBD_CACHE_DIR` overrides; tests fake `subprocess.run`). `serve --read-only` renders the plain viewer plus `LIVE_JS` (SSE reload), omits file text from `/state`, returns 403 on writes, and never writes the layout file.
 - `diff.py`: schema diff by name. `--base` reads files with `git show REF:path`, with no checkout.
 
+**Demo gallery** (`/demo/`): `gallery/demos.toml` is the catalog. `scripts/build_gallery.py --out site/demo` builds each demo through the Python API (not the CLI, so titles and model paths are stable) plus the gallery page from `gallery/index.html`. Card images in `docs/assets/img/gallery/` come from `scripts/gen_thumbnails.py` (Playwright, dev-only) and must be regenerated when a demo changes. Demo sources live in `gallery/`, not `examples/`, because `examples/` ships in the sdist.
+
 ## Conventions
 
 - **Determinism:** output must not contain timestamps or randomness (`elk.randomSeed`, sorted JSON). `test_build_is_deterministic…` asserts byte-identical builds.

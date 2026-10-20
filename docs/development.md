@@ -24,7 +24,17 @@ uv venv && uv pip install -e ".[dev,docs]"
 .venv/bin/mkdocs serve        # http://127.0.0.1:8000
 ```
 
-The site deploys to GitHub Pages from `main`, with the live demos built into `/demo/`.
+The site deploys to GitHub Pages from `main`, with the demo gallery built into `/demo/`.
+
+## Demo gallery
+
+`gallery/demos.toml` lists every demo: its source (a QuickDBD path or a dbt manifest folder), build flags, and the viewer URL hash its card opens. To add one:
+
+1. Add a `[[demo]]` entry (the file's header comment lists the keys).
+2. Run `python scripts/gen_thumbnails.py <id>` to make its card image in `docs/assets/img/gallery/` (needs Playwright; uses the system Chrome).
+3. Preview with `python scripts/build_gallery.py --out /tmp/site/demo` and open `/tmp/site/demo/index.html`.
+
+`tests/test_gallery.py` checks the catalog, that every demo has a thumbnail, and that the build is deterministic.
 
 ## 9.3 Example data { #example-data }
 
