@@ -1,0 +1,113 @@
+# SaaS billing: accounts on plans, with subscriptions, invoices, payments and metered usage.
+# Hand-written for the qdbd demo gallery. Pastes into app.quickdatabasediagrams.com unchanged.
+
+# A paying customer (company or person).
+Account as acc
+-
+AccountId PK int IDENTITY
+Name string
+BillingEmail varchar(255) UNIQUE
+Country char(2)
+CreatedAt datetime default=GETUTCDATE()
+
+# A person who signs in; belongs to one account.
+User
+-
+UserId PK int IDENTITY
+AccountId int FK >- acc.AccountId
+Email varchar(255) UNIQUE
+Role string="member" # owner, admin or member
+LastSeenAt NULL datetime
+
+# A price list entry customers can subscribe to.
+Plan
+-
+PlanId PK int
+Code varchar(40) UNIQUE
+Name string
+MonthlyPrice decimal(10,2)
+Currency char(3)="USD"
+IsPublic bool=true
+
+# Limits that come with a plan, one row per metered feature.
+PlanLimit
+-
+PlanId PK int FK >- Plan.PlanId
+FeatureCode PK varchar(40) FK >- Feature.Code
+IncludedUnits int=0
+OverageUnitPrice NULL decimal(10,4)
+
+Feature
+-
+Code PK varchar(40)
+Name string
+Unit string # e.g. seats, API calls, GB
+
+Subscription as sub
+-
+SubscriptionId PK int IDENTITY
+AccountId int FK >- acc.AccountId
+PlanId int FK >- Plan.PlanId
+Status string="trialing" # trialing, active, past_due, canceled
+StartedAt datetime
+CurrentPeriodEnd datetime
+CanceledAt NULL datetime
+
+# Metered usage reported by the product; billed at period end.
+UsageEvent
+-
+UsageEventId PK bigint IDENTITY
+SubscriptionId int FK >0- sub.SubscriptionId
+FeatureCode varchar(40) FK >- Feature.Code
+Quantity int
+OccurredAt datetime INDEX
+
+Invoice
+-
+InvoiceId PK int IDENTITY
+SubscriptionId int FK >- sub.SubscriptionId
+Number varchar(20) UNIQUE
+PeriodStart date
+PeriodEnd date
+Total decimal(12,2)
+Status string="draft" # draft, open, paid, void
+
+InvoiceLine
+-
+InvoiceId PK int FK >- Invoice.InvoiceId
+LineNo PK int
+Description string
+Quantity int=1
+UnitPrice decimal(12,4)
+FeatureCode NULL varchar(40) FK >0- Feature.Code
+
+# A card, bank account or other way to pay; an account can keep several.
+PaymentMethod
+-
+PaymentMethodId PK int IDENTITY
+AccountId int FK >- acc.AccountId
+Kind string # card, sepa_debit, ...
+Last4 NULL char(4)
+IsDefault bool=false
+
+Payment
+-
+PaymentId PK int IDENTITY
+InvoiceId int FK >- Invoice.InvoiceId
+PaymentMethodId int FK >- PaymentMethod.PaymentMethodId
+Amount decimal(12,2)
+Status string # succeeded, failed, refunded
+PaidAt NULL datetime
+
+Coupon
+-
+CouponCode PK varchar(30)
+PercentOff NULL int
+AmountOff NULL decimal(10,2)
+ExpiresAt NULL datetime
+
+SubscriptionCoupon
+-
+SubscriptionId PK int FK - sub.SubscriptionId
+CouponCode varchar(30) FK >- Coupon.CouponCode
+AppliedAt datetime

@@ -111,11 +111,27 @@ featured = true
 tags = ["sql server", "t-sql", "regions", "docs"]
 
 [[demo]]
+id = "adventureworks-dw"
+group = "samples"
+title = "AdventureWorks DW"
+description = "Microsoft's data-warehouse sample: a star schema of Dim dimensions around Fact tables, coloured by tag."
+source = "gallery/adventureworks-dw"
+tags = ["sql server", "warehouse", "star schema", "tags"]
+
+[[demo]]
 id = "northwind"
 group = "samples"
 title = "Northwind"
 description = "The classic trading company: customers, orders, products, suppliers, employees and territories."
 source = "gallery/northwind"
+tags = ["sql server", "t-sql", "small"]
+
+[[demo]]
+id = "pubs"
+group = "samples"
+title = "pubs"
+description = "Microsoft's original book-publishing sample: authors, titles, publishers, stores and sales."
+source = "gallery/pubs"
 tags = ["sql server", "t-sql", "small"]
 
 [[demo]]
@@ -141,6 +157,22 @@ title = "Online shop"
 description = "A small schema that uses every QuickDBD feature: aliases, quoted names, defaults, all relationship types."
 source = "examples/quickdbd-sample.txt"
 tags = ["quickdbd", "syntax", "small"]
+
+[[demo]]
+id = "saas-billing"
+group = "quickdbd"
+title = "SaaS billing"
+description = "Accounts on plans, with subscriptions, metered usage, invoices, payments and coupons. Composite keys and doc comments throughout."
+source = "gallery/saas-billing"
+tags = ["quickdbd", "saas", "billing"]
+
+[[demo]]
+id = "courses"
+group = "quickdbd"
+title = "Online courses"
+description = "Courses, sections and lessons; enrolments, progress, quizzes and certificates. Self-references, one-to-one and many-to-many."
+source = "gallery/courses"
+tags = ["quickdbd", "education"]
 
 [[demo]]
 id = "jaffle"
