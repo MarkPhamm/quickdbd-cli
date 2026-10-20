@@ -1,0 +1,417 @@
+# AdventureWorks, Microsoft's bicycle-company OLTP sample database; one file per SQL schema.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/oltp-install-script/instawdb.sql (MIT, see LICENSE).
+# Descriptions come from the database's MS_Description properties.
+
+# Items required to make bicycles and bicycle subassemblies. It identifies the heirarchical relationship between a parent product and its components.
+BillOfMaterials
+-
+# Primary key for BillOfMaterials records.
+BillOfMaterialsID PK int IDENTITY
+# Parent product identification number. Foreign key to Product.ProductID.
+ProductAssemblyID int NULL FK >- Product.ProductID
+# Component identification number. Foreign key to Product.ProductID.
+ComponentID int FK >- Product.ProductID
+# Date the component started being used in the assembly item.
+StartDate datetime
+# Date the component stopped being used in the assembly item.
+EndDate datetime NULL
+# Standard code identifying the unit of measure for the quantity.
+UnitMeasureCode nchar(3) FK >- UnitMeasure.UnitMeasureCode
+# Indicates the depth the component is from its parent (AssemblyID).
+BOMLevel smallint
+# Quantity of the component needed to create the assembly.
+PerAssemblyQty decimal(8,2) default=1.00
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Lookup table containing the languages in which some AdventureWorks data is stored.
+Culture
+-
+# Primary key for Culture records.
+CultureID PK nchar(6)
+# Culture description.
+Name Name UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product maintenance documents.
+Document
+-
+# Primary key for Document records.
+DocumentNode PK hierarchyid
+# Depth in the document hierarchy.
+DocumentLevel computed NULL
+# Title of the document.
+Title nvarchar(50)
+# Employee who controls the document.  Foreign key to Employee.BusinessEntityID
+Owner int FK >- Employee.BusinessEntityID
+# 0 = This is a folder, 1 = This is a document.
+FolderFlag bit default=0
+# File name of the document
+FileName nvarchar(400)
+# File extension indicating the document type. For example, .doc or .txt.
+FileExtension nvarchar(8)
+# Revision number of the document.
+Revision nchar(5)
+# Engineering change approval number.
+ChangeNumber int default=0
+# 1 = Pending approval, 2 = Approved, 3 = Obsolete
+Status tinyint
+# Document abstract.
+DocumentSummary nvarchar(max) NULL
+# Complete document.
+Document varbinary(max) NULL
+# ROWGUIDCOL number uniquely identifying the record. Required for FileStream.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Bicycle assembly diagrams.
+Illustration
+-
+# Primary key for Illustration records.
+IllustrationID PK int IDENTITY
+# Illustrations used in manufacturing instructions. Stored as XML.
+Diagram xml NULL
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product inventory and manufacturing locations.
+Location
+-
+# Primary key for Location records.
+LocationID PK smallint IDENTITY
+# Location description.
+Name Name UNIQUE
+# Standard hourly cost of the manufacturing location.
+CostRate smallmoney default=0.00
+# Work capacity (in hours) of the manufacturing location.
+Availability decimal(8,2) default=0.00
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Products sold or used in the manfacturing of sold products.
+Product
+-
+# Primary key for Product records.
+ProductID PK int IDENTITY
+# Name of the product.
+Name Name UNIQUE
+# Unique product identification number.
+ProductNumber nvarchar(25) UNIQUE
+# 0 = Product is purchased, 1 = Product is manufactured in-house.
+MakeFlag Flag default=1
+# 0 = Product is not a salable item. 1 = Product is salable.
+FinishedGoodsFlag Flag default=1
+# Product color.
+Color nvarchar(15) NULL
+# Minimum inventory quantity.
+SafetyStockLevel smallint
+# Inventory level that triggers a purchase order or work order.
+ReorderPoint smallint
+# Standard cost of the product.
+StandardCost money
+# Selling price.
+ListPrice money
+# Product size.
+Size nvarchar(5) NULL
+# Unit of measure for Size column.
+SizeUnitMeasureCode nchar(3) NULL FK >- UnitMeasure.UnitMeasureCode
+# Unit of measure for Weight column.
+WeightUnitMeasureCode nchar(3) NULL FK >- UnitMeasure.UnitMeasureCode
+# Product weight.
+Weight decimal(8,2) NULL
+# Number of days required to manufacture the product.
+DaysToManufacture int
+# R = Road, M = Mountain, T = Touring, S = Standard
+ProductLine nchar(2) NULL
+# H = High, M = Medium, L = Low
+Class nchar(2) NULL
+# W = Womens, M = Mens, U = Universal
+Style nchar(2) NULL
+# Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID.
+ProductSubcategoryID int NULL FK >- ProductSubcategory.ProductSubcategoryID
+# Product is a member of this product model. Foreign key to ProductModel.ProductModelID.
+ProductModelID int NULL FK >- ProductModel.ProductModelID
+# Date the product was available for sale.
+SellStartDate datetime
+# Date the product was no longer available for sale.
+SellEndDate datetime NULL
+# Date the product was discontinued.
+DiscontinuedDate datetime NULL
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# High-level product categorization.
+ProductCategory
+-
+# Primary key for ProductCategory records.
+ProductCategoryID PK int IDENTITY
+# Category description.
+Name Name UNIQUE
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Changes in the cost of a product over time.
+ProductCostHistory
+-
+# Product identification number. Foreign key to Product.ProductID
+ProductID PK int FK >- Product.ProductID
+# Product cost start date.
+StartDate PK datetime
+# Product cost end date.
+EndDate datetime NULL
+# Standard cost of the product.
+StandardCost money
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product descriptions in several languages.
+ProductDescription
+-
+# Primary key for ProductDescription records.
+ProductDescriptionID PK int IDENTITY
+# Description of the product.
+Description nvarchar(400)
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Cross-reference table mapping products to related product documents.
+ProductDocument
+-
+# Product identification number. Foreign key to Product.ProductID.
+ProductID PK int FK >- Product.ProductID
+# Document identification number. Foreign key to Document.DocumentNode.
+DocumentNode PK hierarchyid FK >- Document.DocumentNode
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product inventory information.
+ProductInventory
+-
+# Product identification number. Foreign key to Product.ProductID.
+ProductID PK int FK >- Product.ProductID
+# Inventory location identification number. Foreign key to Location.LocationID.
+LocationID PK smallint FK >- Location.LocationID
+# Storage compartment within an inventory location.
+Shelf nvarchar(10)
+# Storage container on a shelf in an inventory location.
+Bin tinyint
+# Quantity of products in the inventory location.
+Quantity smallint default=0
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Changes in the list price of a product over time.
+ProductListPriceHistory
+-
+# Product identification number. Foreign key to Product.ProductID
+ProductID PK int FK >- Product.ProductID
+# List price start date.
+StartDate PK datetime
+# List price end date
+EndDate datetime NULL
+# Product list price.
+ListPrice money
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product model classification.
+ProductModel
+-
+# Primary key for ProductModel records.
+ProductModelID PK int IDENTITY
+# Product model description.
+Name Name UNIQUE
+# Detailed product catalog information in xml format.
+CatalogDescription XML(Production.ProductDescriptionSchemaCollection) NULL
+# Manufacturing instructions in xml format.
+Instructions XML(Production.ManuInstructionsSchemaCollection) NULL
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Cross-reference table mapping product models and illustrations.
+ProductModelIllustration
+-
+# Primary key. Foreign key to ProductModel.ProductModelID.
+ProductModelID PK int FK >- ProductModel.ProductModelID
+# Primary key. Foreign key to Illustration.IllustrationID.
+IllustrationID PK int FK >- Illustration.IllustrationID
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Cross-reference table mapping product descriptions and the language the description is written in.
+ProductModelProductDescriptionCulture
+-
+# Primary key. Foreign key to ProductModel.ProductModelID.
+ProductModelID PK int FK >- ProductModel.ProductModelID
+# Primary key. Foreign key to ProductDescription.ProductDescriptionID.
+ProductDescriptionID PK int FK >- ProductDescription.ProductDescriptionID
+# Culture identification number. Foreign key to Culture.CultureID.
+CultureID PK nchar(6) FK >- Culture.CultureID
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product images.
+ProductPhoto
+-
+# Primary key for ProductPhoto records.
+ProductPhotoID PK int IDENTITY
+# Small image of the product.
+ThumbNailPhoto varbinary(max) NULL
+# Small image file name.
+ThumbnailPhotoFileName nvarchar(50) NULL
+# Large image of the product.
+LargePhoto varbinary(max) NULL
+# Large image file name.
+LargePhotoFileName nvarchar(50) NULL
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Cross-reference table mapping products and product photos.
+ProductProductPhoto
+-
+# Product identification number. Foreign key to Product.ProductID.
+ProductID PK int FK >- Product.ProductID
+# Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID.
+ProductPhotoID PK int FK >- ProductPhoto.ProductPhotoID
+# 0 = Photo is not the principal image. 1 = Photo is the principal image.
+Primary Flag default=0
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Customer reviews of products they have purchased.
+ProductReview
+-
+# Primary key for ProductReview records.
+ProductReviewID PK int IDENTITY
+# Product identification number. Foreign key to Product.ProductID.
+ProductID int FK >- Product.ProductID
+# Name of the reviewer.
+ReviewerName Name
+# Date review was submitted.
+ReviewDate datetime
+# Reviewer's e-mail address.
+EmailAddress nvarchar(50)
+# Product rating given by the reviewer. Scale is 1 to 5 with 5 as the highest rating.
+Rating int
+# Reviewer's comments
+Comments nvarchar(3850) NULL
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Product subcategories. See ProductCategory table.
+ProductSubcategory
+-
+# Primary key for ProductSubcategory records.
+ProductSubcategoryID PK int IDENTITY
+# Product category identification number. Foreign key to ProductCategory.ProductCategoryID.
+ProductCategoryID int FK >- ProductCategory.ProductCategoryID
+# Subcategory description.
+Name Name UNIQUE
+# ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
+rowguid uniqueidentifier UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Manufacturing failure reasons lookup table.
+ScrapReason
+-
+# Primary key for ScrapReason records.
+ScrapReasonID PK smallint IDENTITY
+# Failure description.
+Name Name UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Record of each purchase order, sales order, or work order transaction year to date.
+TransactionHistory
+-
+# Primary key for TransactionHistory records.
+TransactionID PK int IDENTITY
+# Product identification number. Foreign key to Product.ProductID.
+ProductID int FK >- Product.ProductID
+# Purchase order, sales order, or work order identification number.
+ReferenceOrderID int
+# Line number associated with the purchase order, sales order, or work order.
+ReferenceOrderLineID int default=0
+# Date and time of the transaction.
+TransactionDate datetime
+# W = WorkOrder, S = SalesOrder, P = PurchaseOrder
+TransactionType nchar(1)
+# Product quantity.
+Quantity int
+# Product cost.
+ActualCost money
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Transactions for previous years.
+TransactionHistoryArchive
+-
+# Primary key for TransactionHistoryArchive records.
+TransactionID PK int
+# Product identification number. Foreign key to Product.ProductID.
+ProductID int
+# Purchase order, sales order, or work order identification number.
+ReferenceOrderID int
+# Line number associated with the purchase order, sales order, or work order.
+ReferenceOrderLineID int default=0
+# Date and time of the transaction.
+TransactionDate datetime
+# W = Work Order, S = Sales Order, P = Purchase Order
+TransactionType nchar(1)
+# Product quantity.
+Quantity int
+# Product cost.
+ActualCost money
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+# Unit of measure lookup table.
+UnitMeasure
+-
+# Primary key.
+UnitMeasureCode PK nchar(3)
+# Unit of measure description.
+Name Name UNIQUE
+# Date and time the record was last updated.
+ModifiedDate datetime
+
+WorkOrder
+-
+WorkOrderID PK int IDENTITY
+ProductID int FK >- Product.ProductID
+OrderQty int
+StockedQty computed NULL
+ScrappedQty smallint
+StartDate datetime
+EndDate datetime NULL
+DueDate datetime
+ScrapReasonID smallint NULL FK >- ScrapReason.ScrapReasonID
+ModifiedDate datetime
+
+WorkOrderRouting
+-
+WorkOrderID PK int FK >- WorkOrder.WorkOrderID
+ProductID PK int
+OperationSequence PK smallint
+LocationID smallint FK >- Location.LocationID
+ScheduledStartDate datetime
+ScheduledEndDate datetime
+ActualStartDate datetime NULL
+ActualEndDate datetime NULL
+ActualResourceHrs decimal(9,4) NULL
+PlannedCost money
+ActualCost money NULL
+ModifiedDate datetime

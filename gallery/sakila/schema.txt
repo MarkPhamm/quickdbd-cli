@@ -1,0 +1,139 @@
+# Sakila, MySQL's DVD-rental sample database.
+# Converted to QuickDBD syntax from sakila-schema.sql (BSD-3-Clause, Copyright (c) 2006, 2026, Oracle and/or its affiliates; see LICENSE).
+
+actor
+-
+actor_id PK smallint IDENTITY
+first_name varchar(45)
+last_name varchar(45)
+last_update timestamp default=CURRENT_TIMESTAMP
+
+address
+-
+address_id PK smallint IDENTITY
+address varchar(50)
+address2 varchar(50) NULL
+district varchar(20)
+city_id smallint FK >- city.city_id
+postal_code varchar(10) NULL
+phone varchar(20)
+last_update timestamp default=CURRENT_TIMESTAMP
+
+category
+-
+category_id PK tinyint IDENTITY
+name varchar(25)
+last_update timestamp default=CURRENT_TIMESTAMP
+
+city
+-
+city_id PK smallint IDENTITY
+city varchar(50)
+country_id smallint FK >- country.country_id
+last_update timestamp default=CURRENT_TIMESTAMP
+
+country
+-
+country_id PK smallint IDENTITY
+country varchar(50)
+last_update timestamp default=CURRENT_TIMESTAMP
+
+customer
+-
+customer_id PK smallint IDENTITY
+store_id tinyint FK >- store.store_id
+first_name varchar(45)
+last_name varchar(45)
+email varchar(50) NULL
+address_id smallint FK >- address.address_id
+active boolean default=TRUE
+create_date datetime
+last_update timestamp NULL default=CURRENT_TIMESTAMP
+
+film
+-
+film_id PK smallint IDENTITY
+title varchar(128)
+description text NULL
+release_year year NULL
+language_id tinyint FK >- language.language_id
+original_language_id tinyint NULL FK >- language.language_id
+rental_duration tinyint default=3
+rental_rate decimal(4,2) default=4.99
+length smallint NULL
+replacement_cost decimal(5,2) default=19.99
+rating enum NULL default=G
+special_features set NULL
+last_update timestamp default=CURRENT_TIMESTAMP
+
+film_actor
+-
+actor_id PK smallint FK >- actor.actor_id
+film_id PK smallint FK >- film.film_id
+last_update timestamp default=CURRENT_TIMESTAMP
+
+film_category
+-
+film_id PK smallint FK >- film.film_id
+category_id PK tinyint FK >- category.category_id
+last_update timestamp default=CURRENT_TIMESTAMP
+
+film_text
+-
+film_id PK smallint
+title varchar(255)
+description text NULL
+
+inventory
+-
+inventory_id PK mediumint IDENTITY
+film_id smallint FK >- film.film_id
+store_id tinyint FK >- store.store_id
+last_update timestamp default=CURRENT_TIMESTAMP
+
+language
+-
+language_id PK tinyint IDENTITY
+name char(20)
+last_update timestamp default=CURRENT_TIMESTAMP
+
+payment
+-
+payment_id PK smallint IDENTITY
+customer_id smallint FK >- customer.customer_id
+staff_id tinyint FK >- staff.staff_id
+rental_id int NULL FK >- rental.rental_id
+amount decimal(5,2)
+payment_date datetime
+last_update timestamp NULL default=CURRENT_TIMESTAMP
+
+rental
+-
+rental_id PK int IDENTITY
+rental_date datetime
+inventory_id mediumint FK >- inventory.inventory_id
+customer_id smallint FK >- customer.customer_id
+return_date datetime NULL
+staff_id tinyint FK >- staff.staff_id
+last_update timestamp default=CURRENT_TIMESTAMP
+
+staff
+-
+staff_id PK tinyint IDENTITY
+first_name varchar(45)
+last_name varchar(45)
+address_id smallint FK >- address.address_id
+picture blob NULL
+email varchar(50) NULL
+store_id tinyint FK >- store.store_id
+active boolean default=TRUE
+username varchar(16)
+password varchar(40) NULL
+last_update timestamp default=CURRENT_TIMESTAMP
+
+store
+-
+store_id PK tinyint IDENTITY
+manager_staff_id tinyint UNIQUE FK >- staff.staff_id
+address_id smallint FK >- address.address_id
+last_update timestamp default=CURRENT_TIMESTAMP

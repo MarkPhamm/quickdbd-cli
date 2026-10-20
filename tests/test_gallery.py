@@ -78,6 +78,21 @@ def test_feature_demos(built):
     assert {"dim", "fact", "staging", "gold"} <= {t["name"] for t in tags["tags"]}
 
 
+def test_sample_databases_and_dbt_projects(built):
+    sizes = {}
+    for d in ("northwind", "sakila", "chinook", "adventureworks", "synthea", "shopify"):
+        m = _model(built / d / "index.html")
+        sizes[d] = (len(m["tables"]), len(m["rels"]))
+    assert sizes["northwind"] == (13, 13)
+    assert sizes["sakila"] == (16, 22)
+    assert sizes["chinook"] == (11, 11)
+    assert sizes["adventureworks"][0] == 68 and sizes["adventureworks"][1] >= 90
+    assert sizes["synthea"] == (145, 235)
+    assert sizes["shopify"][0] == 155 and sizes["shopify"][1] > 150  # every link inferred
+    aw = _model(built / "adventureworks" / "index.html")
+    assert aw["regions"] and any(t.get("doc") for t in aw["tables"])  # MS_Description -> tooltips
+
+
 def test_build_is_deterministic(built, tmp_path):
     build_gallery.build(tmp_path)
     for p in sorted(built.rglob("*.html")):

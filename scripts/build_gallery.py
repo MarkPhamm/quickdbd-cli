@@ -32,8 +32,8 @@ KINDS = ("source", "dbt", "of")
 
 # Added to every demo page: a way back to the gallery, as the first item of the viewer's toolbar.
 BACK_LINK = (
-    '<a href="../" style="color:var(--blue);padding:6px 9px;border-radius:4px;text-decoration:none;'
-    'font-weight:500">&larr; All demos</a><div class="sep"></div>'
+    '<a href="../" style="color:var(--blue);background:#fff;padding:5px 10px;border-radius:6px;text-decoration:none;'
+    'font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.12)">&larr; All demos</a><div class="sep"></div>'
 )
 
 
@@ -51,6 +51,8 @@ class Demo:
     dbt: str | None = None
     of: str | None = None
     build_args: list[str] = field(default_factory=list)
+    dbt_packages: list[str] = field(default_factory=list)
+    dbt_select: list[str] = field(default_factory=list)
     diff_before: str | None = None
     view: str = ""
     shot: str = ""
@@ -96,6 +98,8 @@ def load_catalog(path: Path = CATALOG) -> Catalog:
             errors.append(f"{d.id}: unknown group '{d.group}'")
         if d.of and (d.of not in ids or not demos[ids.index(d.of)].built):
             errors.append(f"{d.id}: 'of' must name a built demo, not '{d.of}'")
+        if (d.dbt_packages or d.dbt_select) and not d.dbt:
+            errors.append(f"{d.id}: dbt_packages / dbt_select need dbt =")
         for a in d.build_args:
             if a not in BUILD_ARGS:
                 errors.append(f"{d.id}: unsupported build arg '{a}' (allowed: {', '.join(sorted(BUILD_ARGS))})")
@@ -119,7 +123,13 @@ def build_demo(d: Demo) -> tuple[str, dict]:
     """(page html, model) for one built demo. Paths in the model are relative to the repo root."""
     by_group = "--by-group" in d.build_args
     if d.dbt:
-        result = import_dbt(ROOT / d.dbt, split=True, infer_fks="--infer-fks" in d.build_args)
+        result = import_dbt(
+            ROOT / d.dbt,
+            packages=d.dbt_packages or None,
+            select=d.dbt_select or None,
+            split=True,
+            infer_fks="--infer-fks" in d.build_args,
+        )
         schema = _compile([(f"{d.id}/{name}", text) for name, text in result.files.items()], d.id)
         project = Project([], [], ROOT / "gallery" / d.id / "qdbd.layout.json")
     else:

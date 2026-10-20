@@ -1,0 +1,99 @@
+# Chinook, a digital media store: artists, albums, tracks, playlists, customers and invoices.
+# Converted to QuickDBD syntax from lerocha/chinook-database Chinook_PostgreSql.sql (MIT, see LICENSE).
+
+album
+-
+album_id PK int
+title varchar(160)
+artist_id int FK >- artist.artist_id
+
+artist
+-
+artist_id PK int
+name varchar(120) NULL
+
+customer
+-
+customer_id PK int
+first_name varchar(40)
+last_name varchar(20)
+company varchar(80) NULL
+address varchar(70) NULL
+city varchar(40) NULL
+state varchar(40) NULL
+country varchar(40) NULL
+postal_code varchar(10) NULL
+phone varchar(24) NULL
+fax varchar(24) NULL
+email varchar(60)
+support_rep_id int NULL FK >- employee.employee_id
+
+employee
+-
+employee_id PK int
+last_name varchar(20)
+first_name varchar(20)
+title varchar(30) NULL
+reports_to int NULL FK >- employee.employee_id
+birth_date timestamp NULL
+hire_date timestamp NULL
+address varchar(70) NULL
+city varchar(40) NULL
+state varchar(40) NULL
+country varchar(40) NULL
+postal_code varchar(10) NULL
+phone varchar(24) NULL
+fax varchar(24) NULL
+email varchar(60) NULL
+
+genre
+-
+genre_id PK int
+name varchar(120) NULL
+
+invoice
+-
+invoice_id PK int
+customer_id int FK >- customer.customer_id
+invoice_date timestamp
+billing_address varchar(70) NULL
+billing_city varchar(40) NULL
+billing_state varchar(40) NULL
+billing_country varchar(40) NULL
+billing_postal_code varchar(10) NULL
+total numeric(10,2)
+
+invoice_line
+-
+invoice_line_id PK int
+invoice_id int FK >- invoice.invoice_id
+track_id int FK >- track.track_id
+unit_price numeric(10,2)
+quantity int
+
+media_type
+-
+media_type_id PK int
+name varchar(120) NULL
+
+playlist
+-
+playlist_id PK int
+name varchar(120) NULL
+
+playlist_track
+-
+playlist_id PK int FK >- playlist.playlist_id
+track_id PK int FK >- track.track_id
+
+track
+-
+track_id PK int
+name varchar(200)
+album_id int NULL FK >- album.album_id
+media_type_id int FK >- media_type.media_type_id
+genre_id int NULL FK >- genre.genre_id
+composer varchar(220) NULL
+milliseconds int
+bytes int NULL
+unit_price numeric(10,2)

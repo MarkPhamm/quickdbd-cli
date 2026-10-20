@@ -8,6 +8,8 @@
 #   of     = "demo id"       not built: a view of another demo (the card links to it with `view`)
 # Optional keys:
 #   build_args  = [...]      "--by-group" and/or "--infer-fks"
+#   dbt_packages = [...]     dbt packages to import, like `qdbd import dbt --package` (default: the root project)
+#   dbt_select  = [...]      like `qdbd import dbt --select`
 #   diff_before = "path"     colour what changed since this older copy of the schema (like --diff-base)
 #   view        = "f=..."    viewer URL hash: the card link and the thumbnail open this view
 #   shot        = "z=...&c=" extra hash used only for the thumbnail (zoom / centre)
@@ -18,6 +20,11 @@
 id = "features"
 title = "Feature tour"
 description = "One 200-table schema and a small shop, seen through each qdbd feature: search, selectors, join paths, regions, diffs and tags."
+
+[[group]]
+id = "samples"
+title = "Sample databases"
+description = "Classic sample databases, converted from their SQL DDL to QuickDBD text. Foreign keys come from the DDL's constraints."
 
 [[group]]
 id = "quickdbd"
@@ -46,7 +53,6 @@ title = "Regions by domain"
 description = "The same 200 tables laid out one domain at a time (--by-group), with a shaded region per file."
 source = "examples/synthetic"
 build_args = ["--by-group"]
-featured = true
 tags = ["regions", "by-group", "large"]
 
 [[demo]]
@@ -87,6 +93,40 @@ source = "gallery/tags"
 tags = ["tags", "colours", "star schema"]
 
 [[demo]]
+id = "adventureworks"
+group = "samples"
+title = "AdventureWorks"
+description = "Microsoft's bicycle-company OLTP database: 68 tables in five schemas, one region each, with column descriptions."
+source = "gallery/adventureworks"
+build_args = ["--by-group"]
+featured = true
+tags = ["sql server", "t-sql", "regions", "docs"]
+
+[[demo]]
+id = "northwind"
+group = "samples"
+title = "Northwind"
+description = "The classic trading company: customers, orders, products, suppliers, employees and territories."
+source = "gallery/northwind"
+tags = ["sql server", "t-sql", "small"]
+
+[[demo]]
+id = "sakila"
+group = "samples"
+title = "Sakila"
+description = "MySQL's DVD-rental store: films, actors, inventory, rentals and payments across 16 tables."
+source = "gallery/sakila"
+tags = ["mysql", "small"]
+
+[[demo]]
+id = "chinook"
+group = "samples"
+title = "Chinook"
+description = "A digital media store: artists, albums, tracks, playlists, customers and invoices."
+source = "gallery/chinook"
+tags = ["postgresql", "small"]
+
+[[demo]]
 id = "shop"
 group = "quickdbd"
 title = "Online shop"
@@ -100,5 +140,27 @@ group = "dbt"
 title = "jaffle_shop"
 description = "dbt Labs' classic example project, imported from its manifest.json and catalog.json."
 dbt = "tests/fixtures/jaffle"
-featured = true
 tags = ["dbt", "small"]
+
+[[demo]]
+id = "synthea"
+group = "dbt"
+title = "OMOP CDM on Synthea"
+description = "OHDSI's dbt-synthea: synthetic patient records mapped to the OMOP Common Data Model. 145 tables, 235 relationships from tests."
+dbt = "gallery/synthea"
+view = "t=concept"
+shot = "z=0.45&c=1900,1500"
+featured = true
+tags = ["dbt", "healthcare", "omop", "large"]
+
+[[demo]]
+id = "shopify"
+group = "dbt"
+title = "Shopify (Fivetran)"
+description = "Fivetran's dbt_shopify package. It declares no relationship tests, so every link here was inferred from column names (--infer-fks)."
+dbt = "gallery/shopify"
+dbt_packages = ["shopify"]
+dbt_select = ["shopify.rest.*"]
+build_args = ["--infer-fks"]
+shot = "z=0.4&c=2400,1100"
+tags = ["dbt", "fivetran", "infer-fks", "large"]
