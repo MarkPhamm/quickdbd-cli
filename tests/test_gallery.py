@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
+if not (ROOT / "gallery" / "demos.toml").exists():  # the sdist ships tests but not the gallery
+    pytest.skip("needs the git checkout's gallery/", allow_module_level=True)
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import build_gallery  # noqa: E402
