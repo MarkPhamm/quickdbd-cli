@@ -1,0 +1,104 @@
+# The demo gallery published at /demo/. `scripts/build_gallery.py` builds every demo listed here
+# into <out>/<id>/index.html and writes the gallery page; `scripts/gen_thumbnails.py` makes the
+# card images in docs/assets/img/gallery/<id>.png.
+#
+# A demo has exactly one of:
+#   source = "path"          QuickDBD .txt file or folder
+#   dbt    = "dir"           folder holding manifest.json (+ catalog.json), imported like `qdbd import dbt`
+#   of     = "demo id"       not built: a view of another demo (the card links to it with `view`)
+# Optional keys:
+#   build_args  = [...]      "--by-group" and/or "--infer-fks"
+#   diff_before = "path"     colour what changed since this older copy of the schema (like --diff-base)
+#   view        = "f=..."    viewer URL hash: the card link and the thumbnail open this view
+#   shot        = "z=...&c=" extra hash used only for the thumbnail (zoom / centre)
+#   featured    = true       shown in the README and on the docs home page
+#   tags        = [...]      matched by the gallery's filter box
+
+[[group]]
+id = "features"
+title = "Feature tour"
+description = "One 200-table schema and a small shop, seen through each qdbd feature: search, selectors, join paths, regions, diffs and tags."
+
+[[group]]
+id = "quickdbd"
+title = "QuickDBD schemas"
+description = "Hand-written schemas in QuickDBD's plain-text syntax. Each one also pastes into app.quickdatabasediagrams.com."
+
+[[group]]
+id = "dbt"
+title = "dbt projects"
+description = "Generated from a dbt manifest.json. Primary keys come from unique + not_null tests, relationships from relationships tests."
+
+[[demo]]
+id = "synthetic"
+group = "features"
+title = "200 tables"
+description = "Five business domains, 200 tables and every relationship type. Search, filter, click a table to focus it."
+source = "examples/synthetic"
+shot = "z=0.5&c=3000,3200"
+featured = true
+tags = ["quickdbd", "large", "multi-file"]
+
+[[demo]]
+id = "regions"
+group = "features"
+title = "Regions by domain"
+description = "The same 200 tables laid out one domain at a time (--by-group), with a shaded region per file."
+source = "examples/synthetic"
+build_args = ["--by-group"]
+featured = true
+tags = ["regions", "by-group", "large"]
+
+[[demo]]
+id = "filter"
+group = "features"
+title = "Filter with selectors"
+description = "dbt-style selectors in the filter box: +Order+ keeps Order, what it references and what references it."
+of = "synthetic"
+view = "f=%2BOrder%2B"
+tags = ["selectors", "select"]
+
+[[demo]]
+id = "path"
+group = "features"
+title = "Find a join path"
+description = "Pick two tables and qdbd highlights the shortest chain of foreign keys between them, with the SQL JOINs."
+of = "synthetic"
+view = "t=Invoice&p=Campaign"
+shot = "z=0.6&c=1870,3450"
+tags = ["path", "join", "sql"]
+
+[[demo]]
+id = "diff"
+group = "features"
+title = "Schema diff"
+description = "What a branch changed, coloured in: new tables in green, changed columns in amber, removals listed."
+source = "examples/quickdbd-sample.txt"
+diff_before = "gallery/diff/before.txt"
+featured = true
+tags = ["diff", "review", "pull request"]
+
+[[demo]]
+id = "tags"
+group = "features"
+title = "Tags and colours"
+description = "A star schema coloured by tag: dim_, fct_ and stg_ prefixes, plus @tag and @color comments."
+source = "gallery/tags"
+tags = ["tags", "colours", "star schema"]
+
+[[demo]]
+id = "shop"
+group = "quickdbd"
+title = "Online shop"
+description = "A small schema that uses every QuickDBD feature: aliases, quoted names, defaults, all relationship types."
+source = "examples/quickdbd-sample.txt"
+tags = ["quickdbd", "syntax", "small"]
+
+[[demo]]
+id = "jaffle"
+group = "dbt"
+title = "jaffle_shop"
+description = "dbt Labs' classic example project, imported from its manifest.json and catalog.json."
+dbt = "tests/fixtures/jaffle"
+featured = true
+tags = ["dbt", "small"]

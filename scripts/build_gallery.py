@@ -1,0 +1,211 @@
+"""Build the demo gallery published at /demo/: every demo in gallery/demos.toml, plus the gallery page.
+
+    python scripts/build_gallery.py --out site/demo
+
+Writes <out>/index.html (the gallery), <out>/<id>/index.html per built demo, and <out>/thumbs/<id>.png
+(copied from docs/assets/img/gallery/). Output is deterministic, like `qdbd build`.
+"""
+
+from __future__ import annotations
+
+import argparse
+import contextlib
+import shutil
+import sys
+import tomllib
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from quickdbd_cli import __version__, diff
+from quickdbd_cli.dbt import import_dbt
+from quickdbd_cli.export import font_css
+from quickdbd_cli.html import _escape, _json_for_script, render_page
+from quickdbd_cli.parser import compile_sources
+from quickdbd_cli.project import Project
+
+ROOT = Path(__file__).resolve().parent.parent
+CATALOG = ROOT / "gallery" / "demos.toml"
+TEMPLATE = ROOT / "gallery" / "index.html"
+THUMBS = ROOT / "docs" / "assets" / "img" / "gallery"
+BUILD_ARGS = {"--by-group", "--infer-fks"}
+KINDS = ("source", "dbt", "of")
+
+# Added to every demo page: a way back to the gallery, as the first item of the viewer's toolbar.
+BACK_LINK = (
+    '<a href="../" style="color:var(--blue);padding:6px 9px;border-radius:4px;text-decoration:none;'
+    'font-weight:500">&larr; All demos</a><div class="sep"></div>'
+)
+
+
+class CatalogError(ValueError):
+    pass
+
+
+@dataclass
+class Demo:
+    id: str
+    group: str
+    title: str
+    description: str
+    source: str | None = None
+    dbt: str | None = None
+    of: str | None = None
+    build_args: list[str] = field(default_factory=list)
+    diff_before: str | None = None
+    view: str = ""
+    shot: str = ""
+    featured: bool = False
+    tags: list[str] = field(default_factory=list)
+
+    @property
+    def built(self) -> bool:
+        return self.of is None
+
+    @property
+    def page(self) -> str:
+        """Folder of the page this card opens (relative to the gallery)."""
+        return self.of or self.id
+
+
+@dataclass
+class Catalog:
+    groups: list[dict]
+    demos: list[Demo]
+
+    def get(self, demo_id: str) -> Demo:
+        return next(d for d in self.demos if d.id == demo_id)
+
+
+def load_catalog(path: Path = CATALOG) -> Catalog:
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    groups = data.get("group", [])
+    errors: list[str] = []
+    try:
+        demos = [Demo(**d) for d in data.get("demo", [])]
+    except TypeError as e:
+        raise CatalogError(f"{path.name}: {e}") from None
+    group_ids = [g["id"] for g in groups]
+    ids = [d.id for d in demos]
+    for dup in sorted({i for i in ids if ids.count(i) > 1}):
+        errors.append(f"duplicate demo id '{dup}'")
+    for d in demos:
+        kinds = [k for k in KINDS if getattr(d, k)]
+        if len(kinds) != 1:
+            errors.append(f"{d.id}: needs exactly one of source / dbt / of (has {', '.join(kinds) or 'none'})")
+        if d.group not in group_ids:
+            errors.append(f"{d.id}: unknown group '{d.group}'")
+        if d.of and (d.of not in ids or not demos[ids.index(d.of)].built):
+            errors.append(f"{d.id}: 'of' must name a built demo, not '{d.of}'")
+        for a in d.build_args:
+            if a not in BUILD_ARGS:
+                errors.append(f"{d.id}: unsupported build arg '{a}' (allowed: {', '.join(sorted(BUILD_ARGS))})")
+        for key in ("source", "dbt", "diff_before"):
+            p = getattr(d, key)
+            if p and not (ROOT / p).exists():
+                errors.append(f"{d.id}: {key} path not found: {p}")
+    if errors:
+        raise CatalogError(f"{path.name}:\n  " + "\n  ".join(errors))
+    return Catalog(groups, demos)
+
+
+def _compile(sources: list[tuple[str, str]], what: str):
+    schema = compile_sources(sources)
+    if schema.errors:
+        raise CatalogError(f"{what}: schema has errors:\n  " + "\n  ".join(e.format() for e in schema.errors))
+    return schema
+
+
+def build_demo(d: Demo) -> tuple[str, dict]:
+    """(page html, model) for one built demo. Paths in the model are relative to the repo root."""
+    by_group = "--by-group" in d.build_args
+    if d.dbt:
+        result = import_dbt(ROOT / d.dbt, split=True, infer_fks="--infer-fks" in d.build_args)
+        schema = _compile([(f"{d.id}/{name}", text) for name, text in result.files.items()], d.id)
+        project = Project([], [], ROOT / "gallery" / d.id / "qdbd.layout.json")
+    else:
+        project = Project.open([Path(d.source)])
+        schema = _compile(project.sources(), d.id)
+    model, pos = project.build(schema, by_group=by_group)
+    if d.diff_before:
+        old = _compile(Project.open([Path(d.diff_before)]).sources(), f"{d.id} diff_before")
+        diff.annotate_model(model, diff.diff_schemas(old, schema), "before")
+    page = render_page(model, pos, d.title)
+    return page.replace('<div class="bar">', '<div class="bar">' + BACK_LINK, 1), model
+
+
+def gallery_page(catalog: Catalog, stats: dict[str, dict]) -> str:
+    cards = []
+    for d in catalog.demos:
+        s = stats[d.page]
+        cards.append(
+            {
+                "id": d.id,
+                "group": d.group,
+                "title": d.title,
+                "description": d.description,
+                "href": f"{d.page}/" + (f"#{d.view}" if d.view else ""),
+                "thumb": f"thumbs/{d.id}.png" if (THUMBS / f"{d.id}.png").exists() else None,
+                "tables": s["tables"],
+                "rels": s["rels"],
+                "kind": "dbt" if catalog.get(d.page).dbt else "QuickDBD",
+                "featured": d.featured,
+                "tags": d.tags,
+            }
+        )
+    data = {"groups": catalog.groups, "demos": cards, "version": __version__}
+    html = TEMPLATE.read_text(encoding="utf-8")
+    return (
+        html.replace("/*FONT_CSS*/", font_css())
+        .replace("__VERSION__", _escape(__version__))
+        .replace("__DATA__", _json_for_script(data))
+    )
+
+
+def build(out: Path, only: list[str] | None = None) -> list[Path]:
+    """Build the gallery into ``out``; returns the files written."""
+    out = out.resolve()
+    catalog = load_catalog()
+    written: list[Path] = []
+    stats: dict[str, dict] = {}
+    with contextlib.chdir(ROOT):  # model file paths are shown relative to the cwd
+        for d in catalog.demos:
+            if not d.built:
+                continue
+            page, model = build_demo(d)
+            stats[d.id] = {"tables": len(model["tables"]), "rels": len(model["rels"])}
+            if only and d.id not in only:
+                continue
+            p = out / d.id / "index.html"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(page, encoding="utf-8")
+            written.append(p)
+    for d in catalog.demos:
+        src = THUMBS / f"{d.id}.png"
+        if src.exists():
+            dst = out / "thumbs" / src.name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, dst)
+            written.append(dst)
+    index = out / "index.html"
+    index.write_text(gallery_page(catalog, stats), encoding="utf-8")
+    written.append(index)
+    return written
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--out", required=True, type=Path, help="output folder, e.g. site/demo")
+    ap.add_argument("--only", action="append", metavar="ID", help="only write these demo pages (repeatable)")
+    args = ap.parse_args(argv)
+    try:
+        written = build(args.out, args.only)
+    except CatalogError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    pages = sum(1 for p in written if p.name == "index.html") - 1
+    print(f"Wrote {args.out}/index.html and {pages} demo page(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
