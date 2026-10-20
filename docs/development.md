@@ -34,7 +34,9 @@ The site deploys to GitHub Pages from `main`, with the demo gallery built into `
 2. Run `python scripts/gen_thumbnails.py <id>` to make its card image in `docs/assets/img/gallery/` (needs Playwright; uses the system Chrome).
 3. Preview with `python scripts/build_gallery.py --out /tmp/site/demo` and open `/tmp/site/demo/index.html`.
 
-`tests/test_gallery.py` checks the catalog, that every demo has a thumbnail, and that the build is deterministic.
+Demos marked `featured = true` (four of them) fill the table in the README: after changing one, run `python scripts/build_gallery.py --readme`. The `[hero]` entry picks the screenshot at the top of the README (`python scripts/gen_thumbnails.py hero`).
+
+`tests/test_gallery.py` checks the catalog, that every demo has a thumbnail, that the README table is in sync, and that the build is deterministic.
 
 ## 9.3 Example data { #example-data }
 

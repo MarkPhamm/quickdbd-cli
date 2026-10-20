@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="64" viewBox="0 0 240 64" role="img" aria-label="qdbd">
+  <g transform="translate(4 8) scale(2)">
+    <rect x="2" y="2.5" width="10" height="8" rx="2" fill="#2563eb"/>
+    <rect x="12" y="13.5" width="10" height="8" rx="2" fill="#2563eb" opacity=".55"/>
+    <path d="M7 10.5v3.5a3.5 3.5 0 0 0 3.5 3.5H12" stroke="#2563eb" stroke-width="2" fill="none"/>
+  </g>
+  <text x="66" y="45" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="40" font-weight="700" letter-spacing="-0.5" fill="#0f1b2d">qdbd</text>
+</svg>

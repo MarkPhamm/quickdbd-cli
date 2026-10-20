@@ -2,6 +2,7 @@
 
     python scripts/gen_thumbnails.py            # every demo
     python scripts/gen_thumbnails.py diff tags  # just these
+    python scripts/gen_thumbnails.py hero       # the README hero (docs/assets/img/hero.png)
 
 Dev-only: needs Playwright (`uv pip install -p .venv playwright`) and drives the system Chrome, so no
 browser download. Each demo is opened at its `view` + `shot` URL hash; the screenshot is framed in a card
@@ -15,7 +16,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from build_gallery import THUMBS, build, load_catalog
+from build_gallery import ROOT, THUMBS, build, load_catalog
 from playwright.sync_api import sync_playwright
 
 from quickdbd_cli.export import font_css
@@ -88,6 +89,15 @@ def main(argv: list[str]) -> int:
             dst = THUMBS / f"{d.id}.png"
             card.screenshot(path=str(dst))
             print(f"Wrote {dst.relative_to(THUMBS.parents[3])}")
+        hero = catalog.hero
+        if hero and "hero" in (set(argv) or {"hero"}):
+            page.set_viewport_size({"width": 1440, "height": 860})
+            frag = "&".join(x for x in (hero.get("view"), hero.get("shot")) if x)
+            page.goto((out / hero["demo"] / "index.html").as_uri() + f"#{frag}")
+            page.wait_for_timeout(800)
+            dst = ROOT / "docs" / "assets" / "img" / "hero.png"
+            page.screenshot(path=str(dst))
+            print(f"Wrote {dst.relative_to(ROOT)}")
         browser.close()
     return 0
 

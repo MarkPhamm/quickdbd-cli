@@ -15,6 +15,14 @@
 #   shot        = "z=...&c=" extra hash used only for the thumbnail (zoom / centre)
 #   featured    = true       shown in the README and on the docs home page
 #   tags        = [...]      matched by the gallery's filter box
+#
+# [hero] picks the screenshot at the top of the README (docs/assets/img/hero.png, from gen_thumbnails.py).
+
+[hero]
+demo = "adventureworks"
+view = "t=SalesOrderHeader"
+shot = "z=0.7&c=814,900"
+caption = "AdventureWorks (68 tables) with its column descriptions, built by qdbd."
 
 [[group]]
 id = "features"

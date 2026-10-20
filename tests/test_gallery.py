@@ -93,6 +93,14 @@ def test_sample_databases_and_dbt_projects(built):
     assert aw["regions"] and any(t.get("doc") for t in aw["tables"])  # MS_Description -> tooltips
 
 
+def test_readme_gallery_is_in_sync():
+    catalog = build_gallery.load_catalog()
+    readme = build_gallery.README.read_text(encoding="utf-8")
+    assert build_gallery.readme_block(catalog) in readme, "run: python scripts/build_gallery.py --readme"
+    assert sum(d.featured for d in catalog.demos) == 4  # a 2x2 table
+    assert (ROOT / "docs" / "assets" / "img" / "hero.png").exists()
+
+
 def test_build_is_deterministic(built, tmp_path):
     build_gallery.build(tmp_path)
     for p in sorted(built.rglob("*.html")):
