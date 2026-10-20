@@ -49,7 +49,7 @@ Every demo is a single HTML page written by `qdbd build`, from a QuickDBD schema
 | [![200 tables](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthetic.png)](https://qdbd.dev/demo/synthetic/)<br>**[200 tables](https://qdbd.dev/demo/synthetic/)**<br>Five business domains, 200 tables and every relationship type. Search, filter, click a table to focus it. | [![Schema diff](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/diff.png)](https://qdbd.dev/demo/diff/)<br>**[Schema diff](https://qdbd.dev/demo/diff/)**<br>What a branch changed, coloured in: new tables in green, changed columns in amber, removals listed. |
 | [![AdventureWorks](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/adventureworks.png)](https://qdbd.dev/demo/adventureworks/)<br>**[AdventureWorks](https://qdbd.dev/demo/adventureworks/)**<br>Microsoft's bicycle-company OLTP database: 68 tables in five schemas, one region each, with column descriptions. | [![OMOP CDM on Synthea](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthea.png)](https://qdbd.dev/demo/synthea/#t=concept)<br>**[OMOP CDM on Synthea](https://qdbd.dev/demo/synthea/#t=concept)**<br>OHDSI's dbt-synthea: synthetic patient records mapped to the OMOP Common Data Model. 145 tables, 235 relationships from tests. |
 
-[View all 14 demos →](https://qdbd.dev/demo/)
+[View all 18 demos →](https://qdbd.dev/demo/)
 <!-- gallery:end -->
 
 ## Quickstart

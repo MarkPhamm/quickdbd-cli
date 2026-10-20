@@ -91,6 +91,11 @@ def test_sample_databases_and_dbt_projects(built):
     assert sizes["adventureworks"][0] == 68 and sizes["adventureworks"][1] >= 90
     assert sizes["synthea"] == (145, 235)
     assert sizes["shopify"][0] == 155 and sizes["shopify"][1] > 150  # every link inferred
+    for d, n in (("pubs", 11), ("adventureworks-dw", 28), ("saas-billing", 13), ("courses", 14)):
+        m = _model(built / d / "index.html")
+        assert len(m["tables"]) == n and m["rels"], d
+    dw = _model(built / "adventureworks-dw" / "index.html")
+    assert {"dim", "fact"} <= {t["name"] for t in dw["tags"]}  # coloured by the Dim/Fact name prefixes
     aw = _model(built / "adventureworks" / "index.html")
     assert aw["regions"] and any(t.get("doc") for t in aw["tables"])  # MS_Description -> tooltips
 

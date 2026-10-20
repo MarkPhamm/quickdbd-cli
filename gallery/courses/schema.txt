@@ -1,0 +1,106 @@
+# Online courses: instructors publish courses made of sections and lessons; students enrol,
+# track progress, take quizzes and earn certificates.
+# Hand-written for the qdbd demo gallery. Pastes into app.quickdatabasediagrams.com unchanged.
+
+Person as p
+-
+PersonId PK int IDENTITY
+Email varchar(255) UNIQUE
+DisplayName string
+JoinedAt datetime default=GETUTCDATE()
+
+# A person who teaches; one-to-one with Person.
+Instructor
+-
+PersonId PK int FK - p.PersonId
+Headline NULL string
+PayoutEmail NULL varchar(255)
+
+Category
+-
+CategoryId PK int
+ParentId NULL int FK >0- Category.CategoryId # categories nest
+Name string
+
+Course as c
+-
+CourseId PK int IDENTITY
+CategoryId int FK >- Category.CategoryId
+Slug varchar(80) UNIQUE
+Title string
+Level string="beginner" # beginner, intermediate, advanced
+Price decimal(8,2)=0
+PublishedAt NULL datetime
+
+# Courses can have several instructors, and instructors teach several courses.
+CourseInstructor
+-
+CourseId PK int FK >- c.CourseId
+PersonId PK int FK >- Instructor.PersonId
+IsLead bool=false
+
+Section
+-
+SectionId PK int IDENTITY
+CourseId int FK >- c.CourseId
+Position int
+Title string
+
+Lesson
+-
+LessonId PK int IDENTITY
+SectionId int FK >- Section.SectionId
+Position int
+Title string
+Kind string="video" # video, article, quiz
+DurationSec NULL int
+
+Enrollment as e
+-
+EnrollmentId PK int IDENTITY
+PersonId int FK >- p.PersonId
+CourseId int FK >- c.CourseId
+EnrolledAt datetime
+CompletedAt NULL datetime
+
+# One row per lesson a student has finished.
+LessonProgress
+-
+EnrollmentId PK int FK >- e.EnrollmentId
+LessonId PK int FK >- Lesson.LessonId
+CompletedAt datetime
+
+Quiz
+-
+QuizId PK int IDENTITY
+LessonId int FK - Lesson.LessonId
+PassMark int=70
+
+Question
+-
+QuestionId PK int IDENTITY
+QuizId int FK >- Quiz.QuizId
+Prompt string
+Kind string="single" # single, multiple, text
+
+QuizAttempt
+-
+AttemptId PK int IDENTITY
+QuizId int FK >- Quiz.QuizId
+EnrollmentId int FK >- e.EnrollmentId
+Score int
+SubmittedAt datetime
+
+Certificate
+-
+CertificateId PK int IDENTITY
+EnrollmentId int FK -0 e.EnrollmentId
+Code varchar(16) UNIQUE
+IssuedAt datetime
+
+Review
+-
+EnrollmentId PK int FK - e.EnrollmentId
+Rating int
+Body NULL string
+CreatedAt datetime

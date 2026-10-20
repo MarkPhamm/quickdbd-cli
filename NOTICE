@@ -16,7 +16,8 @@ This product bundles third-party components, distributed unmodified:
 
 The demo gallery (gallery/, not part of the Python package) includes schemas derived from:
 
-* Northwind and AdventureWorks (gallery/northwind, gallery/adventureworks), converted from
+* Northwind, pubs, AdventureWorks and AdventureWorks DW (gallery/northwind, gallery/pubs,
+  gallery/adventureworks, gallery/adventureworks-dw), converted from
   microsoft/sql-server-samples. Copyright (c) Microsoft Corporation. MIT License.
 * Sakila (gallery/sakila), converted from sakila-schema.sql. Copyright (c) 2006, 2026, Oracle and/or
   its affiliates. BSD-3-Clause.

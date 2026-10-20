@@ -1,0 +1,99 @@
+# pubs, Microsoft's classic book-publishing sample database: authors, titles, publishers, stores and sales.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples northwind-pubs/instpubs.sql (MIT, see LICENSE).
+
+authors
+-
+au_id PK char(11)
+au_lname varchar(40)
+au_fname varchar(20)
+phone char(12) default=UNKNOWN
+address varchar(40) NULL
+city varchar(20) NULL
+state char(2) NULL
+zip char(5) NULL
+contract bit
+
+publishers
+-
+pub_id PK char(4)
+pub_name varchar(40) NULL
+city varchar(20) NULL
+state char(2) NULL
+country varchar(30) NULL
+
+titles
+-
+title_id PK char(6)
+title varchar(80)
+type char(12) default=UNDECIDED
+pub_id char(4) NULL FK >- publishers.pub_id
+price money NULL
+advance money NULL
+royalty int NULL
+ytd_sales int NULL
+notes varchar(200) NULL
+pubdate datetime
+
+titleauthor
+-
+au_id PK char(11) FK >- authors.au_id
+title_id PK char(6) FK >- titles.title_id
+au_ord tinyint NULL
+royaltyper int NULL
+
+stores
+-
+stor_id PK char(4)
+stor_name varchar(40) NULL
+stor_address varchar(40) NULL
+city varchar(20) NULL
+state char(2) NULL
+zip char(5) NULL
+
+sales
+-
+stor_id PK char(4) FK >- stores.stor_id
+ord_num PK varchar(20)
+ord_date datetime
+qty smallint
+payterms varchar(12)
+title_id PK char(6) FK >- titles.title_id
+
+roysched
+-
+title_id char(6) NULL FK >- titles.title_id
+lorange int NULL
+hirange int NULL
+royalty int NULL
+
+discounts
+-
+discounttype varchar(40)
+stor_id char(4) NULL FK >- stores.stor_id
+lowqty smallint NULL
+highqty smallint NULL
+discount decimal(4,2)
+
+jobs
+-
+job_id PK smallint IDENTITY
+job_desc varchar(50) default=New
+min_lvl tinyint
+max_lvl tinyint
+
+pub_info
+-
+pub_id PK char(4) FK - publishers.pub_id
+logo image NULL
+pr_info text NULL
+
+employee
+-
+emp_id PK char(10)
+fname varchar(20)
+minit char(1) NULL
+lname varchar(30)
+job_id smallint default=1 FK >- jobs.job_id
+job_lvl tinyint NULL default=10
+pub_id char(4) default=9952 FK >- publishers.pub_id
+hire_date datetime
