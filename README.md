@@ -216,6 +216,10 @@ You edit the text; the diagram is generated from it. Table positions are the one
 - [Schema Diffs](https://qdbd.dev/diffs/), the [GitHub Action](https://qdbd.dev/github-action/) and the [CLI reference](https://qdbd.dev/cli/)
 - [Development](https://qdbd.dev/development/): working on qdbd itself, releasing, and adding a demo
 
+## About the author
+
+qdbd is built and maintained by **Minh (Mark) Pham** ([@MarkPhamm](https://github.com/MarkPhamm)). Issues, ideas and pull requests are welcome on [GitHub](https://github.com/MarkPhamm/quickdbd-cli/issues).
+
 ## License
 
 Apache-2.0. Bundled third-party files (ELK, Inter) and the sources of the demo schemas are listed in [NOTICE](https://github.com/MarkPhamm/quickdbd-cli/blob/main/NOTICE).

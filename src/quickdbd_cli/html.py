@@ -23,6 +23,25 @@ def _escape(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
+def _icon(d: str) -> str:
+    """A 16px stroke icon, drawn in the toolbar's text colour."""
+    return (
+        '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">'
+        f'<path d="{d}" fill="none" stroke="currentColor" stroke-width="1.8"'
+        ' stroke-linecap="round" stroke-linejoin="round"/>'
+        "</svg>"
+    )
+
+
+ICONS = {
+    "icon_menu": _icon("M4 6h16M4 12h16M4 18h16"),
+    "icon_close": _icon("M6 6l12 12M18 6L6 18"),
+    "icon_minus": _icon("M5 12h14"),
+    "icon_plus": _icon("M12 5v14M5 12h14"),
+    "icon_fit": _icon("M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"),
+}
+
+
 BODY = """
 <div id="app">
   {side}
@@ -30,7 +49,7 @@ BODY = """
     <svg id="canvas" xmlns="http://www.w3.org/2000/svg"><g id="vp"></g></svg>
     <div class="explorer" id="explorer">
       <div class="exhead">
-        <button id="extoggle" title="Show/hide table list">&#9776;</button>
+        <button id="extoggle" title="Show/hide table list" aria-label="Show or hide the table list">{icon_menu}</button>
         <input id="q" type="search" placeholder="Search {count} tables  ( / )" autocomplete="off" spellcheck="false">
       </div>
       <div class="exfilter">
@@ -42,7 +61,7 @@ BODY = """
       <div id="tree" class="tree"></div>
     </div>
     <aside class="details" id="details" aria-label="Table details">
-      <button class="close" id="dclose" title="Close (Esc)">&times;</button>
+      <button class="close" id="dclose" title="Close (Esc)" aria-label="Close">{icon_close}</button>
       <div id="dbody"></div>
     </aside>
     <div class="bar">
@@ -59,10 +78,10 @@ BODY = """
       <button id="xpng" title="Export PNG">PNG</button>
       <button id="xdrawio" title="Export an editable draw.io / diagrams.net file">draw.io</button>
       <div class="sep"></div>
-      <button id="zout" title="Zoom out">&#8722;</button>
+      <button id="zout" title="Zoom out" aria-label="Zoom out">{icon_minus}</button>
       <span class="zoomval" id="zoomval">100%</span>
-      <button id="zin" title="Zoom in">+</button>
-      <button id="zfit" title="Fit to screen">&#9678;</button>
+      <button id="zin" title="Zoom in" aria-label="Zoom in">{icon_plus}</button>
+      <button id="zfit" title="Fit to screen" aria-label="Fit to screen">{icon_fit}</button>
     </div>
     <div class="minimap">
       <svg id="mini" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
@@ -113,7 +132,9 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False, l
         hint = (
             "Drag tables to rearrange (not saved). Click a table for details. Scroll to zoom, drag empty space to pan."
         )
-    body = BODY.format(side=SIDE if serve else "", count=len(model["tables"]), hint=hint, filter_help=FILTER_HELP)
+    body = BODY.format(
+        side=SIDE if serve else "", count=len(model["tables"]), hint=hint, filter_help=FILTER_HELP, **ICONS
+    )
     head_extra = ""
     scripts = ""
     if serve:

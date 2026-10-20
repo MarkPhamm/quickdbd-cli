@@ -37,8 +37,8 @@ KINDS = ("source", "dbt", "of")
 
 # Added to every demo page: a way back to the gallery, as the first item of the viewer's toolbar.
 BACK_LINK = (
-    '<a href="../" style="color:var(--blue);background:#fff;padding:5px 10px;border-radius:6px;text-decoration:none;'
-    'font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.12)">&larr; All demos</a><div class="sep"></div>'
+    '<a href="../" style="color:var(--blue);padding:5px 9px;border-radius:6px;text-decoration:none;'
+    'font-weight:500">&larr; All demos</a><div class="sep"></div>'
 )
 
 
