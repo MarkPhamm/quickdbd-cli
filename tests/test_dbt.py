@@ -303,6 +303,20 @@ def test_infer_rules(tmp_path):
     assert not any(x.startswith(("dim_category.", "dim_stores.")) for x in inferred)
 
 
+def test_infer_never_links_two_tables_both_ways(tmp_path):
+    # Two tables named after the same entity, each with the other's key column: link them once, not twice
+    # (a second, reverse relationship made the generated schema fail to compile).
+    nodes = {
+        uid: node(uid, name, cols=[("refund_id", "int", None), ("amount", "int", None)])
+        for uid, name in (("model.shop.stg_refund", "stg_refund"), ("model.shop.refunds", "refunds"))
+    }
+    p = tmp_path / "manifest.json"
+    p.write_text(json.dumps({"metadata": {"project_name": "shop"}, "nodes": nodes, "sources": {}}))
+    res = import_dbt(p, infer_fks=True)
+    compiled(res)
+    assert len(res.inferred) == 1 and res.relationships == 1
+
+
 def test_infer_off_by_default():
     res = import_dbt(JAFFLE / "manifest.json")
     assert res.inferred == [] and res.relationships == 1

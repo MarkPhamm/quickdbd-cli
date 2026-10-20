@@ -14,6 +14,19 @@ This product bundles third-party components, distributed unmodified:
   Copyright The Inter Project Authors. Licensed under the SIL Open Font License 1.1
   (src/quickdbd_cli/assets/Inter-LICENSE.txt). Source: https://github.com/rsms/inter
 
+The demo gallery (gallery/, not part of the Python package) includes schemas derived from:
+
+* Northwind and AdventureWorks (gallery/northwind, gallery/adventureworks), converted from
+  microsoft/sql-server-samples. Copyright (c) Microsoft Corporation. MIT License.
+* Sakila (gallery/sakila), converted from sakila-schema.sql. Copyright (c) 2006, 2026, Oracle and/or
+  its affiliates. BSD-3-Clause.
+* Chinook (gallery/chinook), converted from lerocha/chinook-database. Copyright (c) 2008-2024
+  Luis Rocha. MIT License.
+* dbt-synthea (gallery/synthea), OHDSI. Apache License 2.0. Trimmed dbt manifest and catalog only.
+* dbt_shopify (gallery/shopify), Fivetran. Apache License 2.0. Trimmed dbt manifest and catalog only.
+
+Each folder keeps the upstream licence in its LICENSE file.
+
 `qdbd serve` loads CodeMirror 5 (MIT) from cdnjs at runtime; it is not bundled.
 
 QuickDBD is a product of its respective owners; this project is not affiliated with it.

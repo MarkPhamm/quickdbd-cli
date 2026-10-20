@@ -414,6 +414,7 @@ class _Importer:
                     continue
                 parent, pcol = found
                 c.fk = (">-", parent.uid, pcol.name)
+                referenced.add((parent.uid, pcol.name.lower()))  # never infer the same link in reverse
                 note = "Relationship inferred from the column name (qdbd import dbt --infer-fks)."
                 c.description = (c.description + "\n" if c.description else "") + note
                 self.inferred.append(f"{t.name}.{c.name} -> {parent.name}.{pcol.name}")

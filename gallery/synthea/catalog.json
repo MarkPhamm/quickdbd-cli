@@ -1,0 +1,8731 @@
+{
+ "nodes": {
+  "model.synthea_omop_etl.care_site": {
+   "columns": {
+    "care_site_id": {
+     "index": 1,
+     "name": "care_site_id",
+     "type": "BIGINT"
+    },
+    "care_site_name": {
+     "index": 2,
+     "name": "care_site_name",
+     "type": "VARCHAR"
+    },
+    "care_site_source_value": {
+     "index": 5,
+     "name": "care_site_source_value",
+     "type": "VARCHAR"
+    },
+    "location_id": {
+     "index": 4,
+     "name": "location_id",
+     "type": "BIGINT"
+    },
+    "place_of_service_concept_id": {
+     "index": 3,
+     "name": "place_of_service_concept_id",
+     "type": "INTEGER"
+    },
+    "place_of_service_source_value": {
+     "index": 6,
+     "name": "place_of_service_source_value",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.cdm_source": {
+   "columns": {
+    "cdm_etl_reference": {
+     "index": 6,
+     "name": "cdm_etl_reference",
+     "type": "VARCHAR"
+    },
+    "cdm_holder": {
+     "index": 3,
+     "name": "cdm_holder",
+     "type": "VARCHAR"
+    },
+    "cdm_release_date": {
+     "index": 8,
+     "name": "cdm_release_date",
+     "type": "DATE"
+    },
+    "cdm_source_abbreviation": {
+     "index": 2,
+     "name": "cdm_source_abbreviation",
+     "type": "VARCHAR"
+    },
+    "cdm_source_name": {
+     "index": 1,
+     "name": "cdm_source_name",
+     "type": "VARCHAR"
+    },
+    "cdm_version": {
+     "index": 9,
+     "name": "cdm_version",
+     "type": "VARCHAR"
+    },
+    "cdm_version_concept_id": {
+     "index": 11,
+     "name": "cdm_version_concept_id",
+     "type": "INTEGER"
+    },
+    "source_description": {
+     "index": 4,
+     "name": "source_description",
+     "type": "VARCHAR"
+    },
+    "source_documentation_reference": {
+     "index": 5,
+     "name": "source_documentation_reference",
+     "type": "VARCHAR"
+    },
+    "source_release_date": {
+     "index": 7,
+     "name": "source_release_date",
+     "type": "DATE"
+    },
+    "vocabulary_version": {
+     "index": 10,
+     "name": "vocabulary_version",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.concept": {
+   "columns": {
+    "concept_class_id": {
+     "index": 5,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_code": {
+     "index": 7,
+     "name": "concept_code",
+     "type": "VARCHAR"
+    },
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_name": {
+     "index": 2,
+     "name": "concept_name",
+     "type": "VARCHAR"
+    },
+    "domain_id": {
+     "index": 3,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "invalid_reason": {
+     "index": 10,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "standard_concept": {
+     "index": 6,
+     "name": "standard_concept",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 9,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 8,
+     "name": "valid_start_date",
+     "type": "DATE"
+    },
+    "vocabulary_id": {
+     "index": 4,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.concept_ancestor": {
+   "columns": {
+    "ancestor_concept_id": {
+     "index": 1,
+     "name": "ancestor_concept_id",
+     "type": "INTEGER"
+    },
+    "descendant_concept_id": {
+     "index": 2,
+     "name": "descendant_concept_id",
+     "type": "INTEGER"
+    },
+    "max_levels_of_separation": {
+     "index": 4,
+     "name": "max_levels_of_separation",
+     "type": "INTEGER"
+    },
+    "min_levels_of_separation": {
+     "index": 3,
+     "name": "min_levels_of_separation",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.concept_class": {
+   "columns": {
+    "concept_class_concept_id": {
+     "index": 3,
+     "name": "concept_class_concept_id",
+     "type": "INTEGER"
+    },
+    "concept_class_id": {
+     "index": 1,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_class_name": {
+     "index": 2,
+     "name": "concept_class_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.concept_relationship": {
+   "columns": {
+    "concept_id_1": {
+     "index": 1,
+     "name": "concept_id_1",
+     "type": "INTEGER"
+    },
+    "concept_id_2": {
+     "index": 2,
+     "name": "concept_id_2",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 6,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "relationship_id": {
+     "index": 3,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 5,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 4,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.concept_synonym": {
+   "columns": {
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_synonym_name": {
+     "index": 2,
+     "name": "concept_synonym_name",
+     "type": "VARCHAR"
+    },
+    "language_concept_id": {
+     "index": 3,
+     "name": "language_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.condition_era": {
+   "columns": {
+    "condition_concept_id": {
+     "index": 3,
+     "name": "condition_concept_id",
+     "type": "INTEGER"
+    },
+    "condition_era_end_date": {
+     "index": 5,
+     "name": "condition_era_end_date",
+     "type": "DATE"
+    },
+    "condition_era_id": {
+     "index": 1,
+     "name": "condition_era_id",
+     "type": "BIGINT"
+    },
+    "condition_era_start_date": {
+     "index": 4,
+     "name": "condition_era_start_date",
+     "type": "DATE"
+    },
+    "condition_occurrence_count": {
+     "index": 6,
+     "name": "condition_occurrence_count",
+     "type": "BIGINT"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.condition_occurrence": {
+   "columns": {
+    "condition_concept_id": {
+     "index": 3,
+     "name": "condition_concept_id",
+     "type": "INTEGER"
+    },
+    "condition_end_date": {
+     "index": 6,
+     "name": "condition_end_date",
+     "type": "DATE"
+    },
+    "condition_end_datetime": {
+     "index": 7,
+     "name": "condition_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "condition_occurrence_id": {
+     "index": 1,
+     "name": "condition_occurrence_id",
+     "type": "BIGINT"
+    },
+    "condition_source_concept_id": {
+     "index": 14,
+     "name": "condition_source_concept_id",
+     "type": "INTEGER"
+    },
+    "condition_source_value": {
+     "index": 13,
+     "name": "condition_source_value",
+     "type": "VARCHAR"
+    },
+    "condition_start_date": {
+     "index": 4,
+     "name": "condition_start_date",
+     "type": "DATE"
+    },
+    "condition_start_datetime": {
+     "index": 5,
+     "name": "condition_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "condition_status_concept_id": {
+     "index": 16,
+     "name": "condition_status_concept_id",
+     "type": "INTEGER"
+    },
+    "condition_status_source_value": {
+     "index": 15,
+     "name": "condition_status_source_value",
+     "type": "VARCHAR"
+    },
+    "condition_type_concept_id": {
+     "index": 8,
+     "name": "condition_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 10,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "stop_reason": {
+     "index": 9,
+     "name": "stop_reason",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 12,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 11,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.cost": {
+   "columns": {
+    "amount_allowed": {
+     "index": 18,
+     "name": "amount_allowed",
+     "type": "FLOAT"
+    },
+    "cost_domain_id": {
+     "index": 3,
+     "name": "cost_domain_id",
+     "type": "VARCHAR"
+    },
+    "cost_event_id": {
+     "index": 2,
+     "name": "cost_event_id",
+     "type": "BIGINT"
+    },
+    "cost_id": {
+     "index": 1,
+     "name": "cost_id",
+     "type": "BIGINT"
+    },
+    "cost_type_concept_id": {
+     "index": 4,
+     "name": "cost_type_concept_id",
+     "type": "INTEGER"
+    },
+    "currency_concept_id": {
+     "index": 5,
+     "name": "currency_concept_id",
+     "type": "INTEGER"
+    },
+    "drg_concept_id": {
+     "index": 21,
+     "name": "drg_concept_id",
+     "type": "INTEGER"
+    },
+    "drg_source_value": {
+     "index": 22,
+     "name": "drg_source_value",
+     "type": "VARCHAR"
+    },
+    "paid_by_patient": {
+     "index": 10,
+     "name": "paid_by_patient",
+     "type": "FLOAT"
+    },
+    "paid_by_payer": {
+     "index": 9,
+     "name": "paid_by_payer",
+     "type": "FLOAT"
+    },
+    "paid_by_primary": {
+     "index": 14,
+     "name": "paid_by_primary",
+     "type": "FLOAT"
+    },
+    "paid_dispensing_fee": {
+     "index": 16,
+     "name": "paid_dispensing_fee",
+     "type": "FLOAT"
+    },
+    "paid_ingredient_cost": {
+     "index": 15,
+     "name": "paid_ingredient_cost",
+     "type": "FLOAT"
+    },
+    "paid_patient_coinsurance": {
+     "index": 12,
+     "name": "paid_patient_coinsurance",
+     "type": "FLOAT"
+    },
+    "paid_patient_copay": {
+     "index": 11,
+     "name": "paid_patient_copay",
+     "type": "FLOAT"
+    },
+    "paid_patient_deductible": {
+     "index": 13,
+     "name": "paid_patient_deductible",
+     "type": "FLOAT"
+    },
+    "payer_plan_period_id": {
+     "index": 17,
+     "name": "payer_plan_period_id",
+     "type": "INTEGER"
+    },
+    "revenue_code_concept_id": {
+     "index": 19,
+     "name": "revenue_code_concept_id",
+     "type": "INTEGER"
+    },
+    "revenue_code_source_value": {
+     "index": 20,
+     "name": "revenue_code_source_value",
+     "type": "VARCHAR"
+    },
+    "total_charge": {
+     "index": 6,
+     "name": "total_charge",
+     "type": "FLOAT"
+    },
+    "total_cost": {
+     "index": 7,
+     "name": "total_cost",
+     "type": "FLOAT"
+    },
+    "total_paid": {
+     "index": 8,
+     "name": "total_paid",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.death": {
+   "columns": {
+    "cause_concept_id": {
+     "index": 5,
+     "name": "cause_concept_id",
+     "type": "INTEGER"
+    },
+    "cause_source_concept_id": {
+     "index": 7,
+     "name": "cause_source_concept_id",
+     "type": "INTEGER"
+    },
+    "cause_source_value": {
+     "index": 6,
+     "name": "cause_source_value",
+     "type": "VARCHAR"
+    },
+    "death_date": {
+     "index": 2,
+     "name": "death_date",
+     "type": "DATE"
+    },
+    "death_datetime": {
+     "index": 3,
+     "name": "death_datetime",
+     "type": "TIMESTAMP"
+    },
+    "death_type_concept_id": {
+     "index": 4,
+     "name": "death_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.device_exposure": {
+   "columns": {
+    "device_concept_id": {
+     "index": 3,
+     "name": "device_concept_id",
+     "type": "INTEGER"
+    },
+    "device_exposure_end_date": {
+     "index": 6,
+     "name": "device_exposure_end_date",
+     "type": "DATE"
+    },
+    "device_exposure_end_datetime": {
+     "index": 7,
+     "name": "device_exposure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "device_exposure_id": {
+     "index": 1,
+     "name": "device_exposure_id",
+     "type": "BIGINT"
+    },
+    "device_exposure_start_date": {
+     "index": 4,
+     "name": "device_exposure_start_date",
+     "type": "DATE"
+    },
+    "device_exposure_start_datetime": {
+     "index": 5,
+     "name": "device_exposure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "device_source_concept_id": {
+     "index": 16,
+     "name": "device_source_concept_id",
+     "type": "INTEGER"
+    },
+    "device_source_value": {
+     "index": 15,
+     "name": "device_source_value",
+     "type": "VARCHAR"
+    },
+    "device_type_concept_id": {
+     "index": 8,
+     "name": "device_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "production_id": {
+     "index": 10,
+     "name": "production_id",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 12,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "quantity": {
+     "index": 11,
+     "name": "quantity",
+     "type": "INTEGER"
+    },
+    "unique_device_id": {
+     "index": 9,
+     "name": "unique_device_id",
+     "type": "VARCHAR"
+    },
+    "unit_concept_id": {
+     "index": 17,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_concept_id": {
+     "index": 19,
+     "name": "unit_source_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 18,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 14,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 13,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.domain": {
+   "columns": {
+    "domain_concept_id": {
+     "index": 3,
+     "name": "domain_concept_id",
+     "type": "INTEGER"
+    },
+    "domain_id": {
+     "index": 1,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "domain_name": {
+     "index": 2,
+     "name": "domain_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.dose_era": {
+   "columns": {
+    "dose_era_end_date": {
+     "index": 7,
+     "name": "dose_era_end_date",
+     "type": "DATE"
+    },
+    "dose_era_id": {
+     "index": 1,
+     "name": "dose_era_id",
+     "type": "INTEGER"
+    },
+    "dose_era_start_date": {
+     "index": 6,
+     "name": "dose_era_start_date",
+     "type": "DATE"
+    },
+    "dose_value": {
+     "index": 5,
+     "name": "dose_value",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 3,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "INTEGER"
+    },
+    "unit_concept_id": {
+     "index": 4,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.drug_era": {
+   "columns": {
+    "drug_concept_id": {
+     "index": 3,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_era_end_date": {
+     "index": 5,
+     "name": "drug_era_end_date",
+     "type": "DATE"
+    },
+    "drug_era_id": {
+     "index": 1,
+     "name": "drug_era_id",
+     "type": "BIGINT"
+    },
+    "drug_era_start_date": {
+     "index": 4,
+     "name": "drug_era_start_date",
+     "type": "DATE"
+    },
+    "drug_exposure_count": {
+     "index": 6,
+     "name": "drug_exposure_count",
+     "type": "INTEGER"
+    },
+    "gap_days": {
+     "index": 7,
+     "name": "gap_days",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.drug_exposure": {
+   "columns": {
+    "days_supply": {
+     "index": 13,
+     "name": "days_supply",
+     "type": "BIGINT"
+    },
+    "dose_unit_source_value": {
+     "index": 23,
+     "name": "dose_unit_source_value",
+     "type": "VARCHAR"
+    },
+    "drug_concept_id": {
+     "index": 3,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_exposure_end_date": {
+     "index": 6,
+     "name": "drug_exposure_end_date",
+     "type": "DATE"
+    },
+    "drug_exposure_end_datetime": {
+     "index": 7,
+     "name": "drug_exposure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_exposure_id": {
+     "index": 1,
+     "name": "drug_exposure_id",
+     "type": "BIGINT"
+    },
+    "drug_exposure_start_date": {
+     "index": 4,
+     "name": "drug_exposure_start_date",
+     "type": "DATE"
+    },
+    "drug_exposure_start_datetime": {
+     "index": 5,
+     "name": "drug_exposure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_source_concept_id": {
+     "index": 21,
+     "name": "drug_source_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_source_value": {
+     "index": 20,
+     "name": "drug_source_value",
+     "type": "VARCHAR"
+    },
+    "drug_type_concept_id": {
+     "index": 9,
+     "name": "drug_type_concept_id",
+     "type": "INTEGER"
+    },
+    "lot_number": {
+     "index": 16,
+     "name": "lot_number",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 17,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "quantity": {
+     "index": 12,
+     "name": "quantity",
+     "type": "FLOAT"
+    },
+    "refills": {
+     "index": 11,
+     "name": "refills",
+     "type": "INTEGER"
+    },
+    "route_concept_id": {
+     "index": 15,
+     "name": "route_concept_id",
+     "type": "INTEGER"
+    },
+    "route_source_value": {
+     "index": 22,
+     "name": "route_source_value",
+     "type": "VARCHAR"
+    },
+    "sig": {
+     "index": 14,
+     "name": "sig",
+     "type": "VARCHAR"
+    },
+    "stop_reason": {
+     "index": 10,
+     "name": "stop_reason",
+     "type": "VARCHAR"
+    },
+    "verbatim_end_date": {
+     "index": 8,
+     "name": "verbatim_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_id": {
+     "index": 19,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 18,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.drug_strength": {
+   "columns": {
+    "amount_unit_concept_id": {
+     "index": 4,
+     "name": "amount_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "amount_value": {
+     "index": 3,
+     "name": "amount_value",
+     "type": "FLOAT"
+    },
+    "box_size": {
+     "index": 9,
+     "name": "box_size",
+     "type": "INTEGER"
+    },
+    "denominator_unit_concept_id": {
+     "index": 8,
+     "name": "denominator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "denominator_value": {
+     "index": 7,
+     "name": "denominator_value",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 1,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "ingredient_concept_id": {
+     "index": 2,
+     "name": "ingredient_concept_id",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 12,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "numerator_unit_concept_id": {
+     "index": 6,
+     "name": "numerator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "numerator_value": {
+     "index": 5,
+     "name": "numerator_value",
+     "type": "FLOAT"
+    },
+    "valid_end_date": {
+     "index": 11,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 10,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.episode": {
+   "columns": {
+    "episode_concept_id": {
+     "index": 3,
+     "name": "episode_concept_id",
+     "type": "INTEGER"
+    },
+    "episode_end_date": {
+     "index": 6,
+     "name": "episode_end_date",
+     "type": "DATE"
+    },
+    "episode_end_datetime": {
+     "index": 7,
+     "name": "episode_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "episode_id": {
+     "index": 1,
+     "name": "episode_id",
+     "type": "INTEGER"
+    },
+    "episode_number": {
+     "index": 9,
+     "name": "episode_number",
+     "type": "INTEGER"
+    },
+    "episode_object_concept_id": {
+     "index": 10,
+     "name": "episode_object_concept_id",
+     "type": "INTEGER"
+    },
+    "episode_parent_id": {
+     "index": 8,
+     "name": "episode_parent_id",
+     "type": "INTEGER"
+    },
+    "episode_source_concept_id": {
+     "index": 13,
+     "name": "episode_source_concept_id",
+     "type": "INTEGER"
+    },
+    "episode_source_value": {
+     "index": 12,
+     "name": "episode_source_value",
+     "type": "VARCHAR"
+    },
+    "episode_start_date": {
+     "index": 4,
+     "name": "episode_start_date",
+     "type": "DATE"
+    },
+    "episode_start_datetime": {
+     "index": 5,
+     "name": "episode_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "episode_type_concept_id": {
+     "index": 11,
+     "name": "episode_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.episode_event": {
+   "columns": {
+    "episode_event_field_concept_id": {
+     "index": 4,
+     "name": "episode_event_field_concept_id",
+     "type": "INTEGER"
+    },
+    "episode_event_id": {
+     "index": 1,
+     "name": "episode_event_id",
+     "type": "INTEGER"
+    },
+    "episode_id": {
+     "index": 2,
+     "name": "episode_id",
+     "type": "INTEGER"
+    },
+    "event_id": {
+     "index": 3,
+     "name": "event_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.fact_relationship": {
+   "columns": {
+    "domain_concept_id_1": {
+     "index": 2,
+     "name": "domain_concept_id_1",
+     "type": "INTEGER"
+    },
+    "domain_concept_id_2": {
+     "index": 4,
+     "name": "domain_concept_id_2",
+     "type": "INTEGER"
+    },
+    "fact_id_1": {
+     "index": 3,
+     "name": "fact_id_1",
+     "type": "INTEGER"
+    },
+    "fact_id_2": {
+     "index": 5,
+     "name": "fact_id_2",
+     "type": "INTEGER"
+    },
+    "fact_relationship_id": {
+     "index": 1,
+     "name": "fact_relationship_id",
+     "type": "INTEGER"
+    },
+    "relationship_concept_id": {
+     "index": 6,
+     "name": "relationship_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__drug_exposure": {
+   "columns": {
+    "days_supply": {
+     "index": 12,
+     "name": "days_supply",
+     "type": "BIGINT"
+    },
+    "drug_base_cost": {
+     "index": 2,
+     "name": "drug_base_cost",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 5,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_exposure_end_date": {
+     "index": 8,
+     "name": "drug_exposure_end_date",
+     "type": "DATE"
+    },
+    "drug_exposure_end_datetime": {
+     "index": 9,
+     "name": "drug_exposure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_exposure_id": {
+     "index": 1,
+     "name": "drug_exposure_id",
+     "type": "BIGINT"
+    },
+    "drug_exposure_start_date": {
+     "index": 6,
+     "name": "drug_exposure_start_date",
+     "type": "DATE"
+    },
+    "drug_exposure_start_datetime": {
+     "index": 7,
+     "name": "drug_exposure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_paid_by_payer": {
+     "index": 3,
+     "name": "drug_paid_by_payer",
+     "type": "FLOAT"
+    },
+    "drug_source_concept_id": {
+     "index": 17,
+     "name": "drug_source_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_source_value": {
+     "index": 16,
+     "name": "drug_source_value",
+     "type": "VARCHAR"
+    },
+    "drug_type_concept_id": {
+     "index": 11,
+     "name": "drug_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 4,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 13,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "verbatim_end_date": {
+     "index": 10,
+     "name": "verbatim_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_id": {
+     "index": 15,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 14,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__drug_immunisations": {
+   "columns": {
+    "days_supply": {
+     "index": 14,
+     "name": "days_supply",
+     "type": "INTEGER"
+    },
+    "drug_base_cost": {
+     "index": 17,
+     "name": "drug_base_cost",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 7,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_exposure_end_date": {
+     "index": 10,
+     "name": "drug_exposure_end_date",
+     "type": "DATE"
+    },
+    "drug_exposure_end_datetime": {
+     "index": 11,
+     "name": "drug_exposure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_exposure_start_date": {
+     "index": 8,
+     "name": "drug_exposure_start_date",
+     "type": "DATE"
+    },
+    "drug_exposure_start_datetime": {
+     "index": 9,
+     "name": "drug_exposure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_paid_by_payer": {
+     "index": 18,
+     "name": "drug_paid_by_payer",
+     "type": "DECIMAL(18,3)"
+    },
+    "drug_source_concept_id": {
+     "index": 16,
+     "name": "drug_source_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_source_value": {
+     "index": 15,
+     "name": "drug_source_value",
+     "type": "VARCHAR"
+    },
+    "drug_type_concept_id": {
+     "index": 13,
+     "name": "drug_type_concept_id",
+     "type": "INTEGER"
+    },
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 4,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "verbatim_end_date": {
+     "index": 12,
+     "name": "verbatim_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_id": {
+     "index": 6,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 5,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__drug_medications": {
+   "columns": {
+    "days_supply": {
+     "index": 14,
+     "name": "days_supply",
+     "type": "BIGINT"
+    },
+    "drug_base_cost": {
+     "index": 17,
+     "name": "drug_base_cost",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 7,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_exposure_end_date": {
+     "index": 10,
+     "name": "drug_exposure_end_date",
+     "type": "DATE"
+    },
+    "drug_exposure_end_datetime": {
+     "index": 11,
+     "name": "drug_exposure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_exposure_start_date": {
+     "index": 8,
+     "name": "drug_exposure_start_date",
+     "type": "DATE"
+    },
+    "drug_exposure_start_datetime": {
+     "index": 9,
+     "name": "drug_exposure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "drug_paid_by_payer": {
+     "index": 18,
+     "name": "drug_paid_by_payer",
+     "type": "FLOAT"
+    },
+    "drug_source_concept_id": {
+     "index": 16,
+     "name": "drug_source_concept_id",
+     "type": "INTEGER"
+    },
+    "drug_source_value": {
+     "index": 15,
+     "name": "drug_source_value",
+     "type": "VARCHAR"
+    },
+    "drug_type_concept_id": {
+     "index": 13,
+     "name": "drug_type_concept_id",
+     "type": "INTEGER"
+    },
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 4,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "verbatim_end_date": {
+     "index": 12,
+     "name": "verbatim_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_id": {
+     "index": 6,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 5,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__encounters": {
+   "columns": {
+    "base_encounter_cost": {
+     "index": 12,
+     "name": "base_encounter_cost",
+     "type": "FLOAT"
+    },
+    "encounter_class": {
+     "index": 9,
+     "name": "encounter_class",
+     "type": "VARCHAR"
+    },
+    "encounter_code": {
+     "index": 10,
+     "name": "encounter_code",
+     "type": "VARCHAR"
+    },
+    "encounter_description": {
+     "index": 11,
+     "name": "encounter_description",
+     "type": "VARCHAR"
+    },
+    "encounter_id": {
+     "index": 1,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "encounter_payer_coverage": {
+     "index": 14,
+     "name": "encounter_payer_coverage",
+     "type": "FLOAT"
+    },
+    "encounter_reason_code": {
+     "index": 15,
+     "name": "encounter_reason_code",
+     "type": "VARCHAR"
+    },
+    "encounter_reason_description": {
+     "index": 16,
+     "name": "encounter_reason_description",
+     "type": "VARCHAR"
+    },
+    "encounter_start_date": {
+     "index": 3,
+     "name": "encounter_start_date",
+     "type": "DATE"
+    },
+    "encounter_start_datetime": {
+     "index": 2,
+     "name": "encounter_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "encounter_stop_date": {
+     "index": 5,
+     "name": "encounter_stop_date",
+     "type": "DATE"
+    },
+    "encounter_stop_datetime": {
+     "index": 4,
+     "name": "encounter_stop_datetime",
+     "type": "TIMESTAMP"
+    },
+    "payer_id": {
+     "index": 8,
+     "name": "payer_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 6,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 7,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "total_encounter_cost": {
+     "index": 13,
+     "name": "total_encounter_cost",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__er_visits": {
+   "columns": {
+    "encounter_id": {
+     "index": 2,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "visit_class": {
+     "index": 4,
+     "name": "visit_class",
+     "type": "VARCHAR"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_id": {
+     "index": 1,
+     "name": "visit_id",
+     "type": "VARCHAR"
+    },
+    "visit_start_date": {
+     "index": 5,
+     "name": "visit_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__ip_visits": {
+   "columns": {
+    "encounter_id": {
+     "index": 2,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "visit_class": {
+     "index": 4,
+     "name": "visit_class",
+     "type": "VARCHAR"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_id": {
+     "index": 1,
+     "name": "visit_id",
+     "type": "VARCHAR"
+    },
+    "visit_start_date": {
+     "index": 5,
+     "name": "visit_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__location": {
+   "columns": {
+    "address_1": {
+     "index": 2,
+     "name": "address_1",
+     "type": "VARCHAR"
+    },
+    "city": {
+     "index": 3,
+     "name": "city",
+     "type": "VARCHAR"
+    },
+    "county": {
+     "index": 6,
+     "name": "county",
+     "type": "VARCHAR"
+    },
+    "location_id": {
+     "index": 1,
+     "name": "location_id",
+     "type": "BIGINT"
+    },
+    "location_source_value": {
+     "index": 7,
+     "name": "location_source_value",
+     "type": "VARCHAR"
+    },
+    "state": {
+     "index": 4,
+     "name": "state",
+     "type": "VARCHAR"
+    },
+    "zip": {
+     "index": 5,
+     "name": "zip",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__measurement_observations": {
+   "columns": {
+    "measurement_concept_id": {
+     "index": 2,
+     "name": "measurement_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_date": {
+     "index": 3,
+     "name": "measurement_date",
+     "type": "DATE"
+    },
+    "measurement_datetime": {
+     "index": 4,
+     "name": "measurement_datetime",
+     "type": "TIMESTAMP"
+    },
+    "measurement_source_concept_id": {
+     "index": 13,
+     "name": "measurement_source_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_source_value": {
+     "index": 12,
+     "name": "measurement_source_value",
+     "type": "VARCHAR"
+    },
+    "measurement_time": {
+     "index": 5,
+     "name": "measurement_time",
+     "type": "TIME"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 9,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "unit_concept_id": {
+     "index": 8,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 14,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    },
+    "value_as_concept_id": {
+     "index": 7,
+     "name": "value_as_concept_id",
+     "type": "INTEGER"
+    },
+    "value_as_number": {
+     "index": 6,
+     "name": "value_as_number",
+     "type": "FLOAT"
+    },
+    "value_source_value": {
+     "index": 15,
+     "name": "value_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 11,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 10,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__measurement_procedures": {
+   "columns": {
+    "measurement_concept_id": {
+     "index": 2,
+     "name": "measurement_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_date": {
+     "index": 3,
+     "name": "measurement_date",
+     "type": "DATE"
+    },
+    "measurement_datetime": {
+     "index": 4,
+     "name": "measurement_datetime",
+     "type": "TIMESTAMP"
+    },
+    "measurement_source_concept_id": {
+     "index": 13,
+     "name": "measurement_source_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_source_value": {
+     "index": 12,
+     "name": "measurement_source_value",
+     "type": "VARCHAR"
+    },
+    "measurement_time": {
+     "index": 5,
+     "name": "measurement_time",
+     "type": "TIME"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 9,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "unit_concept_id": {
+     "index": 8,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 14,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    },
+    "value_as_concept_id": {
+     "index": 7,
+     "name": "value_as_concept_id",
+     "type": "INTEGER"
+    },
+    "value_as_number": {
+     "index": 6,
+     "name": "value_as_number",
+     "type": "FLOAT"
+    },
+    "value_source_value": {
+     "index": 15,
+     "name": "value_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 11,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 10,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__observation_allergies": {
+   "columns": {
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "observation_concept_id": {
+     "index": 4,
+     "name": "observation_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_date": {
+     "index": 5,
+     "name": "observation_date",
+     "type": "DATE"
+    },
+    "observation_datetime": {
+     "index": 6,
+     "name": "observation_datetime",
+     "type": "DATE"
+    },
+    "observation_source_concept_id": {
+     "index": 11,
+     "name": "observation_source_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_source_value": {
+     "index": 10,
+     "name": "observation_source_value",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 7,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_id": {
+     "index": 9,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 8,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__observation_conditions": {
+   "columns": {
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "observation_concept_id": {
+     "index": 4,
+     "name": "observation_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_date": {
+     "index": 5,
+     "name": "observation_date",
+     "type": "DATE"
+    },
+    "observation_datetime": {
+     "index": 6,
+     "name": "observation_datetime",
+     "type": "DATE"
+    },
+    "observation_source_concept_id": {
+     "index": 11,
+     "name": "observation_source_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_source_value": {
+     "index": 10,
+     "name": "observation_source_value",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 7,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_id": {
+     "index": 9,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 8,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__observation_observations": {
+   "columns": {
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "observation_concept_id": {
+     "index": 4,
+     "name": "observation_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_date": {
+     "index": 5,
+     "name": "observation_date",
+     "type": "DATE"
+    },
+    "observation_datetime": {
+     "index": 6,
+     "name": "observation_datetime",
+     "type": "TIMESTAMP"
+    },
+    "observation_source_concept_id": {
+     "index": 11,
+     "name": "observation_source_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_source_value": {
+     "index": 10,
+     "name": "observation_source_value",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 7,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_id": {
+     "index": 9,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 8,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__op_visits": {
+   "columns": {
+    "encounter_id": {
+     "index": 2,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "visit_class": {
+     "index": 4,
+     "name": "visit_class",
+     "type": "VARCHAR"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_id": {
+     "index": 1,
+     "name": "visit_id",
+     "type": "VARCHAR"
+    },
+    "visit_start_date": {
+     "index": 5,
+     "name": "visit_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__person": {
+   "columns": {
+    "birth_datetime": {
+     "index": 6,
+     "name": "birth_datetime",
+     "type": "TIMESTAMP"
+    },
+    "day_of_birth": {
+     "index": 5,
+     "name": "day_of_birth",
+     "type": "INTEGER"
+    },
+    "ethnicity_concept_id": {
+     "index": 8,
+     "name": "ethnicity_concept_id",
+     "type": "INTEGER"
+    },
+    "ethnicity_source_value": {
+     "index": 13,
+     "name": "ethnicity_source_value",
+     "type": "VARCHAR"
+    },
+    "gender_concept_id": {
+     "index": 2,
+     "name": "gender_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_value": {
+     "index": 11,
+     "name": "gender_source_value",
+     "type": "VARCHAR"
+    },
+    "location_id": {
+     "index": 9,
+     "name": "location_id",
+     "type": "BIGINT"
+    },
+    "month_of_birth": {
+     "index": 4,
+     "name": "month_of_birth",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "person_source_value": {
+     "index": 10,
+     "name": "person_source_value",
+     "type": "VARCHAR"
+    },
+    "race_concept_id": {
+     "index": 7,
+     "name": "race_concept_id",
+     "type": "INTEGER"
+    },
+    "race_source_value": {
+     "index": 12,
+     "name": "race_source_value",
+     "type": "VARCHAR"
+    },
+    "year_of_birth": {
+     "index": 3,
+     "name": "year_of_birth",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__procedure_occurrence": {
+   "columns": {
+    "encounter_id": {
+     "index": 4,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "procedure_base_cost": {
+     "index": 3,
+     "name": "procedure_base_cost",
+     "type": "FLOAT"
+    },
+    "procedure_concept_id": {
+     "index": 5,
+     "name": "procedure_concept_id",
+     "type": "INTEGER"
+    },
+    "procedure_date": {
+     "index": 6,
+     "name": "procedure_date",
+     "type": "DATE"
+    },
+    "procedure_datetime": {
+     "index": 7,
+     "name": "procedure_datetime",
+     "type": "TIMESTAMP"
+    },
+    "procedure_end_date": {
+     "index": 8,
+     "name": "procedure_end_date",
+     "type": "DATE"
+    },
+    "procedure_end_datetime": {
+     "index": 9,
+     "name": "procedure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "procedure_occurrence_id": {
+     "index": 1,
+     "name": "procedure_occurrence_id",
+     "type": "BIGINT"
+    },
+    "procedure_source_concept_id": {
+     "index": 11,
+     "name": "procedure_source_concept_id",
+     "type": "INTEGER"
+    },
+    "procedure_source_value": {
+     "index": 10,
+     "name": "procedure_source_value",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__provider": {
+   "columns": {
+    "gender_concept_id": {
+     "index": 3,
+     "name": "gender_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_concept_id": {
+     "index": 7,
+     "name": "gender_source_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_value": {
+     "index": 6,
+     "name": "gender_source_value",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 1,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "provider_name": {
+     "index": 2,
+     "name": "provider_name",
+     "type": "VARCHAR"
+    },
+    "provider_source_value": {
+     "index": 4,
+     "name": "provider_source_value",
+     "type": "VARCHAR"
+    },
+    "specialty_source_value": {
+     "index": 5,
+     "name": "specialty_source_value",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__source_to_source_vocab_map": {
+   "columns": {
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 3,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_class_id": {
+     "index": 6,
+     "name": "source_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_domain_id": {
+     "index": 5,
+     "name": "source_domain_id",
+     "type": "VARCHAR"
+    },
+    "source_invalid_reason": {
+     "index": 9,
+     "name": "source_invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_valid_end_date": {
+     "index": 8,
+     "name": "source_valid_end_date",
+     "type": "DATE"
+    },
+    "source_valid_start_date": {
+     "index": 7,
+     "name": "source_valid_start_date",
+     "type": "DATE"
+    },
+    "source_vocabulary_id": {
+     "index": 4,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_class_id": {
+     "index": 14,
+     "name": "target_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 10,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_concept_name": {
+     "index": 11,
+     "name": "target_concept_name",
+     "type": "VARCHAR"
+    },
+    "target_domain_id": {
+     "index": 13,
+     "name": "target_domain_id",
+     "type": "VARCHAR"
+    },
+    "target_invalid_reason": {
+     "index": 15,
+     "name": "target_invalid_reason",
+     "type": "VARCHAR"
+    },
+    "target_standard_concept": {
+     "index": 16,
+     "name": "target_standard_concept",
+     "type": "VARCHAR"
+    },
+    "target_vocabulary_id": {
+     "index": 12,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__source_to_standard_vocab_map": {
+   "columns": {
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 3,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_class_id": {
+     "index": 6,
+     "name": "source_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_domain_id": {
+     "index": 5,
+     "name": "source_domain_id",
+     "type": "VARCHAR"
+    },
+    "source_invalid_reason": {
+     "index": 9,
+     "name": "source_invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_valid_end_date": {
+     "index": 8,
+     "name": "source_valid_end_date",
+     "type": "DATE"
+    },
+    "source_valid_start_date": {
+     "index": 7,
+     "name": "source_valid_start_date",
+     "type": "DATE"
+    },
+    "source_vocabulary_id": {
+     "index": 4,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_class_id": {
+     "index": 14,
+     "name": "target_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 10,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_concept_name": {
+     "index": 11,
+     "name": "target_concept_name",
+     "type": "VARCHAR"
+    },
+    "target_domain_id": {
+     "index": 13,
+     "name": "target_domain_id",
+     "type": "VARCHAR"
+    },
+    "target_invalid_reason": {
+     "index": 15,
+     "name": "target_invalid_reason",
+     "type": "VARCHAR"
+    },
+    "target_standard_concept": {
+     "index": 16,
+     "name": "target_standard_concept",
+     "type": "VARCHAR"
+    },
+    "target_vocabulary_id": {
+     "index": 12,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__visit_detail": {
+   "columns": {
+    "encounter_id": {
+     "index": 2,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "encounter_payer_coverage": {
+     "index": 13,
+     "name": "encounter_payer_coverage",
+     "type": "FLOAT"
+    },
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 9,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "total_encounter_cost": {
+     "index": 12,
+     "name": "total_encounter_cost",
+     "type": "FLOAT"
+    },
+    "visit_detail_concept_id": {
+     "index": 4,
+     "name": "visit_detail_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_detail_end_date": {
+     "index": 7,
+     "name": "visit_detail_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_end_datetime": {
+     "index": 8,
+     "name": "visit_detail_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_detail_id": {
+     "index": 1,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_source_value": {
+     "index": 10,
+     "name": "visit_detail_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_start_date": {
+     "index": 5,
+     "name": "visit_detail_start_date",
+     "type": "DATE"
+    },
+    "visit_detail_start_datetime": {
+     "index": 6,
+     "name": "visit_detail_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_occurrence_id": {
+     "index": 11,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__visits": {
+   "columns": {
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "visit_class": {
+     "index": 4,
+     "name": "visit_class",
+     "type": "VARCHAR"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_id": {
+     "index": 2,
+     "name": "visit_id",
+     "type": "VARCHAR"
+    },
+    "visit_occurrence_id": {
+     "index": 1,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    },
+    "visit_start_date": {
+     "index": 5,
+     "name": "visit_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.int__visits_encounters": {
+   "columns": {
+    "encounter_id": {
+     "index": 2,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 3,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "visit_class": {
+     "index": 4,
+     "name": "visit_class",
+     "type": "VARCHAR"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_id": {
+     "index": 1,
+     "name": "visit_id",
+     "type": "VARCHAR"
+    },
+    "visit_start_date": {
+     "index": 5,
+     "name": "visit_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.location": {
+   "columns": {
+    "address_1": {
+     "index": 2,
+     "name": "address_1",
+     "type": "VARCHAR"
+    },
+    "address_2": {
+     "index": 3,
+     "name": "address_2",
+     "type": "VARCHAR"
+    },
+    "city": {
+     "index": 4,
+     "name": "city",
+     "type": "VARCHAR"
+    },
+    "country_concept_id": {
+     "index": 9,
+     "name": "country_concept_id",
+     "type": "INTEGER"
+    },
+    "country_source_value": {
+     "index": 10,
+     "name": "country_source_value",
+     "type": "VARCHAR"
+    },
+    "county": {
+     "index": 7,
+     "name": "county",
+     "type": "VARCHAR"
+    },
+    "latitude": {
+     "index": 11,
+     "name": "latitude",
+     "type": "FLOAT"
+    },
+    "location_id": {
+     "index": 1,
+     "name": "location_id",
+     "type": "BIGINT"
+    },
+    "location_source_value": {
+     "index": 8,
+     "name": "location_source_value",
+     "type": "VARCHAR"
+    },
+    "longitude": {
+     "index": 12,
+     "name": "longitude",
+     "type": "FLOAT"
+    },
+    "state": {
+     "index": 5,
+     "name": "state",
+     "type": "VARCHAR"
+    },
+    "zip": {
+     "index": 6,
+     "name": "zip",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.measurement": {
+   "columns": {
+    "meas_event_field_concept_id": {
+     "index": 23,
+     "name": "meas_event_field_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_concept_id": {
+     "index": 3,
+     "name": "measurement_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_date": {
+     "index": 4,
+     "name": "measurement_date",
+     "type": "DATE"
+    },
+    "measurement_datetime": {
+     "index": 5,
+     "name": "measurement_datetime",
+     "type": "TIMESTAMP"
+    },
+    "measurement_event_id": {
+     "index": 22,
+     "name": "measurement_event_id",
+     "type": "BIGINT"
+    },
+    "measurement_id": {
+     "index": 1,
+     "name": "measurement_id",
+     "type": "BIGINT"
+    },
+    "measurement_source_concept_id": {
+     "index": 18,
+     "name": "measurement_source_concept_id",
+     "type": "INTEGER"
+    },
+    "measurement_source_value": {
+     "index": 17,
+     "name": "measurement_source_value",
+     "type": "VARCHAR"
+    },
+    "measurement_time": {
+     "index": 6,
+     "name": "measurement_time",
+     "type": "VARCHAR"
+    },
+    "measurement_type_concept_id": {
+     "index": 7,
+     "name": "measurement_type_concept_id",
+     "type": "INTEGER"
+    },
+    "operator_concept_id": {
+     "index": 8,
+     "name": "operator_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 14,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "range_high": {
+     "index": 13,
+     "name": "range_high",
+     "type": "FLOAT"
+    },
+    "range_low": {
+     "index": 12,
+     "name": "range_low",
+     "type": "FLOAT"
+    },
+    "unit_concept_id": {
+     "index": 11,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_concept_id": {
+     "index": 21,
+     "name": "unit_source_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 19,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    },
+    "value_as_concept_id": {
+     "index": 10,
+     "name": "value_as_concept_id",
+     "type": "INTEGER"
+    },
+    "value_as_number": {
+     "index": 9,
+     "name": "value_as_number",
+     "type": "FLOAT"
+    },
+    "value_source_value": {
+     "index": 20,
+     "name": "value_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 16,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 15,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.metadata": {
+   "columns": {
+    "metadata_concept_id": {
+     "index": 2,
+     "name": "metadata_concept_id",
+     "type": "INTEGER"
+    },
+    "metadata_date": {
+     "index": 8,
+     "name": "metadata_date",
+     "type": "DATE"
+    },
+    "metadata_datetime": {
+     "index": 9,
+     "name": "metadata_datetime",
+     "type": "TIMESTAMP"
+    },
+    "metadata_id": {
+     "index": 1,
+     "name": "metadata_id",
+     "type": "INTEGER"
+    },
+    "metadata_type_concept_id": {
+     "index": 3,
+     "name": "metadata_type_concept_id",
+     "type": "INTEGER"
+    },
+    "name": {
+     "index": 4,
+     "name": "name",
+     "type": "VARCHAR"
+    },
+    "value_as_concept_id": {
+     "index": 6,
+     "name": "value_as_concept_id",
+     "type": "INTEGER"
+    },
+    "value_as_number": {
+     "index": 7,
+     "name": "value_as_number",
+     "type": "FLOAT"
+    },
+    "value_as_string": {
+     "index": 5,
+     "name": "value_as_string",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.note": {
+   "columns": {
+    "encoding_concept_id": {
+     "index": 9,
+     "name": "encoding_concept_id",
+     "type": "INTEGER"
+    },
+    "language_concept_id": {
+     "index": 10,
+     "name": "language_concept_id",
+     "type": "INTEGER"
+    },
+    "note_class_concept_id": {
+     "index": 6,
+     "name": "note_class_concept_id",
+     "type": "INTEGER"
+    },
+    "note_date": {
+     "index": 3,
+     "name": "note_date",
+     "type": "DATE"
+    },
+    "note_datetime": {
+     "index": 4,
+     "name": "note_datetime",
+     "type": "TIMESTAMP"
+    },
+    "note_event_field_concept_id": {
+     "index": 16,
+     "name": "note_event_field_concept_id",
+     "type": "INTEGER"
+    },
+    "note_event_id": {
+     "index": 15,
+     "name": "note_event_id",
+     "type": "INTEGER"
+    },
+    "note_id": {
+     "index": 1,
+     "name": "note_id",
+     "type": "INTEGER"
+    },
+    "note_source_value": {
+     "index": 14,
+     "name": "note_source_value",
+     "type": "VARCHAR"
+    },
+    "note_text": {
+     "index": 8,
+     "name": "note_text",
+     "type": "VARCHAR"
+    },
+    "note_title": {
+     "index": 7,
+     "name": "note_title",
+     "type": "VARCHAR"
+    },
+    "note_type_concept_id": {
+     "index": 5,
+     "name": "note_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "INTEGER"
+    },
+    "provider_id": {
+     "index": 11,
+     "name": "provider_id",
+     "type": "INTEGER"
+    },
+    "visit_detail_id": {
+     "index": 13,
+     "name": "visit_detail_id",
+     "type": "INTEGER"
+    },
+    "visit_occurrence_id": {
+     "index": 12,
+     "name": "visit_occurrence_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.note_nlp": {
+   "columns": {
+    "lexical_variant": {
+     "index": 6,
+     "name": "lexical_variant",
+     "type": "VARCHAR"
+    },
+    "nlp_date": {
+     "index": 10,
+     "name": "nlp_date",
+     "type": "DATE"
+    },
+    "nlp_datetime": {
+     "index": 11,
+     "name": "nlp_datetime",
+     "type": "TIMESTAMP"
+    },
+    "nlp_system": {
+     "index": 9,
+     "name": "nlp_system",
+     "type": "VARCHAR"
+    },
+    "note_id": {
+     "index": 2,
+     "name": "note_id",
+     "type": "INTEGER"
+    },
+    "note_nlp_concept_id": {
+     "index": 7,
+     "name": "note_nlp_concept_id",
+     "type": "INTEGER"
+    },
+    "note_nlp_id": {
+     "index": 1,
+     "name": "note_nlp_id",
+     "type": "INTEGER"
+    },
+    "note_nlp_source_concept_id": {
+     "index": 8,
+     "name": "note_nlp_source_concept_id",
+     "type": "INTEGER"
+    },
+    "offset": {
+     "index": 5,
+     "name": "offset",
+     "type": "VARCHAR"
+    },
+    "section_concept_id": {
+     "index": 3,
+     "name": "section_concept_id",
+     "type": "INTEGER"
+    },
+    "snippet": {
+     "index": 4,
+     "name": "snippet",
+     "type": "VARCHAR"
+    },
+    "term_exists": {
+     "index": 12,
+     "name": "term_exists",
+     "type": "VARCHAR"
+    },
+    "term_modifiers": {
+     "index": 14,
+     "name": "term_modifiers",
+     "type": "VARCHAR"
+    },
+    "term_temporal": {
+     "index": 13,
+     "name": "term_temporal",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.observation": {
+   "columns": {
+    "obs_event_field_concept_id": {
+     "index": 21,
+     "name": "obs_event_field_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_concept_id": {
+     "index": 3,
+     "name": "observation_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_date": {
+     "index": 4,
+     "name": "observation_date",
+     "type": "DATE"
+    },
+    "observation_datetime": {
+     "index": 5,
+     "name": "observation_datetime",
+     "type": "TIMESTAMP"
+    },
+    "observation_event_id": {
+     "index": 20,
+     "name": "observation_event_id",
+     "type": "BIGINT"
+    },
+    "observation_id": {
+     "index": 1,
+     "name": "observation_id",
+     "type": "BIGINT"
+    },
+    "observation_source_concept_id": {
+     "index": 16,
+     "name": "observation_source_concept_id",
+     "type": "INTEGER"
+    },
+    "observation_source_value": {
+     "index": 15,
+     "name": "observation_source_value",
+     "type": "VARCHAR"
+    },
+    "observation_type_concept_id": {
+     "index": 6,
+     "name": "observation_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "provider_id": {
+     "index": 12,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "qualifier_concept_id": {
+     "index": 10,
+     "name": "qualifier_concept_id",
+     "type": "INTEGER"
+    },
+    "qualifier_source_value": {
+     "index": 18,
+     "name": "qualifier_source_value",
+     "type": "VARCHAR"
+    },
+    "unit_concept_id": {
+     "index": 11,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 17,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    },
+    "value_as_concept_id": {
+     "index": 9,
+     "name": "value_as_concept_id",
+     "type": "INTEGER"
+    },
+    "value_as_number": {
+     "index": 7,
+     "name": "value_as_number",
+     "type": "FLOAT"
+    },
+    "value_as_string": {
+     "index": 8,
+     "name": "value_as_string",
+     "type": "VARCHAR"
+    },
+    "value_source_value": {
+     "index": 19,
+     "name": "value_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_id": {
+     "index": 14,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 13,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.observation_period": {
+   "columns": {
+    "observation_period_end_date": {
+     "index": 4,
+     "name": "observation_period_end_date",
+     "type": "DATE"
+    },
+    "observation_period_id": {
+     "index": 1,
+     "name": "observation_period_id",
+     "type": "BIGINT"
+    },
+    "observation_period_start_date": {
+     "index": 3,
+     "name": "observation_period_start_date",
+     "type": "DATE"
+    },
+    "period_type_concept_id": {
+     "index": 5,
+     "name": "period_type_concept_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.payer_plan_period": {
+   "columns": {
+    "family_source_value": {
+     "index": 14,
+     "name": "family_source_value",
+     "type": "VARCHAR"
+    },
+    "payer_concept_id": {
+     "index": 5,
+     "name": "payer_concept_id",
+     "type": "INTEGER"
+    },
+    "payer_plan_period_end_date": {
+     "index": 4,
+     "name": "payer_plan_period_end_date",
+     "type": "DATE"
+    },
+    "payer_plan_period_id": {
+     "index": 1,
+     "name": "payer_plan_period_id",
+     "type": "BIGINT"
+    },
+    "payer_plan_period_start_date": {
+     "index": 3,
+     "name": "payer_plan_period_start_date",
+     "type": "DATE"
+    },
+    "payer_source_concept_id": {
+     "index": 7,
+     "name": "payer_source_concept_id",
+     "type": "INTEGER"
+    },
+    "payer_source_value": {
+     "index": 6,
+     "name": "payer_source_value",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "plan_concept_id": {
+     "index": 8,
+     "name": "plan_concept_id",
+     "type": "INTEGER"
+    },
+    "plan_source_concept_id": {
+     "index": 10,
+     "name": "plan_source_concept_id",
+     "type": "INTEGER"
+    },
+    "plan_source_value": {
+     "index": 9,
+     "name": "plan_source_value",
+     "type": "VARCHAR"
+    },
+    "sponsor_concept_id": {
+     "index": 11,
+     "name": "sponsor_concept_id",
+     "type": "INTEGER"
+    },
+    "sponsor_source_concept_id": {
+     "index": 13,
+     "name": "sponsor_source_concept_id",
+     "type": "INTEGER"
+    },
+    "sponsor_source_value": {
+     "index": 12,
+     "name": "sponsor_source_value",
+     "type": "VARCHAR"
+    },
+    "stop_reason_concept_id": {
+     "index": 15,
+     "name": "stop_reason_concept_id",
+     "type": "INTEGER"
+    },
+    "stop_reason_source_concept_id": {
+     "index": 17,
+     "name": "stop_reason_source_concept_id",
+     "type": "INTEGER"
+    },
+    "stop_reason_source_value": {
+     "index": 16,
+     "name": "stop_reason_source_value",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.person": {
+   "columns": {
+    "birth_datetime": {
+     "index": 6,
+     "name": "birth_datetime",
+     "type": "TIMESTAMP"
+    },
+    "care_site_id": {
+     "index": 11,
+     "name": "care_site_id",
+     "type": "INTEGER"
+    },
+    "day_of_birth": {
+     "index": 5,
+     "name": "day_of_birth",
+     "type": "INTEGER"
+    },
+    "ethnicity_concept_id": {
+     "index": 8,
+     "name": "ethnicity_concept_id",
+     "type": "INTEGER"
+    },
+    "ethnicity_source_concept_id": {
+     "index": 18,
+     "name": "ethnicity_source_concept_id",
+     "type": "INTEGER"
+    },
+    "ethnicity_source_value": {
+     "index": 17,
+     "name": "ethnicity_source_value",
+     "type": "VARCHAR"
+    },
+    "gender_concept_id": {
+     "index": 2,
+     "name": "gender_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_concept_id": {
+     "index": 14,
+     "name": "gender_source_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_value": {
+     "index": 13,
+     "name": "gender_source_value",
+     "type": "VARCHAR"
+    },
+    "location_id": {
+     "index": 9,
+     "name": "location_id",
+     "type": "BIGINT"
+    },
+    "month_of_birth": {
+     "index": 4,
+     "name": "month_of_birth",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 1,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "person_source_value": {
+     "index": 12,
+     "name": "person_source_value",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 10,
+     "name": "provider_id",
+     "type": "INTEGER"
+    },
+    "race_concept_id": {
+     "index": 7,
+     "name": "race_concept_id",
+     "type": "INTEGER"
+    },
+    "race_source_concept_id": {
+     "index": 16,
+     "name": "race_source_concept_id",
+     "type": "INTEGER"
+    },
+    "race_source_value": {
+     "index": 15,
+     "name": "race_source_value",
+     "type": "VARCHAR"
+    },
+    "year_of_birth": {
+     "index": 3,
+     "name": "year_of_birth",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.procedure_occurrence": {
+   "columns": {
+    "modifier_concept_id": {
+     "index": 9,
+     "name": "modifier_concept_id",
+     "type": "INTEGER"
+    },
+    "modifier_source_value": {
+     "index": 16,
+     "name": "modifier_source_value",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "procedure_concept_id": {
+     "index": 3,
+     "name": "procedure_concept_id",
+     "type": "INTEGER"
+    },
+    "procedure_date": {
+     "index": 4,
+     "name": "procedure_date",
+     "type": "DATE"
+    },
+    "procedure_datetime": {
+     "index": 5,
+     "name": "procedure_datetime",
+     "type": "TIMESTAMP"
+    },
+    "procedure_end_date": {
+     "index": 6,
+     "name": "procedure_end_date",
+     "type": "DATE"
+    },
+    "procedure_end_datetime": {
+     "index": 7,
+     "name": "procedure_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "procedure_occurrence_id": {
+     "index": 1,
+     "name": "procedure_occurrence_id",
+     "type": "BIGINT"
+    },
+    "procedure_source_concept_id": {
+     "index": 15,
+     "name": "procedure_source_concept_id",
+     "type": "INTEGER"
+    },
+    "procedure_source_value": {
+     "index": 14,
+     "name": "procedure_source_value",
+     "type": "VARCHAR"
+    },
+    "procedure_type_concept_id": {
+     "index": 8,
+     "name": "procedure_type_concept_id",
+     "type": "INTEGER"
+    },
+    "provider_id": {
+     "index": 11,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "quantity": {
+     "index": 10,
+     "name": "quantity",
+     "type": "INTEGER"
+    },
+    "visit_detail_id": {
+     "index": 13,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_occurrence_id": {
+     "index": 12,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.provider": {
+   "columns": {
+    "care_site_id": {
+     "index": 6,
+     "name": "care_site_id",
+     "type": "INTEGER"
+    },
+    "dea": {
+     "index": 4,
+     "name": "dea",
+     "type": "VARCHAR"
+    },
+    "gender_concept_id": {
+     "index": 8,
+     "name": "gender_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_concept_id": {
+     "index": 13,
+     "name": "gender_source_concept_id",
+     "type": "INTEGER"
+    },
+    "gender_source_value": {
+     "index": 12,
+     "name": "gender_source_value",
+     "type": "VARCHAR"
+    },
+    "npi": {
+     "index": 3,
+     "name": "npi",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 1,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "provider_name": {
+     "index": 2,
+     "name": "provider_name",
+     "type": "VARCHAR"
+    },
+    "provider_source_value": {
+     "index": 9,
+     "name": "provider_source_value",
+     "type": "VARCHAR"
+    },
+    "specialty_concept_id": {
+     "index": 5,
+     "name": "specialty_concept_id",
+     "type": "INTEGER"
+    },
+    "specialty_source_concept_id": {
+     "index": 11,
+     "name": "specialty_source_concept_id",
+     "type": "INTEGER"
+    },
+    "specialty_source_value": {
+     "index": 10,
+     "name": "specialty_source_value",
+     "type": "VARCHAR"
+    },
+    "year_of_birth": {
+     "index": 7,
+     "name": "year_of_birth",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.relationship": {
+   "columns": {
+    "defines_ancestry": {
+     "index": 4,
+     "name": "defines_ancestry",
+     "type": "VARCHAR"
+    },
+    "is_hierarchical": {
+     "index": 3,
+     "name": "is_hierarchical",
+     "type": "VARCHAR"
+    },
+    "relationship_concept_id": {
+     "index": 6,
+     "name": "relationship_concept_id",
+     "type": "INTEGER"
+    },
+    "relationship_id": {
+     "index": 1,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "relationship_name": {
+     "index": 2,
+     "name": "relationship_name",
+     "type": "VARCHAR"
+    },
+    "reverse_relationship_id": {
+     "index": 5,
+     "name": "reverse_relationship_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.source_to_concept_map": {
+   "columns": {
+    "invalid_reason": {
+     "index": 9,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 4,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_vocabulary_id": {
+     "index": 3,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 5,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_vocabulary_id": {
+     "index": 6,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 8,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 7,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.specimen": {
+   "columns": {
+    "anatomic_site_concept_id": {
+     "index": 9,
+     "name": "anatomic_site_concept_id",
+     "type": "INTEGER"
+    },
+    "anatomic_site_source_value": {
+     "index": 14,
+     "name": "anatomic_site_source_value",
+     "type": "VARCHAR"
+    },
+    "disease_status_concept_id": {
+     "index": 10,
+     "name": "disease_status_concept_id",
+     "type": "INTEGER"
+    },
+    "disease_status_source_value": {
+     "index": 15,
+     "name": "disease_status_source_value",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "INTEGER"
+    },
+    "quantity": {
+     "index": 7,
+     "name": "quantity",
+     "type": "FLOAT"
+    },
+    "specimen_concept_id": {
+     "index": 3,
+     "name": "specimen_concept_id",
+     "type": "INTEGER"
+    },
+    "specimen_date": {
+     "index": 5,
+     "name": "specimen_date",
+     "type": "DATE"
+    },
+    "specimen_datetime": {
+     "index": 6,
+     "name": "specimen_datetime",
+     "type": "TIMESTAMP"
+    },
+    "specimen_id": {
+     "index": 1,
+     "name": "specimen_id",
+     "type": "INTEGER"
+    },
+    "specimen_source_id": {
+     "index": 11,
+     "name": "specimen_source_id",
+     "type": "VARCHAR"
+    },
+    "specimen_source_value": {
+     "index": 12,
+     "name": "specimen_source_value",
+     "type": "VARCHAR"
+    },
+    "specimen_type_concept_id": {
+     "index": 4,
+     "name": "specimen_type_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_concept_id": {
+     "index": 8,
+     "name": "unit_concept_id",
+     "type": "INTEGER"
+    },
+    "unit_source_value": {
+     "index": 13,
+     "name": "unit_source_value",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_map__states": {
+   "columns": {
+    "state_abbreviation": {
+     "index": 2,
+     "name": "state_abbreviation",
+     "type": "VARCHAR"
+    },
+    "state_name": {
+     "index": 1,
+     "name": "state_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__allergies": {
+   "columns": {
+    "allergy_category": {
+     "index": 9,
+     "name": "allergy_category",
+     "type": "VARCHAR"
+    },
+    "allergy_code": {
+     "index": 5,
+     "name": "allergy_code",
+     "type": "VARCHAR"
+    },
+    "allergy_code_system": {
+     "index": 6,
+     "name": "allergy_code_system",
+     "type": "VARCHAR"
+    },
+    "allergy_description": {
+     "index": 7,
+     "name": "allergy_description",
+     "type": "VARCHAR"
+    },
+    "allergy_start_date": {
+     "index": 1,
+     "name": "allergy_start_date",
+     "type": "DATE"
+    },
+    "allergy_stop_date": {
+     "index": 2,
+     "name": "allergy_stop_date",
+     "type": "DATE"
+    },
+    "allergy_type": {
+     "index": 8,
+     "name": "allergy_type",
+     "type": "VARCHAR"
+    },
+    "encounter_id": {
+     "index": 4,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 3,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "reaction_1_code": {
+     "index": 10,
+     "name": "reaction_1_code",
+     "type": "VARCHAR"
+    },
+    "reaction_1_description": {
+     "index": 11,
+     "name": "reaction_1_description",
+     "type": "VARCHAR"
+    },
+    "reaction_1_severity": {
+     "index": 12,
+     "name": "reaction_1_severity",
+     "type": "VARCHAR"
+    },
+    "reaction_2_code": {
+     "index": 13,
+     "name": "reaction_2_code",
+     "type": "VARCHAR"
+    },
+    "reaction_2_description": {
+     "index": 14,
+     "name": "reaction_2_description",
+     "type": "VARCHAR"
+    },
+    "reaction_2_severity": {
+     "index": 15,
+     "name": "reaction_2_severity",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__careplans": {
+   "columns": {
+    "careplan_code": {
+     "index": 6,
+     "name": "careplan_code",
+     "type": "VARCHAR"
+    },
+    "careplan_description": {
+     "index": 7,
+     "name": "careplan_description",
+     "type": "VARCHAR"
+    },
+    "careplan_id": {
+     "index": 1,
+     "name": "careplan_id",
+     "type": "VARCHAR"
+    },
+    "careplan_reason_code": {
+     "index": 8,
+     "name": "careplan_reason_code",
+     "type": "VARCHAR"
+    },
+    "careplan_reason_description": {
+     "index": 9,
+     "name": "careplan_reason_description",
+     "type": "VARCHAR"
+    },
+    "careplan_start_date": {
+     "index": 2,
+     "name": "careplan_start_date",
+     "type": "DATE"
+    },
+    "careplan_stop_date": {
+     "index": 3,
+     "name": "careplan_stop_date",
+     "type": "DATE"
+    },
+    "encounter_id": {
+     "index": 5,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 4,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__claims": {
+   "columns": {
+    "claim_id": {
+     "index": 1,
+     "name": "claim_id",
+     "type": "VARCHAR"
+    },
+    "claim_status_1": {
+     "index": 21,
+     "name": "claim_status_1",
+     "type": "VARCHAR"
+    },
+    "claim_status_2": {
+     "index": 22,
+     "name": "claim_status_2",
+     "type": "VARCHAR"
+    },
+    "claim_status_patient": {
+     "index": 23,
+     "name": "claim_status_patient",
+     "type": "VARCHAR"
+    },
+    "claim_type_id_1": {
+     "index": 30,
+     "name": "claim_type_id_1",
+     "type": "FLOAT"
+    },
+    "claim_type_id_2": {
+     "index": 31,
+     "name": "claim_type_id_2",
+     "type": "FLOAT"
+    },
+    "current_illness_date": {
+     "index": 18,
+     "name": "current_illness_date",
+     "type": "TIMESTAMP"
+    },
+    "department_id": {
+     "index": 6,
+     "name": "department_id",
+     "type": "VARCHAR"
+    },
+    "diagnosis_1": {
+     "index": 8,
+     "name": "diagnosis_1",
+     "type": "VARCHAR"
+    },
+    "diagnosis_2": {
+     "index": 9,
+     "name": "diagnosis_2",
+     "type": "VARCHAR"
+    },
+    "diagnosis_3": {
+     "index": 10,
+     "name": "diagnosis_3",
+     "type": "VARCHAR"
+    },
+    "diagnosis_4": {
+     "index": 11,
+     "name": "diagnosis_4",
+     "type": "VARCHAR"
+    },
+    "diagnosis_5": {
+     "index": 12,
+     "name": "diagnosis_5",
+     "type": "VARCHAR"
+    },
+    "diagnosis_6": {
+     "index": 13,
+     "name": "diagnosis_6",
+     "type": "VARCHAR"
+    },
+    "diagnosis_7": {
+     "index": 14,
+     "name": "diagnosis_7",
+     "type": "VARCHAR"
+    },
+    "diagnosis_8": {
+     "index": 15,
+     "name": "diagnosis_8",
+     "type": "VARCHAR"
+    },
+    "encounter_id": {
+     "index": 17,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "last_billed_date_1": {
+     "index": 27,
+     "name": "last_billed_date_1",
+     "type": "TIMESTAMP"
+    },
+    "last_billed_date_2": {
+     "index": 28,
+     "name": "last_billed_date_2",
+     "type": "TIMESTAMP"
+    },
+    "last_billed_date_patient": {
+     "index": 29,
+     "name": "last_billed_date_patient",
+     "type": "TIMESTAMP"
+    },
+    "outstanding_1": {
+     "index": 24,
+     "name": "outstanding_1",
+     "type": "FLOAT"
+    },
+    "outstanding_2": {
+     "index": 25,
+     "name": "outstanding_2",
+     "type": "FLOAT"
+    },
+    "outstanding_patient": {
+     "index": 26,
+     "name": "outstanding_patient",
+     "type": "FLOAT"
+    },
+    "patient_department_id": {
+     "index": 7,
+     "name": "patient_department_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "primary_patient_insurance_id": {
+     "index": 4,
+     "name": "primary_patient_insurance_id",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 3,
+     "name": "provider_id",
+     "type": "VARCHAR"
+    },
+    "referring_provider_id": {
+     "index": 16,
+     "name": "referring_provider_id",
+     "type": "VARCHAR"
+    },
+    "secondary_patient_insurance_id": {
+     "index": 5,
+     "name": "secondary_patient_insurance_id",
+     "type": "VARCHAR"
+    },
+    "service_datetime": {
+     "index": 19,
+     "name": "service_datetime",
+     "type": "TIMESTAMP"
+    },
+    "supervising_provider_id": {
+     "index": 20,
+     "name": "supervising_provider_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__claims_transactions": {
+   "columns": {
+    "adjustments": {
+     "index": 25,
+     "name": "adjustments",
+     "type": "FLOAT"
+    },
+    "charge_id": {
+     "index": 3,
+     "name": "charge_id",
+     "type": "FLOAT"
+    },
+    "claim_diagnosis_ref_1": {
+     "index": 14,
+     "name": "claim_diagnosis_ref_1",
+     "type": "FLOAT"
+    },
+    "claim_diagnosis_ref_2": {
+     "index": 15,
+     "name": "claim_diagnosis_ref_2",
+     "type": "FLOAT"
+    },
+    "claim_diagnosis_ref_3": {
+     "index": 16,
+     "name": "claim_diagnosis_ref_3",
+     "type": "FLOAT"
+    },
+    "claim_diagnosis_ref_4": {
+     "index": 17,
+     "name": "claim_diagnosis_ref_4",
+     "type": "FLOAT"
+    },
+    "claim_id": {
+     "index": 2,
+     "name": "claim_id",
+     "type": "VARCHAR"
+    },
+    "claim_transaction_id": {
+     "index": 1,
+     "name": "claim_transaction_id",
+     "type": "VARCHAR"
+    },
+    "claim_transaction_line_note": {
+     "index": 29,
+     "name": "claim_transaction_line_note",
+     "type": "VARCHAR"
+    },
+    "department_id": {
+     "index": 19,
+     "name": "department_id",
+     "type": "FLOAT"
+    },
+    "encounter_id": {
+     "index": 28,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "fee_schedule_id": {
+     "index": 31,
+     "name": "fee_schedule_id",
+     "type": "FLOAT"
+    },
+    "outstanding": {
+     "index": 27,
+     "name": "outstanding",
+     "type": "FLOAT"
+    },
+    "patient_id": {
+     "index": 4,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "patient_insurance_id": {
+     "index": 30,
+     "name": "patient_insurance_id",
+     "type": "VARCHAR"
+    },
+    "payments": {
+     "index": 24,
+     "name": "payments",
+     "type": "FLOAT"
+    },
+    "per_unit_amount": {
+     "index": 21,
+     "name": "per_unit_amount",
+     "type": "FLOAT"
+    },
+    "place_of_service": {
+     "index": 10,
+     "name": "place_of_service",
+     "type": "VARCHAR"
+    },
+    "procedure_code": {
+     "index": 11,
+     "name": "procedure_code",
+     "type": "VARCHAR"
+    },
+    "procedure_code_modifier_1": {
+     "index": 12,
+     "name": "procedure_code_modifier_1",
+     "type": "VARCHAR"
+    },
+    "procedure_code_modifier_2": {
+     "index": 13,
+     "name": "procedure_code_modifier_2",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 32,
+     "name": "provider_id",
+     "type": "VARCHAR"
+    },
+    "service_units": {
+     "index": 18,
+     "name": "service_units",
+     "type": "FLOAT"
+    },
+    "supervising_provider_id": {
+     "index": 33,
+     "name": "supervising_provider_id",
+     "type": "VARCHAR"
+    },
+    "transaction_amount": {
+     "index": 6,
+     "name": "transaction_amount",
+     "type": "FLOAT"
+    },
+    "transaction_from_date": {
+     "index": 8,
+     "name": "transaction_from_date",
+     "type": "TIMESTAMP"
+    },
+    "transaction_method": {
+     "index": 7,
+     "name": "transaction_method",
+     "type": "VARCHAR"
+    },
+    "transaction_notes": {
+     "index": 20,
+     "name": "transaction_notes",
+     "type": "VARCHAR"
+    },
+    "transaction_to_date": {
+     "index": 9,
+     "name": "transaction_to_date",
+     "type": "TIMESTAMP"
+    },
+    "transaction_type": {
+     "index": 5,
+     "name": "transaction_type",
+     "type": "VARCHAR"
+    },
+    "transfer_out_id": {
+     "index": 22,
+     "name": "transfer_out_id",
+     "type": "FLOAT"
+    },
+    "transfer_type": {
+     "index": 23,
+     "name": "transfer_type",
+     "type": "VARCHAR"
+    },
+    "transfers": {
+     "index": 26,
+     "name": "transfers",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__conditions": {
+   "columns": {
+    "condition_code": {
+     "index": 5,
+     "name": "condition_code",
+     "type": "VARCHAR"
+    },
+    "condition_description": {
+     "index": 6,
+     "name": "condition_description",
+     "type": "VARCHAR"
+    },
+    "condition_start_date": {
+     "index": 1,
+     "name": "condition_start_date",
+     "type": "DATE"
+    },
+    "condition_stop_date": {
+     "index": 2,
+     "name": "condition_stop_date",
+     "type": "DATE"
+    },
+    "encounter_id": {
+     "index": 4,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 3,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__devices": {
+   "columns": {
+    "device_code": {
+     "index": 7,
+     "name": "device_code",
+     "type": "VARCHAR"
+    },
+    "device_description": {
+     "index": 8,
+     "name": "device_description",
+     "type": "VARCHAR"
+    },
+    "device_start_date": {
+     "index": 2,
+     "name": "device_start_date",
+     "type": "DATE"
+    },
+    "device_start_datetime": {
+     "index": 1,
+     "name": "device_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "device_stop_date": {
+     "index": 4,
+     "name": "device_stop_date",
+     "type": "DATE"
+    },
+    "device_stop_datetime": {
+     "index": 3,
+     "name": "device_stop_datetime",
+     "type": "TIMESTAMP"
+    },
+    "encounter_id": {
+     "index": 6,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 5,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "udi": {
+     "index": 9,
+     "name": "udi",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__encounters": {
+   "columns": {
+    "base_encounter_cost": {
+     "index": 13,
+     "name": "base_encounter_cost",
+     "type": "FLOAT"
+    },
+    "encounter_class": {
+     "index": 10,
+     "name": "encounter_class",
+     "type": "VARCHAR"
+    },
+    "encounter_code": {
+     "index": 11,
+     "name": "encounter_code",
+     "type": "VARCHAR"
+    },
+    "encounter_description": {
+     "index": 12,
+     "name": "encounter_description",
+     "type": "VARCHAR"
+    },
+    "encounter_id": {
+     "index": 1,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "encounter_payer_coverage": {
+     "index": 15,
+     "name": "encounter_payer_coverage",
+     "type": "FLOAT"
+    },
+    "encounter_reason_code": {
+     "index": 16,
+     "name": "encounter_reason_code",
+     "type": "VARCHAR"
+    },
+    "encounter_reason_description": {
+     "index": 17,
+     "name": "encounter_reason_description",
+     "type": "VARCHAR"
+    },
+    "encounter_start_date": {
+     "index": 3,
+     "name": "encounter_start_date",
+     "type": "DATE"
+    },
+    "encounter_start_datetime": {
+     "index": 2,
+     "name": "encounter_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "encounter_stop_date": {
+     "index": 5,
+     "name": "encounter_stop_date",
+     "type": "DATE"
+    },
+    "encounter_stop_datetime": {
+     "index": 4,
+     "name": "encounter_stop_datetime",
+     "type": "TIMESTAMP"
+    },
+    "organization_id": {
+     "index": 7,
+     "name": "organization_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 6,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "payer_id": {
+     "index": 9,
+     "name": "payer_id",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 8,
+     "name": "provider_id",
+     "type": "VARCHAR"
+    },
+    "total_encounter_cost": {
+     "index": 14,
+     "name": "total_encounter_cost",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__imaging_studies": {
+   "columns": {
+    "bodysite_code": {
+     "index": 6,
+     "name": "bodysite_code",
+     "type": "VARCHAR"
+    },
+    "bodysite_description": {
+     "index": 7,
+     "name": "bodysite_description",
+     "type": "VARCHAR"
+    },
+    "encounter_id": {
+     "index": 4,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "imaging_datetime": {
+     "index": 2,
+     "name": "imaging_datetime",
+     "type": "TIMESTAMP"
+    },
+    "imaging_id": {
+     "index": 1,
+     "name": "imaging_id",
+     "type": "VARCHAR"
+    },
+    "imaging_procedure_code": {
+     "index": 13,
+     "name": "imaging_procedure_code",
+     "type": "VARCHAR"
+    },
+    "instance_uid": {
+     "index": 10,
+     "name": "instance_uid",
+     "type": "VARCHAR"
+    },
+    "modality_code": {
+     "index": 8,
+     "name": "modality_code",
+     "type": "VARCHAR"
+    },
+    "modality_description": {
+     "index": 9,
+     "name": "modality_description",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 3,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "series_uid": {
+     "index": 5,
+     "name": "series_uid",
+     "type": "VARCHAR"
+    },
+    "sop_code": {
+     "index": 11,
+     "name": "sop_code",
+     "type": "VARCHAR"
+    },
+    "sop_description": {
+     "index": 12,
+     "name": "sop_description",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__immunizations": {
+   "columns": {
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "immunization_base_cost": {
+     "index": 6,
+     "name": "immunization_base_cost",
+     "type": "FLOAT"
+    },
+    "immunization_code": {
+     "index": 4,
+     "name": "immunization_code",
+     "type": "VARCHAR"
+    },
+    "immunization_date": {
+     "index": 1,
+     "name": "immunization_date",
+     "type": "TIMESTAMP"
+    },
+    "immunization_description": {
+     "index": 5,
+     "name": "immunization_description",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__medications": {
+   "columns": {
+    "dispenses": {
+     "index": 12,
+     "name": "dispenses",
+     "type": "FLOAT"
+    },
+    "encounter_id": {
+     "index": 7,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "medication_base_cost": {
+     "index": 10,
+     "name": "medication_base_cost",
+     "type": "FLOAT"
+    },
+    "medication_code": {
+     "index": 8,
+     "name": "medication_code",
+     "type": "VARCHAR"
+    },
+    "medication_description": {
+     "index": 9,
+     "name": "medication_description",
+     "type": "VARCHAR"
+    },
+    "medication_payer_coverage": {
+     "index": 11,
+     "name": "medication_payer_coverage",
+     "type": "FLOAT"
+    },
+    "medication_reason_code": {
+     "index": 14,
+     "name": "medication_reason_code",
+     "type": "VARCHAR"
+    },
+    "medication_reason_description": {
+     "index": 15,
+     "name": "medication_reason_description",
+     "type": "VARCHAR"
+    },
+    "medication_start_date": {
+     "index": 2,
+     "name": "medication_start_date",
+     "type": "DATE"
+    },
+    "medication_start_datetime": {
+     "index": 1,
+     "name": "medication_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "medication_stop_date": {
+     "index": 4,
+     "name": "medication_stop_date",
+     "type": "DATE"
+    },
+    "medication_stop_datetime": {
+     "index": 3,
+     "name": "medication_stop_datetime",
+     "type": "TIMESTAMP"
+    },
+    "medication_total_cost": {
+     "index": 13,
+     "name": "medication_total_cost",
+     "type": "FLOAT"
+    },
+    "patient_id": {
+     "index": 5,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "payer_id": {
+     "index": 6,
+     "name": "payer_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__observations": {
+   "columns": {
+    "encounter_id": {
+     "index": 4,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "observation_category": {
+     "index": 5,
+     "name": "observation_category",
+     "type": "VARCHAR"
+    },
+    "observation_code": {
+     "index": 6,
+     "name": "observation_code",
+     "type": "VARCHAR"
+    },
+    "observation_date": {
+     "index": 2,
+     "name": "observation_date",
+     "type": "DATE"
+    },
+    "observation_datetime": {
+     "index": 1,
+     "name": "observation_datetime",
+     "type": "TIMESTAMP"
+    },
+    "observation_description": {
+     "index": 7,
+     "name": "observation_description",
+     "type": "VARCHAR"
+    },
+    "observation_units": {
+     "index": 9,
+     "name": "observation_units",
+     "type": "VARCHAR"
+    },
+    "observation_value": {
+     "index": 8,
+     "name": "observation_value",
+     "type": "VARCHAR"
+    },
+    "observation_value_type": {
+     "index": 10,
+     "name": "observation_value_type",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 3,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__organizations": {
+   "columns": {
+    "organization_address": {
+     "index": 3,
+     "name": "organization_address",
+     "type": "VARCHAR"
+    },
+    "organization_city": {
+     "index": 4,
+     "name": "organization_city",
+     "type": "VARCHAR"
+    },
+    "organization_id": {
+     "index": 1,
+     "name": "organization_id",
+     "type": "VARCHAR"
+    },
+    "organization_latitude": {
+     "index": 7,
+     "name": "organization_latitude",
+     "type": "FLOAT"
+    },
+    "organization_longitude": {
+     "index": 8,
+     "name": "organization_longitude",
+     "type": "FLOAT"
+    },
+    "organization_name": {
+     "index": 2,
+     "name": "organization_name",
+     "type": "VARCHAR"
+    },
+    "organization_phone": {
+     "index": 9,
+     "name": "organization_phone",
+     "type": "VARCHAR"
+    },
+    "organization_revenue": {
+     "index": 10,
+     "name": "organization_revenue",
+     "type": "FLOAT"
+    },
+    "organization_state": {
+     "index": 5,
+     "name": "organization_state",
+     "type": "VARCHAR"
+    },
+    "organization_utilization": {
+     "index": 11,
+     "name": "organization_utilization",
+     "type": "FLOAT"
+    },
+    "organization_zip": {
+     "index": 6,
+     "name": "organization_zip",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__patients": {
+   "columns": {
+    "birth_date": {
+     "index": 2,
+     "name": "birth_date",
+     "type": "DATE"
+    },
+    "birthplace": {
+     "index": 16,
+     "name": "birthplace",
+     "type": "VARCHAR"
+    },
+    "death_date": {
+     "index": 3,
+     "name": "death_date",
+     "type": "DATE"
+    },
+    "drivers_license_number": {
+     "index": 5,
+     "name": "drivers_license_number",
+     "type": "VARCHAR"
+    },
+    "ethnicity": {
+     "index": 14,
+     "name": "ethnicity",
+     "type": "VARCHAR"
+    },
+    "healthcare_coverage": {
+     "index": 25,
+     "name": "healthcare_coverage",
+     "type": "FLOAT"
+    },
+    "healthcare_expenses": {
+     "index": 24,
+     "name": "healthcare_expenses",
+     "type": "FLOAT"
+    },
+    "maiden_name": {
+     "index": 11,
+     "name": "maiden_name",
+     "type": "VARCHAR"
+    },
+    "marital_status": {
+     "index": 12,
+     "name": "marital_status",
+     "type": "VARCHAR"
+    },
+    "passport_number": {
+     "index": 6,
+     "name": "passport_number",
+     "type": "VARCHAR"
+    },
+    "patient_address": {
+     "index": 17,
+     "name": "patient_address",
+     "type": "VARCHAR"
+    },
+    "patient_city": {
+     "index": 18,
+     "name": "patient_city",
+     "type": "VARCHAR"
+    },
+    "patient_county": {
+     "index": 20,
+     "name": "patient_county",
+     "type": "VARCHAR"
+    },
+    "patient_first_name": {
+     "index": 8,
+     "name": "patient_first_name",
+     "type": "VARCHAR"
+    },
+    "patient_gender": {
+     "index": 15,
+     "name": "patient_gender",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 1,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "patient_last_name": {
+     "index": 9,
+     "name": "patient_last_name",
+     "type": "VARCHAR"
+    },
+    "patient_latitude": {
+     "index": 22,
+     "name": "patient_latitude",
+     "type": "FLOAT"
+    },
+    "patient_longitude": {
+     "index": 23,
+     "name": "patient_longitude",
+     "type": "FLOAT"
+    },
+    "patient_prefix": {
+     "index": 7,
+     "name": "patient_prefix",
+     "type": "VARCHAR"
+    },
+    "patient_state": {
+     "index": 19,
+     "name": "patient_state",
+     "type": "VARCHAR"
+    },
+    "patient_suffix": {
+     "index": 10,
+     "name": "patient_suffix",
+     "type": "VARCHAR"
+    },
+    "patient_zip": {
+     "index": 21,
+     "name": "patient_zip",
+     "type": "VARCHAR"
+    },
+    "race": {
+     "index": 13,
+     "name": "race",
+     "type": "VARCHAR"
+    },
+    "ssn": {
+     "index": 4,
+     "name": "ssn",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__payer_transitions": {
+   "columns": {
+    "coverage_end_date": {
+     "index": 6,
+     "name": "coverage_end_date",
+     "type": "DATE"
+    },
+    "coverage_end_datetime": {
+     "index": 5,
+     "name": "coverage_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "coverage_start_date": {
+     "index": 4,
+     "name": "coverage_start_date",
+     "type": "DATE"
+    },
+    "coverage_start_datetime": {
+     "index": 3,
+     "name": "coverage_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "member_id": {
+     "index": 2,
+     "name": "member_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 1,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "payer_id": {
+     "index": 7,
+     "name": "payer_id",
+     "type": "VARCHAR"
+    },
+    "plan_owner_name": {
+     "index": 10,
+     "name": "plan_owner_name",
+     "type": "VARCHAR"
+    },
+    "plan_owner_relationship": {
+     "index": 9,
+     "name": "plan_owner_relationship",
+     "type": "VARCHAR"
+    },
+    "secondary_payer_id": {
+     "index": 8,
+     "name": "secondary_payer_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__payers": {
+   "columns": {
+    "covered_encounters": {
+     "index": 10,
+     "name": "covered_encounters",
+     "type": "FLOAT"
+    },
+    "covered_immunizations": {
+     "index": 16,
+     "name": "covered_immunizations",
+     "type": "FLOAT"
+    },
+    "covered_medications": {
+     "index": 12,
+     "name": "covered_medications",
+     "type": "FLOAT"
+    },
+    "covered_procedures": {
+     "index": 14,
+     "name": "covered_procedures",
+     "type": "FLOAT"
+    },
+    "payer_amount_covered": {
+     "index": 7,
+     "name": "payer_amount_covered",
+     "type": "FLOAT"
+    },
+    "payer_amount_uncovered": {
+     "index": 8,
+     "name": "payer_amount_uncovered",
+     "type": "FLOAT"
+    },
+    "payer_city": {
+     "index": 3,
+     "name": "payer_city",
+     "type": "VARCHAR"
+    },
+    "payer_id": {
+     "index": 1,
+     "name": "payer_id",
+     "type": "VARCHAR"
+    },
+    "payer_member_months": {
+     "index": 20,
+     "name": "payer_member_months",
+     "type": "FLOAT"
+    },
+    "payer_name": {
+     "index": 2,
+     "name": "payer_name",
+     "type": "VARCHAR"
+    },
+    "payer_phone": {
+     "index": 6,
+     "name": "payer_phone",
+     "type": "VARCHAR"
+    },
+    "payer_revenue": {
+     "index": 9,
+     "name": "payer_revenue",
+     "type": "FLOAT"
+    },
+    "payer_state_headquartered": {
+     "index": 4,
+     "name": "payer_state_headquartered",
+     "type": "VARCHAR"
+    },
+    "payer_zip": {
+     "index": 5,
+     "name": "payer_zip",
+     "type": "VARCHAR"
+    },
+    "qols_avg": {
+     "index": 19,
+     "name": "qols_avg",
+     "type": "FLOAT"
+    },
+    "uncovered_encounters": {
+     "index": 11,
+     "name": "uncovered_encounters",
+     "type": "FLOAT"
+    },
+    "uncovered_immunizations": {
+     "index": 17,
+     "name": "uncovered_immunizations",
+     "type": "FLOAT"
+    },
+    "uncovered_medications": {
+     "index": 13,
+     "name": "uncovered_medications",
+     "type": "FLOAT"
+    },
+    "uncovered_procedures": {
+     "index": 15,
+     "name": "uncovered_procedures",
+     "type": "FLOAT"
+    },
+    "unique_customers": {
+     "index": 18,
+     "name": "unique_customers",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__procedures": {
+   "columns": {
+    "encounter_id": {
+     "index": 6,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 5,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "procedure_base_cost": {
+     "index": 9,
+     "name": "procedure_base_cost",
+     "type": "FLOAT"
+    },
+    "procedure_code": {
+     "index": 7,
+     "name": "procedure_code",
+     "type": "VARCHAR"
+    },
+    "procedure_description": {
+     "index": 8,
+     "name": "procedure_description",
+     "type": "VARCHAR"
+    },
+    "procedure_reason_code": {
+     "index": 10,
+     "name": "procedure_reason_code",
+     "type": "VARCHAR"
+    },
+    "procedure_reason_description": {
+     "index": 11,
+     "name": "procedure_reason_description",
+     "type": "VARCHAR"
+    },
+    "procedure_start_date": {
+     "index": 2,
+     "name": "procedure_start_date",
+     "type": "DATE"
+    },
+    "procedure_start_datetime": {
+     "index": 1,
+     "name": "procedure_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "procedure_stop_date": {
+     "index": 4,
+     "name": "procedure_stop_date",
+     "type": "DATE"
+    },
+    "procedure_stop_datetime": {
+     "index": 3,
+     "name": "procedure_stop_datetime",
+     "type": "TIMESTAMP"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__providers": {
+   "columns": {
+    "organization_id": {
+     "index": 2,
+     "name": "organization_id",
+     "type": "VARCHAR"
+    },
+    "provider_address": {
+     "index": 6,
+     "name": "provider_address",
+     "type": "VARCHAR"
+    },
+    "provider_city": {
+     "index": 7,
+     "name": "provider_city",
+     "type": "VARCHAR"
+    },
+    "provider_gender": {
+     "index": 4,
+     "name": "provider_gender",
+     "type": "VARCHAR"
+    },
+    "provider_id": {
+     "index": 1,
+     "name": "provider_id",
+     "type": "VARCHAR"
+    },
+    "provider_latitude": {
+     "index": 10,
+     "name": "provider_latitude",
+     "type": "FLOAT"
+    },
+    "provider_longitude": {
+     "index": 11,
+     "name": "provider_longitude",
+     "type": "FLOAT"
+    },
+    "provider_name": {
+     "index": 3,
+     "name": "provider_name",
+     "type": "VARCHAR"
+    },
+    "provider_specialty": {
+     "index": 5,
+     "name": "provider_specialty",
+     "type": "VARCHAR"
+    },
+    "provider_state": {
+     "index": 8,
+     "name": "provider_state",
+     "type": "VARCHAR"
+    },
+    "provider_utilization": {
+     "index": 12,
+     "name": "provider_utilization",
+     "type": "FLOAT"
+    },
+    "provider_zip": {
+     "index": 9,
+     "name": "provider_zip",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_synthea__supplies": {
+   "columns": {
+    "encounter_id": {
+     "index": 3,
+     "name": "encounter_id",
+     "type": "VARCHAR"
+    },
+    "patient_id": {
+     "index": 2,
+     "name": "patient_id",
+     "type": "VARCHAR"
+    },
+    "supply_code": {
+     "index": 4,
+     "name": "supply_code",
+     "type": "VARCHAR"
+    },
+    "supply_date": {
+     "index": 1,
+     "name": "supply_date",
+     "type": "DATE"
+    },
+    "supply_description": {
+     "index": 5,
+     "name": "supply_description",
+     "type": "VARCHAR"
+    },
+    "supply_quantity": {
+     "index": 6,
+     "name": "supply_quantity",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__concept": {
+   "columns": {
+    "concept_class_id": {
+     "index": 5,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_code": {
+     "index": 7,
+     "name": "concept_code",
+     "type": "VARCHAR"
+    },
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_name": {
+     "index": 2,
+     "name": "concept_name",
+     "type": "VARCHAR"
+    },
+    "domain_id": {
+     "index": 3,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "invalid_reason": {
+     "index": 10,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "standard_concept": {
+     "index": 6,
+     "name": "standard_concept",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 9,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 8,
+     "name": "valid_start_date",
+     "type": "DATE"
+    },
+    "vocabulary_id": {
+     "index": 4,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__concept_ancestor": {
+   "columns": {
+    "ancestor_concept_id": {
+     "index": 1,
+     "name": "ancestor_concept_id",
+     "type": "INTEGER"
+    },
+    "descendant_concept_id": {
+     "index": 2,
+     "name": "descendant_concept_id",
+     "type": "INTEGER"
+    },
+    "max_levels_of_separation": {
+     "index": 4,
+     "name": "max_levels_of_separation",
+     "type": "INTEGER"
+    },
+    "min_levels_of_separation": {
+     "index": 3,
+     "name": "min_levels_of_separation",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__concept_class": {
+   "columns": {
+    "concept_class_concept_id": {
+     "index": 3,
+     "name": "concept_class_concept_id",
+     "type": "INTEGER"
+    },
+    "concept_class_id": {
+     "index": 1,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_class_name": {
+     "index": 2,
+     "name": "concept_class_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__concept_relationship": {
+   "columns": {
+    "concept_id_1": {
+     "index": 1,
+     "name": "concept_id_1",
+     "type": "INTEGER"
+    },
+    "concept_id_2": {
+     "index": 2,
+     "name": "concept_id_2",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 6,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "relationship_id": {
+     "index": 3,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 5,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 4,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__concept_synonym": {
+   "columns": {
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_synonym_name": {
+     "index": 2,
+     "name": "concept_synonym_name",
+     "type": "VARCHAR"
+    },
+    "language_concept_id": {
+     "index": 3,
+     "name": "language_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__domain": {
+   "columns": {
+    "domain_concept_id": {
+     "index": 3,
+     "name": "domain_concept_id",
+     "type": "INTEGER"
+    },
+    "domain_id": {
+     "index": 1,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "domain_name": {
+     "index": 2,
+     "name": "domain_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__drug_strength": {
+   "columns": {
+    "amount_unit_concept_id": {
+     "index": 4,
+     "name": "amount_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "amount_value": {
+     "index": 3,
+     "name": "amount_value",
+     "type": "FLOAT"
+    },
+    "box_size": {
+     "index": 9,
+     "name": "box_size",
+     "type": "INTEGER"
+    },
+    "denominator_unit_concept_id": {
+     "index": 8,
+     "name": "denominator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "denominator_value": {
+     "index": 7,
+     "name": "denominator_value",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 1,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "ingredient_concept_id": {
+     "index": 2,
+     "name": "ingredient_concept_id",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 12,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "numerator_unit_concept_id": {
+     "index": 6,
+     "name": "numerator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "numerator_value": {
+     "index": 5,
+     "name": "numerator_value",
+     "type": "FLOAT"
+    },
+    "valid_end_date": {
+     "index": 11,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 10,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__relationship": {
+   "columns": {
+    "defines_ancestry": {
+     "index": 4,
+     "name": "defines_ancestry",
+     "type": "VARCHAR"
+    },
+    "is_hierarchical": {
+     "index": 3,
+     "name": "is_hierarchical",
+     "type": "VARCHAR"
+    },
+    "relationship_concept_id": {
+     "index": 6,
+     "name": "relationship_concept_id",
+     "type": "INTEGER"
+    },
+    "relationship_id": {
+     "index": 1,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "relationship_name": {
+     "index": 2,
+     "name": "relationship_name",
+     "type": "VARCHAR"
+    },
+    "reverse_relationship_id": {
+     "index": 5,
+     "name": "reverse_relationship_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__source_to_concept_map": {
+   "columns": {
+    "invalid_reason": {
+     "index": 14,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 4,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_class_id": {
+     "index": 6,
+     "name": "source_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_domain_id": {
+     "index": 5,
+     "name": "source_domain_id",
+     "type": "VARCHAR"
+    },
+    "source_vocabulary_id": {
+     "index": 3,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_class_id": {
+     "index": 11,
+     "name": "target_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 7,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_concept_name": {
+     "index": 8,
+     "name": "target_concept_name",
+     "type": "VARCHAR"
+    },
+    "target_domain_id": {
+     "index": 10,
+     "name": "target_domain_id",
+     "type": "VARCHAR"
+    },
+    "target_vocabulary_id": {
+     "index": 9,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 13,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 12,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "model.synthea_omop_etl.stg_vocabulary__vocabulary": {
+   "columns": {
+    "vocabulary_concept_id": {
+     "index": 5,
+     "name": "vocabulary_concept_id",
+     "type": "INTEGER"
+    },
+    "vocabulary_id": {
+     "index": 1,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "vocabulary_name": {
+     "index": 2,
+     "name": "vocabulary_name",
+     "type": "VARCHAR"
+    },
+    "vocabulary_reference": {
+     "index": 3,
+     "name": "vocabulary_reference",
+     "type": "VARCHAR"
+    },
+    "vocabulary_version": {
+     "index": 4,
+     "name": "vocabulary_version",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "model.synthea_omop_etl.visit_detail": {
+   "columns": {
+    "admitted_from_concept_id": {
+     "index": 11,
+     "name": "admitted_from_concept_id",
+     "type": "INTEGER"
+    },
+    "admitted_from_source_value": {
+     "index": 16,
+     "name": "admitted_from_source_value",
+     "type": "VARCHAR"
+    },
+    "care_site_id": {
+     "index": 10,
+     "name": "care_site_id",
+     "type": "INTEGER"
+    },
+    "discharged_to_concept_id": {
+     "index": 12,
+     "name": "discharged_to_concept_id",
+     "type": "INTEGER"
+    },
+    "discharged_to_source_value": {
+     "index": 17,
+     "name": "discharged_to_source_value",
+     "type": "VARCHAR"
+    },
+    "parent_visit_detail_id": {
+     "index": 18,
+     "name": "parent_visit_detail_id",
+     "type": "INTEGER"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "preceding_visit_detail_id": {
+     "index": 13,
+     "name": "preceding_visit_detail_id",
+     "type": "INTEGER"
+    },
+    "provider_id": {
+     "index": 9,
+     "name": "provider_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_concept_id": {
+     "index": 3,
+     "name": "visit_detail_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_detail_end_date": {
+     "index": 6,
+     "name": "visit_detail_end_date",
+     "type": "DATE"
+    },
+    "visit_detail_end_datetime": {
+     "index": 7,
+     "name": "visit_detail_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_detail_id": {
+     "index": 1,
+     "name": "visit_detail_id",
+     "type": "BIGINT"
+    },
+    "visit_detail_source_concept_id": {
+     "index": 15,
+     "name": "visit_detail_source_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_detail_source_value": {
+     "index": 14,
+     "name": "visit_detail_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_detail_start_date": {
+     "index": 4,
+     "name": "visit_detail_start_date",
+     "type": "DATE"
+    },
+    "visit_detail_start_datetime": {
+     "index": 5,
+     "name": "visit_detail_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_detail_type_concept_id": {
+     "index": 8,
+     "name": "visit_detail_type_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_occurrence_id": {
+     "index": 19,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    }
+   }
+  },
+  "model.synthea_omop_etl.visit_occurrence": {
+   "columns": {
+    "admitted_from_concept_id": {
+     "index": 13,
+     "name": "admitted_from_concept_id",
+     "type": "INTEGER"
+    },
+    "admitted_from_source_value": {
+     "index": 14,
+     "name": "admitted_from_source_value",
+     "type": "VARCHAR"
+    },
+    "care_site_id": {
+     "index": 10,
+     "name": "care_site_id",
+     "type": "INTEGER"
+    },
+    "discharged_to_concept_id": {
+     "index": 15,
+     "name": "discharged_to_concept_id",
+     "type": "INTEGER"
+    },
+    "discharged_to_source_value": {
+     "index": 16,
+     "name": "discharged_to_source_value",
+     "type": "VARCHAR"
+    },
+    "person_id": {
+     "index": 2,
+     "name": "person_id",
+     "type": "BIGINT"
+    },
+    "preceding_visit_occurrence_id": {
+     "index": 17,
+     "name": "preceding_visit_occurrence_id",
+     "type": "INTEGER"
+    },
+    "provider_id": {
+     "index": 9,
+     "name": "provider_id",
+     "type": "INTEGER"
+    },
+    "visit_concept_id": {
+     "index": 3,
+     "name": "visit_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_end_date": {
+     "index": 6,
+     "name": "visit_end_date",
+     "type": "DATE"
+    },
+    "visit_end_datetime": {
+     "index": 7,
+     "name": "visit_end_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_occurrence_id": {
+     "index": 1,
+     "name": "visit_occurrence_id",
+     "type": "BIGINT"
+    },
+    "visit_source_concept_id": {
+     "index": 12,
+     "name": "visit_source_concept_id",
+     "type": "INTEGER"
+    },
+    "visit_source_value": {
+     "index": 11,
+     "name": "visit_source_value",
+     "type": "VARCHAR"
+    },
+    "visit_start_date": {
+     "index": 4,
+     "name": "visit_start_date",
+     "type": "DATE"
+    },
+    "visit_start_datetime": {
+     "index": 5,
+     "name": "visit_start_datetime",
+     "type": "TIMESTAMP"
+    },
+    "visit_type_concept_id": {
+     "index": 8,
+     "name": "visit_type_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "model.synthea_omop_etl.vocabulary": {
+   "columns": {
+    "vocabulary_concept_id": {
+     "index": 5,
+     "name": "vocabulary_concept_id",
+     "type": "INTEGER"
+    },
+    "vocabulary_id": {
+     "index": 1,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "vocabulary_name": {
+     "index": 2,
+     "name": "vocabulary_name",
+     "type": "VARCHAR"
+    },
+    "vocabulary_reference": {
+     "index": 3,
+     "name": "vocabulary_reference",
+     "type": "VARCHAR"
+    },
+    "vocabulary_version": {
+     "index": 4,
+     "name": "vocabulary_version",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.allergies": {
+   "columns": {
+    "CATEGORY": {
+     "index": 9,
+     "name": "CATEGORY",
+     "type": "VARCHAR"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION1": {
+     "index": 11,
+     "name": "DESCRIPTION1",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION2": {
+     "index": 14,
+     "name": "DESCRIPTION2",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REACTION1": {
+     "index": 10,
+     "name": "REACTION1",
+     "type": "VARCHAR"
+    },
+    "REACTION2": {
+     "index": 13,
+     "name": "REACTION2",
+     "type": "VARCHAR"
+    },
+    "SEVERITY1": {
+     "index": 12,
+     "name": "SEVERITY1",
+     "type": "VARCHAR"
+    },
+    "SEVERITY2": {
+     "index": 15,
+     "name": "SEVERITY2",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "DATE"
+    },
+    "SYSTEM": {
+     "index": 6,
+     "name": "SYSTEM",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 8,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.careplans": {
+   "columns": {
+    "CODE": {
+     "index": 6,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 5,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 4,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 8,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 9,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 2,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 3,
+     "name": "STOP",
+     "type": "DATE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.claims": {
+   "columns": {
+    "APPOINTMENTID": {
+     "index": 17,
+     "name": "APPOINTMENTID",
+     "type": "VARCHAR"
+    },
+    "CURRENTILLNESSDATE": {
+     "index": 18,
+     "name": "CURRENTILLNESSDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DEPARTMENTID": {
+     "index": 6,
+     "name": "DEPARTMENTID",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS1": {
+     "index": 8,
+     "name": "DIAGNOSIS1",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS2": {
+     "index": 9,
+     "name": "DIAGNOSIS2",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS3": {
+     "index": 10,
+     "name": "DIAGNOSIS3",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS4": {
+     "index": 11,
+     "name": "DIAGNOSIS4",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS5": {
+     "index": 12,
+     "name": "DIAGNOSIS5",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS6": {
+     "index": 13,
+     "name": "DIAGNOSIS6",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS7": {
+     "index": 14,
+     "name": "DIAGNOSIS7",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS8": {
+     "index": 15,
+     "name": "DIAGNOSIS8",
+     "type": "VARCHAR"
+    },
+    "HEALTHCARECLAIMTYPEID1": {
+     "index": 30,
+     "name": "HEALTHCARECLAIMTYPEID1",
+     "type": "FLOAT"
+    },
+    "HEALTHCARECLAIMTYPEID2": {
+     "index": 31,
+     "name": "HEALTHCARECLAIMTYPEID2",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LASTBILLEDDATE1": {
+     "index": 27,
+     "name": "LASTBILLEDDATE1",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "LASTBILLEDDATE2": {
+     "index": 28,
+     "name": "LASTBILLEDDATE2",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "LASTBILLEDDATEP": {
+     "index": 29,
+     "name": "LASTBILLEDDATEP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "OUTSTANDING1": {
+     "index": 24,
+     "name": "OUTSTANDING1",
+     "type": "FLOAT"
+    },
+    "OUTSTANDING2": {
+     "index": 25,
+     "name": "OUTSTANDING2",
+     "type": "FLOAT"
+    },
+    "OUTSTANDINGP": {
+     "index": 26,
+     "name": "OUTSTANDINGP",
+     "type": "FLOAT"
+    },
+    "PATIENTDEPARTMENTID": {
+     "index": 7,
+     "name": "PATIENTDEPARTMENTID",
+     "type": "VARCHAR"
+    },
+    "PATIENTID": {
+     "index": 2,
+     "name": "PATIENTID",
+     "type": "VARCHAR"
+    },
+    "PRIMARYPATIENTINSURANCEID": {
+     "index": 4,
+     "name": "PRIMARYPATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "PROVIDERID": {
+     "index": 3,
+     "name": "PROVIDERID",
+     "type": "VARCHAR"
+    },
+    "REFERRINGPROVIDERID": {
+     "index": 16,
+     "name": "REFERRINGPROVIDERID",
+     "type": "VARCHAR"
+    },
+    "SECONDARYPATIENTINSURANCEID": {
+     "index": 5,
+     "name": "SECONDARYPATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "SERVICEDATE": {
+     "index": 19,
+     "name": "SERVICEDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STATUS1": {
+     "index": 21,
+     "name": "STATUS1",
+     "type": "VARCHAR"
+    },
+    "STATUS2": {
+     "index": 22,
+     "name": "STATUS2",
+     "type": "VARCHAR"
+    },
+    "STATUSP": {
+     "index": 23,
+     "name": "STATUSP",
+     "type": "VARCHAR"
+    },
+    "SUPERVISINGPROVIDERID": {
+     "index": 20,
+     "name": "SUPERVISINGPROVIDERID",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.claims_transactions": {
+   "columns": {
+    "ADJUSTMENTS": {
+     "index": 25,
+     "name": "ADJUSTMENTS",
+     "type": "FLOAT"
+    },
+    "AMOUNT": {
+     "index": 6,
+     "name": "AMOUNT",
+     "type": "FLOAT"
+    },
+    "APPOINTMENTID": {
+     "index": 28,
+     "name": "APPOINTMENTID",
+     "type": "VARCHAR"
+    },
+    "CHARGEID": {
+     "index": 3,
+     "name": "CHARGEID",
+     "type": "FLOAT"
+    },
+    "CLAIMID": {
+     "index": 2,
+     "name": "CLAIMID",
+     "type": "VARCHAR"
+    },
+    "DEPARTMENTID": {
+     "index": 19,
+     "name": "DEPARTMENTID",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF1": {
+     "index": 14,
+     "name": "DIAGNOSISREF1",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF2": {
+     "index": 15,
+     "name": "DIAGNOSISREF2",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF3": {
+     "index": 16,
+     "name": "DIAGNOSISREF3",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF4": {
+     "index": 17,
+     "name": "DIAGNOSISREF4",
+     "type": "FLOAT"
+    },
+    "FEESCHEDULEID": {
+     "index": 31,
+     "name": "FEESCHEDULEID",
+     "type": "FLOAT"
+    },
+    "FROMDATE": {
+     "index": 8,
+     "name": "FROMDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "ID": {
+     "index": 1,
+     "name": "ID",
+     "type": "VARCHAR"
+    },
+    "LINENOTE": {
+     "index": 29,
+     "name": "LINENOTE",
+     "type": "VARCHAR"
+    },
+    "METHOD": {
+     "index": 7,
+     "name": "METHOD",
+     "type": "VARCHAR"
+    },
+    "MODIFIER1": {
+     "index": 12,
+     "name": "MODIFIER1",
+     "type": "VARCHAR"
+    },
+    "MODIFIER2": {
+     "index": 13,
+     "name": "MODIFIER2",
+     "type": "VARCHAR"
+    },
+    "NOTES": {
+     "index": 20,
+     "name": "NOTES",
+     "type": "VARCHAR"
+    },
+    "OUTSTANDING": {
+     "index": 27,
+     "name": "OUTSTANDING",
+     "type": "FLOAT"
+    },
+    "PATIENTID": {
+     "index": 4,
+     "name": "PATIENTID",
+     "type": "VARCHAR"
+    },
+    "PATIENTINSURANCEID": {
+     "index": 30,
+     "name": "PATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "PAYMENTS": {
+     "index": 24,
+     "name": "PAYMENTS",
+     "type": "FLOAT"
+    },
+    "PLACEOFSERVICE": {
+     "index": 10,
+     "name": "PLACEOFSERVICE",
+     "type": "VARCHAR"
+    },
+    "PROCEDURECODE": {
+     "index": 11,
+     "name": "PROCEDURECODE",
+     "type": "VARCHAR"
+    },
+    "PROVIDERID": {
+     "index": 32,
+     "name": "PROVIDERID",
+     "type": "VARCHAR"
+    },
+    "SUPERVISINGPROVIDERID": {
+     "index": 33,
+     "name": "SUPERVISINGPROVIDERID",
+     "type": "VARCHAR"
+    },
+    "TODATE": {
+     "index": 9,
+     "name": "TODATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TRANSFEROUTID": {
+     "index": 22,
+     "name": "TRANSFEROUTID",
+     "type": "FLOAT"
+    },
+    "TRANSFERS": {
+     "index": 26,
+     "name": "TRANSFERS",
+     "type": "FLOAT"
+    },
+    "TRANSFERTYPE": {
+     "index": 23,
+     "name": "TRANSFERTYPE",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 5,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    },
+    "UNITAMOUNT": {
+     "index": 21,
+     "name": "UNITAMOUNT",
+     "type": "FLOAT"
+    },
+    "UNITS": {
+     "index": 18,
+     "name": "UNITS",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.concept_ancestor_seed": {
+   "columns": {
+    "ancestor_concept_id": {
+     "index": 1,
+     "name": "ancestor_concept_id",
+     "type": "INTEGER"
+    },
+    "descendant_concept_id": {
+     "index": 2,
+     "name": "descendant_concept_id",
+     "type": "INTEGER"
+    },
+    "max_levels_of_separation": {
+     "index": 4,
+     "name": "max_levels_of_separation",
+     "type": "INTEGER"
+    },
+    "min_levels_of_separation": {
+     "index": 3,
+     "name": "min_levels_of_separation",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.concept_class_seed": {
+   "columns": {
+    "concept_class_concept_id": {
+     "index": 3,
+     "name": "concept_class_concept_id",
+     "type": "INTEGER"
+    },
+    "concept_class_id": {
+     "index": 1,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_class_name": {
+     "index": 2,
+     "name": "concept_class_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.concept_relationship_seed": {
+   "columns": {
+    "concept_id_1": {
+     "index": 1,
+     "name": "concept_id_1",
+     "type": "INTEGER"
+    },
+    "concept_id_2": {
+     "index": 2,
+     "name": "concept_id_2",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 6,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "relationship_id": {
+     "index": 3,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 5,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 4,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.concept_seed": {
+   "columns": {
+    "concept_class_id": {
+     "index": 5,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_code": {
+     "index": 7,
+     "name": "concept_code",
+     "type": "VARCHAR"
+    },
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_name": {
+     "index": 2,
+     "name": "concept_name",
+     "type": "VARCHAR"
+    },
+    "domain_id": {
+     "index": 3,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "invalid_reason": {
+     "index": 10,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "standard_concept": {
+     "index": 6,
+     "name": "standard_concept",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 9,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 8,
+     "name": "valid_start_date",
+     "type": "DATE"
+    },
+    "vocabulary_id": {
+     "index": 4,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.concept_synonym_seed": {
+   "columns": {
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_synonym_name": {
+     "index": 2,
+     "name": "concept_synonym_name",
+     "type": "VARCHAR"
+    },
+    "language_concept_id": {
+     "index": 3,
+     "name": "language_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.conditions": {
+   "columns": {
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "DATE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.devices": {
+   "columns": {
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "UDI": {
+     "index": 7,
+     "name": "UDI",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.domain_seed": {
+   "columns": {
+    "domain_concept_id": {
+     "index": 3,
+     "name": "domain_concept_id",
+     "type": "INTEGER"
+    },
+    "domain_id": {
+     "index": 1,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "domain_name": {
+     "index": 2,
+     "name": "domain_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.drug_strength_seed": {
+   "columns": {
+    "amount_unit_concept_id": {
+     "index": 4,
+     "name": "amount_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "amount_value": {
+     "index": 3,
+     "name": "amount_value",
+     "type": "FLOAT"
+    },
+    "box_size": {
+     "index": 9,
+     "name": "box_size",
+     "type": "INTEGER"
+    },
+    "denominator_unit_concept_id": {
+     "index": 8,
+     "name": "denominator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "denominator_value": {
+     "index": 7,
+     "name": "denominator_value",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 1,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "ingredient_concept_id": {
+     "index": 2,
+     "name": "ingredient_concept_id",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 12,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "numerator_unit_concept_id": {
+     "index": 6,
+     "name": "numerator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "numerator_value": {
+     "index": 5,
+     "name": "numerator_value",
+     "type": "FLOAT"
+    },
+    "valid_end_date": {
+     "index": 11,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 10,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.encounters": {
+   "columns": {
+    "BASE_ENCOUNTER_COST": {
+     "index": 11,
+     "name": "BASE_ENCOUNTER_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 9,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 10,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTERCLASS": {
+     "index": 8,
+     "name": "ENCOUNTERCLASS",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "ORGANIZATION": {
+     "index": 5,
+     "name": "ORGANIZATION",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 4,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 7,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "PAYER_COVERAGE": {
+     "index": 13,
+     "name": "PAYER_COVERAGE",
+     "type": "FLOAT"
+    },
+    "PROVIDER": {
+     "index": 6,
+     "name": "PROVIDER",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 14,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 15,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 2,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 3,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TOTAL_CLAIM_COST": {
+     "index": 12,
+     "name": "TOTAL_CLAIM_COST",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.imaging_studies": {
+   "columns": {
+    "BODYSITE_CODE": {
+     "index": 6,
+     "name": "BODYSITE_CODE",
+     "type": "VARCHAR"
+    },
+    "BODYSITE_DESCRIPTION": {
+     "index": 7,
+     "name": "BODYSITE_DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 2,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "INSTANCE_UID": {
+     "index": 10,
+     "name": "INSTANCE_UID",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "MODALITY_CODE": {
+     "index": 8,
+     "name": "MODALITY_CODE",
+     "type": "VARCHAR"
+    },
+    "MODALITY_DESCRIPTION": {
+     "index": 9,
+     "name": "MODALITY_DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PROCEDURE_CODE": {
+     "index": 13,
+     "name": "PROCEDURE_CODE",
+     "type": "VARCHAR"
+    },
+    "SERIES_UID": {
+     "index": 5,
+     "name": "SERIES_UID",
+     "type": "VARCHAR"
+    },
+    "SOP_CODE": {
+     "index": 11,
+     "name": "SOP_CODE",
+     "type": "VARCHAR"
+    },
+    "SOP_DESCRIPTION": {
+     "index": 12,
+     "name": "SOP_DESCRIPTION",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.immunizations": {
+   "columns": {
+    "BASE_COST": {
+     "index": 6,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 4,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DESCRIPTION": {
+     "index": 5,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.medications": {
+   "columns": {
+    "BASE_COST": {
+     "index": 8,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 6,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DISPENSES": {
+     "index": 10,
+     "name": "DISPENSES",
+     "type": "FLOAT"
+    },
+    "ENCOUNTER": {
+     "index": 5,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 4,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "PAYER_COVERAGE": {
+     "index": 9,
+     "name": "PAYER_COVERAGE",
+     "type": "FLOAT"
+    },
+    "REASONCODE": {
+     "index": 12,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 13,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TOTALCOST": {
+     "index": 11,
+     "name": "TOTALCOST",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.observations": {
+   "columns": {
+    "CATEGORY": {
+     "index": 4,
+     "name": "CATEGORY",
+     "type": "VARCHAR"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 9,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    },
+    "UNITS": {
+     "index": 8,
+     "name": "UNITS",
+     "type": "VARCHAR"
+    },
+    "VALUE": {
+     "index": 7,
+     "name": "VALUE",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.organizations": {
+   "columns": {
+    "ADDRESS": {
+     "index": 3,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 4,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 7,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 8,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 2,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "PHONE": {
+     "index": 9,
+     "name": "PHONE",
+     "type": "VARCHAR"
+    },
+    "REVENUE": {
+     "index": 10,
+     "name": "REVENUE",
+     "type": "FLOAT"
+    },
+    "STATE": {
+     "index": 5,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "UTILIZATION": {
+     "index": 11,
+     "name": "UTILIZATION",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 6,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.patients": {
+   "columns": {
+    "ADDRESS": {
+     "index": 17,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "BIRTHDATE": {
+     "index": 2,
+     "name": "BIRTHDATE",
+     "type": "DATE"
+    },
+    "BIRTHPLACE": {
+     "index": 16,
+     "name": "BIRTHPLACE",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 18,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "COUNTY": {
+     "index": 20,
+     "name": "COUNTY",
+     "type": "VARCHAR"
+    },
+    "DEATHDATE": {
+     "index": 3,
+     "name": "DEATHDATE",
+     "type": "DATE"
+    },
+    "DRIVERS": {
+     "index": 5,
+     "name": "DRIVERS",
+     "type": "VARCHAR"
+    },
+    "ETHNICITY": {
+     "index": 14,
+     "name": "ETHNICITY",
+     "type": "VARCHAR"
+    },
+    "FIRST": {
+     "index": 8,
+     "name": "FIRST",
+     "type": "VARCHAR"
+    },
+    "GENDER": {
+     "index": 15,
+     "name": "GENDER",
+     "type": "VARCHAR"
+    },
+    "HEALTHCARE_COVERAGE": {
+     "index": 25,
+     "name": "HEALTHCARE_COVERAGE",
+     "type": "FLOAT"
+    },
+    "HEALTHCARE_EXPENSES": {
+     "index": 24,
+     "name": "HEALTHCARE_EXPENSES",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAST": {
+     "index": 9,
+     "name": "LAST",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 22,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 23,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "MAIDEN": {
+     "index": 11,
+     "name": "MAIDEN",
+     "type": "VARCHAR"
+    },
+    "MARITAL": {
+     "index": 12,
+     "name": "MARITAL",
+     "type": "VARCHAR"
+    },
+    "PASSPORT": {
+     "index": 6,
+     "name": "PASSPORT",
+     "type": "VARCHAR"
+    },
+    "PREFIX": {
+     "index": 7,
+     "name": "PREFIX",
+     "type": "VARCHAR"
+    },
+    "RACE": {
+     "index": 13,
+     "name": "RACE",
+     "type": "VARCHAR"
+    },
+    "SSN": {
+     "index": 4,
+     "name": "SSN",
+     "type": "VARCHAR"
+    },
+    "STATE": {
+     "index": 19,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "SUFFIX": {
+     "index": 10,
+     "name": "SUFFIX",
+     "type": "VARCHAR"
+    },
+    "ZIP": {
+     "index": 21,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.payer_transitions": {
+   "columns": {
+    "END_YEAR": {
+     "index": 4,
+     "name": "END_YEAR",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "MEMBERID": {
+     "index": 2,
+     "name": "MEMBERID",
+     "type": "VARCHAR"
+    },
+    "OWNERNAME": {
+     "index": 8,
+     "name": "OWNERNAME",
+     "type": "VARCHAR"
+    },
+    "OWNERSHIP": {
+     "index": 7,
+     "name": "OWNERSHIP",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 1,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 5,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "SECONDARY_PAYER": {
+     "index": 6,
+     "name": "SECONDARY_PAYER",
+     "type": "VARCHAR"
+    },
+    "START_YEAR": {
+     "index": 3,
+     "name": "START_YEAR",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.payers": {
+   "columns": {
+    "ADDRESS": {
+     "index": 3,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "AMOUNT_COVERED": {
+     "index": 8,
+     "name": "AMOUNT_COVERED",
+     "type": "FLOAT"
+    },
+    "AMOUNT_UNCOVERED": {
+     "index": 9,
+     "name": "AMOUNT_UNCOVERED",
+     "type": "FLOAT"
+    },
+    "CITY": {
+     "index": 4,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "COVERED_ENCOUNTERS": {
+     "index": 11,
+     "name": "COVERED_ENCOUNTERS",
+     "type": "FLOAT"
+    },
+    "COVERED_IMMUNIZATIONS": {
+     "index": 17,
+     "name": "COVERED_IMMUNIZATIONS",
+     "type": "FLOAT"
+    },
+    "COVERED_MEDICATIONS": {
+     "index": 13,
+     "name": "COVERED_MEDICATIONS",
+     "type": "FLOAT"
+    },
+    "COVERED_PROCEDURES": {
+     "index": 15,
+     "name": "COVERED_PROCEDURES",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "MEMBER_MONTHS": {
+     "index": 21,
+     "name": "MEMBER_MONTHS",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 2,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "PHONE": {
+     "index": 7,
+     "name": "PHONE",
+     "type": "VARCHAR"
+    },
+    "QOLS_AVG": {
+     "index": 20,
+     "name": "QOLS_AVG",
+     "type": "FLOAT"
+    },
+    "REVENUE": {
+     "index": 10,
+     "name": "REVENUE",
+     "type": "FLOAT"
+    },
+    "STATE_HEADQUARTERED": {
+     "index": 5,
+     "name": "STATE_HEADQUARTERED",
+     "type": "VARCHAR"
+    },
+    "UNCOVERED_ENCOUNTERS": {
+     "index": 12,
+     "name": "UNCOVERED_ENCOUNTERS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_IMMUNIZATIONS": {
+     "index": 18,
+     "name": "UNCOVERED_IMMUNIZATIONS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_MEDICATIONS": {
+     "index": 14,
+     "name": "UNCOVERED_MEDICATIONS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_PROCEDURES": {
+     "index": 16,
+     "name": "UNCOVERED_PROCEDURES",
+     "type": "FLOAT"
+    },
+    "UNIQUE_CUSTOMERS": {
+     "index": 19,
+     "name": "UNIQUE_CUSTOMERS",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 6,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.procedures": {
+   "columns": {
+    "BASE_COST": {
+     "index": 7,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 8,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 9,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.providers": {
+   "columns": {
+    "ADDRESS": {
+     "index": 6,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 7,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "GENDER": {
+     "index": 4,
+     "name": "GENDER",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 10,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 11,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 3,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "ORGANIZATION": {
+     "index": 2,
+     "name": "ORGANIZATION",
+     "type": "VARCHAR"
+    },
+    "SPECIALITY": {
+     "index": 5,
+     "name": "SPECIALITY",
+     "type": "VARCHAR"
+    },
+    "STATE": {
+     "index": 8,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "UTILIZATION": {
+     "index": 12,
+     "name": "UTILIZATION",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 9,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.relationship_seed": {
+   "columns": {
+    "defines_ancestry": {
+     "index": 4,
+     "name": "defines_ancestry",
+     "type": "VARCHAR"
+    },
+    "is_hierarchical": {
+     "index": 3,
+     "name": "is_hierarchical",
+     "type": "VARCHAR"
+    },
+    "relationship_concept_id": {
+     "index": 6,
+     "name": "relationship_concept_id",
+     "type": "INTEGER"
+    },
+    "relationship_id": {
+     "index": 1,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "relationship_name": {
+     "index": 2,
+     "name": "relationship_name",
+     "type": "VARCHAR"
+    },
+    "reverse_relationship_id": {
+     "index": 5,
+     "name": "reverse_relationship_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.source_to_concept_map_seed": {
+   "columns": {
+    "invalid_reason": {
+     "index": 14,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 4,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_class_id": {
+     "index": 6,
+     "name": "source_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_domain_id": {
+     "index": 5,
+     "name": "source_domain_id",
+     "type": "VARCHAR"
+    },
+    "source_vocabulary_id": {
+     "index": 3,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_class_id": {
+     "index": 11,
+     "name": "target_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 7,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_concept_name": {
+     "index": 8,
+     "name": "target_concept_name",
+     "type": "VARCHAR"
+    },
+    "target_domain_id": {
+     "index": 10,
+     "name": "target_domain_id",
+     "type": "VARCHAR"
+    },
+    "target_vocabulary_id": {
+     "index": 9,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 13,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 12,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.states": {
+   "columns": {
+    "state_abbreviation": {
+     "index": 2,
+     "name": "state_abbreviation",
+     "type": "VARCHAR"
+    },
+    "state_name": {
+     "index": 1,
+     "name": "state_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.supplies": {
+   "columns": {
+    "CODE": {
+     "index": 4,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "DATE"
+    },
+    "DESCRIPTION": {
+     "index": 5,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "QUANTITY": {
+     "index": 6,
+     "name": "QUANTITY",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "seed.synthea_omop_etl.vocabulary_seed": {
+   "columns": {
+    "vocabulary_concept_id": {
+     "index": 5,
+     "name": "vocabulary_concept_id",
+     "type": "INTEGER"
+    },
+    "vocabulary_id": {
+     "index": 1,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "vocabulary_name": {
+     "index": 2,
+     "name": "vocabulary_name",
+     "type": "VARCHAR"
+    },
+    "vocabulary_reference": {
+     "index": 3,
+     "name": "vocabulary_reference",
+     "type": "VARCHAR"
+    },
+    "vocabulary_version": {
+     "index": 4,
+     "name": "vocabulary_version",
+     "type": "VARCHAR"
+    }
+   }
+  }
+ },
+ "sources": {
+  "source.synthea_omop_etl.map.states": {
+   "columns": {
+    "state_abbreviation": {
+     "index": 2,
+     "name": "state_abbreviation",
+     "type": "VARCHAR"
+    },
+    "state_name": {
+     "index": 1,
+     "name": "state_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.allergies": {
+   "columns": {
+    "CATEGORY": {
+     "index": 9,
+     "name": "CATEGORY",
+     "type": "VARCHAR"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION1": {
+     "index": 11,
+     "name": "DESCRIPTION1",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION2": {
+     "index": 14,
+     "name": "DESCRIPTION2",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REACTION1": {
+     "index": 10,
+     "name": "REACTION1",
+     "type": "VARCHAR"
+    },
+    "REACTION2": {
+     "index": 13,
+     "name": "REACTION2",
+     "type": "VARCHAR"
+    },
+    "SEVERITY1": {
+     "index": 12,
+     "name": "SEVERITY1",
+     "type": "VARCHAR"
+    },
+    "SEVERITY2": {
+     "index": 15,
+     "name": "SEVERITY2",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "DATE"
+    },
+    "SYSTEM": {
+     "index": 6,
+     "name": "SYSTEM",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 8,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.careplans": {
+   "columns": {
+    "CODE": {
+     "index": 6,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 5,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 4,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 8,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 9,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 2,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 3,
+     "name": "STOP",
+     "type": "DATE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.claims": {
+   "columns": {
+    "APPOINTMENTID": {
+     "index": 17,
+     "name": "APPOINTMENTID",
+     "type": "VARCHAR"
+    },
+    "CURRENTILLNESSDATE": {
+     "index": 18,
+     "name": "CURRENTILLNESSDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DEPARTMENTID": {
+     "index": 6,
+     "name": "DEPARTMENTID",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS1": {
+     "index": 8,
+     "name": "DIAGNOSIS1",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS2": {
+     "index": 9,
+     "name": "DIAGNOSIS2",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS3": {
+     "index": 10,
+     "name": "DIAGNOSIS3",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS4": {
+     "index": 11,
+     "name": "DIAGNOSIS4",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS5": {
+     "index": 12,
+     "name": "DIAGNOSIS5",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS6": {
+     "index": 13,
+     "name": "DIAGNOSIS6",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS7": {
+     "index": 14,
+     "name": "DIAGNOSIS7",
+     "type": "VARCHAR"
+    },
+    "DIAGNOSIS8": {
+     "index": 15,
+     "name": "DIAGNOSIS8",
+     "type": "VARCHAR"
+    },
+    "HEALTHCARECLAIMTYPEID1": {
+     "index": 30,
+     "name": "HEALTHCARECLAIMTYPEID1",
+     "type": "FLOAT"
+    },
+    "HEALTHCARECLAIMTYPEID2": {
+     "index": 31,
+     "name": "HEALTHCARECLAIMTYPEID2",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LASTBILLEDDATE1": {
+     "index": 27,
+     "name": "LASTBILLEDDATE1",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "LASTBILLEDDATE2": {
+     "index": 28,
+     "name": "LASTBILLEDDATE2",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "LASTBILLEDDATEP": {
+     "index": 29,
+     "name": "LASTBILLEDDATEP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "OUTSTANDING1": {
+     "index": 24,
+     "name": "OUTSTANDING1",
+     "type": "FLOAT"
+    },
+    "OUTSTANDING2": {
+     "index": 25,
+     "name": "OUTSTANDING2",
+     "type": "FLOAT"
+    },
+    "OUTSTANDINGP": {
+     "index": 26,
+     "name": "OUTSTANDINGP",
+     "type": "FLOAT"
+    },
+    "PATIENTDEPARTMENTID": {
+     "index": 7,
+     "name": "PATIENTDEPARTMENTID",
+     "type": "VARCHAR"
+    },
+    "PATIENTID": {
+     "index": 2,
+     "name": "PATIENTID",
+     "type": "VARCHAR"
+    },
+    "PRIMARYPATIENTINSURANCEID": {
+     "index": 4,
+     "name": "PRIMARYPATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "PROVIDERID": {
+     "index": 3,
+     "name": "PROVIDERID",
+     "type": "VARCHAR"
+    },
+    "REFERRINGPROVIDERID": {
+     "index": 16,
+     "name": "REFERRINGPROVIDERID",
+     "type": "VARCHAR"
+    },
+    "SECONDARYPATIENTINSURANCEID": {
+     "index": 5,
+     "name": "SECONDARYPATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "SERVICEDATE": {
+     "index": 19,
+     "name": "SERVICEDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STATUS1": {
+     "index": 21,
+     "name": "STATUS1",
+     "type": "VARCHAR"
+    },
+    "STATUS2": {
+     "index": 22,
+     "name": "STATUS2",
+     "type": "VARCHAR"
+    },
+    "STATUSP": {
+     "index": 23,
+     "name": "STATUSP",
+     "type": "VARCHAR"
+    },
+    "SUPERVISINGPROVIDERID": {
+     "index": 20,
+     "name": "SUPERVISINGPROVIDERID",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.claims_transactions": {
+   "columns": {
+    "ADJUSTMENTS": {
+     "index": 25,
+     "name": "ADJUSTMENTS",
+     "type": "FLOAT"
+    },
+    "AMOUNT": {
+     "index": 6,
+     "name": "AMOUNT",
+     "type": "FLOAT"
+    },
+    "APPOINTMENTID": {
+     "index": 28,
+     "name": "APPOINTMENTID",
+     "type": "VARCHAR"
+    },
+    "CHARGEID": {
+     "index": 3,
+     "name": "CHARGEID",
+     "type": "FLOAT"
+    },
+    "CLAIMID": {
+     "index": 2,
+     "name": "CLAIMID",
+     "type": "VARCHAR"
+    },
+    "DEPARTMENTID": {
+     "index": 19,
+     "name": "DEPARTMENTID",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF1": {
+     "index": 14,
+     "name": "DIAGNOSISREF1",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF2": {
+     "index": 15,
+     "name": "DIAGNOSISREF2",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF3": {
+     "index": 16,
+     "name": "DIAGNOSISREF3",
+     "type": "FLOAT"
+    },
+    "DIAGNOSISREF4": {
+     "index": 17,
+     "name": "DIAGNOSISREF4",
+     "type": "FLOAT"
+    },
+    "FEESCHEDULEID": {
+     "index": 31,
+     "name": "FEESCHEDULEID",
+     "type": "FLOAT"
+    },
+    "FROMDATE": {
+     "index": 8,
+     "name": "FROMDATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "ID": {
+     "index": 1,
+     "name": "ID",
+     "type": "VARCHAR"
+    },
+    "LINENOTE": {
+     "index": 29,
+     "name": "LINENOTE",
+     "type": "VARCHAR"
+    },
+    "METHOD": {
+     "index": 7,
+     "name": "METHOD",
+     "type": "VARCHAR"
+    },
+    "MODIFIER1": {
+     "index": 12,
+     "name": "MODIFIER1",
+     "type": "VARCHAR"
+    },
+    "MODIFIER2": {
+     "index": 13,
+     "name": "MODIFIER2",
+     "type": "VARCHAR"
+    },
+    "NOTES": {
+     "index": 20,
+     "name": "NOTES",
+     "type": "VARCHAR"
+    },
+    "OUTSTANDING": {
+     "index": 27,
+     "name": "OUTSTANDING",
+     "type": "FLOAT"
+    },
+    "PATIENTID": {
+     "index": 4,
+     "name": "PATIENTID",
+     "type": "VARCHAR"
+    },
+    "PATIENTINSURANCEID": {
+     "index": 30,
+     "name": "PATIENTINSURANCEID",
+     "type": "VARCHAR"
+    },
+    "PAYMENTS": {
+     "index": 24,
+     "name": "PAYMENTS",
+     "type": "FLOAT"
+    },
+    "PLACEOFSERVICE": {
+     "index": 10,
+     "name": "PLACEOFSERVICE",
+     "type": "VARCHAR"
+    },
+    "PROCEDURECODE": {
+     "index": 11,
+     "name": "PROCEDURECODE",
+     "type": "VARCHAR"
+    },
+    "PROVIDERID": {
+     "index": 32,
+     "name": "PROVIDERID",
+     "type": "VARCHAR"
+    },
+    "SUPERVISINGPROVIDERID": {
+     "index": 33,
+     "name": "SUPERVISINGPROVIDERID",
+     "type": "VARCHAR"
+    },
+    "TODATE": {
+     "index": 9,
+     "name": "TODATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TRANSFEROUTID": {
+     "index": 22,
+     "name": "TRANSFEROUTID",
+     "type": "FLOAT"
+    },
+    "TRANSFERS": {
+     "index": 26,
+     "name": "TRANSFERS",
+     "type": "FLOAT"
+    },
+    "TRANSFERTYPE": {
+     "index": 23,
+     "name": "TRANSFERTYPE",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 5,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    },
+    "UNITAMOUNT": {
+     "index": 21,
+     "name": "UNITAMOUNT",
+     "type": "FLOAT"
+    },
+    "UNITS": {
+     "index": 18,
+     "name": "UNITS",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.conditions": {
+   "columns": {
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "DATE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "DATE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.devices": {
+   "columns": {
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "UDI": {
+     "index": 7,
+     "name": "UDI",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.encounters": {
+   "columns": {
+    "BASE_ENCOUNTER_COST": {
+     "index": 11,
+     "name": "BASE_ENCOUNTER_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 9,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 10,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTERCLASS": {
+     "index": 8,
+     "name": "ENCOUNTERCLASS",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "ORGANIZATION": {
+     "index": 5,
+     "name": "ORGANIZATION",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 4,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 7,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "PAYER_COVERAGE": {
+     "index": 13,
+     "name": "PAYER_COVERAGE",
+     "type": "FLOAT"
+    },
+    "PROVIDER": {
+     "index": 6,
+     "name": "PROVIDER",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 14,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 15,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 2,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 3,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TOTAL_CLAIM_COST": {
+     "index": 12,
+     "name": "TOTAL_CLAIM_COST",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.imaging_studies": {
+   "columns": {
+    "BODYSITE_CODE": {
+     "index": 6,
+     "name": "BODYSITE_CODE",
+     "type": "VARCHAR"
+    },
+    "BODYSITE_DESCRIPTION": {
+     "index": 7,
+     "name": "BODYSITE_DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 2,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "INSTANCE_UID": {
+     "index": 10,
+     "name": "INSTANCE_UID",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "MODALITY_CODE": {
+     "index": 8,
+     "name": "MODALITY_CODE",
+     "type": "VARCHAR"
+    },
+    "MODALITY_DESCRIPTION": {
+     "index": 9,
+     "name": "MODALITY_DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PROCEDURE_CODE": {
+     "index": 13,
+     "name": "PROCEDURE_CODE",
+     "type": "VARCHAR"
+    },
+    "SERIES_UID": {
+     "index": 5,
+     "name": "SERIES_UID",
+     "type": "VARCHAR"
+    },
+    "SOP_CODE": {
+     "index": 11,
+     "name": "SOP_CODE",
+     "type": "VARCHAR"
+    },
+    "SOP_DESCRIPTION": {
+     "index": 12,
+     "name": "SOP_DESCRIPTION",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.immunizations": {
+   "columns": {
+    "BASE_COST": {
+     "index": 6,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 4,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DESCRIPTION": {
+     "index": 5,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.medications": {
+   "columns": {
+    "BASE_COST": {
+     "index": 8,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 6,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 7,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "DISPENSES": {
+     "index": 10,
+     "name": "DISPENSES",
+     "type": "FLOAT"
+    },
+    "ENCOUNTER": {
+     "index": 5,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 4,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "PAYER_COVERAGE": {
+     "index": 9,
+     "name": "PAYER_COVERAGE",
+     "type": "FLOAT"
+    },
+    "REASONCODE": {
+     "index": 12,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 13,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "TOTALCOST": {
+     "index": 11,
+     "name": "TOTALCOST",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.observations": {
+   "columns": {
+    "CATEGORY": {
+     "index": 4,
+     "name": "CATEGORY",
+     "type": "VARCHAR"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "TYPE": {
+     "index": 9,
+     "name": "TYPE",
+     "type": "VARCHAR"
+    },
+    "UNITS": {
+     "index": 8,
+     "name": "UNITS",
+     "type": "VARCHAR"
+    },
+    "VALUE": {
+     "index": 7,
+     "name": "VALUE",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.organizations": {
+   "columns": {
+    "ADDRESS": {
+     "index": 3,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 4,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 7,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 8,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 2,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "PHONE": {
+     "index": 9,
+     "name": "PHONE",
+     "type": "VARCHAR"
+    },
+    "REVENUE": {
+     "index": 10,
+     "name": "REVENUE",
+     "type": "FLOAT"
+    },
+    "STATE": {
+     "index": 5,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "UTILIZATION": {
+     "index": 11,
+     "name": "UTILIZATION",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 6,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.patients": {
+   "columns": {
+    "ADDRESS": {
+     "index": 17,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "BIRTHDATE": {
+     "index": 2,
+     "name": "BIRTHDATE",
+     "type": "DATE"
+    },
+    "BIRTHPLACE": {
+     "index": 16,
+     "name": "BIRTHPLACE",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 18,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "COUNTY": {
+     "index": 20,
+     "name": "COUNTY",
+     "type": "VARCHAR"
+    },
+    "DEATHDATE": {
+     "index": 3,
+     "name": "DEATHDATE",
+     "type": "DATE"
+    },
+    "DRIVERS": {
+     "index": 5,
+     "name": "DRIVERS",
+     "type": "VARCHAR"
+    },
+    "ETHNICITY": {
+     "index": 14,
+     "name": "ETHNICITY",
+     "type": "VARCHAR"
+    },
+    "FIRST": {
+     "index": 8,
+     "name": "FIRST",
+     "type": "VARCHAR"
+    },
+    "GENDER": {
+     "index": 15,
+     "name": "GENDER",
+     "type": "VARCHAR"
+    },
+    "HEALTHCARE_COVERAGE": {
+     "index": 25,
+     "name": "HEALTHCARE_COVERAGE",
+     "type": "FLOAT"
+    },
+    "HEALTHCARE_EXPENSES": {
+     "index": 24,
+     "name": "HEALTHCARE_EXPENSES",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAST": {
+     "index": 9,
+     "name": "LAST",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 22,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 23,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "MAIDEN": {
+     "index": 11,
+     "name": "MAIDEN",
+     "type": "VARCHAR"
+    },
+    "MARITAL": {
+     "index": 12,
+     "name": "MARITAL",
+     "type": "VARCHAR"
+    },
+    "PASSPORT": {
+     "index": 6,
+     "name": "PASSPORT",
+     "type": "VARCHAR"
+    },
+    "PREFIX": {
+     "index": 7,
+     "name": "PREFIX",
+     "type": "VARCHAR"
+    },
+    "RACE": {
+     "index": 13,
+     "name": "RACE",
+     "type": "VARCHAR"
+    },
+    "SSN": {
+     "index": 4,
+     "name": "SSN",
+     "type": "VARCHAR"
+    },
+    "STATE": {
+     "index": 19,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "SUFFIX": {
+     "index": 10,
+     "name": "SUFFIX",
+     "type": "VARCHAR"
+    },
+    "ZIP": {
+     "index": 21,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.payer_transitions": {
+   "columns": {
+    "END_YEAR": {
+     "index": 4,
+     "name": "END_YEAR",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "MEMBERID": {
+     "index": 2,
+     "name": "MEMBERID",
+     "type": "VARCHAR"
+    },
+    "OWNERNAME": {
+     "index": 8,
+     "name": "OWNERNAME",
+     "type": "VARCHAR"
+    },
+    "OWNERSHIP": {
+     "index": 7,
+     "name": "OWNERSHIP",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 1,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "PAYER": {
+     "index": 5,
+     "name": "PAYER",
+     "type": "VARCHAR"
+    },
+    "SECONDARY_PAYER": {
+     "index": 6,
+     "name": "SECONDARY_PAYER",
+     "type": "VARCHAR"
+    },
+    "START_YEAR": {
+     "index": 3,
+     "name": "START_YEAR",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.payers": {
+   "columns": {
+    "ADDRESS": {
+     "index": 3,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "AMOUNT_COVERED": {
+     "index": 8,
+     "name": "AMOUNT_COVERED",
+     "type": "FLOAT"
+    },
+    "AMOUNT_UNCOVERED": {
+     "index": 9,
+     "name": "AMOUNT_UNCOVERED",
+     "type": "FLOAT"
+    },
+    "CITY": {
+     "index": 4,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "COVERED_ENCOUNTERS": {
+     "index": 11,
+     "name": "COVERED_ENCOUNTERS",
+     "type": "FLOAT"
+    },
+    "COVERED_IMMUNIZATIONS": {
+     "index": 17,
+     "name": "COVERED_IMMUNIZATIONS",
+     "type": "FLOAT"
+    },
+    "COVERED_MEDICATIONS": {
+     "index": 13,
+     "name": "COVERED_MEDICATIONS",
+     "type": "FLOAT"
+    },
+    "COVERED_PROCEDURES": {
+     "index": 15,
+     "name": "COVERED_PROCEDURES",
+     "type": "FLOAT"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "MEMBER_MONTHS": {
+     "index": 21,
+     "name": "MEMBER_MONTHS",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 2,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "PHONE": {
+     "index": 7,
+     "name": "PHONE",
+     "type": "VARCHAR"
+    },
+    "QOLS_AVG": {
+     "index": 20,
+     "name": "QOLS_AVG",
+     "type": "FLOAT"
+    },
+    "REVENUE": {
+     "index": 10,
+     "name": "REVENUE",
+     "type": "FLOAT"
+    },
+    "STATE_HEADQUARTERED": {
+     "index": 5,
+     "name": "STATE_HEADQUARTERED",
+     "type": "VARCHAR"
+    },
+    "UNCOVERED_ENCOUNTERS": {
+     "index": 12,
+     "name": "UNCOVERED_ENCOUNTERS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_IMMUNIZATIONS": {
+     "index": 18,
+     "name": "UNCOVERED_IMMUNIZATIONS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_MEDICATIONS": {
+     "index": 14,
+     "name": "UNCOVERED_MEDICATIONS",
+     "type": "FLOAT"
+    },
+    "UNCOVERED_PROCEDURES": {
+     "index": 16,
+     "name": "UNCOVERED_PROCEDURES",
+     "type": "FLOAT"
+    },
+    "UNIQUE_CUSTOMERS": {
+     "index": 19,
+     "name": "UNIQUE_CUSTOMERS",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 6,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.procedures": {
+   "columns": {
+    "BASE_COST": {
+     "index": 7,
+     "name": "BASE_COST",
+     "type": "FLOAT"
+    },
+    "CODE": {
+     "index": 5,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DESCRIPTION": {
+     "index": 6,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 4,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 3,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "REASONCODE": {
+     "index": 8,
+     "name": "REASONCODE",
+     "type": "VARCHAR"
+    },
+    "REASONDESCRIPTION": {
+     "index": 9,
+     "name": "REASONDESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "START": {
+     "index": 1,
+     "name": "START",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    },
+    "STOP": {
+     "index": 2,
+     "name": "STOP",
+     "type": "TIMESTAMP WITH TIME ZONE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.providers": {
+   "columns": {
+    "ADDRESS": {
+     "index": 6,
+     "name": "ADDRESS",
+     "type": "VARCHAR"
+    },
+    "CITY": {
+     "index": 7,
+     "name": "CITY",
+     "type": "VARCHAR"
+    },
+    "GENDER": {
+     "index": 4,
+     "name": "GENDER",
+     "type": "VARCHAR"
+    },
+    "Id": {
+     "index": 1,
+     "name": "Id",
+     "type": "VARCHAR"
+    },
+    "LAT": {
+     "index": 10,
+     "name": "LAT",
+     "type": "FLOAT"
+    },
+    "LON": {
+     "index": 11,
+     "name": "LON",
+     "type": "FLOAT"
+    },
+    "NAME": {
+     "index": 3,
+     "name": "NAME",
+     "type": "VARCHAR"
+    },
+    "ORGANIZATION": {
+     "index": 2,
+     "name": "ORGANIZATION",
+     "type": "VARCHAR"
+    },
+    "SPECIALITY": {
+     "index": 5,
+     "name": "SPECIALITY",
+     "type": "VARCHAR"
+    },
+    "STATE": {
+     "index": 8,
+     "name": "STATE",
+     "type": "VARCHAR"
+    },
+    "UTILIZATION": {
+     "index": 12,
+     "name": "UTILIZATION",
+     "type": "FLOAT"
+    },
+    "ZIP": {
+     "index": 9,
+     "name": "ZIP",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.synthea.supplies": {
+   "columns": {
+    "CODE": {
+     "index": 4,
+     "name": "CODE",
+     "type": "VARCHAR"
+    },
+    "DATE": {
+     "index": 1,
+     "name": "DATE",
+     "type": "DATE"
+    },
+    "DESCRIPTION": {
+     "index": 5,
+     "name": "DESCRIPTION",
+     "type": "VARCHAR"
+    },
+    "ENCOUNTER": {
+     "index": 3,
+     "name": "ENCOUNTER",
+     "type": "VARCHAR"
+    },
+    "PATIENT": {
+     "index": 2,
+     "name": "PATIENT",
+     "type": "VARCHAR"
+    },
+    "QUANTITY": {
+     "index": 6,
+     "name": "QUANTITY",
+     "type": "FLOAT"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.concept": {
+   "columns": {
+    "concept_class_id": {
+     "index": 5,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_code": {
+     "index": 7,
+     "name": "concept_code",
+     "type": "VARCHAR"
+    },
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_name": {
+     "index": 2,
+     "name": "concept_name",
+     "type": "VARCHAR"
+    },
+    "domain_id": {
+     "index": 3,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "invalid_reason": {
+     "index": 10,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "standard_concept": {
+     "index": 6,
+     "name": "standard_concept",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 9,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 8,
+     "name": "valid_start_date",
+     "type": "DATE"
+    },
+    "vocabulary_id": {
+     "index": 4,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.concept_ancestor": {
+   "columns": {
+    "ancestor_concept_id": {
+     "index": 1,
+     "name": "ancestor_concept_id",
+     "type": "INTEGER"
+    },
+    "descendant_concept_id": {
+     "index": 2,
+     "name": "descendant_concept_id",
+     "type": "INTEGER"
+    },
+    "max_levels_of_separation": {
+     "index": 4,
+     "name": "max_levels_of_separation",
+     "type": "INTEGER"
+    },
+    "min_levels_of_separation": {
+     "index": 3,
+     "name": "min_levels_of_separation",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.concept_class": {
+   "columns": {
+    "concept_class_concept_id": {
+     "index": 3,
+     "name": "concept_class_concept_id",
+     "type": "INTEGER"
+    },
+    "concept_class_id": {
+     "index": 1,
+     "name": "concept_class_id",
+     "type": "VARCHAR"
+    },
+    "concept_class_name": {
+     "index": 2,
+     "name": "concept_class_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.concept_relationship": {
+   "columns": {
+    "concept_id_1": {
+     "index": 1,
+     "name": "concept_id_1",
+     "type": "INTEGER"
+    },
+    "concept_id_2": {
+     "index": 2,
+     "name": "concept_id_2",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 6,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "relationship_id": {
+     "index": 3,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 5,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 4,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.concept_synonym": {
+   "columns": {
+    "concept_id": {
+     "index": 1,
+     "name": "concept_id",
+     "type": "INTEGER"
+    },
+    "concept_synonym_name": {
+     "index": 2,
+     "name": "concept_synonym_name",
+     "type": "VARCHAR"
+    },
+    "language_concept_id": {
+     "index": 3,
+     "name": "language_concept_id",
+     "type": "INTEGER"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.domain": {
+   "columns": {
+    "domain_concept_id": {
+     "index": 3,
+     "name": "domain_concept_id",
+     "type": "INTEGER"
+    },
+    "domain_id": {
+     "index": 1,
+     "name": "domain_id",
+     "type": "VARCHAR"
+    },
+    "domain_name": {
+     "index": 2,
+     "name": "domain_name",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.drug_strength": {
+   "columns": {
+    "amount_unit_concept_id": {
+     "index": 4,
+     "name": "amount_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "amount_value": {
+     "index": 3,
+     "name": "amount_value",
+     "type": "FLOAT"
+    },
+    "box_size": {
+     "index": 9,
+     "name": "box_size",
+     "type": "INTEGER"
+    },
+    "denominator_unit_concept_id": {
+     "index": 8,
+     "name": "denominator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "denominator_value": {
+     "index": 7,
+     "name": "denominator_value",
+     "type": "FLOAT"
+    },
+    "drug_concept_id": {
+     "index": 1,
+     "name": "drug_concept_id",
+     "type": "INTEGER"
+    },
+    "ingredient_concept_id": {
+     "index": 2,
+     "name": "ingredient_concept_id",
+     "type": "INTEGER"
+    },
+    "invalid_reason": {
+     "index": 12,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "numerator_unit_concept_id": {
+     "index": 6,
+     "name": "numerator_unit_concept_id",
+     "type": "INTEGER"
+    },
+    "numerator_value": {
+     "index": 5,
+     "name": "numerator_value",
+     "type": "FLOAT"
+    },
+    "valid_end_date": {
+     "index": 11,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 10,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.relationship": {
+   "columns": {
+    "defines_ancestry": {
+     "index": 4,
+     "name": "defines_ancestry",
+     "type": "VARCHAR"
+    },
+    "is_hierarchical": {
+     "index": 3,
+     "name": "is_hierarchical",
+     "type": "VARCHAR"
+    },
+    "relationship_concept_id": {
+     "index": 6,
+     "name": "relationship_concept_id",
+     "type": "INTEGER"
+    },
+    "relationship_id": {
+     "index": 1,
+     "name": "relationship_id",
+     "type": "VARCHAR"
+    },
+    "relationship_name": {
+     "index": 2,
+     "name": "relationship_name",
+     "type": "VARCHAR"
+    },
+    "reverse_relationship_id": {
+     "index": 5,
+     "name": "reverse_relationship_id",
+     "type": "VARCHAR"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.source_to_concept_map_seed": {
+   "columns": {
+    "invalid_reason": {
+     "index": 14,
+     "name": "invalid_reason",
+     "type": "VARCHAR"
+    },
+    "source_code": {
+     "index": 1,
+     "name": "source_code",
+     "type": "VARCHAR"
+    },
+    "source_code_description": {
+     "index": 4,
+     "name": "source_code_description",
+     "type": "VARCHAR"
+    },
+    "source_concept_class_id": {
+     "index": 6,
+     "name": "source_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "source_concept_id": {
+     "index": 2,
+     "name": "source_concept_id",
+     "type": "INTEGER"
+    },
+    "source_domain_id": {
+     "index": 5,
+     "name": "source_domain_id",
+     "type": "VARCHAR"
+    },
+    "source_vocabulary_id": {
+     "index": 3,
+     "name": "source_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_class_id": {
+     "index": 11,
+     "name": "target_concept_class_id",
+     "type": "VARCHAR"
+    },
+    "target_concept_id": {
+     "index": 7,
+     "name": "target_concept_id",
+     "type": "INTEGER"
+    },
+    "target_concept_name": {
+     "index": 8,
+     "name": "target_concept_name",
+     "type": "VARCHAR"
+    },
+    "target_domain_id": {
+     "index": 10,
+     "name": "target_domain_id",
+     "type": "VARCHAR"
+    },
+    "target_vocabulary_id": {
+     "index": 9,
+     "name": "target_vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "valid_end_date": {
+     "index": 13,
+     "name": "valid_end_date",
+     "type": "DATE"
+    },
+    "valid_start_date": {
+     "index": 12,
+     "name": "valid_start_date",
+     "type": "DATE"
+    }
+   }
+  },
+  "source.synthea_omop_etl.vocabulary.vocabulary": {
+   "columns": {
+    "vocabulary_concept_id": {
+     "index": 5,
+     "name": "vocabulary_concept_id",
+     "type": "INTEGER"
+    },
+    "vocabulary_id": {
+     "index": 1,
+     "name": "vocabulary_id",
+     "type": "VARCHAR"
+    },
+    "vocabulary_name": {
+     "index": 2,
+     "name": "vocabulary_name",
+     "type": "VARCHAR"
+    },
+    "vocabulary_reference": {
+     "index": 3,
+     "name": "vocabulary_reference",
+     "type": "VARCHAR"
+    },
+    "vocabulary_version": {
+     "index": 4,
+     "name": "vocabulary_version",
+     "type": "VARCHAR"
+    }
+   }
+  }
+ }
+}
