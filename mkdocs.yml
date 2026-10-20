@@ -4,7 +4,7 @@ site_url: https://qdbd.dev/
 repo_url: https://github.com/MarkPhamm/quickdbd-cli
 repo_name: MarkPhamm/quickdbd-cli
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2026 Minh (Mark) Pham · Apache-2.0 · Not affiliated with QuickDBD
+copyright: Made by <a href="https://github.com/MarkPhamm">Minh (Mark) Pham</a> · &copy; 2026 · Apache-2.0 · Not affiliated with QuickDBD
 
 exclude_docs: |
   superpowers/

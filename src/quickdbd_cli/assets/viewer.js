@@ -60,7 +60,7 @@
     // Keep clear of the floating search box / toolbar at the top and, on narrow screens, the toolbar at the bottom.
     var top = 70, bottom = sz[0] < 900 ? 70 : pad, availH = sz[1] - top - bottom;
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), availH / (b[3] - b[1]), 1.5);
-    k = Math.max(k, 0.05);
+    k = Math.max(k, 0.03); // same floor as manual zoom, so wide diagrams still fit a phone screen
     S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k };
     applyView();
   }

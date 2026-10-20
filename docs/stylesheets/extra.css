@@ -142,3 +142,9 @@ iframe.demo { width: 100%; height: 620px; border: 1px solid var(--qd-rule); bord
 }
 .md-nav--primary .md-nav__source { background: var(--qd-header); color: #e6e6e6; }
 @media screen and (max-width: 76.234em) { .md-sidebar--primary { background: var(--qd-side); } }
+
+/* code blocks: keep text clear of the copy button (wrap on phones, solid button ground) */
+.md-typeset .md-clipboard { background: var(--md-code-bg-color); border-radius: 6px; }
+@media screen and (max-width: 44.984em) {
+  .md-typeset pre > code { white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 2.6em; }
+}
