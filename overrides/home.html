@@ -1,0 +1,254 @@
+{% extends "main.html" %}
+
+{#- Landing page (docs/index.md sets `template: home.html`). Sections follow anfra.ai's order; the demo grid
+    comes from gallery/demos.toml via hooks/gallery.py. -#}
+
+{% block site_nav %}{% endblock %}
+
+{% block container %}
+{% set demos = config.extra.demos %}
+<div class="qh">
+
+  <!-- ------------------------------------------------------------------ hero -->
+  <section class="qh-hero qh-wrap">
+    <div class="qh-hero__text">
+      <p class="qh-eyebrow">Open source · Apache 2.0 · <code>pip install</code></p>
+      <h1>Database diagrams that live in git, <span>readable at 200+&nbsp;tables</span></h1>
+      <p class="qh-lead">Write your schema in QuickDBD's plain-text syntax, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
+      <div class="qh-cta">
+        <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg></a>
+        <a class="qh-btn" href="{{ 'demo/' | url }}">See live demos</a>
+      </div>
+      <div class="qh-install">
+        <span class="qh-install__prompt">$</span>
+        <code>pipx install quickdbd-cli</code>
+        <button class="qh-copy" type="button" data-copy="pipx install quickdbd-cli" title="Copy" aria-label="Copy the install command">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
+        </button>
+      </div>
+      <a class="qh-note" href="{{ 'dbt/' | url }}">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2 2 7l10 5 10-5-10-5Zm0 13-8.6-4.3L2 11.4 12 16.4l10-5-1.4-.7L12 15Zm0 4-8.6-4.3L2 15.4l10 5 10-5-1.4-.7L12 19Z"/></svg>
+        <span><b>Using dbt?</b> Primary keys and relationships come straight from your tests. <u>dbt import</u> →</span>
+      </a>
+    </div>
+    <div class="qh-hero__shot">
+      <a class="qh-frame" href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">
+        <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span></div>
+        <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks sample database in qdbd, with the SalesOrderHeader table selected" width="1440" height="860">
+      </a>
+      <div class="qh-callout">
+        <div class="qh-callout__head"><span>SalesOrderHeader</span><a href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">Try it live ↗</a></div>
+        <div class="qh-callout__row"><b>26</b> columns · <b>8</b> foreign keys</div>
+        <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------- problem framing -->
+  <section class="qh-section qh-wrap">
+    <h2>Hand-drawn diagrams go stale. Generated ones get unreadable.</h2>
+    <p class="qh-sub">qdbd keeps the schema as text in your repo and builds the diagram from it, so it is always current and still easy to read at hundreds of tables.</p>
+    <div class="qh-compare">
+      <div class="qh-col">
+        <h3>Drawing tool</h3>
+        <ul>
+          <li class="yes">Looks exactly the way you arrange it</li>
+          <li class="no">Lives outside the repo</li>
+          <li class="no">Out of date after the next migration</li>
+        </ul>
+      </div>
+      <div class="qh-col qh-col--us">
+        <h3>qdbd</h3>
+        <ul>
+          <li class="yes">Plain text in git, reviewed in pull requests</li>
+          <li class="yes">Rebuilt from the text on every change</li>
+          <li class="yes">Search, selectors and regions for 200+ tables</li>
+        </ul>
+      </div>
+      <div class="qh-col">
+        <h3>Diagram generated from a database</h3>
+        <ul>
+          <li class="yes">Always matches the database</li>
+          <li class="no">Needs a connection to the database</li>
+          <li class="no">Often a wall of boxes past a few dozen tables</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ how it works -->
+  <section class="qh-section qh-wrap">
+    <h2>One text file in, every format out</h2>
+    <div class="qh-flow" aria-label="schema text or dbt manifest, then qdbd, then HTML, images and PR comments">
+      <div class="qh-flow__col">
+        <div class="qh-box"><code>schema/*.txt</code><small>QuickDBD syntax</small></div>
+        <div class="qh-box"><code>manifest.json</code><small>dbt project</small></div>
+      </div>
+      <div class="qh-flow__arrow" aria-hidden="true">→</div>
+      <div class="qh-flow__col">
+        <div class="qh-box qh-box--core"><b>qdbd</b><small>check · layout · render</small></div>
+      </div>
+      <div class="qh-flow__arrow" aria-hidden="true">→</div>
+      <div class="qh-flow__col">
+        <div class="qh-box"><b>HTML page</b><small>search, filter, share</small></div>
+        <div class="qh-box"><b>PNG · SVG · draw.io</b><small>docs, slides, wikis</small></div>
+        <div class="qh-box"><b>PR comment</b><small>what changed vs main</small></div>
+      </div>
+    </div>
+    <ol class="qh-steps3">
+      <li><b>The parser</b> follows QuickDBD's own parser step by step: same tables, same error messages. <code>qdbd check --strict</code> guarantees a file pastes back into QuickDBD.</li>
+      <li><b>The layout</b> comes from ELK. Positions you drag are saved by table name, and new tables land next to the tables they relate to, so the diagram never reshuffles.</li>
+      <li><b>One renderer</b> draws the page in your browser and the PNG and SVG in the CLI, so an export always matches what you see.</li>
+    </ol>
+  </section>
+
+  <!-- ---------------------------------------------------- text to diagram (tabs) -->
+  <section class="qh-section qh-wrap">
+    <h2>From text to diagram</h2>
+    <div class="qh-split">
+      <div class="qh-tabs">
+        <div class="qh-tabs__bar" role="tablist">
+          <button role="tab" aria-selected="true" data-tab="t-text">QuickDBD text</button>
+          <button role="tab" aria-selected="false" data-tab="t-dbt">dbt</button>
+          <button role="tab" aria-selected="false" data-tab="t-cmd">Command</button>
+        </div>
+<pre class="qh-code" id="t-text" role="tabpanel"><span class="c"># Every order belongs to one customer.</span>
+<b>Order</b> as o
+----
+OrderId <i>PK</i> int IDENTITY
+CustomerId int <i>FK &gt;- Customer.CustomerId</i>
+Status string="pending" <span class="c"># fulfilment state</span>
+
+<b>Customer</b>
+-
+CustomerId <i>PK</i> int
+Email varchar(255) UNIQUE</pre>
+<pre class="qh-code" id="t-dbt" role="tabpanel" hidden><span class="c"># in your dbt project</span>
+dbt docs generate
+qdbd import dbt target/ -o erd/ --infer-fks
+
+<span class="c"># primary keys: unique + not_null tests</span>
+<span class="c"># relationships: relationships tests</span>
+<span class="c"># --infer-fks: customer_id → customers</span></pre>
+<pre class="qh-code" id="t-cmd" role="tabpanel" hidden>qdbd check erd/                <span class="c"># QuickDBD's errors</span>
+qdbd serve erd/                <span class="c"># live editor</span>
+qdbd build erd/ -o erd.html    <span class="c"># one page</span>
+qdbd export erd/ -o erd.png    <span class="c"># or .svg .drawio</span>
+qdbd path erd/ --from Invoice --to Campaign</pre>
+      </div>
+      <figure class="qh-figure">
+        <img src="{{ 'assets/img/path.png' | url }}" alt="qdbd highlighting the join path from Invoice to Campaign, with the SQL JOIN" loading="lazy">
+        <figcaption>Click a table, type another one's name: qdbd highlights the join path and writes the SQL <code>JOIN</code>.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------------- quick start -->
+  <section class="qh-section qh-wrap">
+    <h2>Your first diagram in two minutes</h2>
+    <ol class="qh-steps4">
+      <li><span>1</span><b>Install</b><code>pipx install quickdbd-cli</code></li>
+      <li><span>2</span><b>Write a schema</b><code>schema.txt</code><small>or <code>qdbd import dbt target/</code></small></li>
+      <li><span>3</span><b>Edit it live</b><code>qdbd serve schema.txt</code></li>
+      <li><span>4</span><b>Build and share</b><code>qdbd build schema.txt -o schema.html</code></li>
+    </ol>
+    <p class="qh-more"><a href="{{ 'getting-started/' | url }}">Full quick start →</a></p>
+  </section>
+
+  <!-- ------------------------------------------------------------------ gallery -->
+  <section class="qh-section qh-wrap">
+    <h2>Diagrams built with qdbd</h2>
+    <div class="qh-gallery">
+      {% for d in demos.featured %}
+      <a class="qh-card" href="{{ d.href | url }}">
+        <img src="{{ ('assets/img/gallery/' ~ d.id ~ '.png') | url }}" alt="" loading="lazy" width="1200" height="630">
+        <div class="qh-card__meta"><b>{{ d.title }}</b><p>{{ d.description }}</p><span>Open demo →</span></div>
+      </a>
+      {% endfor %}
+    </div>
+    <p class="qh-more"><a href="{{ 'demo/' | url }}">View all {{ demos.count }} demos →</a></p>
+  </section>
+
+  <!-- ---------------------------------------------------------------- PR review -->
+  <section class="qh-section qh-wrap">
+    <h2>See what a branch changes before you merge it</h2>
+    <div class="qh-split">
+      <div>
+        <ul class="qh-list">
+          <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
+          <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
+          <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
+        </ul>
+        <div class="qh-comment">
+          <div class="qh-comment__head"><b>github-actions</b> commented</div>
+          <div class="qh-comment__body">
+            <p class="h">Schema changes: <code>main</code> → <code>this branch</code></p>
+            <p><b>2 table(s) added, 0 removed, 3 changed; 2 relationship(s) added, 0 removed</b></p>
+            <table>
+              <tr><th>Table</th><th>Change</th></tr>
+              <tr><td><code>Customer</code></td><td>➖ <code>LegacyRef</code></td></tr>
+              <tr><td><code>Order</code></td><td>➕ <code>Status</code> · ✏️ <code>Total</code>: money → decimal(10,2)</td></tr>
+              <tr><td><code>Product</code></td><td>➕ <code>Sku</code></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <figure class="qh-figure">
+        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
+        <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------------------- FAQ -->
+  <section class="qh-section qh-wrap qh-faq">
+    <h2>Frequently asked questions</h2>
+    <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD's text syntax, and it isn't affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
+    <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
+    <details><summary>Does my schema leave my machine?</summary><p>Only if you run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default). Built pages load nothing from the network.</p></details>
+    <details><summary>How big can a diagram get?</summary><p>The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable, and <code>--select</code> builds a page with just the part you need.</p></details>
+    <details><summary>What do I need to install?</summary><p>Python 3.11 or newer. No Node, Graphviz or browser: the layout engine runs inside Python.</p></details>
+    <details><summary>Can I use it in CI?</summary><p>Yes. The GitHub Action checks the schema, builds the page and comments on pull requests; any other CI can run the same commands. <a href="{{ 'github-action/' | url }}">CI and Automation →</a></p></details>
+  </section>
+
+  <!-- ------------------------------------------------------------- closing CTA -->
+  <section class="qh-final qh-wrap">
+    <h2>Install qdbd and build your first diagram</h2>
+    <div class="qh-install qh-install--center">
+      <span class="qh-install__prompt">$</span>
+      <code>pipx install quickdbd-cli</code>
+      <button class="qh-copy" type="button" data-copy="pipx install quickdbd-cli" title="Copy" aria-label="Copy the install command">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
+      </button>
+    </div>
+    <p class="qh-final__note">Python 3.11+ · no Node, Graphviz or browser to install</p>
+    <div class="qh-cta qh-cta--center">
+      <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start</a>
+      <a class="qh-btn" href="{{ config.repo_url }}">View on GitHub</a>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    document.querySelectorAll(".qh-copy").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var done = function () { b.classList.add("ok"); setTimeout(function () { b.classList.remove("ok"); }, 1200); };
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function () {});
+      });
+    });
+    document.querySelectorAll(".qh-tabs").forEach(function (tabs) {
+      var buttons = tabs.querySelectorAll("[role=tab]");
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          buttons.forEach(function (x) {
+            x.setAttribute("aria-selected", String(x === b));
+            document.getElementById(x.dataset.tab).hidden = x !== b;
+          });
+        });
+      });
+    });
+  })();
+</script>
+{% endblock %}

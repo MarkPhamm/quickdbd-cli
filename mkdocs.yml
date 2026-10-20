@@ -34,6 +34,10 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/home.css
+
+hooks:
+  - hooks/gallery.py
 
 extra_javascript:
   - javascripts/shortcuts.js
@@ -56,6 +60,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Guide: guide.md
   - 1. Install: install.md
   - 2. Quick Start: getting-started.md
   - 3. Schema Files:
