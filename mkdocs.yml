@@ -1,6 +1,6 @@
 site_name: qdbd
 site_description: ERD tooling for QuickDBD schemas and dbt projects. Check, render, explore and review database diagrams with hundreds of tables.
-site_url: https://markphamm.github.io/quickdbd-cli/
+site_url: https://qdbd.dev/
 repo_url: https://github.com/MarkPhamm/quickdbd-cli
 repo_name: MarkPhamm/quickdbd-cli
 edit_uri: edit/main/docs/
