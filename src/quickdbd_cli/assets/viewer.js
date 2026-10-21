@@ -178,7 +178,8 @@
     var from = { x: S.view.x, y: S.view.y, k: S.view.k }, t0 = performance.now();
     glideTarget = v;
     (function step(now) {
-      var f = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - f, 3);
+      // a frame's timestamp can be earlier than t0: clamp, or the easing goes negative and so can the zoom
+      var f = Math.min(1, Math.max(0, (now - t0) / ms)), e = 1 - Math.pow(1 - f, 3);
       S.view = { x: from.x + (v.x - from.x) * e, y: from.y + (v.y - from.y) * e, k: from.k + (v.k - from.k) * e };
       applyView();
       glide = f < 1 ? requestAnimationFrame(step) : null;
