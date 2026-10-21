@@ -104,6 +104,8 @@ runs:
       run: |
         args=()
         if [ "$QDBD_STRICT" = "true" ]; then args+=(--strict); fi
+        # Inline PR annotations; qdbd-version pins older than 0.1.14 lack --format.
+        if qdbd check --help | grep -q -- '--format'; then args+=(--format github); fi
         # shellcheck disable=SC2086
         qdbd check "${args[@]}" $QDBD_PATH
 
