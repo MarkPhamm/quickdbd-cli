@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import json
 import sys
 from pathlib import Path
 
 from . import __version__
-from .model import Schema
+from .model import Diagnostic, Schema
 from .project import Project, SelectionError, selector_expr
 
 OK = "No errors found. Good job!"
@@ -36,9 +38,31 @@ def _title(project: Project) -> str:
     return "diagram"
 
 
+def _github_annotation(d: Diagnostic, level: str) -> str:
+    """A GitHub Actions workflow command, which shows `d` inline on the PR's changed lines."""
+
+    def esc(s: str) -> str:
+        return s.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+    def esc_prop(s: str) -> str:
+        return esc(s).replace(":", "%3A").replace(",", "%2C")
+
+    return f"::{level} file={esc_prop(d.path)},line={d.line},title=qdbd::{esc(d.message)}"
+
+
 def cmd_check(args) -> int:
     project = _open(args)
     schema = project.compile()
+    if args.format == "json":
+        ok = not schema.errors and not (args.strict and schema.warnings)
+        diags = [dataclasses.asdict(d) for d in schema.diagnostics]
+        report = {"ok": ok, "errors": len(schema.errors), "warnings": len(schema.warnings), "diagnostics": diags}
+        print(json.dumps(report, indent=2))
+        return 0 if ok else 1
+    if args.format == "github":
+        # Under --strict a warning fails the job, so it's annotated as an error.
+        for d in schema.diagnostics:
+            print(_github_annotation(d, "error" if args.strict else d.severity))
     ok = _print_diagnostics(schema, args.strict)
     if ok and not schema.diagnostics:
         print(OK)
@@ -345,6 +369,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("check", help="validate schema files")
     paths(sp)
     sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
+    sp.add_argument(
+        "--format",
+        choices=["text", "github", "json"],
+        default="text",
+        help="github: also emit GitHub Actions annotations (inline on PR lines); json: a machine-readable report",
+    )
     sp.set_defaults(func=cmd_check)
 
     sp = sub.add_parser("build", help="write an interactive HTML diagram")

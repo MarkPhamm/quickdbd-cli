@@ -136,6 +136,47 @@ def test_check_strict_warnings(tmp_path):
     assert main(["check", "--strict", str(f)]) == 1
 
 
+def test_check_format_github(tmp_path, capsys):
+    bad = tmp_path / "bad.txt"
+    bad.write_text("T\n-\nA int foo\nB decimal(10, 2)\n")
+    assert main(["check", "--format", "github", str(bad)]) == 1
+    out = capsys.readouterr().out.splitlines()
+    assert f"::error file={bad},line=3,title=qdbd::Unrecognized keyword 'foo'" in out
+    assert any(line.startswith(f"::warning file={bad},line=4,title=qdbd::QuickDBD would reject this") for line in out)
+
+
+def test_check_format_github_strict_promotes_warnings(tmp_path, capsys):
+    f = tmp_path / "w.txt"
+    f.write_text("T\n-\nA decimal(10, 2)\n")
+    assert main(["check", "--format", "github", "--strict", str(f)]) == 1
+    assert capsys.readouterr().out.startswith(f"::error file={f},line=3,")
+
+
+def test_github_annotation_escaping():
+    from quickdbd_cli.cli import _github_annotation
+    from quickdbd_cli.model import Diagnostic
+
+    d = Diagnostic("a,b:c.txt", 2, "50% bad\nnext", "warning")
+    assert _github_annotation(d, "warning") == "::warning file=a%2Cb%3Ac.txt,line=2,title=qdbd::50%25 bad%0Anext"
+
+
+def test_check_format_json(tmp_path, capsys):
+    bad = tmp_path / "bad.txt"
+    bad.write_text("T\n-\nA int foo\n")
+    assert main(["check", "--format", "json", str(bad)]) == 1
+    data = json.loads(capsys.readouterr().out)
+    assert data["ok"] is False and data["errors"] == 1 and data["warnings"] == 0
+    assert data["diagnostics"] == [
+        {"path": str(bad), "line": 3, "severity": "error", "message": "Unrecognized keyword 'foo'"}
+    ]
+
+
+def test_check_format_json_ok(capsys):
+    assert main(["check", "--format", "json", str(SAMPLE)]) == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data == {"ok": True, "errors": 0, "warnings": 0, "diagnostics": []}
+
+
 def test_build_is_deterministic_and_does_not_write_sidecar(tmp_path):
     work = tmp_path / "s"
     shutil.copytree(SYNTH, work)

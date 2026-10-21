@@ -5,10 +5,28 @@ Every command takes one or more `PATH`s: a `.txt` file, or a folder (every `*.tx
 ## 8.1 check { #check }
 
 ```bash
-qdbd check PATH... [--strict]
+qdbd check PATH... [--strict] [--format text|github|json]
 ```
 
 Validates the schema. Prints `No errors found. Good job!`, or `file:line: error: message` lines and exits 1. `--strict` also fails on [QuickDBD-compatibility warnings](syntax.md#where-qdbd-is-more-forgiving).
+
+`--format` changes the output:
+
+- `github` also prints [GitHub Actions annotations](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-error-message), so each problem shows on its line in the pull request's *Files changed* tab. Under `--strict`, warnings are annotated as errors. The [GitHub Action](github-action.md) turns this on for you.
+- `json` prints one report to stdout, for editors, hooks and scripts:
+
+```json
+{
+  "ok": false,
+  "errors": 1,
+  "warnings": 0,
+  "diagnostics": [
+    {"path": "schema/orders.txt", "line": 3, "severity": "error", "message": "Unrecognized keyword 'foo'"}
+  ]
+}
+```
+
+Paths are relative to the current directory. The exit code is the same in every format.
 
 ## 8.2 build { #build }
 

@@ -24,7 +24,7 @@ jobs:
 **What it does.** On every run, it:
 
 1. installs qdbd from PyPI (and, with `dbt-manifest`, runs `qdbd import dbt`);
-2. runs `qdbd check` and fails the job on errors (or warnings, with `strict: true`);
+2. runs `qdbd check` and fails the job on errors (or warnings, with `strict: true`), annotating each problem on its line in the pull request;
 3. builds the HTML diagram and uploads it as the **erd** artifact.
 
 On pull requests it also:
