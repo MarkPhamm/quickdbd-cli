@@ -563,7 +563,33 @@ class _FileParser:
         return self.fp
 
 
+# A DBML top-level declaration. No valid QuickDBD file has one: a QuickDBD table header can't hold `{`, and a
+# column line can't start with a keyword followed by a name and `{`, or be a `Ref:` with a relationship operator.
+_DBML_BLOCK = re.compile(
+    r"^\s*(table|enum|tablegroup|tablepartial|records)\s+(\"[^\"]*\"|[\w.]+)[^{]*\{\s*(//.*)?$", re.I
+)
+_DBML_PROJECT = re.compile(r"^\s*project\b[^{]*\{\s*(//.*)?$", re.I)
+_DBML_REF = re.compile(
+    r"^\s*ref(\s+(\"[^\"]*\"|\w+))?\s*(\{\s*(//.*)?$|:\s*[\w\"]+[\w\".()\s,]*?\s*\??(<>|<|>|-)\??\s*[\w\"])", re.I
+)
+
+
+def syntax_of(path: str, text: str) -> str:
+    """ "dbml" for a .dbml file, or any file with a DBML top-level declaration; else "quickdbd"."""
+    if path.lower().endswith(".dbml"):
+        return "dbml"
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    for line in text.splitlines():
+        if _DBML_BLOCK.match(line) or _DBML_PROJECT.match(line) or _DBML_REF.match(line):
+            return "dbml"
+    return "quickdbd"
+
+
 def parse_file(text: str, path: str = "<input>") -> FileParse:
+    if syntax_of(path, text) == "dbml":
+        from .dbml import parse_dbml
+
+        return parse_dbml(text, path)
     return _FileParser(text, path).run()
 
 

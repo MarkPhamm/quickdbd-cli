@@ -60,7 +60,7 @@ def _symbols(schema: Schema) -> dict:
             for c in t.columns.values()
             if not c.virtual
         ]
-        end = max([t.line + 1] + [c["line"] for c in cols])
+        end = t.end_line or max([t.line + 1] + [c["line"] for c in cols])
         table = {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
         if t.comments:
             table["doc"] = "\n".join(t.comments)
@@ -398,7 +398,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def paths(sp):
-        sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt file(s) or folder(s) (recursive)")
+        sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt/.dbml file(s) or folder(s) (recursive)")
 
     def selectors(sp):
         sp.add_argument(

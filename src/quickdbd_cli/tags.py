@@ -6,7 +6,8 @@ A table's tags come from the first source that has any:
 2. its name: ``dim_*`` / ``DimCustomer`` -> dim, ``fct_*`` -> fact, ``stg_*`` -> staging, ...;
 3. ``# @dbt-tags: ...`` comments written by ``qdbd import dbt``.
 
-The header takes the colour of the table's first tag. ``# @color TAG #hex`` overrides the defaults.
+The header takes the colour of the table's first tag. ``# @color TAG #hex`` overrides the defaults, and a DBML
+``headercolor`` beats both.
 """
 
 from __future__ import annotations
@@ -92,4 +93,7 @@ def annotate(schema: Schema, tables: list[dict]) -> list[dict]:
             t["color"] = colors[tags[0]]
             for tag in tags:
                 counts[tag] = counts.get(tag, 0) + 1
+        own = schema.tables[t["id"]].color  # DBML headercolor
+        if own:
+            t["color"] = own
     return [{"name": k, "color": colors[k], "count": counts[k]} for k in sorted(counts, key=lambda k: (-counts[k], k))]

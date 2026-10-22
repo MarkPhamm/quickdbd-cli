@@ -132,7 +132,7 @@ def _git(args: list[str], cwd: Path) -> str:
 
 
 def sources_at_ref(ref: str, inputs: list[Path]) -> list[tuple[str, str]]:
-    """The .txt schema files under ``inputs`` as they were at git ``ref``."""
+    """The .txt and .dbml schema files under ``inputs`` as they were at git ``ref``."""
     first = inputs[0].resolve()
     root = Path(_git(["rev-parse", "--show-toplevel"], first if first.is_dir() else first.parent).strip())
     _git(["rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"], root)
@@ -142,7 +142,7 @@ def sources_at_ref(ref: str, inputs: list[Path]) -> list[tuple[str, str]]:
         rel = p.resolve().relative_to(root).as_posix()
         listed = _git(["ls-tree", "-r", "--name-only", ref, "--", rel], root).splitlines()
         for f in sorted(listed):
-            if f in seen or not (f == rel or f.endswith(".txt")):
+            if f in seen or not (f == rel or f.endswith((".txt", ".dbml"))):
                 continue
             seen.add(f)
             out.append((f, _git(["show", f"{ref}:{f}"], root)))

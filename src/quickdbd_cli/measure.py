@@ -102,7 +102,7 @@ def table_json(table: Table) -> dict:
 
 
 def _groups(schema: Schema) -> dict[str, str]:
-    """Explorer group per source file: the path without the common folder and ``.txt``; "" for one file."""
+    """Explorer group per source file: the path without the common folder and ``.txt``/``.dbml``; "" for one file."""
     paths = sorted({t.path for t in schema.tables.values()})
     if len(paths) <= 1:
         return {p: "" for p in paths}
@@ -113,7 +113,7 @@ def _groups(schema: Schema) -> dict[str, str]:
     out = {}
     for p, x in zip(paths, parts, strict=True):
         rel = "/".join(x[common:])
-        out[p] = rel[:-4] if rel.endswith(".txt") else rel
+        out[p] = rel.rsplit(".", 1)[0] if rel.endswith((".txt", ".dbml")) else rel
     return out
 
 
@@ -129,7 +129,8 @@ def model_json(schema: Schema) -> dict:
             }
         )
     tables = [
-        {**table_json(t), "group": groups[t.path], "file": t.path, "line": t.line} for t in schema.tables.values()
+        {**table_json(t), "group": t.group or groups[t.path], "file": t.path, "line": t.line}
+        for t in schema.tables.values()
     ]
     legend = tags.annotate(schema, tables)
     out = {
