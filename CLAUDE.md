@@ -18,6 +18,8 @@ uv venv && uv pip install -e ".[dev,docs]"            # Python 3.11+; .venv is t
 python scripts/gen_schema.py                           # regenerate examples/synthetic (deterministic)
 python scripts/gen_font_metrics.py                     # regenerate assets/font-metrics.json (needs fonttools)
 PATH="$PWD/.venv/bin:$PATH" scripts/release.sh         # release (see below)
+cd vscode && npm ci && npm run typecheck && npm test   # extension: unit + grammar tests (Node 22+)
+cd vscode && npm run test:integration                  # downloads VS Code, runs the extension in it
 ```
 
 UI changes need a real browser check. Playwright isn't a declared dependency (`uv pip install -p .venv playwright`); it can drive the system Chrome with `p.chromium.launch(channel="chrome")`, so no browser download is needed. Unit tests don't cover `viewer.js` or `editor.js`.
@@ -78,6 +80,15 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `share.py`: `qdbd share` publishes the built page as a gist via `gh api` (POST/PATCH `/gists`), remembering gist ids in `~/.cache/qdbd/shares.json` (`QDBD_CACHE_DIR` overrides; tests fake `subprocess.run`). `serve --read-only` renders the plain viewer plus `LIVE_JS` (SSE reload), omits file text from `/state`, returns 403 on writes, and never writes the layout file.
 - `diff.py`: schema diff by name. `--base` reads files with `git show REF:path`, with no checkout.
 
+**VS Code extension** (`vscode/`): TypeScript bundled by esbuild, no runtime npm deps, shipped as a `.vsix` on the GitHub release (not on the Marketplace yet).
+
+- It has no parser. Diagnostics, outline and go-to-definition come from `qdbd check --format json --symbols [--stdin-file F]`. The preview is `qdbd serve --embed --port 0` in an iframe inside a webview.
+- Embed messages (the bridge is in `viewer.js`): the page posts `qdbd.ready` and `qdbd.reveal {file, line}`; it receives `qdbd.focus {table}` (quiet: no details panel) and `qdbd.theme`.
+- `src/schema.ts` and `src/target.ts` don't import `vscode`, so `node --test` runs them directly (Node's type stripping: keep `.ts` import extensions and erasable syntax only).
+- VS Code caches document symbols per document version, so providers `await checker.ready(doc)` before answering.
+- `MIN_VERSION` in `src/cli.ts` is the oldest `qdbd` the extension accepts. Raise it when the extension starts using a new CLI flag.
+- Integration tests (`test/integration/`): `run.mjs` unsets `ELECTRON_RUN_AS_NODE`, which is set inside VS Code terminals. `QDBD_HOLD=ms QDBD_CDP=9333` keeps the window open with a DevTools port, so Playwright `connect_over_cdp` can screenshot it and evaluate inside the preview iframe.
+
 **Demo gallery** (`/demo/`): `gallery/demos.toml` is the catalog. `scripts/build_gallery.py --out site/demo` builds each demo through the Python API (not the CLI, so titles and model paths are stable) plus the gallery page from `gallery/index.html`. Card images in `docs/assets/img/gallery/` come from `scripts/gen_thumbnails.py` (Playwright, dev-only) and must be regenerated when a demo changes. Demo sources live in `gallery/`, not `examples/`, because `examples/` ships in the sdist.
 
 ## Conventions
@@ -85,6 +96,6 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - **Determinism:** output must not contain timestamps or randomness (`elk.randomSeed`, sorted JSON). `test_build_is_deterministic…` asserts byte-identical builds.
 - **Pip-only runtime:** no Node, Graphviz, Cairo or browser at runtime. Vendored assets need their licenses kept and listed in `NOTICE`: `elk.bundled.js` (EPL-2.0) and Inter (OFL).
 - **Docs:** `mkdocs.yml` builds `docs/`, excluding `docs/superpowers/` (design specs). Theme overrides are in `overrides/` (custom header, breadcrumb) and `docs/stylesheets/extra.css` (modelith.sh-style). The home page (`docs/index.md`) is a landing page rendered by `overrides/home.html` + `docs/stylesheets/home.css`; the docs proper start at `docs/guide.md`. `hooks/gallery.py` feeds `gallery/demos.toml` to the templates. Screenshots in `docs/assets/img/` come from real builds.
-- **CI:** `.github/workflows/ci.yml` runs ruff and pytest on macOS and Ubuntu with Python 3.11–3.13. `.github/workflows/erd.yml` dogfoods `action.yml` with `qdbd-version: source`: PR diff comment, then docs and demos deployed to Pages from `main`.
-- **Releases:** bump `version` in `pyproject.toml` **and** `src/quickdbd_cli/__init__.py`, merge, then run `scripts/release.sh`. It reads `TWINE_USERNAME`/`TWINE_PASSWORD` from the gitignored `.env`, uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release. There is no tag-triggered publish workflow.
+- **CI:** `.github/workflows/ci.yml` runs ruff and pytest on macOS and Ubuntu with Python 3.11–3.13, plus a `vscode` job (typecheck, unit/grammar tests, integration under `xvfb-run`, `.vsix` artifact). `.github/workflows/erd.yml` dogfoods `action.yml` with `qdbd-version: source`: PR diff comment, then docs and demos deployed to Pages from `main`.
+- **Releases:** bump `version` in `pyproject.toml` **and** `src/quickdbd_cli/__init__.py`, merge, then run `scripts/release.sh`. It reads `TWINE_USERNAME`/`TWINE_PASSWORD` from the gitignored `.env`, packages the extension (needs Node 20+ on `PATH`), uploads to PyPI, tags `vX.Y.Z` and creates the GitHub release with the `.vsix` attached. The extension's version (`vscode/package.json`, plus `vscode/CHANGELOG.md`) is bumped separately, only when the extension changes. There is no tag-triggered publish workflow.
 - **Git:** work happens on branches with PRs into `main`. Commit messages and PRs carry no AI-attribution lines.

@@ -52,11 +52,16 @@ class Project:
             raise FileNotFoundError("no .txt schema files found in: " + ", ".join(map(str, inputs)))
         return cls(inputs, files, sidecar or layout.default_sidecar(files, inputs))
 
-    def sources(self) -> list[tuple[str, str]]:
-        return [(display_path(f), f.read_text(encoding="utf-8")) for f in self.files]
+    def sources(self, overrides: dict[Path, str] | None = None) -> list[tuple[str, str]]:
+        """``overrides``: text to use instead of a file on disk, by resolved path (an editor's unsaved buffer)."""
+        over = {p.resolve(): t for p, t in (overrides or {}).items()}
+        return [
+            (display_path(f), over[f.resolve()] if f.resolve() in over else f.read_text(encoding="utf-8"))
+            for f in self.files
+        ]
 
-    def compile(self) -> Schema:
-        return compile_sources(self.sources())
+    def compile(self, overrides: dict[Path, str] | None = None) -> Schema:
+        return compile_sources(self.sources(overrides))
 
     def build(
         self, schema: Schema, reset: bool = False, select: str | None = None, by_group: bool = False

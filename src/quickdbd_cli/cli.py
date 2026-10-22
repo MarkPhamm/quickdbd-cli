@@ -50,13 +50,41 @@ def _github_annotation(d: Diagnostic, level: str) -> str:
     return f"::{level} file={esc_prop(d.path)},line={d.line},title=qdbd::{esc(d.message)}"
 
 
+def _symbols(schema: Schema) -> dict:
+    """Tables, columns and relationships with their source lines, for editor outlines and go-to-definition."""
+    tables = []
+    for t in schema.tables.values():
+        cols = [{"name": c.name, "line": c.line} for c in t.columns.values() if not c.virtual]
+        end = max([t.line + 1] + [c["line"] for c in cols])
+        tables.append(
+            {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
+        )
+
+    def end(e) -> dict:
+        t = schema.tables.get(e.table)
+        c = t.columns.get(e.column) if t else None
+        return {"table": t.name if t else e.table, "column": c.name if c and not c.virtual else None}
+
+    rels = [{"file": r.path, "line": r.line, "a": end(r.a), "b": end(r.b)} for r in schema.relationships]
+    return {"tables": tables, "rels": rels}
+
+
 def cmd_check(args) -> int:
     project = _open(args)
-    schema = project.compile()
+    overrides = None
+    if args.stdin_file:
+        target = Path(args.stdin_file).resolve()
+        if target not in {f.resolve() for f in project.files}:
+            print(f"error: --stdin-file {args.stdin_file} is not one of the schema files", file=sys.stderr)
+            return 2
+        overrides = {target: sys.stdin.read()}
+    schema = project.compile(overrides)
     if args.format == "json":
         ok = not schema.errors and not (args.strict and schema.warnings)
         diags = [dataclasses.asdict(d) for d in schema.diagnostics]
         report = {"ok": ok, "errors": len(schema.errors), "warnings": len(schema.warnings), "diagnostics": diags}
+        if args.symbols:
+            report.update(_symbols(schema))
         print(json.dumps(report, indent=2))
         return 0 if ok else 1
     if args.format == "github":
@@ -344,7 +372,12 @@ def cmd_serve(args) -> int:
     project = _open(args)
     # Without --port, a busy 8765 (e.g. a second `qdbd serve`) moves on to the next free port.
     port, tries = (args.port, 1) if args.port is not None else (8765, 20)
-    return serve(project, port=port, open_browser=not args.no_open, read_only=args.read_only, tries=tries)
+    if args.read_only and args.embed:
+        print("error: --read-only and --embed don't go together", file=sys.stderr)
+        return 2
+    return serve(
+        project, port=port, open_browser=not args.no_open, read_only=args.read_only, tries=tries, embed=args.embed
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -374,6 +407,14 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["text", "github", "json"],
         default="text",
         help="github: also emit GitHub Actions annotations (inline on PR lines); json: a machine-readable report",
+    )
+    sp.add_argument(
+        "--symbols", action="store_true", help="with --format json: also list tables, columns and relationships"
+    )
+    sp.add_argument(
+        "--stdin-file",
+        metavar="PATH",
+        help="read this schema file's text from stdin instead of disk (an editor's unsaved buffer)",
     )
     sp.set_defaults(func=cmd_check)
 
@@ -476,6 +517,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--read-only",
         action="store_true",
         help="live view only: no editor, nothing saved; safe to share through a tunnel",
+    )
+    sp.add_argument(
+        "--embed",
+        action="store_true",
+        help="for the VS Code extension's preview: no editor pane, dragging saves the layout",
     )
     sp.set_defaults(func=cmd_serve)
     return p

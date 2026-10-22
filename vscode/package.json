@@ -1,0 +1,170 @@
+{
+  "name": "quickdbd",
+  "displayName": "QuickDBD (qdbd)",
+  "description": "QuickDBD schema files in VS Code: highlighting, live errors, outline, go to definition, and the interactive ER diagram beside your editor.",
+  "version": "0.1.0",
+  "publisher": "MarkPhamm",
+  "author": "Minh (Mark) Pham",
+  "license": "Apache-2.0",
+  "icon": "media/icon.png",
+  "homepage": "https://qdbd.dev/vscode/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarkPhamm/quickdbd-cli",
+    "directory": "vscode"
+  },
+  "bugs": "https://github.com/MarkPhamm/quickdbd-cli/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Linters"
+  ],
+  "keywords": [
+    "quickdbd",
+    "erd",
+    "er diagram",
+    "database",
+    "schema",
+    "dbt"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:plaintext",
+    "workspaceContains:**/qdbd.layout.json"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Runs the qdbd CLI, which may come from the workspace's virtualenv."
+    }
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "quickdbd",
+        "aliases": [
+          "QuickDBD",
+          "qdbd"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "quickdbd",
+        "scopeName": "source.quickdbd",
+        "path": "./syntaxes/quickdbd.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "quickdbd.openPreview",
+        "title": "Open Diagram to the Side",
+        "category": "QuickDBD",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "quickdbd.exportPng",
+        "title": "Export PNG",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.exportSvg",
+        "title": "Export SVG",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.exportDrawio",
+        "title": "Export draw.io",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.share",
+        "title": "Share as a Gist Link",
+        "category": "QuickDBD"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "quickdbd.openPreview",
+          "when": "editorLangId == quickdbd",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "quickdbd.openPreview",
+          "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.exportPng",
+          "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.exportSvg",
+          "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.exportDrawio",
+          "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.share",
+          "when": "editorLangId == quickdbd"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "quickdbd.openPreview",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorLangId == quickdbd"
+      }
+    ],
+    "configuration": {
+      "title": "QuickDBD",
+      "properties": {
+        "quickdbd.qdbdPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine-overridable",
+          "markdownDescription": "Path to the `qdbd` executable. Empty: the workspace's `.venv` (or `venv`), then `PATH`."
+        },
+        "quickdbd.autoDetect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open .txt files that look like QuickDBD schemas, or sit next to a qdbd layout file, as QuickDBD."
+        },
+        "quickdbd.strict": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Report QuickDBD-compatibility warnings as errors, like `qdbd check --strict`."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts && npm run test:grammar",
+    "test:grammar": "vscode-tmgrammar-test -g syntaxes/quickdbd.tmLanguage.json \"test/grammar/*.txt\"",
+    "test:integration": "node esbuild.mjs && node test/integration/run.mjs",
+    "vscode:prepublish": "node esbuild.mjs --production",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/vscode": "1.85.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "3.9.2",
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3",
+    "vscode-tmgrammar-test": "0.1.3"
+  }
+}

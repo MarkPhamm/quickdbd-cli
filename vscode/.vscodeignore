@@ -1,0 +1,9 @@
+**
+!out/extension.js
+!syntaxes/**
+!media/icon.png
+!language-configuration.json
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE

@@ -23,3 +23,32 @@ jobs:
       - run: pytest -q
       - run: qdbd check examples/quickdbd-sample.txt
       - run: qdbd build examples/synthetic -o diagram.html
+
+  vscode:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vscode
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+      - run: pip install -e ..
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # Downloads VS Code and runs the extension in it against examples/synthetic.
+      - run: xvfb-run -a npm run test:integration
+        env:
+          QDBD_PATH: qdbd
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vscode-extension
+          path: vscode/*.vsix

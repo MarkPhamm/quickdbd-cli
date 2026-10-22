@@ -196,6 +196,37 @@ def test_read_only_refuses_writes_and_never_touches_disk(ro):
     assert not f.with_name("shop.layout.json").exists()
 
 
+# ------------------------------------------------------------------ --embed (VS Code preview)
+
+
+@pytest.fixture
+def emb(tmp_path):
+    f = tmp_path / "shop.txt"
+    f.write_text(SCHEMA)
+    server, state = make_server(Project.open([f]), port=0, embed=True)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_address[1]}", state, f
+    server.shutdown()
+    server.server_close()
+
+
+def test_embed_page_is_the_viewer_with_live_reload(emb):
+    base, _, _ = emb
+    code, page = call(base, "/?theme=dark")  # the query must not break routing
+    assert code == 200 and b'id="side"' not in page and b'"embed":true' in page
+    assert b"codemirror.min.js" not in page and b"EventSource('events')" in page
+    code, st = call(base, "/state")
+    assert code == 200 and set(st) == {"version", "model", "positions"}
+
+
+def test_embed_saves_layout_but_never_edits_files(emb):
+    base, _, f = emb
+    assert call(base, "/file", "PUT", {"path": display_path(f), "text": "x", "mtime": None})[0] == 403
+    assert f.read_text() == SCHEMA
+    assert call(base, "/layout", "POST", {"Customer": [10, 20]})[0] == 200
+    assert layout.read_sidecar(f.with_name("shop.layout.json"))["Customer"] == (10, 20)
+
+
 # ------------------------------------------------------------------ busy ports
 
 
