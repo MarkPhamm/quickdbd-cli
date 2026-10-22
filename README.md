@@ -108,7 +108,7 @@ qdbd serve schema.txt
 
 Edit in the browser or in your own editor; the diagram reloads on save. Dragged positions are saved to `schema.layout.json`, which you commit next to the schema.
 
-In VS Code (or Cursor), the [extension](https://qdbd.dev/vscode/) does the same inside the editor, with errors as you type and the diagram following your cursor. Install the `.vsix` from the [latest release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest).
+In VS Code (or Cursor), the [extension](https://qdbd.dev/vscode/) does the same inside the editor, with errors as you type and the diagram following your cursor. Search **QuickDBD** in the Extensions view: it's on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) and [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd).
 
 #### 4. Build, export and share
 
