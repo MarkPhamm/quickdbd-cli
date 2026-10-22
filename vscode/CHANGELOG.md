@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Fix: 0.4.0 shipped without DBML's language settings, so in `.dbml` files **Toggle Line Comment**, bracket matching and auto-closing quotes didn't work.
+
 ## 0.4.0
 
 - **DBML**: schemas written for [dbdiagram.io](https://dbdiagram.io) (`.dbml`, or DBML saved as `.txt`) get everything QuickDBD files do: highlighting, errors as you type, outline, go to definition, the diagram, export, share and compare. A folder can mix both syntaxes, with links between them.
