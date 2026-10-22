@@ -2,7 +2,7 @@
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
   "description": "QuickDBD schema files in VS Code: highlighting, live errors, outline, go to definition, and the interactive ER diagram beside your editor.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",

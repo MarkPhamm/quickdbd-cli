@@ -20,7 +20,7 @@ function step(name: string): void {
 
 export async function run(): Promise<void> {
   const ws = vscode.workspace.workspaceFolders![0].uri.fsPath;
-  const file = path.join(ws, "finance.txt");
+  const file = path.join(ws, "examples", "synthetic", "finance.txt");
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(file));
   const doc = await until("finance.txt detected as QuickDBD", () =>
     vscode.workspace.textDocuments.find((d) => d.uri.fsPath === file && d.languageId === "quickdbd"),
@@ -62,6 +62,22 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand("undo");
   await until("error cleared after undo", () => (vscode.languages.getDiagnostics(doc.uri).length === 0 ? true : undefined));
   step("diagnostics cleared");
+
+  // A standalone file next to another project is checked on its own, not merged with it.
+  const sample = path.join(ws, "examples", "quickdbd-sample.txt");
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(sample));
+  const sampleDoc = await until("quickdbd-sample.txt detected as QuickDBD", () =>
+    vscode.workspace.textDocuments.find((d) => d.uri.fsPath === sample && d.languageId === "quickdbd"),
+  );
+  const sampleSymbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+    "vscode.executeDocumentSymbolProvider",
+    sampleDoc.uri,
+  );
+  assert.ok(sampleSymbols?.some((s) => s.name === "Customer"), "the sample's own outline");
+  const stray = vscode.languages.getDiagnostics().filter(([, d]) => d.length);
+  assert.deepEqual(stray.map(([u, d]) => `${path.basename(u.fsPath)}: ${d[0].message}`), [], "no errors anywhere");
+  step(`standalone file next to another project: ${sampleSymbols.length} tables, no errors`);
+  await vscode.window.showTextDocument(doc);
 
   await vscode.commands.executeCommand("quickdbd.openPreview");
   const tab = await until("preview panel", () =>

@@ -1,4 +1,5 @@
-// Runs test/integration/suite.ts inside a real VS Code, on a scratch copy of examples/synthetic.
+// Runs test/integration/suite.ts inside a real VS Code, on a scratch copy of examples/: a standalone sample next to
+// synthetic/, a separate multi-file project.
 // qdbd comes from QDBD_PATH, else the repo's .venv.
 import { runTests } from "@vscode/test-electron";
 import * as fs from "node:fs";
@@ -9,7 +10,8 @@ import { fileURLToPath } from "node:url";
 const ext = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repo = path.resolve(ext, "..");
 const ws = fs.mkdtempSync(path.join(os.tmpdir(), "qdbd-vscode-"));
-fs.cpSync(path.join(repo, "examples", "synthetic"), ws, { recursive: true });
+// One level down, so the .vscode settings folder isn't inside examples/ (it would change how folders are judged).
+fs.cpSync(path.join(repo, "examples"), path.join(ws, "examples"), { recursive: true });
 const bin = process.platform === "win32" ? path.join("Scripts", "qdbd.exe") : path.join("bin", "qdbd");
 const qdbd = process.env.QDBD_PATH || path.join(repo, ".venv", bin);
 fs.mkdirSync(path.join(ws, ".vscode"));
