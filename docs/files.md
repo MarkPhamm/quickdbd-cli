@@ -1,6 +1,6 @@
-# 3.2 Many Files, One Diagram
+# 3.3 Many Files, One Diagram
 
-Big schemas are easier to manage split into files, one per area or team. Point any command at a folder and every `*.txt` under it, recursively, becomes **one** diagram:
+Big schemas are easier to manage split into files, one per area or team. Point any command at a folder and every `*.txt` and `*.dbml` under it, recursively, becomes **one** diagram:
 
 ```text
 schema/
@@ -20,9 +20,9 @@ You can also list files: `qdbd build sales.txt customers.txt -o sales.html`.
 
 ## How the files combine
 
-- **One namespace:** foreign keys can point at tables in other files. Defining the same table in two files is an error that names both locations.
+- **One namespace:** foreign keys can point at tables in other files, QuickDBD or [DBML](dbml.md). Defining the same table in two files is an error that names both locations.
 - **Settings stay per file:** `CaseSensitive` and `DefaultFieldType` apply to the file that sets them, so each file still pastes into QuickDBD on its own.
-- **One layout file:** positions for the whole folder go to `schema/qdbd.layout.json` ([3.3 Table Positions](layout.md)).
+- **One layout file:** positions for the whole folder go to `schema/qdbd.layout.json` ([3.4 Table Positions](layout.md)).
 
 ## Files become groups
 

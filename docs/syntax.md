@@ -1,6 +1,6 @@
 # 3.1 Schema Syntax
 
-qdbd reads [QuickDBD](https://www.quickdatabasediagrams.com)'s text format. It mirrors QuickDBD's own parser, so a schema that works there works here, with the same error messages.
+qdbd reads [QuickDBD](https://www.quickdatabasediagrams.com)'s text format. It mirrors QuickDBD's own parser, so a schema that works there works here, with the same error messages. It reads DBML, dbdiagram.io's syntax, too: see [3.2 DBML](dbml.md).
 
 ## Tables
 
@@ -100,4 +100,4 @@ One difference isn't a warning: `default=` values keep their case, where QuickDB
 
 ## Many files
 
-Every file is parsed on its own; then all tables share one namespace, so foreign keys can point across files. See [3.2 Many Files, One Diagram](files.md).
+Every file is parsed on its own; then all tables share one namespace, so foreign keys can point across files. See [3.3 Many Files, One Diagram](files.md).

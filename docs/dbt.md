@@ -21,7 +21,7 @@ qdbd import dbt target/manifest.json -o erd/
 | Relationships | `relationships` tests (incl. dbt_utils `relationships_where`) and `foreign_key` constraints (`to` / `to_columns`, or `expression`) |
 | Cardinality | many-to-one (`>-`), or one-to-one (`-`) when the child column is unique |
 | Documentation | model and column descriptions, shown as tooltips |
-| Tags | dbt `tags`, written as `# @dbt-tags:` comments; they colour the headers ([3.4 Tags and Colours](tags.md)) |
+| Tags | dbt `tags`, written as `# @dbt-tags:` comments; they colour the headers ([3.5 Tags and Colours](tags.md)) |
 
 ## Options
 

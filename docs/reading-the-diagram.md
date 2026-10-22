@@ -75,7 +75,7 @@ The minimap (bottom right) shows where you are; click or drag it to move.
 
 ## Regions
 
-When a schema has several files or dbt folders, **Regions** draws a labelled, coloured area behind each group. They read best with `--by-group`, which arranges each group together ([3.3 Table Positions](layout.md)).
+When a schema has several files or dbt folders, **Regions** draws a labelled, coloured area behind each group. They read best with `--by-group`, which arranges each group together ([3.4 Table Positions](layout.md)).
 
 ![Regions](assets/img/regions.png){ .shot }
 

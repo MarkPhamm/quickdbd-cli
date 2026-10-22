@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`quickdbd-cli` (command `qdbd`, on PyPI) compiles QuickDBD-syntax `.txt` schemas, or a dbt `manifest.json`, into an interactive single-file HTML ER diagram that stays usable at 200+ tables. It also exports PNG, SVG and draw.io, diffs schemas against a git ref, and ships a composite GitHub Action (`action.yml`). The docs site (MkDocs Material) and live demos are published to GitHub Pages: docs at `/`, demos at `/demo/` and `/demo/jaffle/`.
+`quickdbd-cli` (command `qdbd`, on PyPI) compiles QuickDBD-syntax `.txt` schemas, DBML (`.dbml`, or DBML in a `.txt`), or a dbt `manifest.json`, into an interactive single-file HTML ER diagram that stays usable at 200+ tables. It also exports PNG, SVG and draw.io, diffs schemas against a git ref, and ships a composite GitHub Action (`action.yml`). The docs site (MkDocs Material) and live demos are published to GitHub Pages: docs at `/`, demos at `/demo/` and `/demo/jaffle/`.
 
 ## Commands
 
@@ -40,7 +40,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 
 **Pipeline** (`project.py` `Project.compile()` / `.build()`):
 
-1. `parser.py`: per-file parse, then a global resolve, giving a `model.Schema`.
+1. `parser.py`: per-file parse (`parse_file` picks the syntax with `syntax_of`; DBML goes to `dbml.py`), then a global resolve, giving a `model.Schema`.
 2. `measure.py` `model_json()`: plain-JSON model, with table/column widths taken from a committed Inter glyph-width table, so Python and the browser agree on sizes.
 3. `layout.py`: positions.
 4. `html.py`: the self-contained page (model JSON plus inline `render.js`, `viewer.js`, CSS and base64 fonts), or `export.py` (PNG via resvg-py with the bundled Inter TTFs).
@@ -51,6 +51,14 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `default=` keeps its case; QuickDBD lowercases it.
 - Don't "fix" QuickDBD behaviour without checking the spec in `docs/superpowers/specs/2026-10-17-qdbd-design.md`.
 - Multi-file: all tables share one namespace, `CaseSensitive` applies to the file it's set in, and duplicate tables report both locations.
+
+**DBML** (`dbml.py`): lexer, statement scanner, interpreter, producing the same `FileParse` as `parser.py`, so mixed folders share one namespace and one resolve step.
+
+- The reference is `@dbml/parse` 10.3.1 (holistics/dbml). Its snapshot tests are copied, reduced, into `tests/fixtures/dbml-ref` (`scripts/import_dbml_corpus.py`): valid files must compile to the reference's tables, columns, refs and groups; invalid ones must error on a reference line. Error wording is ours.
+- Detection (`parser.syntax_of`): `.dbml`, or a `.txt` with a DBML top-level declaration (`Table x {`, `Ref:` + operator, ...). No valid QuickDBD file matches; `test_syntax_of_existing_files_stay_quickdbd` guards that. The extension mirrors it in `schema.ts` `looksLikeDbml`.
+- Relationships carry per-end cards (`PendingRel.cards`), since DBML has 16 operators (`?` = optional side) and `REL_TYPES` 9. A composite ref is one `Relationship` per column pair.
+- `TableGroup` → `Table.group` (beats the per-file group), `headercolor` → `Table.color` (beats tags, loses to diff), notes → `comments`. What isn't drawn (enums, checks, records, deps, ...) goes to `FileParse.unmodelled`.
+- `convert.py` (`qdbd convert`) writes either syntax from a compiled schema; losses are warnings plus `lost` keys, and the CLI recompiles the output and compares `canonical()` before writing.
 
 **Layout** (`layout.py`):
 
@@ -82,6 +90,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 
 **VS Code extension** (`vscode/`, id `MarkPhamm.quickdbd`): TypeScript bundled by esbuild, no runtime npm deps. Published on the VS Code Marketplace and Open VSX (Cursor, Windsurf and VSCodium search Open VSX), with the `.vsix` also attached to each GitHub release.
 
+- Two languages, `quickdbd` and `dbml` (`.dbml`, grammar `syntaxes/dbml.tmLanguage.json`); `isSchemaLanguage` / `LANGUAGES` in `checker.ts`, `schemaLanguage` in `target.ts` picks a `.txt` file's. **Convert to DBML / QuickDBD Syntax** wrap `qdbd convert` (`convert.ts`).
 - It has no parser. Diagnostics, outline and go-to-definition come from `qdbd check --format json --symbols [--stdin-file F]`. The preview is `qdbd serve --embed --port 0` in an iframe inside a webview; **Compare with Git Ref** is the same preview with `--diff-base REF`. Export, HTML export and dbt import wrap `qdbd export` / `build` / `import dbt`.
 - Nothing needs a terminal. When `qdbd` is missing or older than `MIN_VERSION`, `cli.ts` installs it into a venv in the extension's global storage (`venv.ts`: a Python 3.11+ found on the machine, else `uv venv --python >=3.11`). Resolution: `quickdbd.qdbdPath` (exclusive), then the workspace `.venv`/`venv`, then the newer of the extension's venv and `qdbd` on `PATH`; too-old ones are skipped.
 - Share doesn't use `qdbd share`: it signs in with VS Code's GitHub auth (`gist` scope) and calls the gist API itself (`gist.ts`, over `node:https` so VS Code's proxy applies), mirroring `share.py`: same description, file name, links and `shares.json` cache/key, so the CLI and extension update one gist. Keep the two in step. Editors without a GitHub auth provider fall back to `qdbd share`.

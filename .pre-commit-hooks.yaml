@@ -1,7 +1,7 @@
 - id: qdbd-check
-  name: qdbd check (QuickDBD schemas)
-  description: Validate QuickDBD-syntax schema files.
+  name: qdbd check (QuickDBD and DBML schemas)
+  description: Validate QuickDBD-syntax and DBML schema files.
   entry: qdbd check
   language: python
-  files: \.txt$
+  files: \.(txt|dbml)$
   require_serial: true
