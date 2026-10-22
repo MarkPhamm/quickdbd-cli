@@ -6,6 +6,7 @@ Edit [QuickDBD](https://www.quickdatabasediagrams.com) schema files with the int
 
 ## Features
 
+- **A sidebar** (the QuickDBD icon in the Activity Bar) listing every schema in the workspace, down to each column's type and keys, with every action one click away.
 - **Highlighting** for tables, columns, types, keys, relationships and comments.
 - **Errors as you type**: squiggles and the Problems panel, with QuickDBD's own error messages. Unsaved text is checked against the rest of the schema.
 - **Outline and go to definition**: tables and columns in the Outline view and breadcrumbs; **F12** on `Customer.CustomerId` jumps to it, across files.
@@ -14,6 +15,8 @@ Edit [QuickDBD](https://www.quickdatabasediagrams.com) schema files with the int
 - **Share**: a secret gist link, signed in with VS Code's GitHub account.
 - **Compare with git**: the diagram coloured by what changed since a branch, tag or commit, updating as you save.
 - **Import dbt**: schema files from a dbt project's `target/manifest.json`, opened with their diagram.
+
+![The QuickDBD sidebar: schemas, a table expanded to its columns with their types and keys, and the actions](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/vscode-sidebar.png)
 
 ## Requirements
 

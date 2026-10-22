@@ -6,7 +6,8 @@ The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf a
 - errors and warnings as you type, before you save
 - an outline of tables and columns, and **F12** from a foreign key to the table it points at, across files
 - the interactive diagram beside the editor, following your cursor
-- export, share as a link, compare with a git branch, and import a dbt project, all from the Command Palette
+- a sidebar listing every schema in the workspace, down to its columns, with each action one click away
+- export, share as a link, compare with a git branch, and import a dbt project
 
 You never need a terminal: the extension installs the `qdbd` CLI it runs on.
 
@@ -28,6 +29,23 @@ Which `qdbd` it uses:
 3. Otherwise, the newer of its own install and the `qdbd` on your `PATH`. If you already use the CLI (`uv tool install quickdbd-cli`), the extension uses that one and installs nothing.
 
 A version that's too old is skipped, and the extension offers **Update qdbd**.
+
+## The QuickDBD sidebar { #sidebar }
+
+Click the **QuickDBD** icon in the Activity Bar (two boxes joined by a line).
+
+![The QuickDBD sidebar: schemas, a table expanded to its columns with their types and keys, and the actions](assets/img/vscode-sidebar.png)
+
+**Schemas** lists every schema in the workspace, found the same way files are [opened as QuickDBD](#which-files-it-opens-as-quickdbd), without opening them:
+
+- A **schema** shows its table count, its files and any errors. Hover it for **Open Diagram** and **Compare with Git Ref**; right-click it for the exports and **Share**.
+- A schema made of several files lists them, then their tables. Click a **table** to open it in the editor (an open diagram follows), or hover it for **Show in Diagram**.
+- A table lists its **columns**, with their types and a key icon for a primary key or a link icon for a foreign key. Click one to jump to its line.
+- The buttons at the top create a **New Schema File** (a small starter schema, opened with its diagram), **Import a dbt Project**, or **Refresh** the list. It also updates by itself when schema files are added or deleted.
+
+**Actions** has every command, one click each. They run on the schema named in the Actions header: the one in the active editor, else the one selected in Schemas. The last row shows the `qdbd` the extension runs and where it came from; click it to install or update.
+
+With no `qdbd` yet, the sidebar shows an **Install qdbd** button; with no schema yet, **New Schema File** and **Import dbt Project**.
 
 ## Which files it opens as QuickDBD
 

@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { test } from "node:test";
-import { findTarget } from "../src/target.ts";
+import { findTarget, isSchemaFile } from "../src/target.ts";
 
 const TABLE = "Customer\n-\nCustomerId PK int\n";
 
@@ -49,4 +49,12 @@ test("a folder holding other projects isn't one schema", () => {
   // A sibling with its own layout file is a one-file project of its own.
   const sibling = tree({ "a.txt": TABLE, "b.txt": TABLE, "b.layout.json": "{}" });
   assert.deepEqual(findTarget(path.join(sibling, "a.txt"), sibling), { cwd: sibling, paths: ["a.txt"] });
+});
+
+test("schema files: a sidecar always counts; content only with auto-detect on", () => {
+  const root = tree({ "shop.txt": TABLE, "shop.layout.json": "{}", "notes.txt": "hello", "keyed.txt": TABLE });
+  assert.ok(isSchemaFile(path.join(root, "shop.txt"), "anything", false));
+  assert.ok(isSchemaFile(path.join(root, "keyed.txt"), TABLE, true));
+  assert.ok(!isSchemaFile(path.join(root, "keyed.txt"), TABLE, false));
+  assert.ok(!isSchemaFile(path.join(root, "notes.txt"), "hello", true));
 });

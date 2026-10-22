@@ -51,14 +51,20 @@ def _github_annotation(d: Diagnostic, level: str) -> str:
 
 
 def _symbols(schema: Schema) -> dict:
-    """Tables, columns and relationships with their source lines, for editor outlines and go-to-definition."""
+    """Tables, columns and relationships with their source lines, for editor outlines, go-to-definition and the
+    VS Code sidebar (column types and keys, table docs)."""
     tables = []
     for t in schema.tables.values():
-        cols = [{"name": c.name, "line": c.line} for c in t.columns.values() if not c.virtual]
+        cols = [
+            {"name": c.name, "line": c.line, "type": c.type, "pk": c.pk, "fk": c.fk}
+            for c in t.columns.values()
+            if not c.virtual
+        ]
         end = max([t.line + 1] + [c["line"] for c in cols])
-        tables.append(
-            {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
-        )
+        table = {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
+        if t.comments:
+            table["doc"] = "\n".join(t.comments)
+        tables.append(table)
 
     def end(e) -> dict:
         t = schema.tables.get(e.table)

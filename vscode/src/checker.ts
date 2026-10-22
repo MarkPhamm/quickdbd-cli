@@ -63,6 +63,24 @@ export class Checker implements vscode.Disposable {
     if (e?.pending) await Promise.race([e.pending, new Promise((r) => setTimeout(r, READY_TIMEOUT))]);
   }
 
+  /** The latest report for a schema, opened in an editor or not. */
+  reportOf(target: Target): Report | undefined {
+    return this.entries.get(targetKey(target))?.report;
+  }
+
+  /** Check a schema from disk (the sidebar's, with no editor open). Skipped while a check of it is due, or while an
+   * editor has unsaved text in it: the editor's checks use that text, and a check from disk would undo them. */
+  async checkTarget(target: Target): Promise<void> {
+    const key = targetKey(target);
+    let e = this.entries.get(key);
+    if (!e) this.entries.set(key, (e = { target, files: new Set(), seq: 0 }));
+    if (e.pending) return e.pending;
+    const dirty = vscode.workspace.textDocuments.some(
+      (d) => d.isDirty && d.languageId === LANGUAGE && d.uri.scheme === "file" && targetKey(this.targetFor(d)) === key,
+    );
+    if (!dirty) await this.run(e, undefined, ++e.seq);
+  }
+
   reports(): { target: Target; report: Report }[] {
     return [...this.entries.values()].flatMap((e) => (e.report ? [{ target: e.target, report: e.report }] : []));
   }
@@ -88,11 +106,11 @@ export class Checker implements vscode.Disposable {
     }, delay);
   }
 
-  private async run(e: Entry, doc: vscode.TextDocument, seq: number): Promise<void> {
+  private async run(e: Entry, doc: vscode.TextDocument | undefined, seq: number): Promise<void> {
     const strict = vscode.workspace.getConfiguration("quickdbd").get<boolean>("strict") ? ["--strict"] : [];
-    const unsaved = doc.isDirty && !doc.isClosed ? ["--stdin-file", relative(e.target, doc.uri.fsPath)] : [];
+    const unsaved = doc?.isDirty && !doc.isClosed ? ["--stdin-file", relative(e.target, doc.uri.fsPath)] : [];
     const args = ["check", "--format", "json", "--symbols", ...strict, ...unsaved, ...e.target.paths];
-    const res = await this.qdbd.run(args, e.target.cwd, unsaved.length ? doc.getText() : undefined);
+    const res = await this.qdbd.run(args, e.target.cwd, unsaved.length ? doc?.getText() : undefined);
     if (!res || seq !== e.seq) return; // no qdbd, or a newer check started
     let report: Report;
     try {
