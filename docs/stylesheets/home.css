@@ -41,6 +41,8 @@
 .qh-note svg { color: var(--qd-mint); flex: none; }
 .qh-note b { color: var(--qd-text); }
 .qh-note u { color: var(--qd-mint); text-decoration: none; }
+.qh-note a { color: var(--qd-mint); white-space: nowrap; }
+.qh-note a:hover { text-decoration: underline; }
 .qh-note:hover { background: rgba(255, 255, 255, .02); }
 
 .qh-hero__shot { position: relative; }

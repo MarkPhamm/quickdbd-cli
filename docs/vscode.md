@@ -10,6 +10,8 @@ The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf a
 
 You never need a terminal: the extension installs the `qdbd` CLI it runs on.
 
+**Get it:** [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) (VS Code) · [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd) (Cursor, Windsurf, VSCodium)
+
 ![The extension: a schema on the left, the live diagram on the right with the table under the cursor selected](assets/img/vscode.png)
 
 ## Install

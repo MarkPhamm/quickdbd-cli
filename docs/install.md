@@ -45,4 +45,8 @@ uvx --from quickdbd-cli qdbd build schema.txt -o schema.html
 pipx upgrade quickdbd-cli        # or: uv tool upgrade quickdbd-cli / pip install -U quickdbd-cli
 ```
 
+## 1.5 VS Code, Cursor and others { #vs-code }
+
+Prefer an editor to a terminal? Install the **QuickDBD (qdbd)** extension, from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) for VS Code or from [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd) for Cursor, Windsurf and VSCodium. It installs the CLI for you. See [3.5 Editing in VS Code](vscode.md).
+
 Next: [2. Quick Start](getting-started.md), your first diagram in 5 minutes.
