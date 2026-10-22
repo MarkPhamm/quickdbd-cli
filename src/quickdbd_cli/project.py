@@ -11,7 +11,6 @@ from .measure import model_json
 from .model import Schema
 from .parser import compile_sources
 
-
 SCHEMA_SUFFIXES = (".txt", ".dbml")
 
 
