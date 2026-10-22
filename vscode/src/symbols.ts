@@ -1,7 +1,7 @@
 /* Outline, Ctrl+T and F12, all from the last `qdbd check --symbols` report (see checker.ts). */
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { LANGUAGE, type Checker } from "./checker.ts";
+import { LANGUAGES, type Checker } from "./checker.ts";
 import { findColumn, findTable, refAt, type Table, type Target } from "./schema.ts";
 
 function lineRange(line: number): vscode.Range {
@@ -25,7 +25,7 @@ function tableSymbol(t: Table): vscode.DocumentSymbol {
 }
 
 export function registerSymbols(checker: Checker): vscode.Disposable {
-  const selector: vscode.DocumentSelector = { language: LANGUAGE, scheme: "file" };
+  const selector: vscode.DocumentSelector = LANGUAGES.map((language) => ({ language, scheme: "file" }));
   return vscode.Disposable.from(
     vscode.languages.registerDocumentSymbolProvider(selector, {
       async provideDocumentSymbols(doc) {

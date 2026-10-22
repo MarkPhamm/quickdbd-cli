@@ -1,22 +1,24 @@
 /* Which files a schema file belongs with, following the CLI's own conventions (`layout.default_sidecar`):
- * `shop.txt` with `shop.layout.json` is a one-file project; a folder with `qdbd.layout.json` is a multi-file one. */
+ * `shop.txt` with `shop.layout.json` is a one-file project; a folder with `qdbd.layout.json` is a multi-file one.
+ * Schema files are QuickDBD `.txt` files and DBML (`.dbml`, or a `.txt` holding DBML). */
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { hasTable, looksLikeQuickdbd, type Target } from "./schema.ts";
+import { hasTable, looksLikeDbml, looksLikeQuickdbd, type Target } from "./schema.ts";
 
 const MAX_SCAN = 500;
+const SCHEMA_EXT = /\.(txt|dbml)$/i;
 
 /**
  * 1. `<stem>.layout.json` next to the file: just that file.
  * 2. `qdbd.layout.json` in its folder or a parent (up to `stopAt`): that folder.
- * 3. Every .txt under the file's folder has a table, and no layout file below marks a separate project: the folder
+ * 3. Every .txt under the file's folder has a table (or is DBML), and no layout file below marks a separate project: the folder
  *    (FKs can point across files).
  * 4. Otherwise just the file, so a stray notes.txt, or a project in a subfolder, doesn't get mixed in.
  */
 export function findTarget(file: string, stopAt?: string): Target {
   const dir = path.dirname(file);
   const base = path.basename(file);
-  if (fs.existsSync(path.join(dir, base.replace(/\.txt$/i, "") + ".layout.json"))) return { cwd: dir, paths: [base] };
+  if (fs.existsSync(path.join(dir, base.replace(SCHEMA_EXT, "") + ".layout.json"))) return { cwd: dir, paths: [base] };
   const top = stopAt ? path.resolve(stopAt) : dir;
   for (let d = dir; ; d = path.dirname(d)) {
     if (fs.existsSync(path.join(d, "qdbd.layout.json"))) return { cwd: d, paths: ["."] };
@@ -34,10 +36,11 @@ function allSchemas(dir: string): boolean {
         if (e.name.startsWith(".") || e.name === "node_modules" || !walk(p)) return false;
       } else if (e.isFile() && e.name.toLowerCase().endsWith(".layout.json")) {
         return false; // a project of its own (rule 1 or 2 for its files), so this folder isn't one schema
-      } else if (e.isFile() && e.name.toLowerCase().endsWith(".txt")) {
+      } else if (e.isFile() && SCHEMA_EXT.test(e.name)) {
         if (++seen > MAX_SCAN) return false;
+        if (e.name.toLowerCase().endsWith(".dbml")) continue;
         const text = fs.readFileSync(p, "utf8");
-        if (text.trim() && !hasTable(text)) return false;
+        if (text.trim() && !hasTable(text) && !looksLikeDbml(text)) return false;
       }
     }
     return true;
@@ -53,12 +56,22 @@ export function targetTitle(t: Target): string {
 /** A layout sidecar next to the file: its own (`shop.layout.json`) or its folder's (`qdbd.layout.json`). */
 export function hasSidecar(file: string): boolean {
   const dir = path.dirname(file);
-  const own = path.join(dir, path.basename(file).replace(/\.txt$/i, "") + ".layout.json");
+  const own = path.join(dir, path.basename(file).replace(SCHEMA_EXT, "") + ".layout.json");
   return fs.existsSync(own) || fs.existsSync(path.join(dir, "qdbd.layout.json"));
 }
 
-/** Whether a .txt file is a QuickDBD schema: the same test for opening it as QuickDBD and for the sidebar's scan.
- * With `autoDetect` off, only a layout sidecar marks one. */
+export type SchemaLanguage = "quickdbd" | "dbml";
+
+/** The language a file opens as, or null when it isn't a schema: the same test for opening a .txt as a schema and
+ * for the sidebar's scan. A .dbml file always is one; with `autoDetect` off, a .txt needs a layout sidecar. */
+export function schemaLanguage(file: string, text: string, autoDetect: boolean): SchemaLanguage | null {
+  if (/\.dbml$/i.test(file)) return "dbml";
+  const dbml = looksLikeDbml(text);
+  if (hasSidecar(file)) return dbml ? "dbml" : "quickdbd";
+  if (!autoDetect) return null;
+  return dbml ? "dbml" : looksLikeQuickdbd(text) ? "quickdbd" : null;
+}
+
 export function isSchemaFile(file: string, text: string, autoDetect: boolean): boolean {
-  return hasSidecar(file) || (autoDetect && looksLikeQuickdbd(text));
+  return schemaLanguage(file, text, autoDetect) !== null;
 }

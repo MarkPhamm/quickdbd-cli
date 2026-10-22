@@ -4,7 +4,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { LANGUAGE, type Checker } from "./checker.ts";
+import { isSchemaLanguage, type Checker } from "./checker.ts";
 import type { Found, Qdbd, Source } from "./cli.ts";
 import { columnDetail, tablesByFile, targetKey, type Column, type Table, type Target } from "./schema.ts";
 import { findTarget, isSchemaFile, targetTitle } from "./target.ts";
@@ -95,7 +95,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   private async scan(): Promise<void> {
     const auto = vscode.workspace.getConfiguration("quickdbd").get<boolean>("autoDetect", true);
     const found = new Map<string, Schema>();
-    for (const uri of await vscode.workspace.findFiles("**/*.txt", EXCLUDE, MAX_FILES)) {
+    for (const uri of await vscode.workspace.findFiles("**/*.{txt,dbml}", EXCLUDE, MAX_FILES)) {
       const file = uri.fsPath;
       let text: string;
       try {
@@ -294,7 +294,7 @@ export class Sidebar implements vscode.Disposable {
    * last needs a scan, which only runs with the sidebar open, or with `scan` (a command looking for a schema). */
   async current(scan = false): Promise<Schema | undefined> {
     const doc = vscode.window.activeTextEditor?.document;
-    if (doc?.languageId === LANGUAGE && doc.uri.scheme === "file") return this.schemas.schemaOf(doc);
+    if (doc && isSchemaLanguage(doc.languageId) && doc.uri.scheme === "file") return this.schemas.schemaOf(doc);
     const picked = this.schemaView.selection[0];
     if (picked) return { target: picked.target, file: picked.file };
     if (!scan && !this.schemaView.visible && !this.actionsView.visible) return undefined;

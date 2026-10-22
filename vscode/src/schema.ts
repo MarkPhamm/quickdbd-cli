@@ -65,6 +65,19 @@ export function looksLikeQuickdbd(text: string): boolean {
   return text.split(/\r?\n/, 5000).some((l) => !l.trimStart().startsWith("#") && KEYED.test(l));
 }
 
+// A DBML top-level declaration, as `parser.syntax_of` tests it. No valid QuickDBD file has one: a QuickDBD table
+// header can't hold `{`, and a column can't be `Ref:` followed by a relationship operator.
+const DBML_BLOCK = /^\s*(table|enum|tablegroup|tablepartial|records)\s+("[^"]*"|[\p{L}\p{N}_.]+)[^{]*\{\s*(\/\/.*)?$/iu;
+const DBML_PROJECT = /^\s*project\b[^{]*\{\s*(\/\/.*)?$/i;
+const DBML_REF =
+  /^\s*ref(\s+("[^"]*"|[\p{L}\p{N}_]+))?\s*(\{\s*(\/\/.*)?$|:\s*[\p{L}\p{N}_"]+[\p{L}\p{N}_".()\s,]*?\s*\??(<>|<|>|-)\??\s*[\p{L}\p{N}_"])/iu;
+
+/** A DBML schema (dbdiagram.io's syntax), which qdbd reads too. */
+export function looksLikeDbml(text: string): boolean {
+  const lines = text.replace(/\/\*[\s\S]*?\*\//g, "").split(/\r?\n/, 5000);
+  return lines.some((l) => DBML_BLOCK.test(l) || DBML_PROJECT.test(l) || DBML_REF.test(l));
+}
+
 /** "int · PK" for the sidebar: the type, then the keys. */
 export function columnDetail(c: Column): string {
   const keys = [c.pk && "PK", c.fk && "FK"].filter(Boolean).join(", ");

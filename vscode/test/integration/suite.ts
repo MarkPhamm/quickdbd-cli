@@ -125,12 +125,57 @@ export async function run(): Promise<void> {
   assert.equal(vscode.window.activeTextEditor?.document.languageId, "quickdbd");
   step(`dbt import: ${imported.join(", ")}, opened with its diagram`);
 
+  // DBML: a .dbml file opens as DBML, with an outline, live errors and its diagram.
+  const team = path.join(ws, "dbml", "team.dbml");
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(team));
+  const teamDoc = await until("team.dbml opened as DBML", () =>
+    vscode.workspace.textDocuments.find((d) => d.uri.fsPath === team && d.languageId === "dbml"),
+  );
+  const teamSymbols = await until("DBML outline", async () => {
+    const s = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", teamDoc.uri);
+    return s?.length ? s : undefined;
+  });
+  assert.equal(teamSymbols.length, 10);
+  const teamEditor = await vscode.window.showTextDocument(teamDoc);
+  const teamText = teamDoc.getText();
+  await teamEditor.edit((e) => e.insert(new vscode.Position(teamDoc.lineCount, 0), "\nRef: visits.guest_sk > nowhere.id\n"));
+  await until("DBML error for the unsaved edit", () =>
+    vscode.languages.getDiagnostics(teamDoc.uri).find((d) => d.message.includes("nowhere")),
+  );
+  await restore(teamEditor, teamText);
+  await until("DBML error cleared", () => (vscode.languages.getDiagnostics(teamDoc.uri).length === 0 ? true : undefined));
+  await vscode.commands.executeCommand("quickdbd.openPreview");
+  await until("DBML diagram", webviewTab("ERD: dbml"));
+  step(`DBML: detected, outline (${teamSymbols.length} tables), live errors, diagram`);
+
+  await vscode.window.showTextDocument(teamDoc);
+  await vscode.commands.executeCommand("quickdbd.convertToQuickdbd", { output: "../dbml-quickdbd" });
+  const converted = path.join(ws, "dbml-quickdbd", "team.txt");
+  const convertedDoc = await until("converted schema opened as QuickDBD", () =>
+    vscode.workspace.textDocuments.find((d) => d.uri.fsPath === converted && d.languageId === "quickdbd"),
+  );
+  await new Promise((r) => setTimeout(r, 1500));
+  assert.deepEqual(vscode.languages.getDiagnostics(convertedDoc.uri), [], "the converted schema has no errors");
+  step("convert DBML to QuickDBD");
+
+  const extra = path.join(ws, "mixed", "extra.txt");
+  const extraDoc = await vscode.workspace.openTextDocument(extra);
+  await vscode.window.showTextDocument(extraDoc);
+  const mixedSymbols = await until("mixed folder outline", async () => {
+    const s = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", extraDoc.uri);
+    return s?.length ? s : undefined;
+  });
+  assert.ok(mixedSymbols.some((s) => s.name === "visit_notes"));
+  assert.deepEqual(vscode.languages.getDiagnostics(extraDoc.uri), [], "a QuickDBD FK into a DBML table resolves");
+  step("mixed folder: QuickDBD file linking to a DBML table");
+
   // The sidebar lists every schema in the workspace, checked, without opening their files.
   const api = vscode.extensions.getExtension("MarkPhamm.quickdbd")!.exports as Api;
   await vscode.commands.executeCommand("workbench.view.extension.quickdbd");
   const listed = await until("sidebar schemas, checked", async () => {
     const all = await api.schemas();
-    return ["synthetic", "quickdbd-sample", "erd"].every((t) => all.some((x) => x.title === t && x.tables)) ? all : undefined;
+    const titles = ["synthetic", "quickdbd-sample", "erd", "dbml", "mixed"];
+    return titles.every((t) => all.some((x) => x.title === t && x.tables)) ? all : undefined;
   });
   const hidden = listed.filter((x) => path.relative(ws, x.file).split(path.sep).some((part) => part.startsWith(".")));
   assert.deepEqual(hidden.map((x) => x.file), [], "nothing from hidden folders (.history, .vscode-test, …)");

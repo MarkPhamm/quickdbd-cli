@@ -7,6 +7,7 @@ import {
   findTable,
   firstUrl,
   hasTable,
+  looksLikeDbml,
   looksLikeQuickdbd,
   parseVersion,
   refAt,
@@ -96,4 +97,28 @@ test("column details and tables grouped by file, for the sidebar", () => {
       ["b.txt", ["orders"]],
     ],
   );
+});
+
+const DBML = `// Invented
+Table guests {
+  guest_sk integer [primary key]
+}
+
+Table "visits" {
+  guest_sk integer [ref: > guests.guest_sk]
+}
+
+Ref: visits.guest_sk > guests.guest_sk
+`;
+
+test("looksLikeDbml: DBML declarations, but never a QuickDBD schema", () => {
+  assert.ok(looksLikeDbml(DBML));
+  assert.ok(looksLikeDbml("Ref: a.id > b.id\n"));
+  assert.ok(looksLikeDbml('table "my table" as t {\n}\n'));
+  assert.ok(looksLikeDbml("Project shop {\n  database_type: 'PostgreSQL'\n}\n"));
+  assert.ok(!looksLikeDbml(SCHEMA));
+  assert.ok(!looksLikeDbml("Ref\n-\nid PK int\n"));
+  assert.ok(!looksLikeDbml("# Table x {\nCustomer\n-\nid PK int\n"));
+  assert.ok(!looksLikeDbml("Customer\n-\nTable int\nRef: varchar\n"));
+  assert.ok(!looksLikeDbml("/* Table a {\n*/\nCustomer\n-\nid int\n"));
 });
