@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "UNEXPECTED_ELEMENT_DECLARATION",
+   "line": 1,
+   "message": "An element's simple body must not be an element declaration"
+  }
+ ]
+}

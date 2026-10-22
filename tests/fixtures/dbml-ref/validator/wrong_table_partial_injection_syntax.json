@@ -1,0 +1,29 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN",
+   "line": 4,
+   "message": "A column must have a type"
+  },
+  {
+   "code": "INVALID_COLUMN_NAME",
+   "line": 4,
+   "message": "A column name must be an identifier or a quoted identifier"
+  },
+  {
+   "code": "INVALID_TABLE_PARTIAL_INJECTION",
+   "line": 8,
+   "message": "A partial injection should be of the form ~<table-partial>"
+  },
+  {
+   "code": "INVALID_TABLE_PARTIAL_INJECTION",
+   "line": 9,
+   "message": "A partial injection should be of the form ~<table-partial>"
+  },
+  {
+   "code": "INVALID_OPERAND",
+   "line": 10,
+   "message": "Invalid start of operand \"}\""
+  }
+ ]
+}

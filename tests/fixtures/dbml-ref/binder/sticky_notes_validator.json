@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 10,
+   "message": "Duplicate Note 'note2' in schema 'public'"
+  },
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 18,
+   "message": "Duplicate Note 'note3' in schema 'public'"
+  },
+  {
+   "code": "INVALID_NAME",
+   "line": 22,
+   "message": "Invalid name for sticky note "
+  }
+ ]
+}

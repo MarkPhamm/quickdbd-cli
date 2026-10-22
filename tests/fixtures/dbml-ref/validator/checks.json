@@ -1,0 +1,29 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_CHECKS_CONTEXT",
+   "line": 1,
+   "message": "A Checks can only appear inside a Table or a TablePartial"
+  },
+  {
+   "code": "DUPLICATE_CHECK_SETTING",
+   "line": 10,
+   "message": "'name' can only appear once"
+  },
+  {
+   "code": "UNKNOWN_CHECK_SETTING",
+   "line": 11,
+   "message": "Unknown check setting 'invalid'"
+  },
+  {
+   "code": "DUPLICATE_CHECK_SETTING",
+   "line": 21,
+   "message": "'name' can only appear once"
+  },
+  {
+   "code": "UNKNOWN_CHECK_SETTING",
+   "line": 22,
+   "message": "Unknown check setting 'invalid'"
+  }
+ ]
+}

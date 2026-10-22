@@ -1,0 +1,93 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "b"
+     },
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "c"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "c"
+     },
+     {
+      "fields": [
+       "c_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "b"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "c_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "headerColor": "#aaaaaa",
+    "indexes": [],
+    "name": "b",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "b_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "c",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

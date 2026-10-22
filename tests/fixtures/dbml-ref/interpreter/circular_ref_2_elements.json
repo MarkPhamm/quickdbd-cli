@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "CIRCULAR_REF",
+   "line": 9,
+   "message": "References with same endpoints exist"
+  },
+  {
+   "code": "CIRCULAR_REF",
+   "line": 10,
+   "message": "References with same endpoints exist"
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "SAME_ENDPOINT",
+   "line": 2,
+   "message": "Two endpoints are the same"
+  }
+ ]
+}

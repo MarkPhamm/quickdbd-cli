@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 13,
+   "message": "Expect a comma ','"
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 14,
+   "message": "Expect a comma ','"
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 15,
+   "message": "Expect a comma ','"
+  }
+ ]
+}

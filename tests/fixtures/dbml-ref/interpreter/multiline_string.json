@@ -1,0 +1,26 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "note": "# Objective\n  * Support writing long string that can 'span' over multiple lines\n  * Support writing markdown for DBML Note\n\n# Syntax\n\n",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "users",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

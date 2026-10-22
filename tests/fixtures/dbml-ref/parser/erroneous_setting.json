@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "UNEXPECTED_NEWLINE",
+   "line": 8,
+   "message": "Invalid newline encountered while parsing"
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 8,
+   "message": "Expect a comma ','"
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 10,
+   "message": "Expect an identifier"
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 12,
+   "message": "Expect an identifier"
+  }
+ ]
+}

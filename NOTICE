@@ -31,3 +31,8 @@ Each folder keeps the upstream licence in its LICENSE file.
 `qdbd serve` loads CodeMirror 5 (MIT) from cdnjs at runtime; it is not bundled.
 
 QuickDBD is a product of its respective owners; this project is not affiliated with it.
+
+The test suite (tests/fixtures/dbml-ref, not part of the Python package) includes the snapshot test inputs of
+@dbml/parse 10.3.1 (github.com/holistics/dbml, commit 34108bb), copied by scripts/import_dbml_corpus.py with
+their expected results reduced to the parts qdbd checks. Copyright Holistics. Apache License 2.0
+(tests/fixtures/dbml-ref/LICENSE).

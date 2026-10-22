@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_TABLE_CONTEXT",
+   "line": 2,
+   "message": "Table must appear top-level"
+  },
+  {
+   "code": "INVALID_PROJECT_CONTEXT",
+   "line": 7,
+   "message": "An Enum can only appear top-level"
+  }
+ ]
+}

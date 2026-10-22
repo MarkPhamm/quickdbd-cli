@@ -60,6 +60,9 @@ class Table:
     comments: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)  # `# @tag: ...` comments
     dbt_tags: list[str] = field(default_factory=list)  # `# @dbt-tags: ...`, written by `qdbd import dbt`
+    group: str | None = None  # DBML TableGroup; else the explorer groups by file
+    color: str | None = None  # DBML headercolor; beats tag colours
+    end_line: int | None = None  # DBML: the closing `}` line
 
 
 @dataclass

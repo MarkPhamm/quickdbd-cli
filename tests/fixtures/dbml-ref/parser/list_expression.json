@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "EMPTY_ATTRIBUTE_NAME",
+   "line": 4,
+   "message": "Expect a non-empty attribute name"
+  },
+  {
+   "code": "INVALID_OPERAND",
+   "line": 5,
+   "message": "Invalid start of operand \"]\""
+  }
+ ]
+}

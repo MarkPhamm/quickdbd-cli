@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN_TYPE",
+   "line": 7,
+   "message": "Invalid column type"
+  },
+  {
+   "code": "INVALID_COLUMN_TYPE",
+   "line": 8,
+   "message": "Invalid column type"
+  },
+  {
+   "code": "INVALID_OPERAND",
+   "line": 9,
+   "message": "Invalid start of operand \"}\""
+  }
+ ]
+}

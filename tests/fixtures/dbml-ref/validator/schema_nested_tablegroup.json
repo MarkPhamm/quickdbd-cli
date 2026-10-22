@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_NAME",
+   "line": 4,
+   "message": "A TableGroup name must be a single identifier"
+  }
+ ]
+}

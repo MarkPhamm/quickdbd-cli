@@ -1,0 +1,29 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 5,
+   "message": "'check' must be a function expression"
+  },
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 6,
+   "message": "'check' must be a function expression"
+  },
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 7,
+   "message": "'check' must be a function expression"
+  },
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 8,
+   "message": "'check' must be a function expression"
+  },
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 9,
+   "message": "'check' must be a function expression"
+  }
+ ]
+}

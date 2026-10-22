@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_REF_CONTEXT",
+   "line": 14,
+   "message": "A Ref must appear top-level"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 14,
+   "message": "Invalid column reference"
+  },
+  {
+   "code": "INVALID_REF_CONTEXT",
+   "line": 15,
+   "message": "A Ref must appear top-level"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 15,
+   "message": "Invalid column reference"
+  }
+ ]
+}

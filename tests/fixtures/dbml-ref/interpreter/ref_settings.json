@@ -1,0 +1,92 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "A"
+     },
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "B"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "code"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "A"
+     },
+     {
+      "fields": [
+       "code"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "B"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "code",
+      "pk": false,
+      "type": "number",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "A",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "code",
+      "pk": false,
+      "type": "number",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "B",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

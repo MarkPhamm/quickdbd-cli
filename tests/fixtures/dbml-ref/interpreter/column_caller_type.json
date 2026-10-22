@@ -1,0 +1,49 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "secret",
+      "pk": false,
+      "type": "nvarbinary(MAX)",
+      "unique": false
+     },
+     {
+      "name": "name",
+      "pk": false,
+      "type": "varchar(MAX)",
+      "unique": false
+     },
+     {
+      "name": "code",
+      "pk": false,
+      "type": "varbinary(MAX)",
+      "unique": false
+     },
+     {
+      "name": "ssid",
+      "pk": false,
+      "type": "int(10)",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "User",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 4,
+   "message": "Table 'staff' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 5,
+   "message": "Table 'rental' does not exist in Schema 'public'"
+  }
+ ]
+}

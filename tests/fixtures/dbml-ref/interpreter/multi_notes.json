@@ -1,0 +1,136 @@
+{
+ "database": {
+  "enums": [
+   "order status"
+  ],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "note": "primary key field",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "status",
+      "pk": false,
+      "type": "order status",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "orders",
+    "note": "Note on table orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "country",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "booking_date",
+      "pk": false,
+      "type": "date",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     }
+    ],
+    "indexes": [
+     {
+      "columns": [
+       "id",
+       "country"
+      ],
+      "expressions": 0,
+      "pk": true,
+      "unique": false
+     },
+     {
+      "columns": [
+       "created_at"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [
+       "booking_date"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [
+       "country",
+       "booking_date"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": true
+     },
+     {
+      "columns": [
+       "booking_date"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [],
+      "expressions": 1,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [],
+      "expressions": 2,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [
+       "id"
+      ],
+      "expressions": 1,
+      "pk": false,
+      "unique": false
+     }
+    ],
+    "name": "bookings",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

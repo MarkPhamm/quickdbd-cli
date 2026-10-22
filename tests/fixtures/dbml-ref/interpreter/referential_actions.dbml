@@ -1,0 +1,55 @@
+TablePartial increment_id {
+  "id" int [pk, increment]
+}
+
+TablePartial name {
+  "name" varchar(255)
+}
+
+Table "orders" {
+  ~increment_id
+  "user_id" int [unique, not null]
+  "status" orders_status_enum
+  "created_at" varchar(255)
+}
+
+Table "order_items" {
+  "order_id" int
+  "product_id" int
+  "product_name" varchar(255)
+  "quantity" int [default: 1]
+}
+
+Table "products" {
+  "id" int
+  ~name
+  "price" decimal(10,4)
+  "created_at" datetime [default: `now()`]
+
+  Indexes {
+    (id, name) [pk]
+  }
+}
+
+Table "users" {
+  ~increment_id
+  ~name
+  "email" varchar(255) [unique]
+  "date_of_birth" datetime
+  "created_at" datetime [default: `now()`]
+  "country_code" int [not null]
+}
+
+Table "countries" {
+  "code" int [pk]
+  ~name
+  "continent_name" varchar(255)
+}
+
+Ref:"users"."id" < "orders"."user_id" [delete: restrict]
+
+Ref:"orders"."id" < "order_items"."order_id" [delete: cascade]
+
+Ref:"products".("id", "name") < "order_items".("product_id", "product_name") [delete: set null]
+
+Ref:"countries"."code" < "users"."country_code" [delete: no action]

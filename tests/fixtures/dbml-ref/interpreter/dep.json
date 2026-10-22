@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "SAME_ENDPOINT",
+   "line": 30,
+   "message": "Dep with same endpoints already exists"
+  }
+ ]
+}

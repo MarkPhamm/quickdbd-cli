@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_OPERAND",
+   "line": 9,
+   "message": "Invalid start of operand \")\""
+  },
+  {
+   "code": "UNEXPECTED_TOKEN",
+   "line": 11,
+   "message": "Expect a comma ','"
+  }
+ ]
+}

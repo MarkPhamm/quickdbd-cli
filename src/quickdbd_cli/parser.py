@@ -200,11 +200,13 @@ class PendingRel:
     path: str
     line: int
     case_sensitive: bool
+    cards: tuple[str, str] | None = None  # DBML: each end's cardinality (its operators go beyond REL_TYPES)
 
 
 @dataclass
 class FileParse:
     path: str
+    syntax: str = "quickdbd"  # or "dbml"
     tables: dict[str, Table] = field(default_factory=dict)
     aliases: dict[str, str] = field(default_factory=dict)
     rels: list[PendingRel] = field(default_factory=list)
@@ -213,6 +215,8 @@ class FileParse:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     general_comments: list[str] = field(default_factory=list)
     colors: dict[str, tuple[str, int]] = field(default_factory=dict)  # tag -> (#hex, line)
+    unmodelled: list[tuple[int, str]] = field(default_factory=list)  # DBML: (line, what) parsed, not drawn
+    enums: dict[str, list[str]] = field(default_factory=dict)  # DBML: enum name -> values
 
     def error(self, line: int, msg: str) -> None:
         self.diagnostics.append(Diagnostic(self.path, line, msg, "error"))
@@ -650,7 +654,7 @@ class _Resolver:
     def resolve_rels(self) -> None:
         s = self.schema
         for rel in (r for f in self.files for r in f.rels):
-            if not is_rel_type(rel.rel_type):
+            if rel.cards is None and not is_rel_type(rel.rel_type):
                 self.error(rel.path, rel.line, f"Invalid relationship description (allowed: {ALLOWED_REL})")
                 continue
             a = self.parse_token(rel.member1, rel)
@@ -663,7 +667,7 @@ class _Resolver:
                 t = self.get_table(end.table, rel.case_sensitive)
                 if t:
                     end.table = t.id
-            a.card, b.card = REL_TYPES[rel.rel_type.strip()]
+            a.card, b.card = rel.cards or REL_TYPES[rel.rel_type.strip()]
             dup = next((r for r in s.relationships if _same_rel(r, a, b)), None)
             if dup:
                 where = f"{dup.line}" if dup.path == rel.path else f"{dup.path}:{dup.line}"

@@ -1,0 +1,67 @@
+{
+ "database": {
+  "enums": [
+   "status",
+   "gender",
+   "age segment"
+  ],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "name",
+      "pk": false,
+      "type": "text",
+      "unique": false
+     },
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "string",
+       "value": "active"
+      },
+      "name": "status",
+      "pk": false,
+      "type": "status",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "string",
+       "value": "male"
+      },
+      "name": "gender",
+      "pk": false,
+      "type": "gender",
+      "type_schema": "demographic",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "string",
+       "value": "young_adult"
+      },
+      "name": "age_type",
+      "pk": false,
+      "type": "age segment",
+      "type_schema": "demographic",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "user",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

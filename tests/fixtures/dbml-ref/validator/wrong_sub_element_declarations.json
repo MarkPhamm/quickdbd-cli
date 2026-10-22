@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN",
+   "line": 2,
+   "message": "These fields must be some inline settings optionally ended with a setting list"
+  },
+  {
+   "code": "INVALID_COLUMN",
+   "line": 3,
+   "message": "These fields must be some inline settings optionally ended with a setting list"
+  },
+  {
+   "code": "INVALID_COLUMN_TYPE",
+   "line": 3,
+   "message": "Invalid column type"
+  },
+  {
+   "code": "INVALID_COLUMN",
+   "line": 4,
+   "message": "These fields must be some inline settings optionally ended with a setting list"
+  }
+ ]
+}
