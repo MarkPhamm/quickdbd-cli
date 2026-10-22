@@ -217,6 +217,7 @@ class FileParse:
     colors: dict[str, tuple[str, int]] = field(default_factory=dict)  # tag -> (#hex, line)
     unmodelled: list[tuple[int, str]] = field(default_factory=list)  # DBML: (line, what) parsed, not drawn
     enums: dict[str, list[str]] = field(default_factory=dict)  # DBML: enum name -> values
+    groups: dict[str, int] = field(default_factory=dict)  # DBML: TableGroup name -> line
 
     def error(self, line: int, msg: str) -> None:
         self.diagnostics.append(Diagnostic(self.path, line, msg, "error"))
@@ -785,9 +786,15 @@ def _same_rel(r: Relationship, a: End, b: End) -> bool:
     )
 
 
+def compile_files(sources: list[tuple[str, str]]) -> tuple[Schema, list[FileParse]]:
+    """Like ``compile_sources``, also returning each file's own parse (comments, settings, DBML extras)."""
+    files = [parse_file(text, path) for path, text in sources]
+    return _Resolver(files).run(), files
+
+
 def compile_sources(sources: list[tuple[str, str]]) -> Schema:
     """Compile ``[(path, text), ...]`` into one Schema (tables share one namespace)."""
-    return _Resolver([parse_file(text, path) for path, text in sources]).run()
+    return compile_files(sources)[0]
 
 
 def compile_text(text: str, path: str = "<input>") -> Schema:

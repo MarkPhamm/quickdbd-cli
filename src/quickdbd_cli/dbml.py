@@ -856,6 +856,8 @@ class _Interpreter:
                     self.error(s.line, f"Unknown index setting '{s.key}'")
             if exprs:
                 self.unmodelled(sub.line, "expression index")
+            elif len(cols) > 1 and not pk:
+                self.unmodelled(sub.line, f"composite index ({', '.join(cols)}), drawn as INDEX on each column")
             t.indexes.append(_Index(cols, pk, unique, exprs, sub.line))
 
     def enum(self, st: Stmt) -> None:
@@ -1152,7 +1154,8 @@ class _Interpreter:
 
     def resolve_groups(self) -> None:
         grouped: dict[tuple[str, str], str] = {}
-        for name, members, _ in self.groups:
+        for name, members, group_line in self.groups:
+            self.fp.groups[name] = group_line
             for parts, line in members:
                 key = self._lookup(parts)
                 if key is None:
@@ -1221,6 +1224,10 @@ class _Interpreter:
             line -= 1
 
     def colors(self) -> None:
+        first_code = min(self.code_lines, default=0)
+        self.fp.general_comments = [
+            text for line, text in sorted(self.comments.items()) if line < first_code and not COLOR_RE.match(text)
+        ]
         for line, text in sorted(self.comments.items()):
             m = COLOR_RE.match(text)
             if not m:
