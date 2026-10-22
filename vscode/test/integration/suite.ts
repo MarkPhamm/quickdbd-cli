@@ -132,6 +132,8 @@ export async function run(): Promise<void> {
     const all = await api.schemas();
     return ["synthetic", "quickdbd-sample", "erd"].every((t) => all.some((x) => x.title === t && x.tables)) ? all : undefined;
   });
+  const hidden = listed.filter((x) => path.relative(ws, x.file).split(path.sep).some((part) => part.startsWith(".")));
+  assert.deepEqual(hidden.map((x) => x.file), [], "nothing from hidden folders (.history, .vscode-test, …)");
   step(`sidebar: ${listed.map((x) => `${x.title} (${x.tables} tables)`).join(", ")}`);
 
   // A schema row's button acts on that schema, not the active editor's.

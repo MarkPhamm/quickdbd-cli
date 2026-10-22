@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Fix: the sidebar listed schema files inside hidden folders, such as an editor's local-history copies or a `.vscode-test` sandbox, as broken schemas. Hidden folders are skipped now, as dependency and build folders already were.
+
 ## 0.3.0
 
 - **The QuickDBD sidebar**: an Activity Bar icon opens **Schemas**, every schema in the workspace down to its tables and columns (types and keys with qdbd 0.1.18+), and **Actions**, every command one click away, including **Export…** and the new **New Schema File…**. With no qdbd or no schema yet, it shows the install or create buttons instead.
