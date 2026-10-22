@@ -17,12 +17,13 @@ The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf a
     uv tool install quickdbd-cli      # or: pipx install quickdbd-cli
     ```
 
-2. Download `quickdbd-<version>.vsix` from the [latest GitHub release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest).
-3. In VS Code, open the Extensions view, click **⋯** at the top, choose **Install from VSIX…** and pick the file. From a terminal:
+2. Install the extension: open the Extensions view (**Cmd+Shift+X** / **Ctrl+Shift+X**), search **QuickDBD** and pick **QuickDBD (qdbd)** by Minh Pham. It's on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) and, for Cursor, Windsurf and VSCodium, on [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd). From a terminal:
 
     ```bash
-    code --install-extension quickdbd-0.1.0.vsix
+    code --install-extension MarkPhamm.quickdbd     # or: cursor --install-extension MarkPhamm.quickdbd
     ```
+
+Each [GitHub release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest) also has the `.vsix` file, for **Install from VSIX…** in the Extensions view's **⋯** menu.
 
 The extension looks for `qdbd` in the `quickdbd.qdbdPath` setting, then in the workspace's `.venv` (or `venv`), then on your `PATH`. If it can't find it, or the version is too old, it offers to run the install or upgrade command for you.
 
