@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import type { Api } from "../../src/extension.ts";
 
 async function until<T>(what: string, probe: () => T | undefined | Promise<T | undefined>, ms = 30000): Promise<T> {
   const end = Date.now() + ms;
@@ -18,6 +19,14 @@ async function until<T>(what: string, probe: () => T | undefined | Promise<T | u
 
 function step(name: string): void {
   console.log(`  ✓ ${name}`);
+}
+
+/** Put a document back to `text` and save it. Not the undo command: that acts on the focused editor, and nothing in
+ * the test window has focus while another app is in front, so it would quietly do nothing. */
+async function restore(editor: vscode.TextEditor, text: string): Promise<void> {
+  const doc = editor.document;
+  await editor.edit((e) => e.replace(new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length)), text));
+  await doc.save();
 }
 
 export async function run(): Promise<void> {
@@ -56,13 +65,14 @@ export async function run(): Promise<void> {
   assert.ok(uri && uri.fsPath !== file, `F12 on ${target[1]} jumps to another file`);
   step(`go to definition: ${target[1]} -> ${path.basename(uri.fsPath)}`);
 
+  const original = doc.getText();
   await editor.edit((e) => e.insert(new vscode.Position(doc.lineCount, 0), "\nBroken\n-\nId int FK >- Nope.Id\n"));
   await until("error for the unsaved edit", () =>
     vscode.languages.getDiagnostics(doc.uri).find((d) => d.message.includes("Nope")),
   );
   step("diagnostics for unsaved text");
-  await vscode.commands.executeCommand("undo");
-  await until("error cleared after undo", () => (vscode.languages.getDiagnostics(doc.uri).length === 0 ? true : undefined));
+  await restore(editor, original);
+  await until("error cleared", () => (vscode.languages.getDiagnostics(doc.uri).length === 0 ? true : undefined));
   step("diagnostics cleared");
 
   // A standalone file next to another project is checked on its own, not merged with it.
@@ -115,6 +125,28 @@ export async function run(): Promise<void> {
   assert.equal(vscode.window.activeTextEditor?.document.languageId, "quickdbd");
   step(`dbt import: ${imported.join(", ")}, opened with its diagram`);
 
+  // The sidebar lists every schema in the workspace, checked, without opening their files.
+  const api = vscode.extensions.getExtension("MarkPhamm.quickdbd")!.exports as Api;
+  await vscode.commands.executeCommand("workbench.view.extension.quickdbd");
+  const listed = await until("sidebar schemas, checked", async () => {
+    const all = await api.schemas();
+    return ["synthetic", "quickdbd-sample", "erd"].every((t) => all.some((x) => x.title === t && x.tables)) ? all : undefined;
+  });
+  step(`sidebar: ${listed.map((x) => `${x.title} (${x.tables} tables)`).join(", ")}`);
+
+  // A schema row's button acts on that schema, not the active editor's.
+  const sampleRow = listed.find((x) => x.title === "quickdbd-sample")!;
+  await vscode.commands.executeCommand("quickdbd.openPreview", { kind: "schema", target: sampleRow.target, file: sampleRow.file });
+  await until("sample diagram from its sidebar row", webviewTab("ERD: quickdbd-sample"));
+  step("open diagram from a sidebar row");
+
+  // New Schema File writes a starter, opens it with its diagram, and the sidebar picks it up from the file watcher.
+  await vscode.commands.executeCommand("quickdbd.newSchema", { output: "starter/schema.txt" });
+  // Alone in its folder, the schema is the folder's: "starter".
+  await until("starter's diagram", webviewTab("ERD: starter"));
+  await until("starter in the sidebar", async () => (await api.schemas()).some((x) => x.title === "starter" && x.tables === 2));
+  step("new schema file: opened with its diagram, listed in the sidebar");
+
   if (process.env.QDBD_TEST_INSTALL) await testInstall(doc);
 
   // QDBD_HOLD=ms keeps the window open (cursor on Ledger, so the preview should select it) for a screenshot.
@@ -137,10 +169,11 @@ async function testInstall(doc: vscode.TextDocument): Promise<void> {
   const ok = await vscode.commands.executeCommand<boolean>("quickdbd.installCli");
   assert.equal(ok, true, "installCli reports success");
   const editor = await vscode.window.showTextDocument(doc);
+  const original = doc.getText();
   await editor.edit((e) => e.insert(new vscode.Position(doc.lineCount, 0), "\nBroken\n-\nId int FK >- Nowhere.Id\n"));
   await until("error from the installed qdbd", () =>
     vscode.languages.getDiagnostics(doc.uri).find((d) => d.message.includes("Nowhere")),
   120000);
-  await vscode.commands.executeCommand("undo");
+  await restore(editor, original);
   step("installed qdbd into the extension's own virtualenv");
 }

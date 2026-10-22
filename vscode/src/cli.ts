@@ -11,9 +11,13 @@ export const MIN_VERSION = [0, 1, 17];
 
 export type RunResult = ExecResult;
 
-interface Found {
+/** Where the qdbd in use came from (resolve's order). */
+export type Source = "setting" | "workspace" | "extension" | "path";
+
+export interface Found {
   exe: string;
   version: number[];
+  source: Source;
 }
 
 export class Qdbd {
@@ -23,6 +27,9 @@ export class Qdbd {
   private readonly installed = new vscode.EventEmitter<void>();
   /** Fires after an install or update, so checks that failed for want of qdbd can run again. */
   readonly onDidInstall = this.installed.event;
+  private readonly resolvedEvent = new vscode.EventEmitter<Found | undefined>();
+  /** Fires each time qdbd is looked up anew (start, setting change, install): the sidebar shows which one. */
+  readonly onDidResolve = this.resolvedEvent.event;
 
   private readonly log: vscode.OutputChannel;
   private readonly venv: string;
@@ -43,8 +50,14 @@ export class Qdbd {
     return this.found().then((f) => f?.exe);
   }
 
-  private found(): Promise<Found | undefined> {
-    this.resolved ??= this.resolve();
+  /** The qdbd in use, with its version and where it came from; undefined if missing or too old. */
+  found(): Promise<Found | undefined> {
+    this.resolved ??= this.resolve().then((f) => {
+      // The sidebar's welcome view offers the install while this is set.
+      void vscode.commands.executeCommand("setContext", "quickdbd.cliMissing", !f);
+      this.resolvedEvent.fire(f);
+      return f;
+    });
     return this.resolved;
   }
 
@@ -55,7 +68,7 @@ export class Qdbd {
    */
   private async resolve(): Promise<Found | undefined> {
     let old: string | undefined;
-    const probe = async (exe: string): Promise<Found | undefined> => {
+    const probe = async (exe: string, source: Source): Promise<Found | undefined> => {
       const out = await version(exe);
       if (out === undefined) return undefined;
       const v = parseVersion(out) ?? MIN_VERSION;
@@ -64,7 +77,7 @@ export class Qdbd {
         old ??= v.join(".");
         return undefined;
       }
-      return { exe, version: v };
+      return { exe, version: v, source };
     };
     const use = (f: Found) => {
       this.log.appendLine(`using ${f.exe} (qdbd ${f.version.join(".")})`);
@@ -72,7 +85,7 @@ export class Qdbd {
     };
     const setting = vscode.workspace.getConfiguration("quickdbd").get<string>("qdbdPath")?.trim();
     if (setting) {
-      const f = await probe(setting);
+      const f = await probe(setting, "setting");
       if (f) return use(f);
       this.tell(
         old
@@ -82,10 +95,11 @@ export class Qdbd {
       return undefined;
     }
     for (const exe of workspaceVenvs()) {
-      const f = await probe(exe);
+      const f = await probe(exe, "workspace");
       if (f) return use(f);
     }
-    const found = (await Promise.all([venvBin(this.venv, "qdbd"), "qdbd"].map(probe))).filter((f) => f !== undefined);
+    const ours = probe(venvBin(this.venv, "qdbd"), "extension");
+    const found = (await Promise.all([ours, probe("qdbd", "path")])).filter((f) => f !== undefined);
     found.sort((a, b) => (atLeast(a.version, b.version) ? -1 : 1));
     if (found[0]) return use(found[0]);
     this.tell(
@@ -169,6 +183,7 @@ export class Qdbd {
 
   dispose(): void {
     this.installed.dispose();
+    this.resolvedEvent.dispose();
   }
 }
 

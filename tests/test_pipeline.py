@@ -184,6 +184,18 @@ def test_check_symbols_list_tables_columns_and_rels(tmp_path, capsys):
     assert "tables" not in json.loads(capsys.readouterr().out)  # only with --symbols
 
 
+def test_check_symbols_carry_types_keys_and_docs(tmp_path, capsys):
+    f = tmp_path / "shop.txt"
+    f.write_text("# People who buy things\n" + SMALL)
+    assert main(["check", "--format", "json", "--symbols", str(f)]) == 0
+    tables = {t["name"]: t for t in json.loads(capsys.readouterr().out)["tables"]}
+    assert tables["Customer"]["doc"] == "People who buy things"
+    assert "doc" not in tables["Order"]
+    cols = {c["name"]: c for c in tables["Order"]["columns"]}
+    assert {k: cols["OrderId"][k] for k in ("type", "pk", "fk")} == {"type": "int", "pk": True, "fk": False}
+    assert cols["CustomerId"]["fk"] and not cols["CustomerId"]["pk"]
+
+
 def test_check_stdin_file_uses_the_unsaved_text(tmp_path, capsys, monkeypatch):
     import io
 

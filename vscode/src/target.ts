@@ -2,7 +2,7 @@
  * `shop.txt` with `shop.layout.json` is a one-file project; a folder with `qdbd.layout.json` is a multi-file one. */
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { hasTable, type Target } from "./schema.ts";
+import { hasTable, looksLikeQuickdbd, type Target } from "./schema.ts";
 
 const MAX_SCAN = 500;
 
@@ -48,4 +48,17 @@ function allSchemas(dir: string): boolean {
 /** The diagram's name, as the CLI titles it: the file's stem, or the folder's name. */
 export function targetTitle(t: Target): string {
   return t.paths[0] === "." ? path.basename(t.cwd) : path.parse(t.paths[0]).name;
+}
+
+/** A layout sidecar next to the file: its own (`shop.layout.json`) or its folder's (`qdbd.layout.json`). */
+export function hasSidecar(file: string): boolean {
+  const dir = path.dirname(file);
+  const own = path.join(dir, path.basename(file).replace(/\.txt$/i, "") + ".layout.json");
+  return fs.existsSync(own) || fs.existsSync(path.join(dir, "qdbd.layout.json"));
+}
+
+/** Whether a .txt file is a QuickDBD schema: the same test for opening it as QuickDBD and for the sidebar's scan.
+ * With `autoDetect` off, only a layout sidecar marks one. */
+export function isSchemaFile(file: string, text: string, autoDetect: boolean): boolean {
+  return hasSidecar(file) || (autoDetect && looksLikeQuickdbd(text));
 }

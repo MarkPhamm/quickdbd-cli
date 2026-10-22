@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   atLeast,
+  columnDetail,
   findColumn,
   findTable,
   firstUrl,
@@ -10,6 +11,7 @@ import {
   parseVersion,
   refAt,
   tableAt,
+  tablesByFile,
   type Report,
 } from "../src/schema.ts";
 
@@ -78,4 +80,20 @@ test("versions and URLs", () => {
   assert.ok(atLeast([0, 2, 0], [0, 1, 16]));
   assert.ok(!atLeast([0, 1, 9], [0, 1, 16]));
   assert.equal(firstUrl("[qdbd] serving 3 file(s) at http://127.0.0.1:54321/  (layout: x)"), "http://127.0.0.1:54321/");
+});
+
+test("column details and tables grouped by file, for the sidebar", () => {
+  assert.equal(columnDetail({ name: "Id", line: 1, type: "int", pk: true, fk: false }), "int · PK");
+  assert.equal(columnDetail({ name: "CustId", line: 1, type: "int", pk: true, fk: true }), "int · PK, FK");
+  assert.equal(columnDetail({ name: "Note", line: 1, type: "string" }), "string");
+  assert.equal(columnDetail({ name: "Old", line: 1 }), "", "an older qdbd sends no types");
+  const t = (name: string, file: string) => ({ name, aliases: [], file, line: 1, endLine: 2, columns: [] });
+  const groups = tablesByFile({ ...REPORT, tables: [t("orders", "b.txt"), t("Zeta", "a.txt"), t("alpha", "a.txt")] });
+  assert.deepEqual(
+    groups.map((g) => [g.file, g.tables.map((x) => x.name)]),
+    [
+      ["a.txt", ["alpha", "Zeta"]],
+      ["b.txt", ["orders"]],
+    ],
+  );
 });

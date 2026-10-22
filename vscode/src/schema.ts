@@ -12,6 +12,10 @@ export interface Diag {
 export interface Column {
   name: string;
   line: number;
+  // qdbd 0.1.18+: shown in the sidebar when present
+  type?: string | null;
+  pk?: boolean;
+  fk?: boolean;
 }
 
 export interface Table {
@@ -21,6 +25,7 @@ export interface Table {
   line: number;
   endLine: number;
   columns: Column[];
+  doc?: string; // qdbd 0.1.18+: the table's `#` comments
 }
 
 export interface Report {
@@ -58,6 +63,20 @@ export function hasTable(text: string): boolean {
 export function looksLikeQuickdbd(text: string): boolean {
   if (!hasTable(text)) return false;
   return text.split(/\r?\n/, 5000).some((l) => !l.trimStart().startsWith("#") && KEYED.test(l));
+}
+
+/** "int · PK" for the sidebar: the type, then the keys. */
+export function columnDetail(c: Column): string {
+  const keys = [c.pk && "PK", c.fk && "FK"].filter(Boolean).join(", ");
+  return [c.type, keys].filter(Boolean).join(" · ");
+}
+
+/** The report's tables grouped by file, files in path order and tables by name. */
+export function tablesByFile(report: Report): { file: string; tables: Table[] }[] {
+  const byFile = new Map<string, Table[]>();
+  for (const t of report.tables ?? []) byFile.set(t.file, [...(byFile.get(t.file) ?? []), t]);
+  const name = (a: Table, b: Table) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  return [...byFile.keys()].sort().map((file) => ({ file, tables: byFile.get(file)!.sort(name) }));
 }
 
 /** The table whose lines include `line` (1-based) in `file` (a report path). */
