@@ -39,3 +39,14 @@ test("a folder of schemas is one project; a stray text file keeps it to one file
   const mixed = tree({ "a.txt": TABLE, "requirements.txt": "flask\n" });
   assert.deepEqual(findTarget(path.join(mixed, "a.txt"), mixed), { cwd: mixed, paths: ["a.txt"] });
 });
+
+test("a folder holding other projects isn't one schema", () => {
+  // examples/: a standalone sample next to synthetic/, a separate project with its own layout file.
+  const nested = tree({ "sample.txt": TABLE, "synthetic/qdbd.layout.json": "{}", "synthetic/a.txt": TABLE });
+  assert.deepEqual(findTarget(path.join(nested, "sample.txt"), nested), { cwd: nested, paths: ["sample.txt"] });
+  const synthetic = path.join(nested, "synthetic");
+  assert.deepEqual(findTarget(path.join(synthetic, "a.txt"), nested), { cwd: synthetic, paths: ["."] });
+  // A sibling with its own layout file is a one-file project of its own.
+  const sibling = tree({ "a.txt": TABLE, "b.txt": TABLE, "b.layout.json": "{}" });
+  assert.deepEqual(findTarget(path.join(sibling, "a.txt"), sibling), { cwd: sibling, paths: ["a.txt"] });
+});

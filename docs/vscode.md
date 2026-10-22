@@ -46,7 +46,7 @@ Foreign keys can point into other files, so the extension checks a file together
 
 1. `shop.txt` with a `shop.layout.json` beside it is checked on its own.
 2. Otherwise, the nearest folder above it (inside the workspace) that holds a `qdbd.layout.json` is one schema, like `qdbd check that-folder/`.
-3. Otherwise, the file's own folder, if every `.txt` file under it is a schema.
+3. Otherwise, the file's own folder, if every `.txt` file under it is a schema and no layout file below it marks a separate project (like `examples/synthetic/` next to `examples/quickdbd-sample.txt`).
 4. Otherwise, the file on its own, so a stray `notes.txt` doesn't break the check.
 
 Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.json` for a single file), so after the first preview, rule 1 or 2 applies.
