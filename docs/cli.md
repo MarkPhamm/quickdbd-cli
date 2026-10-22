@@ -5,7 +5,7 @@ Every command takes one or more `PATH`s: a `.txt` file, or a folder (every `*.tx
 ## 8.1 check { #check }
 
 ```bash
-qdbd check PATH... [--strict] [--format text|github|json]
+qdbd check PATH... [--strict] [--format text|github|json] [--symbols] [--stdin-file FILE]
 ```
 
 Validates the schema. Prints `No errors found. Good job!`, or `file:line: error: message` lines and exits 1. `--strict` also fails on [QuickDBD-compatibility warnings](syntax.md#where-qdbd-is-more-forgiving).
@@ -28,6 +28,11 @@ Validates the schema. Prints `No errors found. Good job!`, or `file:line: error:
 
 Paths are relative to the current directory. The exit code is the same in every format.
 
+Two options are there for editors, and the [VS Code extension](vscode.md) uses both:
+
+- `--symbols` (with `--format json`) adds `tables` (name, aliases, file, first and last line, columns with their lines) and `rels` (file, line and both ends) to the report.
+- `--stdin-file FILE` reads that schema file's text from stdin instead of disk, so an unsaved buffer gets checked along with the other files on disk. `FILE` has to be one of the files being checked.
+
 ## 8.2 build { #build }
 
 ```bash
@@ -39,7 +44,7 @@ Writes one self-contained HTML page. Builds are deterministic (same input, same 
 ## 8.3 serve { #serve }
 
 ```bash
-qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only]
+qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed]
 ```
 
 Local live editor on `127.0.0.1`: reloads when files change, browser editor pane with autosave, drag tables to save positions. Ctrl+C stops it.
@@ -47,6 +52,8 @@ Local live editor on `127.0.0.1`: reloads when files change, browser editor pane
 The default port is 8765. If it's busy (for example, a second `qdbd serve` is running), the next free port is used and printed. An explicit `--port` that's busy is an error.
 
 `--read-only` serves a live view with no editor that never writes to disk, safe to put behind a tunnel ([4.4 Sharing a Link](sharing.md#live-read-only-link)).
+
+`--embed` is the page behind the [VS Code extension](vscode.md)'s preview: a live view with no editor pane, where dragging still saves positions but files can't be written. It talks to the editor through `postMessage`. `--port 0` picks any free port.
 
 ## 8.4 export { #export }
 

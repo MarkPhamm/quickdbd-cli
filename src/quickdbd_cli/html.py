@@ -115,8 +115,10 @@ FILTER_HELP = (
 
 
 # Runs in <head> so the page paints in the right theme. viewer.js owns the toggle; keep the key in sync.
+# ?theme=dark|light (the VS Code preview passes its theme) wins over the saved choice.
 THEME_JS = (
-    "(function(){var t;try{t=localStorage.getItem('qdbd-theme');}catch(e){}"
+    "(function(){var t=(/[?&]theme=(dark|light)/.exec(location.search)||[])[1];"
+    "if(!t)try{t=localStorage.getItem('qdbd-theme');}catch(e){}"
     "if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';"
     "document.documentElement.setAttribute('data-theme',t);})();"
 )
@@ -131,11 +133,18 @@ LIVE_JS = (
 )
 
 
-def render_page(model: dict, positions: dict, title: str, serve: bool = False, live: bool = False) -> str:
+def render_page(
+    model: dict, positions: dict, title: str, serve: bool = False, live: bool = False, embed: bool = False
+) -> str:
     """The self-contained page. ``serve``: editor pane and saved dragging. ``live``: read-only, but reloads
-    when the server's schema changes (``qdbd serve --read-only``)."""
-    data = {"model": model, "positions": positions, "serve": serve, "title": title}
-    if serve:
+    when the server's schema changes (``qdbd serve --read-only``). ``embed``: live reload and saved dragging,
+    no editor pane; talks to the VS Code extension through postMessage (``qdbd serve --embed``)."""
+    data = {"model": model, "positions": positions, "serve": serve or embed, "title": title}
+    if embed:
+        data["embed"] = True
+    if embed:
+        hint = "Drag tables to arrange them (saved). Double-click a table to open it in the editor."
+    elif serve:
         hint = "Drag tables to arrange them (saved). Click a table for details. Esc clears."
     elif live:
         hint = "Live, read-only view: updates when the schema changes. Drag tables to rearrange (not saved)."
@@ -155,7 +164,7 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False, l
             f'<script src="{CODEMIRROR}/addon/mode/simple.min.js"></script>'
             f"<script>{_asset('editor.js')}</script>"
         )
-    elif live:
+    elif live or embed:
         scripts = f"<script>{LIVE_JS}</script>"
     return (
         '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'

@@ -240,7 +240,9 @@
     var d = drag;
     drag = null;
     if (!d.moved) {
-      select(d.table && S.focus !== d.table ? d.table : null);
+      // Clicking the selected table toggles it off, unless it was selected quietly: then show its details.
+      if (d.table && d.table === S.focus && !details.classList.contains("open")) showDetails(d.table);
+      else select(d.table && S.focus !== d.table ? d.table : null);
       return;
     }
     if (d.start) {
@@ -294,6 +296,7 @@
     try { var t = localStorage.getItem("qdbd-theme"); return t === "light" || t === "dark" ? t : "auto"; } catch (e) { return "auto"; }
   }
   function applyTheme() {
+    if (data.embed) return; // the editor sets the theme (qdbd.theme message)
     var pref = themePref(), t = pref === "auto" ? (darkQuery.matches ? "dark" : "light") : pref;
     document.documentElement.setAttribute("data-theme", t);
     themeBtn.title = "Theme: " + pref;
@@ -315,12 +318,13 @@
   }
 
   /* ------------------------------------------------------------- selection: focus + details */
+  /* opts.center: pan to it. opts.quiet: don't open the details panel (only refresh it if it's already open). */
   function select(id, opts) {
     if ((id || null) !== S.focus) S.path = null;
     S.focus = id && byId[id] ? id : null;
     scheduleHash();
     applyFocus();
-    if (S.focus) showDetails(S.focus);
+    if (S.focus && (!(opts && opts.quiet) || details.classList.contains("open"))) showDetails(S.focus);
     else closeDetails();
     markTree();
     if (S.focus && opts && opts.center) centerOn(S.focus);
@@ -513,7 +517,10 @@
       (t.diff.state === "added" ? "NEW" : "CHANGED") + "</span>" : "") + "</h2>");
     var meta = [];
     if (t.aliases.length) meta.push("as " + Q.esc(t.aliases.join(", ")));
-    if (t.file) meta.push(Q.esc(t.file) + ":" + t.line);
+    if (t.file) {
+      var where = Q.esc(t.file) + ":" + t.line;
+      meta.push(data.embed ? '<a class="reveal" title="Open in the editor">' + where + "</a>" : where);
+    }
     if (meta.length) out.push('<div class="meta">' + meta.join(" &middot; ") + "</div>");
     if (t.tags) {
       out.push('<div class="ttags">' + t.tags.map(function (g) {
@@ -683,6 +690,40 @@
     };
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(text);
   };
+
+  /* ------------------------------------------------------------- embed: the VS Code preview (qdbd serve --embed)
+   * The page sits in an iframe inside a webview. It posts qdbd.ready / qdbd.reveal {file, line} to the parent and
+   * takes qdbd.focus {table} and qdbd.theme {theme}. Downloads and the clipboard don't work there, so the
+   * extension's commands replace the export, link and theme buttons. */
+  if (data.embed) {
+    ["xsvg", "xpng", "xdrawio", "xlink", "xtheme"].forEach(function (id) { document.getElementById(id).style.display = "none"; });
+    window.qdbdServe = {
+      saveLayout: function (body) {
+        fetch("layout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      },
+    };
+    var reveal = function (id) {
+      var t = byId[id];
+      if (t && t.file) window.parent.postMessage({ type: "qdbd.reveal", file: t.file, line: t.line }, "*");
+    };
+    svg.addEventListener("dblclick", function (ev) {
+      var g = ev.target.closest(".t");
+      if (g) reveal(g.getAttribute("data-id"));
+    });
+    dbody.addEventListener("click", function (ev) { if (ev.target.closest("a.reveal")) reveal(S.focus); });
+    window.addEventListener("message", function (ev) {
+      var m = ev.data;
+      if (ev.source !== window.parent || !m) return;
+      if (m.type === "qdbd.focus") {
+        var t = S.model.tables.filter(function (x) { return x.name === m.table; })[0];
+        // Follows the editor's cursor: highlight and pan, but don't cover the diagram with the details panel.
+        if (t && t.id !== S.focus && S.shown[t.id]) select(t.id, { center: true, quiet: true });
+      } else if (m.type === "qdbd.theme") {
+        document.documentElement.setAttribute("data-theme", m.theme === "dark" ? "dark" : "light");
+      }
+    });
+    window.parent.postMessage({ type: "qdbd.ready" }, "*");
+  }
 
   /* ------------------------------------------------------------- public API (serve mode) */
   window.qdbdViewer = {

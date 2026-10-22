@@ -171,6 +171,33 @@ def test_check_format_json(tmp_path, capsys):
     ]
 
 
+def test_check_symbols_list_tables_columns_and_rels(tmp_path, capsys):
+    f = tmp_path / "shop.txt"
+    f.write_text(SMALL)
+    assert main(["check", "--format", "json", "--symbols", str(f)]) == 0
+    r = json.loads(capsys.readouterr().out)
+    order = next(t for t in r["tables"] if t["name"] == "Order")
+    assert order["file"].endswith("shop.txt") and order["line"] < order["endLine"]
+    assert [c["name"] for c in order["columns"]] and all(c["line"] > order["line"] for c in order["columns"])
+    assert {(x["a"]["table"], x["b"]["table"]) for x in r["rels"]} == {("Order", "Customer")}
+    assert main(["check", "--format", "json", str(f)]) == 0
+    assert "tables" not in json.loads(capsys.readouterr().out)  # only with --symbols
+
+
+def test_check_stdin_file_uses_the_unsaved_text(tmp_path, capsys, monkeypatch):
+    import io
+
+    f = tmp_path / "shop.txt"
+    f.write_text(SMALL)
+    monkeypatch.setattr("sys.stdin", io.StringIO("Broken\n-\nId int FK >- Nope.Id\n"))
+    assert main(["check", "--format", "json", "--stdin-file", str(f), str(tmp_path)]) == 1
+    r = json.loads(capsys.readouterr().out)
+    assert r["errors"] and "Nope" in r["diagnostics"][0]["message"]
+    assert f.read_text() == SMALL
+    monkeypatch.setattr("sys.stdin", io.StringIO(""))
+    assert main(["check", "--stdin-file", str(tmp_path / "other.txt"), str(f)]) == 2
+
+
 def test_check_format_json_ok(capsys):
     assert main(["check", "--format", "json", str(SAMPLE)]) == 0
     data = json.loads(capsys.readouterr().out)

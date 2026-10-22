@@ -1,0 +1,118 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "QuickDBD",
+  "scopeName": "source.quickdbd",
+  "patterns": [
+    {
+      "include": "#section"
+    },
+    {
+      "include": "#separator"
+    },
+    {
+      "include": "#column"
+    },
+    {
+      "include": "#inline"
+    }
+  ],
+  "repository": {
+    "section": {
+      "match": "^\\s*\\[(?i:tables|settings|layout)\\]\\s*$",
+      "name": "entity.name.section.quickdbd"
+    },
+    "separator": {
+      "match": "^\\s*-+\\s*$",
+      "name": "keyword.operator.separator.quickdbd"
+    },
+    "column": {
+      "comment": "a column line: name, any keywords, then the type (the first word that isn't a keyword). Not a table header: those are one name, or a name followed by `as`.",
+      "match": "^\\s*(?!(?i:rel)\\s)(\"[^\"]*\"|[^\\s#\"\\[-][^\\s#\"]*)(?=\\s+[^\\s#])(?!\\s+(?i:as)\\s)((?:\\s+(?i:PK|FK|NULL|NULLABLE|UNIQUE|INDEX|IDENTITY|AUTOINCREMENT|NOT)(?=\\s|$))*)(?:\\s+(?!(?i:PK|FK|NULL|NULLABLE|UNIQUE|INDEX|IDENTITY|AUTOINCREMENT|NOT|default)(?:[\\s=]|$))([A-Za-z_]\\w*(?:\\([^)]*\\))?))?",
+      "captures": {
+        "1": {
+          "name": "variable.other.field.quickdbd"
+        },
+        "2": {
+          "patterns": [
+            {
+              "include": "#keyword"
+            }
+          ]
+        },
+        "3": {
+          "name": "support.type.quickdbd"
+        }
+      }
+    },
+    "inline": {
+      "patterns": [
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#relationship"
+        },
+        {
+          "include": "#default"
+        },
+        {
+          "include": "#keyword"
+        }
+      ]
+    },
+    "string": {
+      "match": "\"[^\"]*\"",
+      "name": "string.quoted.double.quickdbd"
+    },
+    "comment": {
+      "match": "#.*$",
+      "name": "comment.line.number-sign.quickdbd"
+    },
+    "relationship": {
+      "match": "(?<=^|\\s)(>-<|>0-|-0<|0-0|-<|>-|-0|0-|-)\\s+(\"[^\"]*\"|[^\\s\".#]+)(?:(\\.)(\"[^\"]*\"|[^\\s\".#]+))?",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.relationship.quickdbd"
+        },
+        "2": {
+          "name": "entity.name.type.table.quickdbd"
+        },
+        "3": {
+          "name": "punctuation.accessor.quickdbd"
+        },
+        "4": {
+          "name": "variable.other.member.quickdbd"
+        }
+      }
+    },
+    "default": {
+      "match": "(?i)(?<=^|\\s)(default)(=)(\"[^\"]*\"|[^\\s#]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.other.default.quickdbd"
+        },
+        "2": {
+          "name": "keyword.operator.assignment.quickdbd"
+        },
+        "3": {
+          "name": "constant.other.default.quickdbd"
+        }
+      }
+    },
+    "keyword": {
+      "patterns": [
+        {
+          "match": "(?i)(?<=^|\\s)(PK|FK|NULL|NULLABLE|UNIQUE|INDEX|IDENTITY|AUTOINCREMENT|NOT)(?=\\s|$|#)",
+          "name": "storage.modifier.quickdbd"
+        },
+        {
+          "match": "(?i)(?<=^|\\s)(as|rel)(?=\\s)",
+          "name": "keyword.other.quickdbd"
+        }
+      ]
+    }
+  }
+}

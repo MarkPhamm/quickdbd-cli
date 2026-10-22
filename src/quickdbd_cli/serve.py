@@ -4,7 +4,8 @@ Watches the schema files (mtime polling), recompiles on change and pushes a relo
 page over Server-Sent Events. Dragged table positions are saved to the layout sidecar; the
 browser editor pane writes the .txt files, refusing to overwrite a file changed on disk since
 the browser last loaded it. With ``read_only`` the page is the plain viewer plus live reload, and
-the server never writes anything.
+the server never writes anything. With ``embed`` (the VS Code extension's preview) the page is the
+viewer plus live reload; dragging still saves the layout, but files are only edited in VS Code.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from . import layout
 from .html import render_page
@@ -24,9 +26,10 @@ from .project import Project, discover, display_path
 
 
 class State:
-    def __init__(self, project: Project, read_only: bool = False):
+    def __init__(self, project: Project, read_only: bool = False, embed: bool = False):
         self.project = project
         self.read_only = read_only  # never write to disk: no editor saves, no layout file
+        self.embed = embed  # an editor owns the files: layout saves only
         self.lock = threading.Condition()
         self.version = 0
         self.model: dict = {"style": {}, "tables": [], "rels": [], "zoom": None, "position": None}
@@ -80,7 +83,7 @@ class State:
 
     def snapshot(self) -> dict:
         with self.lock:
-            if self.read_only:  # the model only: no file text, no diagnostics
+            if self.read_only or self.embed:  # the model only: no file text, no diagnostics
                 return {"version": self.version, "model": self.model, "positions": self.positions}
             files = []
             for f in self.files:
@@ -138,16 +141,19 @@ def _handler(state: State, title: str):
             return json.loads(self.rfile.read(n) or b"{}")
 
         def do_GET(self) -> None:
-            if self.path == "/":
+            path = urlsplit(self.path).path  # the page may carry ?theme=
+            if path == "/":
                 with state.lock:
                     if state.read_only:
                         page = render_page(state.model, state.positions, title, live=True)
+                    elif state.embed:
+                        page = render_page(state.model, state.positions, title, embed=True)
                     else:
                         page = render_page(state.model, state.positions, title, serve=True)
                 self._send(200, page.encode(), "text/html; charset=utf-8")
-            elif self.path == "/state":
+            elif path == "/state":
                 self._json(200, state.snapshot())
-            elif self.path == "/events":
+            elif path == "/events":
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
                 self.send_header("Cache-Control", "no-store")
@@ -164,7 +170,7 @@ def _handler(state: State, title: str):
                         self.wfile.flush()
                 except (BrokenPipeError, ConnectionResetError, OSError):
                     return
-            elif self.path == "/favicon.ico":
+            elif path == "/favicon.ico":
                 self._send(204, b"", "image/x-icon")
             else:
                 self._send(404, b"not found", "text/plain")
@@ -179,7 +185,7 @@ def _handler(state: State, title: str):
                 self._send(404, b"not found", "text/plain")
 
         def do_PUT(self) -> None:
-            if state.read_only:
+            if state.read_only or state.embed:
                 self._json(403, {"error": "read-only"})
             elif self.path == "/file":
                 b = self._body()
@@ -196,11 +202,11 @@ class PortInUse(OSError):
 
 
 def make_server(
-    project: Project, port: int = 8765, read_only: bool = False, tries: int = 1
+    project: Project, port: int = 8765, read_only: bool = False, tries: int = 1, embed: bool = False
 ) -> tuple[ThreadingHTTPServer, State]:
     """Bind the HTTP server without starting it. Port 0 picks a free port; with ``tries`` > 1, a busy port
     moves on to the next one (port, port+1, ...)."""
-    state = State(project, read_only=read_only)
+    state = State(project, read_only=read_only, embed=embed)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
     server = None
     for p in range(port, port + max(tries, 1)) if port else [0]:
@@ -230,10 +236,15 @@ def poll_once(state: State) -> bool:
 
 
 def serve(
-    project: Project, port: int = 8765, open_browser: bool = True, read_only: bool = False, tries: int = 1
+    project: Project,
+    port: int = 8765,
+    open_browser: bool = True,
+    read_only: bool = False,
+    tries: int = 1,
+    embed: bool = False,
 ) -> int:
     try:
-        server, state = make_server(project, port, read_only=read_only, tries=tries)
+        server, state = make_server(project, port, read_only=read_only, tries=tries, embed=embed)
     except PortInUse as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

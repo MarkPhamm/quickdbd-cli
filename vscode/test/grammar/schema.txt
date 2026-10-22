@@ -1,0 +1,46 @@
+# SYNTAX TEST "source.quickdbd" "QuickDBD schema"
+
+# Doc comment for the table
+# <------------------------- comment.line.number-sign.quickdbd
+Customer as c, cust
+# <-------- - variable.other.field.quickdbd
+#        ^^ keyword.other.quickdbd
+-
+# <- keyword.operator.separator.quickdbd
+CustomerId PK int
+# <---------- variable.other.field.quickdbd
+#          ^^ storage.modifier.quickdbd
+#             ^^^ support.type.quickdbd
+Name varchar(200) NULL default="n/a"  # shown
+# <---- variable.other.field.quickdbd
+#    ^^^^^^^^^^^^ support.type.quickdbd
+#                 ^^^^ storage.modifier.quickdbd
+#                      ^^^^^^^ keyword.other.default.quickdbd
+#                             ^ keyword.operator.assignment.quickdbd
+#                              ^^^^^ constant.other.default.quickdbd
+#                                     ^^^^^^^ comment.line.number-sign.quickdbd
+
+Order
+# <----- - variable.other.field.quickdbd
+-
+OrderId PK int
+CustomerId int FK >- Customer.CustomerId
+#              ^^ storage.modifier.quickdbd
+#                 ^^ keyword.operator.relationship.quickdbd
+#                    ^^^^^^^^ entity.name.type.table.quickdbd
+#                            ^ punctuation.accessor.quickdbd
+#                             ^^^^^^^^^^ variable.other.member.quickdbd
+LineId int FK >0- "dbo.Order Line"."Line Id"
+#             ^^^ keyword.operator.relationship.quickdbd
+#                 ^^^^^^^^^^^^^^^^ entity.name.type.table.quickdbd
+#                                  ^^^^^^^^^ variable.other.member.quickdbd
+
+OrderLine
+rel >- Product
+# <--- keyword.other.quickdbd
+#   ^^ keyword.operator.relationship.quickdbd
+#      ^^^^^^^ entity.name.type.table.quickdbd
+---
+
+[settings]
+# <---------- entity.name.section.quickdbd

@@ -37,6 +37,7 @@ qdbd is not affiliated with QuickDBD. It reads the same text syntax, so schemas 
 - **dbt import**: `qdbd import dbt` reads `manifest.json`. Primary keys come from `unique` + `not_null` tests or constraints, relationships from `relationships` tests, and `--infer-fks` fills the gaps from column names.
 - **Readable at 200+ tables**: automatic layout, search, dbt-style selectors (`+orders+1`, `group:marts`, `tag:fact`), shaded regions per file, collapsed views and a minimap.
 - **Review changes in pull requests**: `qdbd diff` reports what a branch changed, the GitHub Action posts it as a PR comment, and `--diff-base` colours the changes in the diagram.
+- **VS Code extension**: highlighting, errors as you type, outline, F12 across files, and the diagram beside the editor, following your cursor ([docs](https://qdbd.dev/vscode/)).
 - **One schema, many outputs**: an HTML page, PNG, SVG, editable draw.io, or a shareable link. Installs with pip: no Node, Graphviz or browser needed.
 
 ## Demo gallery
@@ -106,6 +107,8 @@ qdbd serve schema.txt
 ```
 
 Edit in the browser or in your own editor; the diagram reloads on save. Dragged positions are saved to `schema.layout.json`, which you commit next to the schema.
+
+In VS Code (or Cursor), the [extension](https://qdbd.dev/vscode/) does the same inside the editor, with errors as you type and the diagram following your cursor. Install the `.vsix` from the [latest release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest).
 
 #### 4. Build, export and share
 
