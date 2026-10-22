@@ -6,26 +6,26 @@ The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf a
 - errors and warnings as you type, before you save
 - an outline of tables and columns, and **F12** from a foreign key to the table it points at, across files
 - the interactive diagram beside the editor, following your cursor
+- export, share as a link, compare with a git branch, and import a dbt project, all from the Command Palette
+
+You never need a terminal: the extension installs the `qdbd` CLI it runs on.
 
 ![The extension: a schema on the left, the live diagram on the right with the table under the cursor selected](assets/img/vscode.png)
 
 ## Install
 
-1. Install the CLI, version 0.1.16 or later. The extension runs it for every check and for the diagram.
+1. Install the extension: open the Extensions view (**Cmd+Shift+X** / **Ctrl+Shift+X**), search **QuickDBD** and pick **QuickDBD (qdbd)** by Minh Pham. It's on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) and, for Cursor, Windsurf and VSCodium, on [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd). Each [GitHub release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest) also has the `.vsix` file, for **Install from VSIX…** in the Extensions view's **⋯** menu.
+2. Open a schema file. The extension runs the `qdbd` CLI (version 0.1.17 or later) for every check and for the diagram. If it can't find one, it says so: click **Install qdbd**. It sets up a Python environment of its own and installs `qdbd` there, which takes about a minute. You can also run **QuickDBD: Install or Update qdbd** from the Command Palette at any time.
 
-    ```bash
-    uv tool install quickdbd-cli      # or: pipx install quickdbd-cli
-    ```
+Installing needs Python 3.11 or later on the machine ([python.org](https://www.python.org/downloads/)), or [uv](https://docs.astral.sh/uv/), which downloads a Python by itself.
 
-2. Install the extension: open the Extensions view (**Cmd+Shift+X** / **Ctrl+Shift+X**), search **QuickDBD** and pick **QuickDBD (qdbd)** by Minh Pham. It's on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) and, for Cursor, Windsurf and VSCodium, on [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd). From a terminal:
+Which `qdbd` it uses:
 
-    ```bash
-    code --install-extension MarkPhamm.quickdbd     # or: cursor --install-extension MarkPhamm.quickdbd
-    ```
+1. The `quickdbd.qdbdPath` setting, if you set it.
+2. The workspace's `.venv` (or `venv`), so a project can pin its version.
+3. Otherwise, the newer of its own install and the `qdbd` on your `PATH`. If you already use the CLI (`uv tool install quickdbd-cli`), the extension uses that one and installs nothing.
 
-Each [GitHub release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest) also has the `.vsix` file, for **Install from VSIX…** in the Extensions view's **⋯** menu.
-
-The extension looks for `qdbd` in the `quickdbd.qdbdPath` setting, then in the workspace's `.venv` (or `venv`), then on your `PATH`. If it can't find it, or the version is too old, it offers to run the install or upgrade command for you.
+A version that's too old is skipped, and the extension offers **Update qdbd**.
 
 ## Which files it opens as QuickDBD
 
@@ -63,19 +63,24 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | **Back to the text** | Double-click a table in the diagram, or click its `file:line` in the details panel, to open it in the editor. |
 | **Arrange** | Drag tables in the diagram; positions are saved to the layout file, as in `qdbd serve`. |
 | **Theme** | The diagram follows VS Code's light or dark theme. |
-| **Export and share** | **QuickDBD: Export PNG / SVG / draw.io** asks where to save. With the cursor in a table, you can export just that table and its neighbours. **QuickDBD: Share as a Gist Link** runs [`qdbd share`](sharing.md#qdbd-share) and copies the link. |
+| **Export** | **QuickDBD: Export PNG / SVG / draw.io** asks where to save. With the cursor in a table, you can export just that table and its neighbours. **QuickDBD: Export HTML Page** writes the whole interactive diagram as one file, like [`qdbd build`](cli.md#build), and opens it in your browser. |
+| **Share** | **QuickDBD: Share as a Gist Link** publishes the diagram as a secret gist, like [`qdbd share`](sharing.md#qdbd-share), and copies the link. It signs in with VS Code's GitHub account (the first time, VS Code asks), so the `gh` CLI isn't needed. Sharing again updates the same gist, also one made by `qdbd share`, so the link stays the same. |
+| **Compare with git** | **QuickDBD: Compare with Git Ref…** (the compare button at the top right of the editor) picks a branch, tag or commit and opens the diagram coloured by what changed since then, as in a [PR diff](diffs.md). It updates as you save. Pick **HEAD** to see what you haven't committed. |
+| **Import dbt** | **QuickDBD: Import dbt Project…** turns a dbt project's `target/manifest.json` into schema files, like [`qdbd import dbt`](dbt.md), into `erd/` (one file per dbt folder) or one file you choose, then opens the diagram. Run `dbt compile` first; `dbt docs generate` adds column types. |
 
 ## Settings
 
 | Setting | Default | |
 |---|---|---|
-| `quickdbd.qdbdPath` | empty | Path to `qdbd`. Empty: the workspace's `.venv`, then `PATH`. |
+| `quickdbd.qdbdPath` | empty | Path to `qdbd`. Empty: the workspace's `.venv`, else the newer of the extension's own install and the one on `PATH`. |
 | `quickdbd.autoDetect` | `true` | Open matching `.txt` files as QuickDBD. |
 | `quickdbd.strict` | `false` | Report QuickDBD-compatibility warnings as errors. |
 
 ## Troubleshooting
 
 - **Nothing happens:** check the status bar says **QuickDBD**. If it says Plain Text, click it and pick QuickDBD, or add a `files.associations` entry.
-- **"qdbd wasn't found":** run `qdbd --version` in a terminal. If that works there but not in VS Code, set `quickdbd.qdbdPath` to the full path (`which qdbd`).
+- **"qdbd isn't installed":** click **Install qdbd**, or run **QuickDBD: Install or Update qdbd**. If you installed it yourself and VS Code doesn't find it, set `quickdbd.qdbdPath` to the full path (`which qdbd`).
+- **"Installing qdbd needs Python 3.11 or later":** install Python from [python.org](https://www.python.org/downloads/), then run **QuickDBD: Install or Update qdbd**.
+- **Compare says it can't read the ref:** the schema must be in a git repository, and the ref must exist locally (fetch first for `origin/main`).
 - **Logs:** **View → Output**, then pick **QuickDBD** from the list.
 - **Restricted mode:** the extension runs a program (`qdbd`), possibly from the workspace's virtualenv, so it stays off until you trust the workspace.

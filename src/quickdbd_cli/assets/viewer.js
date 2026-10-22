@@ -735,6 +735,7 @@
       render();
       applyView();
       drawTree();
+      drawDiffBar(); // serve --diff-base: the counts change as you edit
       if (S.focus && byId[S.focus]) showDetails(S.focus);
       else select(null);
     },

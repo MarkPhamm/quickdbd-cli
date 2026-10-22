@@ -5,7 +5,8 @@ page over Server-Sent Events. Dragged table positions are saved to the layout si
 browser editor pane writes the .txt files, refusing to overwrite a file changed on disk since
 the browser last loaded it. With ``read_only`` the page is the plain viewer plus live reload, and
 the server never writes anything. With ``embed`` (the VS Code extension's preview) the page is the
-viewer plus live reload; dragging still saves the layout, but files are only edited in VS Code.
+viewer plus live reload; dragging still saves the layout, but files are only edited in VS Code. With
+``diff_base`` every reload is coloured by its changes since that git ref, like ``build --diff-base``.
 """
 
 from __future__ import annotations
@@ -20,16 +21,18 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from . import layout
+from . import diff, layout
 from .html import render_page
 from .project import Project, discover, display_path
 
 
 class State:
-    def __init__(self, project: Project, read_only: bool = False, embed: bool = False):
+    def __init__(self, project: Project, read_only: bool = False, embed: bool = False, diff_base: str | None = None):
         self.project = project
         self.read_only = read_only  # never write to disk: no editor saves, no layout file
         self.embed = embed  # an editor owns the files: layout saves only
+        self.diff_base = diff_base
+        self.base = diff.schema_at_ref(diff_base, project.inputs) if diff_base else None  # read once
         self.lock = threading.Condition()
         self.version = 0
         self.model: dict = {"style": {}, "tables": [], "rels": [], "zoom": None, "position": None}
@@ -59,6 +62,8 @@ class State:
                 from .measure import model_json
 
                 model = model_json(schema)
+                if self.base is not None:
+                    diff.annotate_model(model, diff.diff_schemas(self.base, schema), self.diff_base)
                 base = layout.read_sidecar(self.project.sidecar)
                 current = {
                     t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
@@ -202,11 +207,16 @@ class PortInUse(OSError):
 
 
 def make_server(
-    project: Project, port: int = 8765, read_only: bool = False, tries: int = 1, embed: bool = False
+    project: Project,
+    port: int = 8765,
+    read_only: bool = False,
+    tries: int = 1,
+    embed: bool = False,
+    diff_base: str | None = None,
 ) -> tuple[ThreadingHTTPServer, State]:
     """Bind the HTTP server without starting it. Port 0 picks a free port; with ``tries`` > 1, a busy port
-    moves on to the next one (port, port+1, ...)."""
-    state = State(project, read_only=read_only, embed=embed)
+    moves on to the next one (port, port+1, ...). Raises ``diff.DiffError`` for a ``diff_base`` git can't read."""
+    state = State(project, read_only=read_only, embed=embed, diff_base=diff_base)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
     server = None
     for p in range(port, port + max(tries, 1)) if port else [0]:
@@ -242,10 +252,11 @@ def serve(
     read_only: bool = False,
     tries: int = 1,
     embed: bool = False,
+    diff_base: str | None = None,
 ) -> int:
     try:
-        server, state = make_server(project, port, read_only=read_only, tries=tries, embed=embed)
-    except PortInUse as e:
+        server, state = make_server(project, port, read_only=read_only, tries=tries, embed=embed, diff_base=diff_base)
+    except (PortInUse, diff.DiffError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
     for d in state.diagnostics:

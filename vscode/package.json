@@ -1,8 +1,8 @@
 {
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
-  "description": "QuickDBD schema files in VS Code: highlighting, live errors, outline, go to definition, and the interactive ER diagram beside your editor.",
-  "version": "0.1.1",
+  "description": "QuickDBD schema files in VS Code: highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
+  "version": "0.2.0",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",
@@ -82,8 +82,29 @@
         "category": "QuickDBD"
       },
       {
+        "command": "quickdbd.exportHtml",
+        "title": "Export HTML Page",
+        "category": "QuickDBD"
+      },
+      {
         "command": "quickdbd.share",
         "title": "Share as a Gist Link",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.compare",
+        "title": "Compare with Git Ref…",
+        "category": "QuickDBD",
+        "icon": "$(git-compare)"
+      },
+      {
+        "command": "quickdbd.importDbt",
+        "title": "Import dbt Project…",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.installCli",
+        "title": "Install or Update qdbd",
         "category": "QuickDBD"
       }
     ],
@@ -92,7 +113,12 @@
         {
           "command": "quickdbd.openPreview",
           "when": "editorLangId == quickdbd",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "quickdbd.compare",
+          "when": "editorLangId == quickdbd",
+          "group": "navigation@2"
         }
       ],
       "commandPalette": [
@@ -113,7 +139,15 @@
           "when": "editorLangId == quickdbd"
         },
         {
+          "command": "quickdbd.exportHtml",
+          "when": "editorLangId == quickdbd"
+        },
+        {
           "command": "quickdbd.share",
+          "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.compare",
           "when": "editorLangId == quickdbd"
         }
       ]
@@ -133,7 +167,7 @@
           "type": "string",
           "default": "",
           "scope": "machine-overridable",
-          "markdownDescription": "Path to the `qdbd` executable. Empty: the workspace's `.venv` (or `venv`), then `PATH`."
+          "markdownDescription": "Path to the `qdbd` executable. Empty: the workspace's `.venv` (or `venv`), else the newer of the extension's own install (**QuickDBD: Install or Update qdbd**) and the one on `PATH`."
         },
         "quickdbd.autoDetect": {
           "type": "boolean",

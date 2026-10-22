@@ -44,3 +44,8 @@ function allSchemas(dir: string): boolean {
   };
   return walk(dir);
 }
+
+/** The diagram's name, as the CLI titles it: the file's stem, or the folder's name. */
+export function targetTitle(t: Target): string {
+  return t.paths[0] === "." ? path.basename(t.cwd) : path.parse(t.paths[0]).name;
+}

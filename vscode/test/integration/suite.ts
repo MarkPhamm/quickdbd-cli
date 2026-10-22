@@ -1,6 +1,8 @@
 /* End-to-end checks inside VS Code (see run.mjs): detection, outline, go-to-definition across files,
- * diagnostics on unsaved edits, and the preview panel. */
+ * diagnostics on unsaved edits, the preview panel, HTML export, comparing with a git ref, dbt import, and (with
+ * QDBD_TEST_INSTALL) installing qdbd. */
 import assert from "node:assert/strict";
+import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
@@ -87,6 +89,34 @@ export async function run(): Promise<void> {
   );
   step(`preview opened: ${tab.label}`);
 
+  const webviewTab = (label: string) => () =>
+    vscode.window.tabGroups.all
+      .flatMap((g) => g.tabs)
+      .find((t) => t.input instanceof vscode.TabInputWebview && t.label === label);
+
+  await vscode.window.showTextDocument(doc);
+  // Not awaited: the command ends on a "Wrote …" notification that waits to be dismissed.
+  void vscode.commands.executeCommand("quickdbd.exportHtml", { output: "synthetic.html" });
+  const page = path.join(ws, "examples", "synthetic", "synthetic.html");
+  await until("synthetic.html", () => fs.existsSync(page) && fs.readFileSync(page, "utf8").includes('id="qdbd-data"'));
+  step("export HTML page");
+
+  await vscode.commands.executeCommand("quickdbd.compare", { ref: "HEAD" });
+  await until("compare panel", webviewTab("ERD: synthetic vs HEAD"));
+  step("compare with HEAD");
+
+  await vscode.commands.executeCommand("quickdbd.importDbt", {
+    manifest: path.join(ws, "jaffle", "target", "manifest.json"),
+    output: "erd",
+  });
+  const imported = fs.readdirSync(path.join(ws, "jaffle", "erd")).filter((f) => f.endsWith(".txt"));
+  assert.ok(imported.length > 0, "schema files written");
+  await until("imported schema's diagram", webviewTab("ERD: erd"));
+  assert.equal(vscode.window.activeTextEditor?.document.languageId, "quickdbd");
+  step(`dbt import: ${imported.join(", ")}, opened with its diagram`);
+
+  if (process.env.QDBD_TEST_INSTALL) await testInstall(doc);
+
   // QDBD_HOLD=ms keeps the window open (cursor on Ledger, so the preview should select it) for a screenshot.
   const hold = Number(process.env.QDBD_HOLD || 0);
   if (hold) {
@@ -98,4 +128,19 @@ export async function run(): Promise<void> {
     vscode.window.activeTextEditor!.selection = new vscode.Selection(line, line);
     await new Promise((r) => setTimeout(r, hold));
   }
+}
+
+/** Without quickdbd.qdbdPath, install qdbd (from this checkout, QDBD_PIP_SPEC) into the extension's own virtualenv,
+ * then check that errors are reported again. Only meaningful where no new-enough qdbd is on PATH. */
+async function testInstall(doc: vscode.TextDocument): Promise<void> {
+  await vscode.workspace.getConfiguration("quickdbd").update("qdbdPath", undefined, vscode.ConfigurationTarget.Workspace);
+  const ok = await vscode.commands.executeCommand<boolean>("quickdbd.installCli");
+  assert.equal(ok, true, "installCli reports success");
+  const editor = await vscode.window.showTextDocument(doc);
+  await editor.edit((e) => e.insert(new vscode.Position(doc.lineCount, 0), "\nBroken\n-\nId int FK >- Nowhere.Id\n"));
+  await until("error from the installed qdbd", () =>
+    vscode.languages.getDiagnostics(doc.uri).find((d) => d.message.includes("Nowhere")),
+  120000);
+  await vscode.commands.executeCommand("undo");
+  step("installed qdbd into the extension's own virtualenv");
 }
