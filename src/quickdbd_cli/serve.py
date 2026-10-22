@@ -2,7 +2,7 @@
 
 Watches the schema files (mtime polling), recompiles on change and pushes a reload event to the
 page over Server-Sent Events. Dragged table positions are saved to the layout sidecar; the
-browser editor pane writes the .txt files, refusing to overwrite a file changed on disk since
+browser editor pane writes the .txt/.dbml files, refusing to overwrite a file changed on disk since
 the browser last loaded it. With ``read_only`` the page is the plain viewer plus live reload, and
 the server never writes anything. With ``embed`` (the VS Code extension's preview) the page is the
 viewer plus live reload; dragging still saves the layout, but files are only edited in VS Code. With
@@ -23,6 +23,7 @@ from urllib.parse import urlsplit
 
 from . import diff, layout
 from .html import render_page
+from .parser import syntax_of
 from .project import Project, discover, display_path
 
 
@@ -97,7 +98,7 @@ class State:
                     text = f.read_text(encoding="utf-8")
                 except FileNotFoundError:
                     continue
-                files.append({"path": p, "text": text, "mtime": self.mtimes.get(p)})
+                files.append({"path": p, "text": text, "mtime": self.mtimes.get(p), "syntax": syntax_of(p, text)})
             return {
                 "version": self.version,
                 "model": self.model,
