@@ -182,8 +182,7 @@ export async function run(): Promise<void> {
   step(`sidebar: ${listed.map((x) => `${x.title} (${x.tables} tables)`).join(", ")}`);
 
   // A .dbml file created on disk (a git pull, another tool) shows up without a manual refresh.
-  fs.mkdirSync(path.join(ws, "fresh"));
-  fs.writeFileSync(path.join(ws, "fresh", "new.dbml"), "Table a {\n  id int [pk]\n}\n");
+  fs.writeFileSync(path.join(ws, "fresh", "new.dbml"), "Table a {\n  id int [pk]\n}\n"); // fresh/ made by run.mjs
   await until("new .dbml file in the sidebar", async () => (await api.schemas()).some((x) => x.title === "fresh" && x.tables === 1));
   step("sidebar picks up a .dbml file created on disk");
 
