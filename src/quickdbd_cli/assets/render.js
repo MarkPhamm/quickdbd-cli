@@ -63,7 +63,7 @@
   }
 
   function keyIcon(x, cy) {
-    return '<g stroke="' + C.key + '" stroke-width="1.5" fill="none">' +
+    return '<g class="ki" stroke="' + C.key + '" stroke-width="1.5" fill="none">' +
       '<circle cx="' + n(x + 3.5) + '" cy="' + n(cy) + '" r="3"/>' +
       '<path d="M' + n(x + 6.5) + " " + n(cy) + "h7m-2 0v3m-2.5-3v2" + '"/></g>';
   }
@@ -84,7 +84,7 @@
       out.push('<text x="' + (w - st.padX) + '" y="' + n(st.headerH / 2 + 4) + '" text-anchor="end" fill="#fff" font-family="' + FONT +
         '" font-size="10" font-weight="bold">' + (state === "added" ? "NEW" : "CHANGED") + "</text>");
     }
-    out.push('<text x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + C.headerText +
+    out.push('<text class="tn" x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + C.headerText +
       '" font-family="' + FONT + '" font-size="' + st.headerSize + '">' + esc(t.name) + "</text>");
     if (docMarks && t.doc) {
       out.push(docMark(st.padX, st.headerH / 2 + st.headerSize * 0.36 + 3, t.nameW, "rgba(255,255,255,.7)"));
@@ -92,24 +92,24 @@
     g.cols.forEach(function (c, i) {
       var y = st.headerH + i * st.rowH, cy = y + st.rowH / 2, base = n(cy + st.rowSize * 0.36);
       var weight = c.pk || c.fk ? ' font-weight="bold"' : "";
-      var color = c.pk ? C.pk : c.fk ? C.fk : C.text;
+      var color = c.pk ? C.pk : c.fk ? C.fk : C.text, rn = c.pk ? "rn rpk" : c.fk ? "rn rfk" : "rn";
       out.push('<g class="r" data-c="' + esc(c.id) + '">');
       out.push('<rect class="rb" y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + C.body + '" fill-opacity="0"/>');
       var cstate = t.diff && t.diff.cols && t.diff.cols[c.id];
       if (cstate) out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + C[cstate] + '"/>');
-      out.push('<text x="' + st.padX + '" y="' + base + '" fill="' + color + '" font-family="' + FONT + '" font-size="' +
+      out.push('<text class="' + rn + '" x="' + st.padX + '" y="' + base + '" fill="' + color + '" font-family="' + FONT + '" font-size="' +
         st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
       if (docMarks && c.doc) out.push(docMark(st.padX, cy + st.rowSize * 0.36 + 2.5, c.nameW, color));
       var bx = st.padX + c.nameW + 6;
       c.badges.forEach(function (b) {
         var bh = st.badgeSize + 5;
-        out.push('<rect x="' + n(bx) + '" y="' + n(cy - bh / 2) + '" width="' + n(b.w) + '" height="' + bh + '" rx="3" fill="' + C.badgeBg + '"/>');
-        out.push('<text x="' + n(bx + st.badgePad) + '" y="' + n(cy + st.badgeSize * 0.36) + '" fill="' + C.badgeText +
+        out.push('<rect class="bb" x="' + n(bx) + '" y="' + n(cy - bh / 2) + '" width="' + n(b.w) + '" height="' + bh + '" rx="3" fill="' + C.badgeBg + '"/>');
+        out.push('<text class="bt" x="' + n(bx + st.badgePad) + '" y="' + n(cy + st.badgeSize * 0.36) + '" fill="' + C.badgeText +
           '" font-family="' + FONT + '" font-size="' + st.badgeSize + '">' + esc(b.t) + "</text>");
         bx += b.w + st.badgeGap;
       });
       if (c.pk) out.push(keyIcon(w - st.padX - c.typeW - st.keyW, cy));
-      out.push('<text x="' + (w - st.padX) + '" y="' + base + '" text-anchor="end" fill="' + C.type + '" font-family="' + FONT +
+      out.push('<text class="rt" x="' + (w - st.padX) + '" y="' + base + '" text-anchor="end" fill="' + C.type + '" font-family="' + FONT +
         '" font-size="' + st.rowSize + '">' + esc(c.type) + "</text>");
       out.push("</g>");
     });
@@ -150,7 +150,7 @@
       s.push('<path d="M' + n(x + dir * 11) + " " + n(y) + "L" + n(x) + " " + n(y - 6) + "M" + n(x + dir * 11) + " " + n(y) + "L" + n(x) + " " + n(y + 6) + '"' + st + "/>");
     }
     function circle(o) {
-      s.push('<circle cx="' + n(x + dir * o) + '" cy="' + n(y) + '" r="3.5" fill="' + C.bg + '" stroke="' + C.edge + '" stroke-width="1.2"/>');
+      s.push('<circle class="mc" cx="' + n(x + dir * o) + '" cy="' + n(y) + '" r="3.5" fill="' + C.bg + '" stroke="' + C.edge + '" stroke-width="1.2"/>');
     }
     if (card === "one") { bar(7); }
     else if (card === "many") { crow(); }
@@ -252,7 +252,7 @@
     var x0 = b[0] - pad - edgePad, y0 = b[1] - pad, w = b[2] - b[0] + 2 * (pad + edgePad), h = b[3] - b[1] + 2 * pad;
     var style = opts.fontCss ? "<style>" + opts.fontCss + "</style>" : "";
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + n(w) + '" height="' + n(h) + '" viewBox="' + n(x0) + " " + n(y0) + " " + n(w) + " " + n(h) + '">' +
-      style + '<rect x="' + n(x0) + '" y="' + n(y0) + '" width="' + n(w) + '" height="' + n(h) + '" fill="' + C.bg + '"/>' +
+      style + '<rect class="bgr" x="' + n(x0) + '" y="' + n(y0) + '" width="' + n(w) + '" height="' + n(h) + '" fill="' + C.bg + '"/>' +
       renderInner(m, pos, mode, { regions: opts.regions }) + "</svg>";
   }
 

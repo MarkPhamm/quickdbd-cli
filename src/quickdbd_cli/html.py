@@ -39,6 +39,7 @@ ICONS = {
     "icon_minus": _icon("M5 12h14"),
     "icon_plus": _icon("M12 5v14M5 12h14"),
     "icon_fit": _icon("M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"),
+    "icon_theme": _icon("M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 3v18M12 8h4.5M12 12h6M12 16h4.5"),
 }
 
 
@@ -82,6 +83,8 @@ BODY = """
       <span class="zoomval" id="zoomval">100%</span>
       <button id="zin" title="Zoom in" aria-label="Zoom in">{icon_plus}</button>
       <button id="zfit" title="Fit to screen" aria-label="Fit to screen">{icon_fit}</button>
+      <div class="sep"></div>
+      <button id="xtheme" title="Theme: auto" aria-label="Switch light / dark theme">{icon_theme}</button>
     </div>
     <div class="minimap">
       <svg id="mini" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
@@ -108,6 +111,14 @@ SIDE = """
 FILTER_HELP = (
     "dbt-style selectors. +x: x and what it references. x+: x and what references it. "
     "N+x+N: hops. group:/file:/col:/tag: methods. a,b: both. !x: exclude."
+)
+
+
+# Runs in <head> so the page paints in the right theme. viewer.js owns the toggle; keep the key in sync.
+THEME_JS = (
+    "(function(){var t;try{t=localStorage.getItem('qdbd-theme');}catch(e){}"
+    "if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';"
+    "document.documentElement.setAttribute('data-theme',t);})();"
 )
 
 
@@ -151,6 +162,7 @@ def render_page(model: dict, positions: dict, title: str, serve: bool = False, l
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<meta name="generator" content="qdbd">'
         f"<title>{_escape(title)}</title>"
+        f"<script>{THEME_JS}</script>"
         # The font CSS lives in its own <style> so the viewer can reuse it for SVG/PNG export
         # instead of embedding the fonts a second time.
         f'<style id="qdbd-font">{font_css()}</style>'

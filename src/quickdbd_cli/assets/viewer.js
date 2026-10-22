@@ -287,6 +287,26 @@
   }
   regionBtn.onclick = function () { setRegions(!S.regions); };
 
+  /* Theme: auto (follow the OS) -> dark -> light. A viewer preference, so localStorage, not the URL hash.
+   * The <head> script applies it before paint; exports always use render.js's light colours. */
+  var themeBtn = document.getElementById("xtheme"), darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  function themePref() {
+    try { var t = localStorage.getItem("qdbd-theme"); return t === "light" || t === "dark" ? t : "auto"; } catch (e) { return "auto"; }
+  }
+  function applyTheme() {
+    var pref = themePref(), t = pref === "auto" ? (darkQuery.matches ? "dark" : "light") : pref;
+    document.documentElement.setAttribute("data-theme", t);
+    themeBtn.title = "Theme: " + pref;
+  }
+  themeBtn.onclick = function () {
+    var next = { auto: "dark", dark: "light", light: "auto" }[themePref()];
+    try { if (next === "auto") localStorage.removeItem("qdbd-theme"); else localStorage.setItem("qdbd-theme", next); } catch (e) { /* private mode */ }
+    applyTheme();
+    showToast("Theme: " + next);
+  };
+  if (darkQuery.addEventListener) darkQuery.addEventListener("change", applyTheme);
+  applyTheme();
+
   function setMode(mode) {
     S.mode = ["full", "keys", "header"].indexOf(mode) >= 0 ? mode : "full";
     document.querySelectorAll("#modes button").forEach(function (o) { o.classList.toggle("on", o.getAttribute("data-mode") === S.mode); });

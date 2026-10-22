@@ -69,6 +69,7 @@ Esc, ×, or clicking empty canvas closes it.
 | **Link** | Copy a URL to this exact view: filter, selected table, path, collapse mode, regions, zoom and position |
 | **SVG / PNG / draw.io** | Download what's on screen ([exports](exports.md)) |
 | **− 100% + ◎** | Zoom, or fit everything on screen |
+| **◐** | Theme: auto (follows your OS), dark, light. Remembered per browser; exports always use the light colours |
 
 The minimap (bottom right) shows where you are; click or drag it to move.
 

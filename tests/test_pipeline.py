@@ -281,6 +281,16 @@ def test_page_has_share_link_controls():
     assert 'id="xlink"' in html and 'id="toast"' in html
 
 
+def test_page_has_theme_toggle_and_exports_stay_light():
+    m = model_json(compile_text(SMALL))
+    pos = {"Customer": [0, 0], "Order": [300, 0]}
+    html = render_page(m, pos, "t")
+    assert 'id="xtheme"' in html and ':root[data-theme="dark"]' in html
+    assert html.index("qdbd-theme") < html.index("</head>")  # theme applied before first paint
+    svg = export.render_svg(m, pos, embed_font=False)
+    assert "data-theme" not in svg and 'fill="#ffffff"' in svg and "#1e2228" not in svg
+
+
 def test_drawio_export(tmp_path):
     import xml.etree.ElementTree as ET
 

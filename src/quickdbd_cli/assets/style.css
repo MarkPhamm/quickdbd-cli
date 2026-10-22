@@ -10,10 +10,71 @@
   --sel: #eaf0f8;
   --amber: #f0a020;
   --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 8px 24px rgba(16, 24, 40, .07);
+  --on-ink: #fff;
+  --pick: #fde3b0;
+  --scroll: #cfd4da;
+  --chip-hover: #b8c2d0;
+  --tag-bg: #eef1f5;
+  --tag-ink: #6b7a8c;
+  --tag-pk-bg: #dfe8f6;
+  --tag-fk-bg: #ece6f7;
+  --tag-fk: #6a4fa3;
+  --mini-bg: rgba(255, 255, 255, .94);
+  --tip-bg: #15181c;
+  /* diagram: the same colours render.js writes as SVG attributes (exports keep those) */
+  --t-body: #ffffff;
+  --t-border: #dfe3e8;
+  --t-text: #333333;
+  --t-pk: #2b5797;
+  --t-fk: #222222;
+  --t-type: #9a9a9a;
+  --t-key: #b0b0b0;
+  --t-badge-bg: #eef1f5;
+  --t-badge-ink: #7a8899;
+  --t-edge: #b8bcc2;
+  --row-hl: #dbe6f6;
+  --row-hover: #eef3fa;
 }
-::selection { background: #fde3b0; color: var(--ink); }
+/* Dark theme. viewer.js sets data-theme from the toggle, or from prefers-color-scheme when it's on auto. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121418;
+  --blue: #7aa7ff;
+  --ink: #e6e8eb;
+  --ink-2: #b4bac3;
+  --muted: #8a929e;
+  --panel: #1b1e23;
+  --line: #2c313a;
+  --hover: #252930;
+  --sel: #23324a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+  --on-ink: #121418;
+  --pick: #5a4210;
+  --scroll: #3a404a;
+  --chip-hover: #4a5260;
+  --tag-bg: #2a2f37;
+  --tag-ink: #9aa5b3;
+  --tag-pk-bg: #22324a;
+  --tag-fk-bg: #2f2840;
+  --tag-fk: #b7a2e6;
+  --mini-bg: rgba(27, 30, 35, .94);
+  --tip-bg: #2a2f37;
+  --t-body: #1e2228;
+  --t-border: #333944;
+  --t-text: #d5d9df;
+  --t-pk: #8fb4ff;
+  --t-fk: #eceef1;
+  --t-type: #7d8693;
+  --t-key: #6b7380;
+  --t-badge-bg: #2a2f37;
+  --t-badge-ink: #9aa5b3;
+  --t-edge: #5b6472;
+  --row-hl: #24344d;
+  --row-hover: #23282f;
+}
+::selection { background: var(--pick); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
-* { scrollbar-width: thin; scrollbar-color: #cfd4da transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--scroll) transparent; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; overflow: hidden; }
@@ -22,13 +83,26 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 #canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
 #canvas.panning { cursor: grabbing; }
 
+/* diagram colours: CSS beats the SVG presentation attributes, so the page can theme them */
+.tb { fill: var(--t-body); stroke: var(--t-border); }
+.rn { fill: var(--t-text); }
+.rn.rpk { fill: var(--t-pk); }
+.rn.rfk { fill: var(--t-fk); }
+.r .dm { stroke: var(--t-text); }
+.rt { fill: var(--t-type); }
+.ki { stroke: var(--t-key); }
+.bb { fill: var(--t-badge-bg); }
+.bt { fill: var(--t-badge-ink); }
+.e path { stroke: var(--t-edge); }
+.e .mc { stroke: var(--t-edge); fill: var(--bg); }
+
 /* states */
 .t, .e { transition: opacity .15s; }
 .focus .t.dim, .focus .e.dim { opacity: .12; }
 .e.hl .ep { stroke: var(--blue); stroke-width: 2.2; }
 .e.hl path, .e.hl circle { stroke: var(--blue); }
-.r.hl .rb { fill: #dbe6f6; fill-opacity: 1; }
-.r:hover .rb { fill: #eef3fa; fill-opacity: 1; }
+.r.hl .rb { fill: var(--row-hl); fill-opacity: 1; }
+.r:hover .rb { fill: var(--row-hover); fill-opacity: 1; }
 .t.flash .tb { stroke: #f0a020; stroke-width: 3; }
 .t { cursor: grab; }
 #canvas.panning .t { cursor: grabbing; }
@@ -39,13 +113,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .bar button, .seg button { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-weight: 500;
   cursor: pointer; padding: 5px 9px; border-radius: 6px; transition: background .12s, color .12s; }
 .bar button:hover, .seg button:hover { background: var(--hover); color: var(--ink); }
-.bar button.on { background: var(--ink); color: #fff; }
+.bar button.on { background: var(--ink); color: var(--on-ink); }
 .zoomval { min-width: 46px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
 .seg { display: flex; background: var(--hover); border-radius: 7px; padding: 2px; }
 .seg button.on { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(16, 24, 40, .12); }
 .sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
 .bar button svg, .exhead button svg, .details .close svg { display: block; }
-#zin, #zout, #zfit { padding: 5px 6px; }
+#zin, #zout, #zfit, #xtheme { padding: 5px 6px; }
 
 /* explorer (left): search + table tree grouped by file/folder */
 .explorer { position: absolute; top: 14px; left: 16px; width: 270px; max-height: calc(100% - 60px); display: flex;
@@ -62,7 +136,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .exfilter { padding: 6px 6px 4px; border-bottom: 1px solid var(--line); }
 .explorer.collapsed .exfilter { display: none; }
 .exfilter input { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; font: 12px ui-monospace, Menlo, Consolas, monospace;
-  color: var(--ink); outline: none; }
+  color: var(--ink); background: var(--panel); outline: none; }
 .exfilter input:focus { border-color: var(--ink-2); }
 .exfilter input.bad { border-color: #e57373; }
 .fstat { font-size: 11px; color: var(--muted); padding: 3px 2px 0; min-height: 14px; }
@@ -70,10 +144,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .fstat a { color: var(--blue); cursor: pointer; margin-left: 6px; }
 .tagbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0 2px; }
 .tchip { display: inline-flex; align-items: center; gap: 4px; font: 11px/1.6 inherit; padding: 0 7px 0 5px; border: 1px solid var(--line);
-  border-radius: 10px; background: #fff; color: var(--text, #333); cursor: pointer; }
+  border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; }
 .tchip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .tchip small { color: var(--muted); }
-.tchip:hover { border-color: #b8c2d0; }
+.tchip:hover { border-color: var(--chip-hover); }
 .tchip.on { border-color: var(--ink-2); background: var(--sel); }
 .tdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 6px 1px -13px; vertical-align: middle; }
 .tree.flat .tdot { margin-left: 0; }
@@ -117,10 +191,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .details td.cn { font-weight: 600; word-break: break-word; }
 .details td.ct { color: var(--muted); text-align: right; white-space: nowrap; }
 .details .cd { color: var(--ink-2); font-weight: normal; margin-top: 2px; white-space: pre-wrap; }
-.details .tag { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 3px; background: #eef1f5;
-  color: #6b7a8c; margin: 0 3px 0 0; font-weight: normal; }
-.details .tag.pk { background: #dfe8f6; color: var(--blue); }
-.details .tag.fk { background: #ece6f7; color: #6a4fa3; }
+.details .tag { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 3px; background: var(--tag-bg);
+  color: var(--tag-ink); margin: 0 3px 0 0; font-weight: normal; }
+.details .tag.pk { background: var(--tag-pk-bg); color: var(--blue); }
+.details .tag.fk { background: var(--tag-fk-bg); color: var(--tag-fk); }
 .details ul { list-style: none; margin: 0; padding: 0; }
 .details li { padding: 6px 0; border-top: 1px solid var(--line); }
 .details a { color: var(--blue); text-decoration: none; cursor: pointer; }
@@ -130,19 +204,19 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .details .hidden { color: var(--muted); }
 
 /* minimap (bottom right) */
-.minimap { position: absolute; right: 16px; bottom: 16px; width: 200px; height: 140px; background: rgba(255, 255, 255, .94);
+.minimap { position: absolute; right: 16px; bottom: 16px; width: 200px; height: 140px; background: var(--mini-bg);
   border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; cursor: pointer; }
 .minimap svg { width: 100%; height: 100%; display: block; }
 .minimap .vpr { fill: rgba(43,87,151,.12); stroke: var(--blue); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 
-.toast { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff;
+.toast { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--tip-bg); color: #fff;
   padding: 8px 14px; border-radius: 8px; font-size: 12px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 6; }
 .toast.open { opacity: 1; }
 
 /* path finder (in the details panel) */
 .details .pathbox { display: flex; gap: 6px; margin: 10px 0 4px; }
 .details .pathbox input { flex: 1; min-width: 0; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; font: inherit;
-  color: var(--ink); outline: none; }
+  color: var(--ink); background: var(--panel); outline: none; }
 .details .pathbox input:focus { border-color: var(--ink-2); }
 .details .pathres ol { margin: 6px 0 8px 18px; padding: 0; }
 .details .pathres li { border: 0; padding: 2px 0; }
@@ -173,7 +247,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .details .state.changed { background: #d48806; }
 
 /* doc-comment tooltip */
-.tip { position: absolute; display: none; max-width: 340px; background: var(--ink); color: #eef0f2; border-radius: 8px;
+.tip { position: absolute; display: none; max-width: 340px; background: var(--tip-bg); color: #eef0f2; border-radius: 8px;
   padding: 8px 10px; font-size: 12px; line-height: 1.45; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.25);
   z-index: 5; }
 .tip.open { display: block; }
