@@ -4,6 +4,7 @@
 !media/icon.png
 !media/activity.svg
 !language-configuration.json
+!language-configuration-dbml.json
 !package.json
 !README.md
 !CHANGELOG.md
