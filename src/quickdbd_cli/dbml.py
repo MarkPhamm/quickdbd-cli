@@ -372,9 +372,7 @@ class _Scanner:
         while True:
             tok = self.peek()
             if tok.kind == "nl" and not depth and element:
-                if self._skip_newlines_to(("{",)) or (
-                    len(toks) == 1 and self._skip_newlines_to(("ident", "quoted"))
-                ):
+                if self._skip_newlines_to(("{",)) or (len(toks) == 1 and self._skip_newlines_to(("ident", "quoted"))):
                     continue  # `Table users` then `{`; or `Table` then `users {`
             if tok.kind == "eof" or (tok.kind == "nl" and not depth):
                 break
