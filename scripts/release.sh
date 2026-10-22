@@ -14,6 +14,9 @@ set -a; . ./.env; set +a
 
 version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
 [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "error: uncommitted changes" >&2; exit 1; }
+# The sdist takes whole folders, so an untracked file in one would ship (examples/ leaked one in 0.1.18).
+untracked=$(git ls-files --others --exclude-standard -- src tests examples scripts)
+[ -z "$untracked" ] || { echo "error: untracked files would ship in the sdist:" >&2; echo "$untracked" >&2; exit 1; }
 
 rm -rf dist
 # uv-created venvs have no pip; only install the tools when they're missing.
