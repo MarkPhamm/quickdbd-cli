@@ -40,6 +40,11 @@ title = "QuickDBD schemas"
 description = "Hand-written schemas in QuickDBD's plain-text syntax. Each one also pastes into app.quickdatabasediagrams.com."
 
 [[group]]
+id = "dbml"
+title = "DBML schemas"
+description = "Written in DBML, dbdiagram.io's syntax, which qdbd reads as it is. TableGroups become regions, notes become tooltips."
+
+[[group]]
 id = "dbt"
 title = "dbt projects"
 description = "Generated from a dbt manifest.json. Primary keys come from unique + not_null tests, relationships from relationships tests."
@@ -157,6 +162,15 @@ title = "Online shop"
 description = "A small schema that uses every QuickDBD feature: aliases, quoted names, defaults, all relationship types."
 source = "examples/quickdbd-sample.txt"
 tags = ["quickdbd", "syntax", "small"]
+
+[[demo]]
+id = "ticketing"
+group = "dbml"
+title = "Event ticketing"
+description = "Venues, events, ticket sales and customers in four DBML TableGroups, with notes, enums, a composite seat key and a reporting schema."
+source = "gallery/ticketing"
+build_args = ["--by-group"]
+tags = ["dbml", "tablegroup", "ticketing"]
 
 [[demo]]
 id = "saas-billing"

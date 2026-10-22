@@ -1,0 +1,266 @@
+// Event ticketing: venues, events, ticket sales and the people who buy them.
+// Written in DBML (dbdiagram.io's syntax); qdbd reads it as it is. Invented for the qdbd gallery.
+
+Project ticketing {
+  database_type: 'PostgreSQL'
+  Note: 'A box office for concerts and theatre: where, what, who bought which seat.'
+}
+
+Enum order_status {
+  pending
+  paid
+  refunded [note: 'Every ticket in the order was refunded']
+  cancelled
+}
+
+Enum ticket_status {
+  issued
+  scanned
+  void
+}
+
+// ---------------------------------------------------------------- venues
+
+Table venues [headercolor: #00695c] {
+  id int [pk, increment]
+  name varchar [not null]
+  city varchar [not null]
+  country_code char(2) [not null]
+  capacity int
+  Note: 'A building with one or more halls.'
+}
+
+Table halls [headercolor: #00695c] {
+  id int [pk, increment]
+  venue_id int [not null, ref: > venues.id]
+  name varchar [not null]
+  seated boolean [default: true, note: 'Standing-only halls have no seats rows']
+}
+
+Table sections [headercolor: #00695c] {
+  hall_id int [ref: > halls.id]
+  code varchar(8) [note: 'e.g. STALLS, CIRCLE, BOX-A']
+  label varchar
+  indexes {
+    (hall_id, code) [pk]
+  }
+}
+
+Table seats [headercolor: #00695c] {
+  hall_id int
+  section_code varchar(8)
+  seat_no varchar(6)
+  accessible boolean [default: false]
+  indexes {
+    (hall_id, section_code, seat_no) [pk]
+  }
+}
+
+Ref: seats.(hall_id, section_code) > sections.(hall_id, code)
+
+// ---------------------------------------------------------------- events
+
+Table artists {
+  id int [pk, increment]
+  name varchar [not null]
+  genre varchar
+  website varchar
+}
+
+Table events {
+  id int [pk, increment]
+  title varchar [not null]
+  kind varchar [note: 'concert, theatre, comedy, ...']
+  description text
+  age_limit int
+}
+
+Table event_artists {
+  event_id int [ref: > events.id]
+  artist_id int [ref: > artists.id]
+  billing_order int [default: 1, note: '1 is the headliner']
+  indexes {
+    (event_id, artist_id) [pk]
+  }
+}
+
+Table performances {
+  id int [pk, increment]
+  event_id int [not null, ref: > events.id]
+  hall_id int [not null, ref: > halls.id]
+  starts_at timestamp [not null]
+  doors_at timestamp
+  on_sale_at timestamp
+  Note: 'One showing of an event, in one hall.'
+}
+
+Table price_tiers {
+  id int [pk, increment]
+  performance_id int [not null, ref: > performances.id]
+  section_code varchar(8)
+  name varchar [note: 'Standard, Premium, Concession']
+  price decimal(10,2) [not null]
+  currency char(3) [default: 'EUR']
+}
+
+Table holds {
+  id int [pk, increment]
+  performance_id int [ref: > performances.id]
+  hall_id int
+  section_code varchar(8)
+  seat_no varchar(6)
+  reason varchar [note: 'Press, artist guests, sightline']
+}
+
+Ref: holds.(hall_id, section_code, seat_no) > seats.(hall_id, section_code, seat_no)
+
+// ---------------------------------------------------------------- sales
+
+Table orders {
+  id bigint [pk, increment]
+  customer_id int [ref: > customers.id]
+  status order_status [not null, default: order_status.pending]
+  placed_at timestamp [default: `now()`]
+  promo_code_id int [null, ref: > promo_codes.id]
+  total decimal(10,2)
+}
+
+Table tickets {
+  id bigint [pk, increment]
+  order_id bigint [not null, ref: > orders.id]
+  performance_id int [not null, ref: > performances.id]
+  price_tier_id int [ref: > price_tiers.id]
+  hall_id int
+  section_code varchar(8)
+  seat_no varchar(6) [null, note: 'Empty for standing tickets']
+  status ticket_status [default: ticket_status.issued]
+  barcode varchar [unique]
+}
+
+Ref: tickets.(hall_id, section_code, seat_no) >? seats.(hall_id, section_code, seat_no)
+
+Table payments {
+  id bigint [pk, increment]
+  order_id bigint [not null, ref: > orders.id]
+  provider varchar
+  amount decimal(10,2) [not null]
+  paid_at timestamp
+}
+
+Table refunds {
+  id bigint [pk, increment]
+  payment_id bigint [ref: > payments.id]
+  ticket_id bigint [ref: - tickets.id]
+  amount decimal(10,2)
+  reason varchar
+}
+
+Table promo_codes {
+  id int [pk, increment]
+  code varchar [unique, not null]
+  percent_off int
+  valid_until date
+}
+
+Table scans {
+  id bigint [pk, increment]
+  ticket_id bigint [ref: > tickets.id]
+  gate varchar
+  scanned_at timestamp [default: `now()`]
+}
+
+// ---------------------------------------------------------------- people
+
+Table customers {
+  id int [pk, increment]
+  email varchar [unique, not null]
+  name varchar
+  phone varchar [null]
+  created_at timestamp [default: `now()`]
+  Note: 'Anyone who has bought a ticket or joined the mailing list.'
+}
+
+Table customer_addresses {
+  id int [pk, increment]
+  customer_id int [ref: > customers.id]
+  line1 varchar
+  city varchar
+  postcode varchar
+  country_code char(2)
+}
+
+Table follows {
+  customer_id int [ref: > customers.id]
+  artist_id int [ref: > artists.id]
+  followed_at timestamp
+  indexes {
+    (customer_id, artist_id) [pk]
+  }
+}
+
+Table reviews {
+  id int [pk, increment]
+  customer_id int [ref: > customers.id]
+  performance_id int [ref: > performances.id]
+  stars int [note: '1 to 5']
+  body text
+}
+
+Table staff {
+  id int [pk, increment]
+  venue_id int [ref: > venues.id]
+  name varchar
+  role varchar [note: 'usher, box office, security']
+}
+
+Table shifts {
+  id int [pk, increment]
+  staff_id int [ref: > staff.id]
+  performance_id int [ref: > performances.id]
+  gate varchar
+}
+
+// ---------------------------------------------------------------- reporting
+
+Table analytics.daily_sales [headercolor: #6d4c41] {
+  day date [pk]
+  performance_id int [pk, ref: > performances.id]
+  tickets_sold int
+  revenue decimal(12,2)
+  Note: 'Rebuilt nightly from orders and tickets.'
+}
+
+TableGroup venues [note: 'Where'] {
+  venues
+  halls
+  sections
+  seats
+}
+
+TableGroup events [note: 'What'] {
+  artists
+  events
+  event_artists
+  performances
+  price_tiers
+  holds
+}
+
+TableGroup sales [note: 'Who paid for what'] {
+  orders
+  tickets
+  payments
+  refunds
+  promo_codes
+  scans
+  analytics.daily_sales
+}
+
+TableGroup people {
+  customers
+  customer_addresses
+  follows
+  reviews
+  staff
+  shifts
+}
