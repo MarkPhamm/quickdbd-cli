@@ -14,6 +14,9 @@ const ws = fs.mkdtempSync(path.join(os.tmpdir(), "qdbd-vscode-"));
 // One level down, so the .vscode settings folder isn't inside examples/ (it would change how folders are judged).
 fs.cpSync(path.join(repo, "examples"), path.join(ws, "examples"), { recursive: true });
 fs.cpSync(path.join(repo, "tests", "fixtures", "jaffle"), path.join(ws, "jaffle", "target"), { recursive: true });
+// Like VS Code's local history: a copy of one schema file in a hidden folder, which the sidebar must not list.
+fs.mkdirSync(path.join(ws, ".history", "5b49af65"), { recursive: true });
+fs.copyFileSync(path.join(repo, "examples", "synthetic", "finance.txt"), path.join(ws, ".history", "5b49af65", "Vbyq.txt"));
 const bin = process.platform === "win32" ? path.join("Scripts", "qdbd.exe") : path.join("bin", "qdbd");
 const qdbd = process.env.QDBD_PATH || path.join(repo, ".venv", bin);
 fs.mkdirSync(path.join(ws, ".vscode"));

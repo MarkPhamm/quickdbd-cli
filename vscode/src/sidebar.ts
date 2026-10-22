@@ -9,7 +9,10 @@ import type { Found, Qdbd, Source } from "./cli.ts";
 import { columnDetail, tablesByFile, targetKey, type Column, type Table, type Target } from "./schema.ts";
 import { findTarget, isSchemaFile, targetTitle } from "./target.ts";
 
-const EXCLUDE = "**/{node_modules,.git,.venv,venv,dbt_packages,target,site,dist,build}/**";
+// Never schemas: hidden folders (.git, .venv, editor history and test sandboxes such as .vscode-test, like
+// target.ts's folder walk), dependencies and build output.
+const SKIP = ["node_modules", "venv", "dbt_packages", "target", "site", "dist", "build"];
+const EXCLUDE = `**/{.*,${SKIP.join(",")}}/**`;
 const MAX_FILES = 5000;
 const MAX_BYTES = 2_000_000;
 const RESCAN_DELAY = 500;
@@ -49,9 +52,9 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
     const watcher = vscode.workspace.createFileSystemWatcher("**/{*.txt,*.layout.json}");
     this.subs.push(
       watcher,
-      watcher.onDidCreate(() => this.rescanSoon()),
-      watcher.onDidDelete(() => this.rescanSoon()),
-      watcher.onDidChange((uri) => this.changedOnDisk(uri)),
+      watcher.onDidCreate((uri) => skipped(uri) || this.rescanSoon()),
+      watcher.onDidDelete((uri) => skipped(uri) || this.rescanSoon()),
+      watcher.onDidChange((uri) => skipped(uri) || this.changedOnDisk(uri)),
       checker.onDidUpdate(() => this.changed.fire(undefined)),
       qdbd.onDidInstall(() => this.refresh()),
       this.changed,
@@ -186,6 +189,13 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
     clearTimeout(this.timer);
     this.subs.forEach((s) => s.dispose());
   }
+}
+
+/** In a folder the scan skips (EXCLUDE), so file events there don't trigger a rescan. */
+function skipped(uri: vscode.Uri): boolean {
+  const root = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+  const dirs = path.relative(root ?? path.parse(uri.fsPath).root, uri.fsPath).split(path.sep).slice(0, -1);
+  return dirs.some((d) => d.startsWith(".") || SKIP.includes(d));
 }
 
 function openAt(file: string, line: number): vscode.Command {
