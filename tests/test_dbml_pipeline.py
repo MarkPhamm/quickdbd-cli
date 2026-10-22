@@ -121,3 +121,44 @@ def test_diff_base_includes_dbml(tmp_path):
     (tmp_path / "s.dbml").write_text("Table new_one {\n  id int\n}\n")
     old = diff.schema_at_ref("HEAD", [tmp_path])
     assert [t.name for t in old.tables.values()] == ["old_one"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Customer\n-\ntable int # like {\nid PK int\n",  # a column named table, its comment ending in {
+        "Project # the main one {\n-\nid PK int\n",
+        "Customer\n-\nrecords int # {\n",
+    ],
+)
+def test_syntax_of_quickdbd_comments_ending_in_a_brace(text):
+    assert syntax_of("x.txt", text) == "quickdbd"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Table a { id int }\n",  # one-line tables
+        "Table users\n{\n  id int\n}\n",  # brace on the next line
+        "Table users [headercolor: #fff, note: 'x'] {\n  id int\n}\n",
+        "records users(id, name) {\n  1, 'a'\n}\n",
+    ],
+)
+def test_syntax_of_more_dbml(text):
+    assert syntax_of("x.txt", text) == "dbml"
+
+
+def test_syntax_of_unclosed_block_comment_is_fast():
+    import time
+
+    text = "Customer\n-\nid PK int\n" + "x int /* never closed\n" * 20000
+    start = time.perf_counter()
+    assert syntax_of("x.txt", text) == "quickdbd"
+    assert time.perf_counter() - start < 0.5
+
+
+def test_uppercase_txt_is_not_discovered(tmp_path):
+    (tmp_path / "schema.txt").write_text("a\n-\nid PK int\n")
+    (tmp_path / "README.TXT").write_text("Read me first.\n")
+    (tmp_path / "Other.DBML").write_text("Table x {\n  id int\n}\n")
+    assert [f.name for f in Project.open([tmp_path]).files] == ["schema.txt"]

@@ -185,3 +185,80 @@ def test_header_comments_round_trip():
     assert out.startswith("# Shop schema.\n# Second line.\n\n")
     back = conv.convert([("s.txt", "s.txt", out)], "dbml", split_groups=False).files["s.dbml"]
     assert back.startswith("// Shop schema.\n// Second line.\n\n")
+
+
+def _roundtrip_ok(sources, to, split=False):
+    """Convert, then hold the CLI's self-check: the output compiles and matches, minus warned losses."""
+    res = conv.convert(sources, to, split_groups=split)
+    original = compile_sources([(d, t) for d, _, t in sources])
+    again = compile_sources(list(res.files.items()))
+    assert again.errors == [], [d.format() for d in again.errors]
+    assert conv.canonical(again, res.lost) == conv.canonical(original, res.lost)
+    return res
+
+
+def test_cross_file_refs_convert_to_quickdbd():
+    a = "Table orders {\n  id int [pk]\n  member_id int\n}\n"
+    b = "Table members {\n  id int [pk]\n}\nRef: orders.member_id > members.id\n"
+    res = _roundtrip_ok([("two/a.dbml", "a.dbml", a), ("two/b.dbml", "b.dbml", b)], "quickdbd")
+    assert "member_id int FK >- members.id" in res.files["a.txt"]
+    assert res.lost == set()
+
+
+def test_mixed_folder_converts_to_quickdbd():
+    a = "orders\n-\nid PK int\nmember_id int\n"
+    b = "Table members {\n  id int [pk]\n}\nRef: members.id < orders.member_id\n"
+    res = _roundtrip_ok([("m/a.txt", "a.txt", a), ("m/b.dbml", "b.dbml", b)], "quickdbd")
+    assert res.files["a.txt"] == a  # already QuickDBD: copied as is, so the FK goes on the other end
+    assert "id PK int FK -< orders.member_id" in res.files["b.txt"]
+    assert res.lost == set() and res.warnings == []
+    # A DBML file holding only a Ref between two QuickDBD tables: nowhere to write it.
+    c = "Ref: orders.member_id > people.id\n"
+    people = "people\n-\nid PK int\n"
+    res = _roundtrip_ok([("m/a.txt", "a.txt", a), ("m/p.txt", "p.txt", people), ("m/c.dbml", "c.dbml", c)], "quickdbd")
+    assert res.lost == {("rel", ("orders", "member_id"), ("people", "id"))}
+    assert [(w.path, w.line) for w in res.warnings] == [("m/c.dbml", 1)]
+
+
+def test_hash_in_notes_is_warned():
+    text = "Table a [note: 'issue #12'] {\n  c varchar [note: 'hex like #fff']\n  d int [note: 'plain']\n}\n"
+    res = _roundtrip_ok([("s.dbml", "s.dbml", text)], "quickdbd")
+    assert sorted(w.line for w in res.warnings if "#" in w.message) == [1, 2]
+    assert ("col", "a", "d", "doc") not in res.lost
+
+
+def test_special_characters_in_defaults_and_docs():
+    text = "Table a {\n  c varchar [default: '#000000']\n  d varchar [default: 'say hi now']\n}\n"
+    res = _roundtrip_ok([("s.dbml", "s.dbml", text)], "quickdbd")
+    cols = compile_sources(list(res.files.items())).tables["a"].columns
+    assert (cols["c"].default, cols["d"].default) == ("#000000", "say hi now")
+    quoted = "Table a {\n  q varchar [default: 'say \"hi\" now']\n}\n"
+    res = _roundtrip_ok([("s.dbml", "s.dbml", quoted)], "quickdbd")
+    assert [w.line for w in res.warnings if "default" in w.message] == [2]
+    docs = "# path C:\\new\\table and ''' quotes\nCustomer\n-\nId PK int\n"
+    res = _roundtrip_ok([("s.txt", "s.txt", docs)], "dbml")
+    t = compile_sources(list(res.files.items())).tables["Customer"]
+    assert t.comments == ["path C:\\new\\table and ''' quotes"]
+
+
+def test_split_puts_the_header_in_a_written_file_and_avoids_name_clashes():
+    text = (
+        "// Shop.\n// @color core #ff0000\nEnum s {\n  a\n}\n"
+        "Table a {\n  id int\n}\nTable b {\n  id int\n}\nTable c {\n  id int\n}\n"
+        "TableGroup schema {\n  a\n}\nTableGroup g {\n  b\n  c\n}\n"
+    )
+    res = _roundtrip_ok([("schema.dbml", "schema.dbml", text)], "quickdbd", split=True)
+    assert sorted(res.files) == ["g.txt", "schema.txt"]  # `schema` group and the source share a name: no clash
+    whole = "".join(res.files.values())
+    assert whole.count("# @color core #ff0000") == 1 and "# enum s: a" in whole and "# Shop." in whole
+    grouped = "Table a {\n  id int\n}\nTableGroup g {\n  a\n}\n"
+    other = "Table b {\n  id int\n}\nTableGroup g {\n  b\n}\n"
+    res = _roundtrip_ok([("x/1.dbml", "1.dbml", grouped), ("x/2.dbml", "2.dbml", other)], "quickdbd", split=True)
+    assert len(res.files) == 2 and all("-\nid int" in t for t in res.files.values())
+    assert sorted(res.files) == ["g-2.txt", "g.txt"]
+
+
+def test_dbml_output_quotes_types_dbdiagram_rejects():
+    text = "a\n-\nx XML(Person.Schema)\ny decimal(10,2)\nz int\n"
+    out = conv.convert([("s.txt", "s.txt", text)], "dbml", split_groups=False).files["s.dbml"]
+    assert 'x "XML(Person.Schema)"' in out and "y decimal(10,2)" in out and "z int" in out

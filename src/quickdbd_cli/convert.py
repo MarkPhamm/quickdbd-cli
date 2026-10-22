@@ -8,6 +8,7 @@ holds for everything else.
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
@@ -21,7 +22,8 @@ _QDBD_OP = {cards: op for op, cards in REL_TYPES.items()}
 _DBML_OP = {cards: op for op, cards in REL_OPS.items()}
 _PLAIN_DBML = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _PLAIN_QDBD = re.compile(r"[A-Za-z0-9_]+")
-_DBML_TYPE = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)?(\([\w.+-]+(,[\w.+-]+)*\))?(\[\d*\])*")
+_ARG = r"([+-]*\d+(\.\d+)?|[A-Za-z_]\w*)"  # what dbdiagram.io takes inside a type's parentheses
+_DBML_TYPE = re.compile(rf"[A-Za-z_]\w*(\.[A-Za-z_]\w*)?(\({_ARG}(,{_ARG})*\))?(\[\d*\])*")
 _NUMBER = re.compile(r"[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?")
 _EXPRESSION = re.compile(r"[A-Z][A-Z0-9_]*|.*\(.*\).*")  # CURRENT_TIMESTAMP, now(), GETUTCDATE()
 
@@ -41,14 +43,19 @@ def convert(sources: list[tuple[str, str, str]], to: str, split_groups: bool) ->
     for t in schema.tables.values():
         if t.id in schema.layout:
             res.layout[t.name] = schema.layout[t.id]
-    for (_, rel, text), fp in zip(sources, parses, strict=True):
-        out = str(PurePosixPath(rel).with_suffix(SUFFIX[to]))
-        if fp.syntax == to:
+    outs = [str(PurePosixPath(rel).with_suffix(SUFFIX[to])) for _, rel, _ in sources]
+    copied = {fp.path for fp in parses if fp.syntax == to}
+    taken = {out for out, fp in zip(outs, parses, strict=True) if fp.path in copied}
+    fks = _plan_foreign_keys(schema, {fp.path for fp in parses} - copied, res) if to == "quickdbd" else {}
+    for (_, _, text), fp, out in zip(sources, parses, outs, strict=True):
+        if fp.path in copied:
             res.files[out] = text
             continue
-        writer = _DbmlWriter(schema, fp, res) if to == "dbml" else _QuickdbdWriter(schema, fp, res, split_groups)
-        for name, body in writer.write(out).items():
-            res.files[name] = body
+        if to == "dbml":
+            files = _DbmlWriter(schema, fp, res).write(out)
+        else:
+            files = _QuickdbdWriter(schema, fp, res, split_groups, fks, taken).write(out)
+        res.files.update(files)
     return res
 
 
@@ -199,7 +206,8 @@ class _DbmlWriter:
         if indexed:
             out += ["", "  indexes {"] + [f"    {_dbml_name(n)}" for n in indexed] + ["  }"]
         if t.comments:
-            out += ["", "  Note: '''"] + [f"    {x}".rstrip() for x in t.comments] + ["  '''"]
+            lines = [x.replace("\\", "\\\\").replace("'''", "\\'''") for x in t.comments]
+            out += ["", "  Note: '''"] + [f"    {x}".rstrip() for x in lines] + ["  '''"]
         out.append("}")
         return out
 
@@ -237,14 +245,57 @@ def _quickdbd_column(col: Column, fks: list[str]) -> str:
         parts.append("IDENTITY")
     if col.default is not None:
         d = col.default
-        parts.append(f'default="{d}"' if re.search(r"\s", d) else f"default={d}")
+        parts.append(f'default="{d}"' if re.search(r"[\s#]", d) else f"default={d}")
     parts += fks
     return " ".join(p for p in parts if p)
 
 
+def _plan_foreign_keys(schema: Schema, written: set[str], res: ConvertResult) -> dict[tuple[str, str], list[str]]:
+    """`FK op table.column` clauses per (table id, column id), for the relationships declared in the files being
+    written. A clause goes on a column of a table that's being written, the non-key end when it can."""
+    out: dict[tuple[str, str], list[str]] = {}
+    valid = {id(r) for r in schema.valid_relationships()}
+
+    def warn(r: Relationship, msg: str) -> None:
+        res.warnings.append(Diagnostic(r.path, r.line, msg, "warning"))
+
+    for r in schema.relationships:
+        if r.path not in written or id(r) not in valid:
+            continue
+        ends = [(r.a, r.b), (r.b, r.a)]
+        if schema.tables[r.a.table].columns[r.a.column].pk and not schema.tables[r.b.table].columns[r.b.column].pk:
+            ends.reverse()
+        ends = [e for e in ends if schema.tables[e[0].table].path in written]
+        key, _ = _rel_key(schema, r)
+        if not ends:
+            res.lost.add(("rel", *key))
+            warn(r, "relationship: both tables are in files kept as they are; add it to one of them by hand")
+            continue
+        chosen = next(((h, t, _QDBD_OP[(h.card, t.card)]) for h, t in ends if (h.card, t.card) in _QDBD_OP), None)
+        if chosen is None:
+            here, there = ends[0]
+            chosen = (here, there, _QDBD_OP[(_required(here.card), _required(there.card))])
+            res.lost.add(("rel", *key))
+            warn(r, "relationship: QuickDBD has no operator for these cardinalities; made both sides required")
+        here, there, op = chosen
+        t = schema.tables[there.table]
+        target = f"{_qdbd_name(t.name)}.{_qdbd_name(t.columns[there.column].name)}"
+        out.setdefault((here.table, here.column), []).append(f"FK {op} {target}")
+    return out
+
+
 class _QuickdbdWriter:
-    def __init__(self, schema: Schema, fp: FileParse, res: ConvertResult, split_groups: bool):
+    def __init__(
+        self,
+        schema: Schema,
+        fp: FileParse,
+        res: ConvertResult,
+        split_groups: bool,
+        fks: dict[tuple[str, str], list[str]],
+        taken: set[str],
+    ):
         self.schema, self.fp, self.res, self.split = schema, fp, res, split_groups
+        self.fks, self.taken = fks, taken  # FK clauses for every file; output names already used
 
     def warn(self, line: int, msg: str) -> None:
         self.res.warnings.append(Diagnostic(self.fp.path, line, msg, "warning"))
@@ -254,7 +305,6 @@ class _QuickdbdWriter:
         tables = [t for t in self.schema.tables.values() if t.path == fp.path]
         for line, what in fp.unmodelled:
             self.warn(line, f"{what}: no QuickDBD equivalent; dropped")
-        fks = self.foreign_keys()
         header = [f"# {c}" for c in fp.general_comments]
         if header:
             header.append("")
@@ -268,51 +318,29 @@ class _QuickdbdWriter:
         groups: dict[str, list[Table]] = {}
         for t in tables:
             groups.setdefault(t.group if (t.group and self.split) else "", []).append(t)
+        if not groups:
+            groups[""] = []
         files = {}
-        stem = PurePosixPath(out)
         for group, members in groups.items():
-            name = str(stem.with_name(re.sub(r"[^\w.-]+", "_", group) + ".txt")) if group else out
-            body = (header + [""] if header and name == out else []) + [
-                line for t in members for line in [*self.table(t, fks), ""]
-            ]
+            wanted = str(PurePosixPath(out).with_name(re.sub(r"[^\w.-]+", "_", group) + ".txt")) if group else out
+            name, n = wanted, 1
+            while name in self.taken:
+                n += 1
+                name = str(PurePosixPath(wanted).with_name(f"{PurePosixPath(wanted).stem}-{n}.txt"))
+            if name != wanted:
+                self.warn(fp.groups.get(group, 1), f"TableGroup {group}: {wanted} is taken; wrote {name}")
+            self.taken.add(name)
+            body = (header + [""] if not files else []) + [line for t in members for line in [*self.table(t), ""]]
             files[name] = re.sub(r"\n{3,}", "\n\n", "\n".join(body)).rstrip("\n") + "\n"
         return files
 
-    def foreign_keys(self) -> dict[tuple[str, str], list[str]]:
-        """`FK op table.column` clauses per (table id, column id), for every relationship declared in this file."""
-        out: dict[tuple[str, str], list[str]] = {}
-        s = self.schema
-        for r in (r for r in s.relationships if r.path == self.fp.path):
-            if r not in s.valid_relationships():
-                continue
-            ends = [(r.a, r.b), (r.b, r.a)]
-            # the FK goes on the non-key end when there is one
-            if s.tables[r.a.table].columns[r.a.column].pk and not s.tables[r.b.table].columns[r.b.column].pk:
-                ends.reverse()
-            chosen = None
-            for here, there in ends:
-                if (here.card, there.card) in _QDBD_OP:
-                    chosen = (here, there, _QDBD_OP[(here.card, there.card)])
-                    break
-            if chosen is None:
-                here, there = ends[0]
-                cards = (_required(here.card), _required(there.card))
-                chosen = (here, there, _QDBD_OP[cards])
-                key, _ = _rel_key(s, r)
-                self.res.lost.add(("rel", *key))
-                self.warn(
-                    r.line, "relationship: QuickDBD has no operator for these cardinalities; made both sides required"
-                )
-            here, there, op = chosen
-            t = s.tables[there.table]
-            target = f"{_qdbd_name(t.name)}.{_qdbd_name(t.columns[there.column].name)}"
-            out.setdefault((here.table, here.column), []).append(f"FK {op} {target}")
-        return out
-
-    def table(self, t: Table, fks: dict[tuple[str, str], list[str]]) -> list[str]:
+    def table(self, t: Table) -> list[str]:
         out = []
         if t.color:
             self.warn(t.line, f"headercolor: QuickDBD has no table colour; dropped {t.color}")
+        if any("#" in x for x in t.comments):
+            self.warn(t.line, f"note: QuickDBD ends a comment at '#', so the note of {t.name} is cut there")
+            self.res.lost.add(("table", t.name, "doc"))
         out += [f"# {x}" for x in t.comments if x.strip()]
         if t.tags:
             out.append(f"# @tag: {', '.join(t.tags)}")
@@ -327,12 +355,19 @@ class _QuickdbdWriter:
                 self.warn(c.line, f"unique: '{c.name}' is a primary key, which QuickDBD treats as unique already")
                 self.res.lost.add(("col", t.name, c.name, "unique"))
             if c.index and (c.pk or c.unique):
+                self.warn(c.line, f"index: '{c.name}' is a key, which QuickDBD treats as indexed already")
                 self.res.lost.add(("col", t.name, c.name, "index"))
-            if any("#" in x for x in c.comments + t.comments):
+            if any("#" in x for x in c.comments):
+                self.warn(
+                    c.line, f"note: QuickDBD ends a comment at '#', so the note of {t.name}.{c.name} is cut there"
+                )
                 self.res.lost.add(("col", t.name, c.name, "doc"))
-                self.res.lost.add(("table", t.name, "doc"))
+            if c.default is not None and '"' in c.default:
+                self.warn(c.line, f"default: QuickDBD can't hold a '\"' in a default; dropped {t.name}.{c.name}'s")
+                self.res.lost.add(("col", t.name, c.name, "default"))
+                c = dataclasses.replace(c, default=None)
             out += [f"# {x}" for x in c.comments if x.strip()]
-            out.append(_quickdbd_column(c, fks.get((t.id, c.id), [])))
+            out.append(_quickdbd_column(c, self.fks.get((t.id, c.id), [])))
         return out
 
 

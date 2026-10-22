@@ -285,3 +285,79 @@ def test_end_line_and_alias():
     assert schema.tables["users"].aliases == ["U"]
     assert schema.tables["users"].end_line == 3
     assert len(schema.valid_relationships()) == 1
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Table a {\n  id int\n  indexes\n  {\n    id\n  }\n}\n",
+        "Table a {\n  {\n  }\n}\n",
+        "{\n}\n",
+        "Table a {\n  id int\n  [pk] {\n  }\n}\n",
+    ],
+)
+def test_headerless_blocks_are_errors_not_crashes(text):
+    _, schema = compile_dbml(text)
+    assert errors(schema)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Table users\n{\n  id int [pk]\n}\nTable posts\n{\n  uid int [ref: > users.id]\n}\n",
+        "Table users [headercolor: #fff]\n\n{\n  id int [pk]\n}\nTable posts {\n  uid int\n}\n"
+        "Ref r\n{\n  posts.uid > users.id\n}\n",
+        "Table users {\n  id int [pk]\n}\nTable posts {\n  uid int\n}\nRef:\n  posts.uid > users.id\n",
+        "Table users {\n  id int [pk]\n}\nTable posts {\n  uid int\n}\nRef: posts.uid >\n  users.id\n",
+        "Table users {\n  id int [pk]\n}\nTable posts {\n  uid int\n}\nRef: posts.uid\n  > users.id\n",
+    ],
+)
+def test_newlines_inside_headers_and_refs(text):
+    _, schema = compile_dbml(text)
+    assert [d.format() for d in errors(schema)] == []
+    assert {t.name for t in schema.tables.values()} == {"users", "posts"}
+    assert len(schema.valid_relationships()) == 1
+
+
+def test_newline_before_brace_in_group_and_enum():
+    text = "Enum s\n{\n  a\n}\nTable t {\n  x s\n}\nTableGroup g\n{\n  t\n}\n"
+    fp, schema = compile_dbml(text)
+    assert errors(schema) == []
+    assert fp.enums == {"s": ["a"]} and schema.tables["t"].group == "g"
+
+
+def test_indexes_needs_its_brace_on_the_same_line():
+    _, schema = compile_dbml("Table a {\n  id int\n  indexes\n  {\n    id\n  }\n}\n")
+    assert errors(schema)  # as dbdiagram.io: inside a table, `indexes` then a newline is a column
+
+
+def test_unclosed_brace_keeps_later_tables():
+    text = (
+        "Table a {\n  id int\n}\nTable b {\n  id int\n\nTable c {\n  id int\n}\nTable d {\n  id int\n}\n"
+        "Ref: d.id > c.id\n"
+    )
+    _, schema = compile_dbml(text)
+    assert [d.line for d in errors(schema)] == [7]  # where dbdiagram.io reports it: the next table
+    assert {t.name for t in schema.tables.values()} == {"a", "b", "c", "d"}
+    assert len(schema.valid_relationships()) == 1
+
+
+def test_missing_table_error_shows_display_name():
+    text = 'Table x {\n  y int\n}\nRef: x.y > "order items"."line no"\nRef: x.y - core.users.id\n'
+    _, schema = compile_dbml(text)
+    msgs = [d.message for d in errors(schema)]
+    assert any("'order items'" in m for m in msgs), msgs
+    assert any("'core.users'" in m for m in msgs), msgs
+    assert not any("32" in m or "46" in m for m in msgs), msgs
+
+
+def test_crlf_multiline_note_has_no_carriage_returns():
+    text = "Table a {\r\n  id int\r\n  Note: '''\r\n    hi\r\n    there\r\n  '''\r\n}\r\n"
+    _, schema = compile_dbml(text)
+    assert schema.tables["a"].comments == ["hi", "there"]
+
+
+def test_element_name_on_the_line_after_its_keyword():
+    _, schema = compile_dbml('Table\n  "users" [headercolor: #555] {\n  id int\n}\nEnum\n  status {\n  a\n}\n')
+    assert errors(schema) == []
+    assert [t.name for t in schema.tables.values()] == ["users"]

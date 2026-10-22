@@ -30,6 +30,7 @@ for _op, (_l, _r) in _BASE.items():
 REF_ACTIONS = {"cascade", "restrict", "set null", "set default", "no action"}
 INDEX_TYPES = {"btree", "hash", "gin", "gist", "brin", "spgist"}
 TOP_LEVEL = {"table", "tablepartial", "ref", "enum", "tablegroup", "project"}
+TOP_ONLY = {"table", "tablepartial", "enum", "tablegroup", "project"}  # never inside another element
 ELEMENTS = {
     "table", "tablepartial", "ref", "enum", "tablegroup", "project", "note", "records", "dep", "metadata",
     "diagramview", "use", "reuse",
@@ -127,7 +128,7 @@ class _Lexer:
                 if end == -1:
                     self.error(start_line, "Unclosed ` expression")
                     end = len(s)
-                value = s[self.i + 1 : end]
+                value = s[self.i + 1 : end].replace("\r\n", "\n")
                 self.line += value.count("\n")
                 self.i = end + 1
                 self.add("func", value, start_line, space)
@@ -167,6 +168,9 @@ class _Lexer:
             if s.startswith(quote, self.i):
                 self.i += len(quote)
                 break
+            if c == "\r" and s.startswith("\n", self.i + 1):
+                self.i += 1
+                continue
             if c == "\n":
                 if not multiline:
                     self.error(start, "Unclosed string (strings can't span lines; use '''...''')")
@@ -277,9 +281,54 @@ class _Scanner:
                     self.fp.error(tok.line, "Unexpected '}'")
                     continue
                 return out, tok.line
-            stmt = self.statement()
+            if not top and self._opens_top_level_block():
+                # `Table c {` inside a block: the block above is missing its `}`. Close it here, so c and every
+                # table after it still parse.
+                where = f" (to close the block opened at line {opened.line})" if opened else ""
+                self.fp.error(tok.line, f"Missing '}}' before this line{where}")
+                last = next((t for t in reversed(self.t[: self.i]) if t.kind != "nl"), tok)
+                return out, last.line
+            stmt = self.statement(top)
             if stmt is not None:
                 out.append(stmt)
+
+    def _opens_top_level_block(self) -> bool:
+        """The line here starts with a top-level-only element (Table, Enum, ...) and opens a `{` block."""
+        tok = self.peek()
+        if tok.kind != "ident" or tok.value.lower() not in TOP_ONLY:
+            return False
+        j = self.i
+        while self.t[j].kind not in ("nl", "eof", "{", "}"):
+            j += 1
+        return self.t[j].kind == "{"
+
+    def _skip_newlines_to(self, kinds: tuple[str, ...]) -> bool:
+        """Past the newlines here, if what follows them is one of `kinds` (a `{` on the line below a header)."""
+        j = self.i
+        while self.t[j].kind == "nl":
+            j += 1
+        if j > self.i and self.t[j].kind in kinds:
+            self.i = j
+            return True
+        return False
+
+    def _ref_continuation(self, toks: list[Tok]) -> list[Tok]:
+        """A `Ref:` relationship broken across lines: `Ref:` alone, or a line ending in, or the next one starting
+        with, the operator."""
+        while True:
+            dangling = not toks or (toks[-1].kind == "op" and toks[-1].value in REL_OPS)
+            j = self.i
+            while self.t[j].kind == "nl":
+                j += 1
+            leading = (
+                self.t[j].kind == "op"
+                and self.t[j].value in REL_OPS
+                and not any(t.kind == "op" and t.value in REL_OPS for t in toks)
+            )
+            if j == self.i or not (dangling or leading) or self.t[j].kind == "eof":
+                return toks
+            self.i = j
+            toks = toks + self._until_line_end(braces=False)
 
     def _until_line_end(self, braces: bool) -> list[Tok]:
         """Tokens to the end of the line, keeping `(`/`[` groups (which may span lines) whole."""
@@ -310,15 +359,23 @@ class _Scanner:
             self.fp.error(depth[-1].line, f"Missing '{_CLOSE[_OPEN.index(depth[-1].kind)]}'")
         return toks
 
-    def statement(self) -> Stmt | None:
+    def statement(self, top: bool = False) -> Stmt | None:
         first = self.peek()
         if first.kind == "ident" and first.value.lower() in ("use", "reuse"):
             toks = self._until_line_end(braces=True)
             return Stmt("field", toks, first.line, toks[-1].line if toks else first.line)
+        # At the top level, an element's header may continue on the next lines (`Table users` then `{`), as in
+        # dbdiagram.io. Inside a block it can't: `indexes` alone on its line is a column there.
+        element = top and first.kind == "ident" and first.value.lower() in ELEMENTS
         toks: list[Tok] = []
         depth: list[Tok] = []
         while True:
             tok = self.peek()
+            if tok.kind == "nl" and not depth and element:
+                if self._skip_newlines_to(("{",)) or (
+                    len(toks) == 1 and self._skip_newlines_to(("ident", "quoted"))
+                ):
+                    continue  # `Table users` then `{`; or `Table` then `users {`
             if tok.kind == "eof" or (tok.kind == "nl" and not depth):
                 break
             if tok.kind in "{}":
@@ -329,10 +386,15 @@ class _Scanner:
                     break
                 self.i += 1
                 body, end = self.block(top=False, opened=tok)
+                if not toks:
+                    self.fp.error(tok.line, "Expected an element name before '{'")
+                    return None
                 return Stmt("block", toks, first.line, end, body=body)
             if tok.kind == ":" and not depth and toks:
                 self.i += 1
                 simple = self._until_line_end(braces=False)
+                if element and first.value.lower() == "ref":
+                    simple = self._ref_continuation(simple)
                 end = simple[-1].line if simple else tok.line
                 return Stmt("simple", toks, first.line, end, simple=simple)
             self.i += 1
@@ -1123,6 +1185,12 @@ class _Interpreter:
         left = _RefEnd([key[0], key[1]], [f.name], s.line)
         self.refs.append((left, toks[0].value, right, s.line))
 
+    def _shown(self, end: _RefEnd) -> str:
+        key = self._lookup(end.parts)
+        if key is not None:
+            return self.built[key].name
+        return end.parts[-1] if len(end.parts) == 1 or end.parts[0] == "public" else ".".join(end.parts)
+
     def _resolve_end(self, end: _RefEnd) -> tuple[str, list[str]] | None:
         """(table id, column ids) for an endpoint; a table from another file is left to the global resolver."""
         key = self._lookup(end.parts)
@@ -1147,9 +1215,11 @@ class _Interpreter:
             if a[0] == b[0] and a[1] == b[1]:
                 self.error(line, "Two endpoints are the same")
                 continue
-            for ca, cb in zip(a[1], b[1], strict=True):
+            pairs = zip(a[1], b[1], left.columns, right.columns, strict=True)
+            for ca, cb, name_a, name_b in pairs:
                 rel = PendingRel(f"{a[0]}.{ca}", op, f"{b[0]}.{cb}", self.fp.path, line, True)
                 rel.cards = REL_OPS[op]
+                rel.names = ((self._shown(left), name_a), (self._shown(right), name_b))
                 self.fp.rels.append(rel)
 
     def resolve_groups(self) -> None:

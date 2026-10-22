@@ -49,7 +49,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   constructor(checker: Checker, qdbd: Qdbd) {
     this.checker = checker;
     this.qdbd = qdbd;
-    const watcher = vscode.workspace.createFileSystemWatcher("**/{*.txt,*.layout.json}");
+    const watcher = vscode.workspace.createFileSystemWatcher("**/{*.txt,*.dbml,*.layout.json}");
     this.subs.push(
       watcher,
       watcher.onDidCreate((uri) => skipped(uri) || this.rescanSoon()),
@@ -74,7 +74,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
 
   /** A schema file edited outside VS Code (a git pull, `qdbd import`): check it again, unless an editor already does. */
   private changedOnDisk(uri: vscode.Uri): void {
-    if (!uri.fsPath.toLowerCase().endsWith(".txt")) return; // a layout file: positions only
+    if (!/\.(txt|dbml)$/i.test(uri.fsPath)) return; // a layout file: positions only
     if (vscode.workspace.textDocuments.some((d) => d.uri.fsPath === uri.fsPath)) return;
     const s = this.schemas.get(targetKey(findTarget(uri.fsPath, vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath)));
     if (s) void this.checker.checkTarget(s.target);

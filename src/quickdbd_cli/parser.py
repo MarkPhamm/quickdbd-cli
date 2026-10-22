@@ -201,6 +201,7 @@ class PendingRel:
     line: int
     case_sensitive: bool
     cards: tuple[str, str] | None = None  # DBML: each end's cardinality (its operators go beyond REL_TYPES)
+    names: tuple[tuple[str, str], tuple[str, str]] | None = None  # DBML: (table, column) as written, for errors
 
 
 @dataclass
@@ -564,25 +565,48 @@ class _FileParser:
         return self.fp
 
 
-# A DBML top-level declaration. No valid QuickDBD file has one: a QuickDBD table header can't hold `{`, and a
-# column line can't start with a keyword followed by a name and `{`, or be a `Ref:` with a relationship operator.
-_DBML_BLOCK = re.compile(
-    r"^\s*(table|enum|tablegroup|tablepartial|records)\s+(\"[^\"]*\"|[\w.]+)[^{]*\{\s*(//.*)?$", re.I
+# A DBML top-level declaration: `Table name [as alias] [settings] {` (the `{` may be on the next line), or `Ref:`
+# with a relationship. No valid QuickDBD file has one: a QuickDBD table header can't hold `{`, a column line can't
+# be a keyword, a name and then `{` (a `#` comment ending in `{` doesn't fit the pattern), and a `Ref:` column has no
+# relationship operator after it.
+_NAME = r"(\"[^\"]*\"|[\w.]+)"
+_DBML_HEAD = re.compile(
+    rf"^\s*((table|enum|tablegroup|tablepartial|records)\s+{_NAME}(\s*\([^)]*\))?|project(\s+{_NAME})?)"
+    rf"(\s+as\s+{_NAME})?\s*(\[[^\]]*\])?\s*(?P<brace>\{{.*)?(//.*)?$",
+    re.I,
 )
-_DBML_PROJECT = re.compile(r"^\s*project\b[^{]*\{\s*(//.*)?$", re.I)
 _DBML_REF = re.compile(
     r"^\s*ref(\s+(\"[^\"]*\"|\w+))?\s*(\{\s*(//.*)?$|:\s*[\w\"]+[\w\".()\s,]*?\s*\??(<>|<|>|-)\??\s*[\w\"])", re.I
 )
+
+
+def _strip_block_comments(text: str) -> str:
+    out, i = [], 0
+    while (start := text.find("/*", i)) != -1:
+        out.append(text[i:start])
+        end = text.find("*/", start + 2)
+        if end == -1:
+            return "".join(out)
+        i = end + 2
+    out.append(text[i:])
+    return "".join(out)
 
 
 def syntax_of(path: str, text: str) -> str:
     """ "dbml" for a .dbml file, or any file with a DBML top-level declaration; else "quickdbd"."""
     if path.lower().endswith(".dbml"):
         return "dbml"
-    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
-    for line in text.splitlines():
-        if _DBML_BLOCK.match(line) or _DBML_PROJECT.match(line) or _DBML_REF.match(line):
+    lines = _strip_block_comments(text).splitlines()
+    for k, line in enumerate(lines):
+        if _DBML_REF.match(line):
             return "dbml"
+        m = _DBML_HEAD.match(line)
+        if m and m.group("brace"):
+            return "dbml"
+        if m:  # the `{` on the next line that has anything
+            nxt = next((lines[j] for j in range(k + 1, len(lines)) if lines[j].strip()), "")
+            if nxt.lstrip().startswith("{"):
+                return "dbml"
     return "quickdbd"
 
 
@@ -702,19 +726,20 @@ class _Resolver:
                 continue
             r = Relationship(a, b, rel.path, rel.line)
             s.relationships.append(r)
-            self.post_process(r, rel.case_sensitive)
+            self.post_process(r, rel.case_sensitive, rel.names)
 
-    def post_process(self, r: Relationship, cs: bool) -> None:
+    def post_process(self, r: Relationship, cs: bool, names: tuple | None = None) -> None:
         tables = []
-        for end in (r.a, r.b):
+        shown = names or ((r.a.table, r.a.column), (r.b.table, r.b.column))  # DBML names; QuickDBD's ids as-is
+        for end, (table_name, _) in zip((r.a, r.b), shown, strict=True):
             t = self.get_table(end.table, cs)
             if t is None:
-                self.error(r.path, r.line, f"Invalid relationship, the table '{end.table}' does not exist")
+                self.error(r.path, r.line, f"Invalid relationship, the table '{table_name}' does not exist")
             tables.append(t)
         if None in tables:
             return
         cols = []
-        for end, t in zip((r.a, r.b), tables, strict=True):
+        for end, t, (_, column_name) in zip((r.a, r.b), tables, shown, strict=True):
             if not end.column:
                 self.error(r.path, r.line, f"Invalid relationship, the field '{end.table}.' is missing.")
                 cols.append(None)
@@ -723,7 +748,10 @@ class _Resolver:
             if c is None:
                 if end.column != VIRTUAL_FIELD:
                     self.error(
-                        r.path, r.line, f"Invalid relationship, the field '{end.table}.{end.column}' does not exist"
+                        r.path,
+                        r.line,
+                        f"Invalid relationship, the field '{t.name if names else end.table}.{column_name}' "
+                        "does not exist",
                     )
                     cols.append(None)
                     continue

@@ -19,7 +19,7 @@ def discover(inputs: list[Path]) -> list[Path]:
     files: list[Path] = []
     for p in inputs:
         if p.is_dir():
-            files.extend(sorted(f for f in p.rglob("*") if f.suffix.lower() in SCHEMA_SUFFIXES and f.is_file()))
+            files.extend(sorted(f for f in p.rglob("*") if f.suffix in SCHEMA_SUFFIXES and f.is_file()))
         elif p.exists():
             files.append(p)
         else:
