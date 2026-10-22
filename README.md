@@ -8,7 +8,7 @@
 <p align="center"><b>Interactive ER diagrams from QuickDBD text or a dbt project, readable at 200+ tables</b></p>
 
 <p align="center">
-  <a href="https://qdbd.dev/">Docs</a> · <a href="https://qdbd.dev/demo/">Live demos</a> · <a href="#quickstart">Quickstart</a> · <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a>
+  <a href="https://qdbd.dev/">Docs</a> · <a href="https://qdbd.dev/demo/">Live demos</a> · <a href="#quickstart">Quickstart</a> · <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a> · <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> · <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a>
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@ qdbd is not affiliated with QuickDBD. It reads the same text syntax, so schemas 
 - **dbt import**: `qdbd import dbt` reads `manifest.json`. Primary keys come from `unique` + `not_null` tests or constraints, relationships from `relationships` tests, and `--infer-fks` fills the gaps from column names.
 - **Readable at 200+ tables**: automatic layout, search, dbt-style selectors (`+orders+1`, `group:marts`, `tag:fact`), shaded regions per file, collapsed views and a minimap.
 - **Review changes in pull requests**: `qdbd diff` reports what a branch changed, the GitHub Action posts it as a PR comment, and `--diff-base` colours the changes in the diagram.
-- **VS Code extension**: highlighting, errors as you type, outline, F12 across files, and the diagram beside the editor, following your cursor ([docs](https://qdbd.dev/vscode/)).
+- **VS Code extension**: highlighting, errors as you type, outline, F12 across files, and the diagram beside the editor, following your cursor. Export, share, compare with git and dbt import from the Command Palette, with no terminal: it installs the CLI itself. Get it from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) or, for Cursor, Windsurf and VSCodium, [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd) ([docs](https://qdbd.dev/vscode/)).
 - **One schema, many outputs**: an HTML page, PNG, SVG, editable draw.io, or a shareable link. Installs with pip: no Node, Graphviz or browser needed.
 
 ## Demo gallery
