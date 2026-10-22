@@ -1,0 +1,115 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "amount",
+      "pk": false,
+      "type": "decimal",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "raw_orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "amount",
+      "pk": false,
+      "type": "decimal",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "stg_orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "revenue",
+      "pk": false,
+      "type": "decimal",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "fct_orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "total",
+      "pk": false,
+      "type": "decimal",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "mart_orders",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

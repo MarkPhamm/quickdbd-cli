@@ -1,0 +1,65 @@
+// Invented look-alike of a real team schema: same shapes, different names.
+Table guests {
+  guest_sk integer [primary key]
+}
+
+Table slots {
+  slot_sk integer [primary key]
+}
+
+Table "rooms" {
+  room_sk integer [primary key]
+}
+
+Table staff {
+  staff_sk integer [primary key]
+}
+
+Table guest_level {
+  guest_level_sk integer [primary key]
+}
+
+Table visits {
+  guest_sk integer [not null]
+  period_code varchar [not null]
+  as_of date [not null]
+}
+
+Table visits_trend {
+  guest_sk integer [not null]
+  period_code varchar [not null]
+  as_of date [not null]
+}
+
+Table visit_lines {
+  guest_sk integer
+  slot_sk integer
+  room_sk integer
+}
+
+Table rewards {
+  guest_sk integer
+}
+
+Table bookings {
+  staff_sk integer
+  guest_level_sk integer
+}
+
+// many_to_one
+Ref: visits.guest_sk > guests.guest_sk
+
+Ref: visit_lines.slot_sk > slots.slot_sk
+
+Ref: visit_lines.guest_sk > guests.guest_sk
+
+Ref: visit_lines.room_sk > "rooms".room_sk
+
+Ref: rewards.guest_sk > guests.guest_sk
+
+Ref: bookings.staff_sk > staff.staff_sk
+
+Ref: bookings.guest_level_sk > guest_level.guest_level_sk
+
+// one_to_one on a composite key
+Ref: visits.(guest_sk, period_code, as_of) - visits_trend.(guest_sk, period_code, as_of)

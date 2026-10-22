@@ -200,11 +200,14 @@ class PendingRel:
     path: str
     line: int
     case_sensitive: bool
+    cards: tuple[str, str] | None = None  # DBML: each end's cardinality (its operators go beyond REL_TYPES)
+    names: tuple[tuple[str, str], tuple[str, str]] | None = None  # DBML: (table, column) as written, for errors
 
 
 @dataclass
 class FileParse:
     path: str
+    syntax: str = "quickdbd"  # or "dbml"
     tables: dict[str, Table] = field(default_factory=dict)
     aliases: dict[str, str] = field(default_factory=dict)
     rels: list[PendingRel] = field(default_factory=list)
@@ -213,6 +216,9 @@ class FileParse:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     general_comments: list[str] = field(default_factory=list)
     colors: dict[str, tuple[str, int]] = field(default_factory=dict)  # tag -> (#hex, line)
+    unmodelled: list[tuple[int, str]] = field(default_factory=list)  # DBML: (line, what) parsed, not drawn
+    enums: dict[str, list[str]] = field(default_factory=dict)  # DBML: enum name -> values
+    groups: dict[str, int] = field(default_factory=dict)  # DBML: TableGroup name -> line
 
     def error(self, line: int, msg: str) -> None:
         self.diagnostics.append(Diagnostic(self.path, line, msg, "error"))
@@ -559,7 +565,56 @@ class _FileParser:
         return self.fp
 
 
+# A DBML top-level declaration: `Table name [as alias] [settings] {` (the `{` may be on the next line), or `Ref:`
+# with a relationship. No valid QuickDBD file has one: a QuickDBD table header can't hold `{`, a column line can't
+# be a keyword, a name and then `{` (a `#` comment ending in `{` doesn't fit the pattern), and a `Ref:` column has no
+# relationship operator after it.
+_NAME = r"(\"[^\"]*\"|[\w.]+)"
+_DBML_HEAD = re.compile(
+    rf"^\s*((table|enum|tablegroup|tablepartial|records)\s+{_NAME}(\s*\([^)]*\))?|project(\s+{_NAME})?)"
+    rf"(\s+as\s+{_NAME})?\s*(\[[^\]]*\])?\s*(?P<brace>\{{.*)?(//.*)?$",
+    re.I,
+)
+_DBML_REF = re.compile(
+    r"^\s*ref(\s+(\"[^\"]*\"|\w+))?\s*(\{\s*(//.*)?$|:\s*[\w\"]+[\w\".()\s,]*?\s*\??(<>|<|>|-)\??\s*[\w\"])", re.I
+)
+
+
+def _strip_block_comments(text: str) -> str:
+    out, i = [], 0
+    while (start := text.find("/*", i)) != -1:
+        out.append(text[i:start])
+        end = text.find("*/", start + 2)
+        if end == -1:
+            return "".join(out)
+        i = end + 2
+    out.append(text[i:])
+    return "".join(out)
+
+
+def syntax_of(path: str, text: str) -> str:
+    """ "dbml" for a .dbml file, or any file with a DBML top-level declaration; else "quickdbd"."""
+    if path.lower().endswith(".dbml"):
+        return "dbml"
+    lines = _strip_block_comments(text).splitlines()
+    for k, line in enumerate(lines):
+        if _DBML_REF.match(line):
+            return "dbml"
+        m = _DBML_HEAD.match(line)
+        if m and m.group("brace"):
+            return "dbml"
+        if m:  # the `{` on the next line that has anything
+            nxt = next((lines[j] for j in range(k + 1, len(lines)) if lines[j].strip()), "")
+            if nxt.lstrip().startswith("{"):
+                return "dbml"
+    return "quickdbd"
+
+
 def parse_file(text: str, path: str = "<input>") -> FileParse:
+    if syntax_of(path, text) == "dbml":
+        from .dbml import parse_dbml
+
+        return parse_dbml(text, path)
     return _FileParser(text, path).run()
 
 
@@ -650,7 +705,7 @@ class _Resolver:
     def resolve_rels(self) -> None:
         s = self.schema
         for rel in (r for f in self.files for r in f.rels):
-            if not is_rel_type(rel.rel_type):
+            if rel.cards is None and not is_rel_type(rel.rel_type):
                 self.error(rel.path, rel.line, f"Invalid relationship description (allowed: {ALLOWED_REL})")
                 continue
             a = self.parse_token(rel.member1, rel)
@@ -663,7 +718,7 @@ class _Resolver:
                 t = self.get_table(end.table, rel.case_sensitive)
                 if t:
                     end.table = t.id
-            a.card, b.card = REL_TYPES[rel.rel_type.strip()]
+            a.card, b.card = rel.cards or REL_TYPES[rel.rel_type.strip()]
             dup = next((r for r in s.relationships if _same_rel(r, a, b)), None)
             if dup:
                 where = f"{dup.line}" if dup.path == rel.path else f"{dup.path}:{dup.line}"
@@ -671,19 +726,20 @@ class _Resolver:
                 continue
             r = Relationship(a, b, rel.path, rel.line)
             s.relationships.append(r)
-            self.post_process(r, rel.case_sensitive)
+            self.post_process(r, rel.case_sensitive, rel.names)
 
-    def post_process(self, r: Relationship, cs: bool) -> None:
+    def post_process(self, r: Relationship, cs: bool, names: tuple | None = None) -> None:
         tables = []
-        for end in (r.a, r.b):
+        shown = names or ((r.a.table, r.a.column), (r.b.table, r.b.column))  # DBML names; QuickDBD's ids as-is
+        for end, (table_name, _) in zip((r.a, r.b), shown, strict=True):
             t = self.get_table(end.table, cs)
             if t is None:
-                self.error(r.path, r.line, f"Invalid relationship, the table '{end.table}' does not exist")
+                self.error(r.path, r.line, f"Invalid relationship, the table '{table_name}' does not exist")
             tables.append(t)
         if None in tables:
             return
         cols = []
-        for end, t in zip((r.a, r.b), tables, strict=True):
+        for end, t, (_, column_name) in zip((r.a, r.b), tables, shown, strict=True):
             if not end.column:
                 self.error(r.path, r.line, f"Invalid relationship, the field '{end.table}.' is missing.")
                 cols.append(None)
@@ -692,7 +748,10 @@ class _Resolver:
             if c is None:
                 if end.column != VIRTUAL_FIELD:
                     self.error(
-                        r.path, r.line, f"Invalid relationship, the field '{end.table}.{end.column}' does not exist"
+                        r.path,
+                        r.line,
+                        f"Invalid relationship, the field '{t.name if names else end.table}.{column_name}' "
+                        "does not exist",
                     )
                     cols.append(None)
                     continue
@@ -755,9 +814,15 @@ def _same_rel(r: Relationship, a: End, b: End) -> bool:
     )
 
 
+def compile_files(sources: list[tuple[str, str]]) -> tuple[Schema, list[FileParse]]:
+    """Like ``compile_sources``, also returning each file's own parse (comments, settings, DBML extras)."""
+    files = [parse_file(text, path) for path, text in sources]
+    return _Resolver(files).run(), files
+
+
 def compile_sources(sources: list[tuple[str, str]]) -> Schema:
     """Compile ``[(path, text), ...]`` into one Schema (tables share one namespace)."""
-    return _Resolver([parse_file(text, path) for path, text in sources]).run()
+    return compile_files(sources)[0]
 
 
 def compile_text(text: str, path: str = "<input>") -> Schema:

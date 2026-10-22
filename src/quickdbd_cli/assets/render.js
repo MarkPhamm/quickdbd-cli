@@ -31,6 +31,18 @@
 
   function n(v) { return Math.round(v * 100) / 100; }
 
+  /* Relative luminance above 0.45: only pale colours. Every built-in header, diff and tag colour is below it. */
+  function isLight(hex) {
+    var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex || "");
+    if (!m) return false;
+    var h = m[1].length === 3 ? m[1].replace(/./g, "$&$&") : m[1];
+    var lum = [0, 2, 4].map(function (i) {
+      var c = parseInt(h.substr(i, 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * lum[0] + 0.7152 * lum[1] + 0.0722 * lum[2] > 0.45;
+  }
+
   function relatedColumns(model) {
     var set = {};
     model.rels.forEach(function (r) {
@@ -84,10 +96,11 @@
       out.push('<text x="' + (w - st.padX) + '" y="' + n(st.headerH / 2 + 4) + '" text-anchor="end" fill="#fff" font-family="' + FONT +
         '" font-size="10" font-weight="bold">' + (state === "added" ? "NEW" : "CHANGED") + "</text>");
     }
-    out.push('<text class="tn" x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + C.headerText +
+    var light = isLight(hcol); // a pale DBML headercolor or tag colour: dark text on it
+    out.push('<text class="tn" x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + (light ? C.text : C.headerText) +
       '" font-family="' + FONT + '" font-size="' + st.headerSize + '">' + esc(t.name) + "</text>");
     if (docMarks && t.doc) {
-      out.push(docMark(st.padX, st.headerH / 2 + st.headerSize * 0.36 + 3, t.nameW, "rgba(255,255,255,.7)"));
+      out.push(docMark(st.padX, st.headerH / 2 + st.headerSize * 0.36 + 3, t.nameW, light ? "rgba(0,0,0,.45)" : "rgba(255,255,255,.7)"));
     }
     g.cols.forEach(function (c, i) {
       var y = st.headerH + i * st.rowH, cy = y + st.rowH / 2, base = n(cy + st.rowSize * 0.36);
@@ -310,7 +323,8 @@
       cells.push(cell({
         id: tid, value: t.name, vertex: "1", parent: "1",
         style: "shape=table;startSize=" + HEADH + ";container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;" +
-          "fontStyle=1;align=left;spacingLeft=10;resizeLast=1;html=0;whiteSpace=wrap;fillColor=" + (t.color || C.header) + ";fontColor=#ffffff;" +
+          "fontStyle=1;align=left;spacingLeft=10;resizeLast=1;html=0;whiteSpace=wrap;fillColor=" + (t.color || C.header) +
+          ";fontColor=" + (isLight(t.color) ? C.text : "#ffffff") + ";" +
           "strokeColor=#dfe3e8;swimlaneFillColor=#ffffff;fontSize=14;",
       }, g(p[0] - b[0] + 40, p[1] - b[1] + 40, w, HEADH + Math.max(tg.cols.length, 0) * ROWH)));
       tg.cols.forEach(function (c, i) {

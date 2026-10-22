@@ -1,4 +1,4 @@
-# 3.4 Tags and Colours
+# 3.5 Tags and Colours
 
 Tags group tables by role (dim, fact, staging, …) and give each group its own header colour. Every tag is written as a comment, so the file still pastes into QuickDBD unchanged.
 

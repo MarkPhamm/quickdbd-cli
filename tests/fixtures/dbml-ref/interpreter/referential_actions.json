@@ -1,0 +1,301 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "users"
+     },
+     {
+      "fields": [
+       "user_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "orders"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "orders"
+     },
+     {
+      "fields": [
+       "order_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "order_items"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id",
+       "name"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "products"
+     },
+     {
+      "fields": [
+       "product_id",
+       "product_name"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "order_items"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "code"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "countries"
+     },
+     {
+      "fields": [
+       "country_code"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "users"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [
+   {
+    "fields": [
+     {
+      "increment": true,
+      "name": "id",
+      "pk": true,
+      "type": "int"
+     }
+    ],
+    "indexes": [],
+    "name": "increment_id"
+   },
+   {
+    "fields": [
+     {
+      "name": "name",
+      "type": "varchar(255)"
+     }
+    ],
+    "indexes": [],
+    "name": "name"
+   }
+  ],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "user_id",
+      "not_null": true,
+      "pk": false,
+      "type": "int",
+      "unique": true
+     },
+     {
+      "name": "status",
+      "pk": false,
+      "type": "orders_status_enum",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "varchar(255)",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "orders",
+    "partials": [
+     {
+      "name": "increment_id",
+      "order": 0
+     }
+    ],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "order_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "product_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "product_name",
+      "pk": false,
+      "type": "varchar(255)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": 1
+      },
+      "name": "quantity",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "order_items",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "price",
+      "pk": false,
+      "type": "decimal(10,4)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "expression",
+       "value": "now()"
+      },
+      "name": "created_at",
+      "pk": false,
+      "type": "datetime",
+      "unique": false
+     }
+    ],
+    "indexes": [
+     {
+      "columns": [
+       "id",
+       "name"
+      ],
+      "expressions": 0,
+      "pk": true,
+      "unique": false
+     }
+    ],
+    "name": "products",
+    "partials": [
+     {
+      "name": "name",
+      "order": 1
+     }
+    ],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "email",
+      "pk": false,
+      "type": "varchar(255)",
+      "unique": true
+     },
+     {
+      "name": "date_of_birth",
+      "pk": false,
+      "type": "datetime",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "expression",
+       "value": "now()"
+      },
+      "name": "created_at",
+      "pk": false,
+      "type": "datetime",
+      "unique": false
+     },
+     {
+      "name": "country_code",
+      "not_null": true,
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "users",
+    "partials": [
+     {
+      "name": "increment_id",
+      "order": 0
+     },
+     {
+      "name": "name",
+      "order": 1
+     }
+    ],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "code",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "continent_name",
+      "pk": false,
+      "type": "varchar(255)",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "countries",
+    "partials": [
+     {
+      "name": "name",
+      "order": 1
+     }
+    ],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

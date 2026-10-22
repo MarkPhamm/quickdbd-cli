@@ -1,0 +1,32 @@
+// SYNTAX TEST "source.dbml" "DBML schema"
+
+// A comment
+// <----------- comment.line.double-slash.dbml
+Table users as U [headercolor: #1e88e5] {
+// <---- keyword.other.dbml
+//    ^^^^^ entity.name.type.dbml
+//          ^^ keyword.other.dbml
+//                ^^^^^^^^^^^ keyword.other.setting.dbml
+//                             ^^^^^^^ constant.other.color.dbml
+  id integer [pk, increment]
+//^^ variable.other.field.dbml
+//   ^^^^^^^ support.type.dbml
+//            ^^ storage.modifier.dbml
+//                ^^^^^^^^^ storage.modifier.dbml
+  name varchar(255) [not null, note: 'the name']
+//^^^^ variable.other.field.dbml
+//     ^^^^^^^^^^^^ support.type.dbml
+//                   ^^^^^^^^ storage.modifier.dbml
+//                             ^^^^ keyword.other.setting.dbml
+//                                   ^^^^^^^^^^ string.quoted.single.dbml
+  "created at" timestamp [default: `now()`]
+//^^^^^^^^^^^^ variable.other.field.dbml
+//             ^^^^^^^^^ support.type.dbml
+//                                 ^^^^^^^ string.interpolated.expression.dbml
+}
+
+Ref: posts.user_id > users.id
+// <-- keyword.other.dbml
+//                 ^ keyword.operator.relationship.dbml
+Ref: a.(x, y) <>? b.(x, y)
+//            ^^^ keyword.operator.relationship.dbml

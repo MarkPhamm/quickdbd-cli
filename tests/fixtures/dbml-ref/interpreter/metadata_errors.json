@@ -1,0 +1,44 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 6,
+   "message": "cannot find metadata target element"
+  },
+  {
+   "code": "INVALID_METADATA_TARGET_KIND",
+   "line": 11,
+   "message": "A Metadata target kind must be one of: Table, Column, TableGroup, Note"
+  },
+  {
+   "code": "INVALID_METADATA_TARGET_KIND",
+   "line": 16,
+   "message": "A Metadata target kind must be one of: Table, Column, TableGroup, Note"
+  },
+  {
+   "code": "INVALID_METADATA_FIELD",
+   "line": 22,
+   "message": "A Metadata field must use the 'key: value' syntax"
+  },
+  {
+   "code": "INVALID_COLUMN",
+   "line": 28,
+   "message": "These fields must be some inline settings optionally ended with a setting list"
+  },
+  {
+   "code": "INVALID_METADATA_FIELD",
+   "line": 35,
+   "message": "A Metadata field value must be a string or a color literal"
+  },
+  {
+   "code": "INVALID_METADATA_FIELD",
+   "line": 41,
+   "message": "A Metadata field value must be a string or a color literal"
+  },
+  {
+   "code": "INVALID_OPERAND",
+   "line": 41,
+   "message": "Invalid start of operand \"}\""
+  }
+ ]
+}

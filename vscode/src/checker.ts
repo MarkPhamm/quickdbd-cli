@@ -7,6 +7,12 @@ import { findTarget } from "./target.ts";
 import { targetKey, type Report, type Target } from "./schema.ts";
 
 export const LANGUAGE = "quickdbd";
+export const LANGUAGES = ["quickdbd", "dbml"];
+
+/** A document qdbd checks: QuickDBD or DBML. */
+export function isSchemaLanguage(id: string): boolean {
+  return LANGUAGES.includes(id);
+}
 
 interface Entry {
   target: Target;
@@ -19,7 +25,7 @@ interface Entry {
 }
 
 const READY_TIMEOUT = 10000;
-const TARGET_TTL = 5000; // findTarget may read every .txt in a folder; don't redo it on each keystroke
+const TARGET_TTL = 5000; // findTarget may read every schema file in a folder; don't redo it on each keystroke
 
 export class Checker implements vscode.Disposable {
   readonly diagnostics = vscode.languages.createDiagnosticCollection("qdbd");
@@ -76,7 +82,7 @@ export class Checker implements vscode.Disposable {
     if (!e) this.entries.set(key, (e = { target, files: new Set(), seq: 0 }));
     if (e.pending) return e.pending;
     const dirty = vscode.workspace.textDocuments.some(
-      (d) => d.isDirty && d.languageId === LANGUAGE && d.uri.scheme === "file" && targetKey(this.targetFor(d)) === key,
+      (d) => d.isDirty && isSchemaLanguage(d.languageId) && d.uri.scheme === "file" && targetKey(this.targetFor(d)) === key,
     );
     if (!dirty) await this.run(e, undefined, ++e.seq);
   }
@@ -87,7 +93,7 @@ export class Checker implements vscode.Disposable {
 
   /** Check `doc`'s schema after `delay` ms; later calls for the same schema replace earlier ones. */
   schedule(doc: vscode.TextDocument, delay: number): void {
-    if (doc.languageId !== LANGUAGE || doc.uri.scheme !== "file") return;
+    if (!isSchemaLanguage(doc.languageId) || doc.uri.scheme !== "file") return;
     const target = this.targetFor(doc);
     const key = targetKey(target);
     let e = this.entries.get(key);

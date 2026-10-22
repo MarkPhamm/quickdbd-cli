@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "UNEXPECTED_EOF",
+   "line": 5,
+   "message": "Unexpected EOF"
+  },
+  {
+   "code": "UNKNOWN_TOKEN",
+   "line": 5,
+   "message": "Invalid number"
+  }
+ ]
+}

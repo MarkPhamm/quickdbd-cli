@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 5,
+   "message": "Table 'AB' already exists in schema 'public'"
+  }
+ ]
+}

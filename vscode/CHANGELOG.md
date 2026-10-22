@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- **DBML**: schemas written for [dbdiagram.io](https://dbdiagram.io) (`.dbml`, or DBML saved as `.txt`) get everything QuickDBD files do: highlighting, errors as you type, outline, go to definition, the diagram, export, share and compare. A folder can mix both syntaxes, with links between them.
+- New: **Convert to DBML** and **Convert to QuickDBD Syntax**, from the editor or a schema's row in the sidebar. What the other syntax can't express is listed in the QuickDBD output channel.
+- Needs qdbd 0.2.0 or later; the extension offers to install it.
+
 ## 0.3.1
 
 - Fix: the sidebar listed schema files inside hidden folders, such as an editor's local-history copies or a `.vscode-test` sandbox, as broken schemas. Hidden folders are skipped now, as dependency and build folders already were.

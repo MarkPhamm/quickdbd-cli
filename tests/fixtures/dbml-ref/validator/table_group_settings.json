@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_TABLE_SETTING",
+   "line": 6,
+   "message": "'note' can only appear once"
+  },
+  {
+   "code": "DUPLICATE_TABLE_SETTING",
+   "line": 7,
+   "message": "'note' can only appear once"
+  },
+  {
+   "code": "INVALID_TABLE_SETTING_VALUE",
+   "line": 19,
+   "message": "'color' must be a color literal"
+  }
+ ]
+}

@@ -60,7 +60,7 @@ def _symbols(schema: Schema) -> dict:
             for c in t.columns.values()
             if not c.virtual
         ]
-        end = max([t.line + 1] + [c["line"] for c in cols])
+        end = t.end_line or max([t.line + 1] + [c["line"] for c in cols])
         table = {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
         if t.comments:
             table["doc"] = "\n".join(t.comments)
@@ -294,6 +294,63 @@ def cmd_import_dbt(args) -> int:
     return 0
 
 
+def cmd_convert(args) -> int:
+    from . import convert, layout
+    from .parser import compile_sources
+
+    inputs = [Path(p) for p in args.paths]
+    try:
+        project = Project.open(inputs)
+    except FileNotFoundError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    out = Path(args.output) if args.output else None
+    to_dir = out is not None and (len(project.files) > 1 or inputs[0].is_dir() or out.suffix == "" or out.is_dir())
+    if out is None and len(project.files) > 1:
+        print("error: several files: give -o DIR", file=sys.stderr)
+        return 2
+    sources = []
+    for f in project.files:
+        root = next((p for p in inputs if p.is_dir() and f.resolve().is_relative_to(p.resolve())), None)
+        rel = f.resolve().relative_to(root.resolve()).as_posix() if root else f.name
+        sources.append((str(f), rel, f.read_text(encoding="utf-8")))
+    schema = compile_sources([(d, t) for d, _, t in sources])
+    if not _print_diagnostics(schema, False):
+        return 1
+    res = convert.convert(sources, args.to, split_groups=to_dir)
+    for w in res.warnings:
+        print(w.format(), file=sys.stderr)
+    again = compile_sources(list(res.files.items()))
+    if again.errors or convert.canonical(again, res.lost) != convert.canonical(schema, res.lost):
+        for d in again.errors:
+            print(d.format(), file=sys.stderr)
+        print("error: converted schema differs from the input (please report this as a bug)", file=sys.stderr)
+        return 1
+    if out is None:
+        sys.stdout.write(next(iter(res.files.values())))
+        if res.layout:
+            print("warning: [layout] positions not written (give -o to write a layout file)", file=sys.stderr)
+        return 0
+    written = []
+    if to_dir:
+        for name, text in res.files.items():
+            p = out / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(text, encoding="utf-8")
+            written.append(p)
+    else:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(next(iter(res.files.values())), encoding="utf-8")
+        written.append(out)
+    if res.layout:
+        sidecar = layout.default_sidecar(written, [out])
+        positions = {**{k: tuple(v) for k, v in res.layout.items()}, **layout.read_sidecar(sidecar)}
+        layout.write_sidecar(sidecar, positions)
+        written.append(sidecar)
+    print(f"Wrote {', '.join(str(p) for p in written)}")
+    return 0
+
+
 def cmd_path(args) -> int:
     from . import export
     from .jsrt import runtime
@@ -398,7 +455,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def paths(sp):
-        sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt file(s) or folder(s) (recursive)")
+        sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt/.dbml file(s) or folder(s) (recursive)")
 
     def selectors(sp):
         sp.add_argument(
@@ -519,6 +576,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--check", action="store_true", help="don't write; exit 1 if the files at -o are out of date (for CI)"
     )
     dp.set_defaults(func=cmd_import_dbt)
+
+    sp = sub.add_parser("convert", help="convert schema files between QuickDBD text and DBML")
+    sp.add_argument("paths", nargs="+", metavar="PATH", help="schema .txt/.dbml file(s) or folder(s) (recursive)")
+    sp.add_argument("--to", required=True, choices=["dbml", "quickdbd"], help="target syntax")
+    sp.add_argument(
+        "-o", "--output", help="output file, or a directory (keeps relative paths; DBML TableGroups become files)"
+    )
+    sp.set_defaults(func=cmd_convert)
 
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)

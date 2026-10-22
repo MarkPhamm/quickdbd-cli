@@ -1,0 +1,66 @@
+{
+ "database": {
+  "enums": [
+   "products_status",
+   "products_status2"
+  ],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "not_null": true,
+      "pk": false,
+      "type": "int",
+      "unique": true
+     },
+     {
+      "name": "status",
+      "note": "Status of an order",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "note": "When order created",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     }
+    ],
+    "indexes": [
+     {
+      "columns": [
+       "id"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     },
+     {
+      "columns": [
+       "created_at"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     }
+    ],
+    "name": "orders",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

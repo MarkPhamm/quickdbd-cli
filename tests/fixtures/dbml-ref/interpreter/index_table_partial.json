@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 11,
+   "message": "No column named 'id' inside TablePartial 'user_partial'"
+  }
+ ]
+}

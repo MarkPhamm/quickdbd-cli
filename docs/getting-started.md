@@ -44,7 +44,7 @@ qdbd serve schema.txt
 A browser tab opens with the diagram and an editor pane.
 
 - **Edit** in the pane (it autosaves 1 s after you stop typing) or in your own editor. The diagram reloads on save.
-- **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.3 Table Positions](layout.md)).
+- **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.4 Table Positions](layout.md)).
 - **Stop** the server with ++ctrl+c++.
 
 ## 2.4 Build a page to share { #build-and-share }
@@ -70,7 +70,8 @@ qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and it
 
 | You want to… | Go to |
 |---|---|
-| Split a big schema into several files | [3.2 Many Files, One Diagram](files.md) |
+| Use a schema written in DBML (dbdiagram.io) | [3.2 DBML](dbml.md) |
+| Split a big schema into several files | [3.3 Many Files, One Diagram](files.md) |
 | Filter to part of the schema, or find how two tables join | [4.2 Selecting Tables](selectors.md), [4.1 Reading the Diagram](reading-the-diagram.md#details-panel) |
 | Generate the schema from a dbt project | [5.1 dbt Import](dbt.md) |
 | Send someone a link to the diagram | [4.4 Sharing a Link](sharing.md) |

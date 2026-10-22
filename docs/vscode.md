@@ -1,4 +1,4 @@
-# 3.5 Editing in VS Code
+# 3.6 Editing in VS Code
 
 The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf and VSCodium:
 
@@ -49,6 +49,8 @@ With no `qdbd` yet, the sidebar shows an **Install qdbd** button; with no schema
 
 ## Which files it opens as QuickDBD
 
+`.dbml` files open as **DBML**, and get everything below too. A `.txt` file holding DBML (a `Table name {` or `Ref:` line) opens as DBML.
+
 QuickDBD files are plain `.txt`, so the extension decides by content. A `.txt` file opens as **QuickDBD** (shown at the right of the status bar) when either:
 
 - it has a table (a name, then a `---` line) and a `PK`, `FK` or `rel` line, or
@@ -66,7 +68,7 @@ Foreign keys can point into other files, so the extension checks a file together
 
 1. `shop.txt` with a `shop.layout.json` beside it is checked on its own.
 2. Otherwise, the nearest folder above it (inside the workspace) that holds a `qdbd.layout.json` is one schema, like `qdbd check that-folder/`.
-3. Otherwise, the file's own folder, if every `.txt` file under it is a schema and no layout file below it marks a separate project (like `examples/synthetic/` next to `examples/quickdbd-sample.txt`).
+3. Otherwise, the file's own folder, if every `.txt` file under it is a schema (QuickDBD or DBML; `.dbml` files always are) and no layout file below it marks a separate project (like `examples/synthetic/` next to `examples/quickdbd-sample.txt`).
 4. Otherwise, the file on its own, so a stray `notes.txt` doesn't break the check.
 
 Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.json` for a single file), so after the first preview, rule 1 or 2 applies.
@@ -87,6 +89,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | **Share** | **QuickDBD: Share as a Gist Link** publishes the diagram as a secret gist, like [`qdbd share`](sharing.md#qdbd-share), and copies the link. It signs in with VS Code's GitHub account (the first time, VS Code asks), so the `gh` CLI isn't needed. Sharing again updates the same gist, also one made by `qdbd share`, so the link stays the same. |
 | **Compare with git** | **QuickDBD: Compare with Git Ref…** (the compare button at the top right of the editor) picks a branch, tag or commit and opens the diagram coloured by what changed since then, as in a [PR diff](diffs.md). It updates as you save. Pick **HEAD** to see what you haven't committed. |
 | **Import dbt** | **QuickDBD: Import dbt Project…** turns a dbt project's `target/manifest.json` into schema files, like [`qdbd import dbt`](dbt.md), into `erd/` (one file per dbt folder) or one file you choose, then opens the diagram. Run `dbt compile` first; `dbt docs generate` adds column types. |
+| **Convert** | **QuickDBD: Convert to DBML** / **Convert to QuickDBD Syntax**, from the editor or a schema's row in the sidebar, like [`qdbd convert`](dbml.md#convert). A one-file schema is written next to it; a folder schema into a new folder beside it. What the other syntax can't express is listed in the QuickDBD output channel. |
 
 ## Settings
 

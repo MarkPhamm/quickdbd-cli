@@ -1,4 +1,4 @@
-/* QuickDBD for VS Code: highlighting, live diagnostics, outline and go-to-definition, the qdbd diagram as a side
+/* QuickDBD for VS Code (QuickDBD and DBML schemas): highlighting, live diagnostics, outline and go-to-definition, the qdbd diagram as a side
  * preview, the CLI's other commands (export, share, compare, dbt import), and a sidebar listing every schema, all
  * without a terminal. Everything schema-aware comes from the `qdbd` CLI, which the extension can install for itself
  * (cli.ts). */
@@ -9,13 +9,14 @@ import * as vscode from "vscode";
 import { Checker, LANGUAGE } from "./checker.ts";
 import { Qdbd } from "./cli.ts";
 import { pickRef } from "./compare.ts";
+import { convertSchema } from "./convert.ts";
 import { importDbt, type ImportOptions } from "./dbt.ts";
 import { exportDiagram, share, type Format } from "./export.ts";
 import { Previews } from "./preview.ts";
 import type { Target } from "./schema.ts";
 import { isSchemaArg, Sidebar, type Node } from "./sidebar.ts";
 import { registerSymbols } from "./symbols.ts";
-import { isSchemaFile, targetTitle } from "./target.ts";
+import { schemaLanguage, targetTitle } from "./target.ts";
 
 const TYPING_DELAY = 300;
 
@@ -115,6 +116,14 @@ export function activate(context: vscode.ExtensionContext): Api {
     ),
     vscode.commands.registerCommand("quickdbd.share", withSchema((doc) => share(qdbd, checker, doc))),
     vscode.commands.registerCommand(
+      "quickdbd.convertToDbml",
+      withSchema((doc, opts) => convertSchema(qdbd, checker, doc, "dbml", log, str(opts.output))),
+    ),
+    vscode.commands.registerCommand(
+      "quickdbd.convertToQuickdbd",
+      withSchema((doc, opts) => convertSchema(qdbd, checker, doc, "quickdbd", log, str(opts.output))),
+    ),
+    vscode.commands.registerCommand(
       "quickdbd.compare",
       withSchema(async (doc, opts) => {
         const ref = str(opts.ref) ?? (await pickRef(checker.targetFor(doc).cwd));
@@ -152,12 +161,13 @@ export function activate(context: vscode.ExtensionContext): Api {
   };
 }
 
-/** Switch a plain .txt that is a QuickDBD schema to the QuickDBD language, then check it. */
+/** Switch a plain .txt that is a QuickDBD or DBML schema to that language, then check it. */
 async function opened(doc: vscode.TextDocument, checker: Checker): Promise<void> {
   if (doc.languageId === "plaintext" && doc.uri.scheme === "file" && /\.txt$/i.test(doc.uri.fsPath)) {
     if (!vscode.workspace.getConfiguration("quickdbd").get<boolean>("autoDetect", true)) return;
-    if (!isSchemaFile(doc.uri.fsPath, doc.getText(), true)) return;
-    await vscode.languages.setTextDocumentLanguage(doc, LANGUAGE); // reopens it as QuickDBD, which lands here again
+    const language = schemaLanguage(doc.uri.fsPath, doc.getText(), true);
+    if (!language) return;
+    await vscode.languages.setTextDocumentLanguage(doc, language); // reopens it as a schema, which lands here again
     return;
   }
   checker.schedule(doc, 0);

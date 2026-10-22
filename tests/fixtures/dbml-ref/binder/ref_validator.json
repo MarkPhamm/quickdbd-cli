@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 1,
+   "message": "Table 'Products' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 1,
+   "message": "Table 'Users' does not exist in Schema 'public'"
+  }
+ ]
+}

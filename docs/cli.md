@@ -1,6 +1,6 @@
 # 8. CLI Reference
 
-Every command takes one or more `PATH`s: a `.txt` file, or a folder (every `*.txt` under it, recursively). `qdbd <command> --help` shows all options.
+Every command takes one or more `PATH`s: a `.txt` or `.dbml` file, or a folder (every `*.txt` and `*.dbml` under it, recursively). QuickDBD and [DBML](dbml.md) files can be mixed. `qdbd <command> --help` shows all options.
 
 ## 8.1 check { #check }
 
@@ -71,7 +71,7 @@ See [4.3 Exports](exports.md).
 qdbd layout PATH... [--reset] [--by-group] [--layout FILE]
 ```
 
-Writes positions to the layout file: placing new tables, re-laying out everything (`--reset`), or grouping by file / folder (`--by-group`). See [3.3 Table Positions](layout.md).
+Writes positions to the layout file: placing new tables, re-laying out everything (`--reset`), or grouping by file / folder (`--by-group`). See [3.4 Table Positions](layout.md).
 
 ## 8.6 path { #path }
 
@@ -106,7 +106,15 @@ qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-gr
 
 Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. See [4.4 Sharing a Link](sharing.md).
 
-## 8.10 Exit codes { #exit-codes }
+## 8.10 convert { #convert }
+
+```bash
+qdbd convert PATH... --to dbml|quickdbd [-o FILE_OR_DIR]
+```
+
+Converts between QuickDBD text and DBML. With one file and no `-o`, prints the result; with `-o DIR`, writes each file under it with the new extension (DBML `TableGroup`s become one QuickDBD file each). Anything the target syntax can't express is a warning; the output is recompiled and must otherwise match the input, or nothing is written. See [3.2 DBML](dbml.md#convert).
+
+## 8.11 Exit codes { #exit-codes }
 
 | Code | Meaning |
 |---|---|

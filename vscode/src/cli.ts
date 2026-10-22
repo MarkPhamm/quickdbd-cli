@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import { atLeast, parseVersion } from "./schema.ts";
 import { installPlan, venvBin, type ExecResult } from "./venv.ts";
 
-export const MIN_VERSION = [0, 1, 17];
+export const MIN_VERSION = [0, 2, 0];
 
 export type RunResult = ExecResult;
 

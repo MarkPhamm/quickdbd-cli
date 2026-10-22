@@ -1,5 +1,6 @@
 // Runs test/integration/suite.ts inside a real VS Code, on a scratch git repository holding a copy of examples/ (a
-// standalone sample next to synthetic/, a separate multi-file project) and a dbt project (jaffle/target/).
+// standalone sample next to synthetic/, a separate multi-file project), DBML schemas (dbml/, mixed/) and a dbt
+// project (jaffle/target/).
 // qdbd comes from QDBD_PATH, else the repo's .venv. QDBD_TEST_INSTALL=1 also tests installing qdbd from this checkout.
 import { runTests } from "@vscode/test-electron";
 import { execFileSync } from "node:child_process";
@@ -14,6 +15,15 @@ const ws = fs.mkdtempSync(path.join(os.tmpdir(), "qdbd-vscode-"));
 // One level down, so the .vscode settings folder isn't inside examples/ (it would change how folders are judged).
 fs.cpSync(path.join(repo, "examples"), path.join(ws, "examples"), { recursive: true });
 fs.cpSync(path.join(repo, "tests", "fixtures", "jaffle"), path.join(ws, "jaffle", "target"), { recursive: true });
+// DBML: a one-file schema folder, and a folder mixing a QuickDBD file with a DBML one.
+fs.mkdirSync(path.join(ws, "dbml"));
+fs.copyFileSync(path.join(repo, "tests", "fixtures", "dbml", "team.dbml"), path.join(ws, "dbml", "team.dbml"));
+fs.mkdirSync(path.join(ws, "mixed"));
+fs.copyFileSync(path.join(repo, "tests", "fixtures", "dbml", "team.dbml"), path.join(ws, "mixed", "team.dbml"));
+fs.writeFileSync(path.join(ws, "mixed", "extra.txt"), "visit_notes\n-\nid PK int\nguest_sk int FK >- guests.guest_sk\n");
+// Empty for now: the suite writes a .dbml into it while VS Code runs. It exists up front because on Linux a folder
+// created at runtime is watched only once its own create event lands, so a file written into it at once can be missed.
+fs.mkdirSync(path.join(ws, "fresh"));
 // Like VS Code's local history: a copy of one schema file in a hidden folder, which the sidebar must not list.
 fs.mkdirSync(path.join(ws, ".history", "5b49af65"), { recursive: true });
 fs.copyFileSync(path.join(repo, "examples", "synthetic", "finance.txt"), path.join(ws, ".history", "5b49af65", "Vbyq.txt"));

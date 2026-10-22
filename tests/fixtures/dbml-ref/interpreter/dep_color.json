@@ -1,0 +1,67 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "users",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "events",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "reports",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

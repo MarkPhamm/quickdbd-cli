@@ -1,0 +1,44 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "status",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "create_at",
+      "pk": false,
+      "type": "date_time",
+      "unique": false
+     }
+    ],
+    "headerColor": "#0065ab",
+    "indexes": [],
+    "name": "orders",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

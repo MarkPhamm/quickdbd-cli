@@ -65,6 +65,43 @@ export function looksLikeQuickdbd(text: string): boolean {
   return text.split(/\r?\n/, 5000).some((l) => !l.trimStart().startsWith("#") && KEYED.test(l));
 }
 
+// A DBML top-level declaration, as `parser.syntax_of` tests it: `Table name [as alias] [settings] {` (the `{` may be on
+// the next line), or `Ref:` with a relationship. No valid QuickDBD file has one: a QuickDBD table header can't hold
+// `{`, a column line can't be a keyword, a name and then `{`, and a `Ref:` column has no relationship operator.
+const NAME = String.raw`("[^"]*"|[\p{L}\p{N}_.]+)`;
+const DBML_HEAD = new RegExp(
+  String.raw`^\s*((table|enum|tablegroup|tablepartial|records)\s+${NAME}(\s*\([^)]*\))?|project(\s+${NAME})?)` +
+    String.raw`(\s+as\s+${NAME})?\s*(\[[^\]]*\])?\s*(?<brace>\{.*)?(\/\/.*)?$`,
+  "iu",
+);
+const DBML_REF =
+  /^\s*ref(\s+("[^"]*"|[\p{L}\p{N}_]+))?\s*(\{\s*(\/\/.*)?$|:\s*[\p{L}\p{N}_"]+[\p{L}\p{N}_".()\s,]*?\s*\??(<>|<|>|-)\??\s*[\p{L}\p{N}_"])/iu;
+
+function stripBlockComments(text: string): string {
+  let out = "";
+  let i = 0;
+  for (let start = text.indexOf("/*"); start !== -1; start = text.indexOf("/*", i)) {
+    out += text.slice(i, start);
+    const end = text.indexOf("*/", start + 2);
+    if (end === -1) return out;
+    i = end + 2;
+  }
+  return out + text.slice(i);
+}
+
+/** A DBML schema (dbdiagram.io's syntax), which qdbd reads too. */
+export function looksLikeDbml(text: string): boolean {
+  const lines = stripBlockComments(text).split(/\r?\n/, 5000);
+  return lines.some((line, k) => {
+    if (DBML_REF.test(line)) return true;
+    const m = DBML_HEAD.exec(line);
+    if (!m) return false;
+    if (m.groups?.brace) return true;
+    const next = lines.slice(k + 1).find((x) => x.trim());
+    return next?.trimStart().startsWith("{") ?? false;
+  });
+}
+
 /** "int · PK" for the sidebar: the type, then the keys. */
 export function columnDetail(c: Column): string {
   const keys = [c.pk && "PK", c.fk && "FK"].filter(Boolean).join(", ");

@@ -1,0 +1,35 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [
+   {
+    "name": "group1",
+    "tables": [
+     {
+      "name": "table1",
+      "schema": null
+     }
+    ]
+   }
+  ],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "table1",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

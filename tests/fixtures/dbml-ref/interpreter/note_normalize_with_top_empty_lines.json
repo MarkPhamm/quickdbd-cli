@@ -1,0 +1,178 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "user_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "posts"
+     },
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "users"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "users"
+     },
+     {
+      "fields": [
+       "following_user_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "follows"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "users"
+     },
+     {
+      "fields": [
+       "followed_user_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "follows"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "following_user_id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "followed_user_id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "follows",
+    "note": "# Heading 1\n    code block\n# Heading 2\n  * 1\n  * 1\n",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "username",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "role",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "users",
+    "note": "# Heading 1\n    code block\n# Heading 2\n  * 1\n  * 2\n",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "title",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "body",
+      "note": "# Heading 1\n    code block\n# Heading 2\n  * 1\n  * 2\n  ",
+      "pk": false,
+      "type": "text",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "status",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "posts",
+    "note": "# Heading 1\n    code block\n# Heading 2\n  * 1\n    * 1.1\n    * 1.2\n  * 2\n",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

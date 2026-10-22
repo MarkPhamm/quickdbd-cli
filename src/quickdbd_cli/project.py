@@ -11,13 +11,15 @@ from .measure import model_json
 from .model import Schema
 from .parser import compile_sources
 
+SCHEMA_SUFFIXES = (".txt", ".dbml")
+
 
 def discover(inputs: list[Path]) -> list[Path]:
-    """Expand directories to every ``*.txt`` beneath them (recursive, sorted)."""
+    """Expand directories to every ``*.txt`` and ``*.dbml`` beneath them (recursive, sorted)."""
     files: list[Path] = []
     for p in inputs:
         if p.is_dir():
-            files.extend(sorted(f for f in p.rglob("*.txt") if f.is_file()))
+            files.extend(sorted(f for f in p.rglob("*") if f.suffix in SCHEMA_SUFFIXES and f.is_file()))
         elif p.exists():
             files.append(p)
         else:
@@ -49,7 +51,7 @@ class Project:
     def open(cls, inputs: list[Path], sidecar: Path | None = None) -> Project:
         files = discover(inputs)
         if not files:
-            raise FileNotFoundError("no .txt schema files found in: " + ", ".join(map(str, inputs)))
+            raise FileNotFoundError("no .txt or .dbml schema files found in: " + ", ".join(map(str, inputs)))
         return cls(inputs, files, sidecar or layout.default_sidecar(files, inputs))
 
     def sources(self, overrides: dict[Path, str] | None = None) -> list[tuple[str, str]]:

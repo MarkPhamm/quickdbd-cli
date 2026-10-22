@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 27,
+   "message": "'default' must be an enum value, a string literal, number literal, function expression, true, false or null"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 28,
+   "message": "Schema 'field1' does not exist in Schema 'public'"
+  },
+  {
+   "code": "INVALID_COLUMN_SETTING_VALUE",
+   "line": 28,
+   "message": "'default' must be an enum value, a string literal, number literal, function expression, true, false or null"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 29,
+   "message": "Enum 'invalid_enum' does not exist in Schema 'public'"
+  }
+ ]
+}

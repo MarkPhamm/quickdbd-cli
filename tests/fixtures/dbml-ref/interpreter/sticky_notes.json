@@ -1,0 +1,33 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "username",
+      "not_null": true,
+      "pk": false,
+      "type": "varchar(255)",
+      "unique": true
+     }
+    ],
+    "headerColor": "#3498DB",
+    "indexes": [],
+    "name": "users",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

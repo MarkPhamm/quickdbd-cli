@@ -1,0 +1,127 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "admin_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "merchants"
+     },
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "users"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [
+   {
+    "name": "g1",
+    "tables": [
+     {
+      "name": "merchants",
+      "schema": null
+     },
+     {
+      "name": "users",
+      "schema": null
+     }
+    ]
+   }
+  ],
+  "tablePartials": [],
+  "tables": [
+   {
+    "alias": "U",
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "full_name",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "created_at",
+      "pk": false,
+      "type": "timestamp",
+      "unique": false
+     },
+     {
+      "name": "country_code",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "users",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "merchant_name",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "name": "country_code",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "created at",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "inline_refs": [
+       {
+        "fields": [
+         "id"
+        ],
+        "relation": ">",
+        "schema": null,
+        "table": "users"
+       }
+      ],
+      "name": "admin_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "merchants",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

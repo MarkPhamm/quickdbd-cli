@@ -1,0 +1,178 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "increment": true,
+      "name": "customer_id",
+      "not_null": true,
+      "pk": true,
+      "type": "SMALLINT",
+      "unique": false
+     },
+     {
+      "name": "store_id",
+      "not_null": true,
+      "pk": false,
+      "type": "TINYINT",
+      "unique": false
+     },
+     {
+      "name": "first_name",
+      "not_null": true,
+      "pk": false,
+      "type": "VARCHAR(45)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "boolean",
+       "value": "false"
+      },
+      "name": "last_name",
+      "not_null": true,
+      "pk": false,
+      "type": "VARCHAR(45)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "boolean",
+       "value": "null"
+      },
+      "name": "email",
+      "pk": false,
+      "type": "VARCHAR(50)",
+      "unique": false
+     },
+     {
+      "name": "address_id",
+      "not_null": true,
+      "pk": false,
+      "type": "SMALLINT",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "boolean",
+       "value": "true"
+      },
+      "name": "active",
+      "not_null": true,
+      "pk": false,
+      "type": "BOOLEAN",
+      "unique": false
+     },
+     {
+      "name": "create_date",
+      "not_null": true,
+      "pk": false,
+      "type": "DATETIME",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "expression",
+       "value": "CURRENT_TIMESTAMP"
+      },
+      "name": "last_update",
+      "pk": false,
+      "type": "TIMESTAMP",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "customer",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "string",
+       "value": "hello"
+      },
+      "name": "name",
+      "pk": false,
+      "type": "e",
+      "unique": false
+     },
+     {
+      "name": "country_id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "cities",
+    "note": "sasasa",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "cities",
+      "pk": false,
+      "type": "string[]",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "country",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "integer",
+      "unique": false
+     },
+     {
+      "name": "name",
+      "pk": false,
+      "type": "string",
+      "unique": false
+     }
+    ],
+    "indexes": [
+     {
+      "columns": [
+       "id",
+       "name"
+      ],
+      "expressions": 0,
+      "pk": false,
+      "unique": false
+     }
+    ],
+    "name": "citites",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

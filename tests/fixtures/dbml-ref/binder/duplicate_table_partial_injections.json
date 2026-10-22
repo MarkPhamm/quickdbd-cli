@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_TABLE_PARTIAL_INJECTION_NAME",
+   "line": 7,
+   "message": "Duplicate table partial injection 'common'"
+  },
+  {
+   "code": "DUPLICATE_TABLE_PARTIAL_INJECTION_NAME",
+   "line": 8,
+   "message": "Duplicate table partial injection 'common'"
+  },
+  {
+   "code": "DUPLICATE_TABLE_PARTIAL_INJECTION_NAME",
+   "line": 9,
+   "message": "Duplicate table partial injection 'common'"
+  }
+ ]
+}

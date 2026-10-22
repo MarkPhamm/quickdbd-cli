@@ -1,0 +1,59 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_COLUMN",
+   "line": 3,
+   "message": "A column must have a type"
+  },
+  {
+   "code": "INVALID_ENUM_ELEMENT",
+   "line": 7,
+   "message": "An Enum must have only a field and optionally a setting list"
+  },
+  {
+   "code": "INVALID_ENUM_ELEMENT",
+   "line": 8,
+   "message": "An Enum must have only a field and optionally a setting list"
+  },
+  {
+   "code": "INVALID_ENUM_ELEMENT",
+   "line": 9,
+   "message": "An Enum must have only a field and optionally a setting list"
+  },
+  {
+   "code": "INVALID_ENUM_ELEMENT",
+   "line": 10,
+   "message": "An Enum must have only a field and optionally a setting list"
+  },
+  {
+   "code": "INVALID_TABLEGROUP_FIELD",
+   "line": 14,
+   "message": "A TableGroup field should only have a single Table name"
+  },
+  {
+   "code": "INVALID_TABLEGROUP_FIELD",
+   "line": 15,
+   "message": "A TableGroup field should only have a single Table name"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 19,
+   "message": "A Ref field should only have a single binary relationship"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 23,
+   "message": "A Ref field should only have a single binary relationship"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 27,
+   "message": "A Ref field should only have a single binary relationship"
+  },
+  {
+   "code": "INVALID_REF_FIELD",
+   "line": 31,
+   "message": "A Ref field should only have a single binary relationship"
+  }
+ ]
+}

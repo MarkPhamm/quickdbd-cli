@@ -1,0 +1,147 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "default": {
+       "type": "number",
+       "value": 123
+      },
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "not_null": true,
+      "pk": false,
+      "type": "int",
+      "unique": true
+     },
+     {
+      "default": {
+       "type": "string",
+       "value": "Completed"
+      },
+      "name": "status",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "expression",
+       "value": "now()"
+      },
+      "name": "created_at",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "orders",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "order_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "product_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "quantity",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "order_items",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "boolean",
+       "value": "null"
+      },
+      "name": "name",
+      "pk": false,
+      "type": "varchar",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": -1
+      },
+      "name": "merchant_id",
+      "not_null": true,
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": -123.12
+      },
+      "name": "price",
+      "pk": false,
+      "type": "float",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "boolean",
+       "value": "true"
+      },
+      "name": "stock",
+      "pk": false,
+      "type": "boolean",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "expression",
+       "value": "current_date + interval 1 year"
+      },
+      "name": "expiration",
+      "pk": false,
+      "type": "date",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "products",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

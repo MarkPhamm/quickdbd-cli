@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "quickdbd-cli"
-version = "0.1.19"
+version = "0.2.0"
 description = "Compile QuickDBD-syntax schema files into interactive HTML ER diagrams, with no table limit."
 readme = "README.md"
 license = "Apache-2.0"
@@ -37,7 +37,8 @@ Homepage = "https://github.com/MarkPhamm/quickdbd-cli"
 packages = ["src/quickdbd_cli"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "examples", "scripts", "/README.md", "/LICENSE", "/NOTICE"]
+# Anchored: an unanchored "src" also matches vscode/node_modules/**/src.
+include = ["/src", "/tests", "/examples", "/scripts", "/README.md", "/LICENSE", "/NOTICE"]
 
 [tool.ruff]
 line-length = 120

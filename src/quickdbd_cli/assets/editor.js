@@ -24,7 +24,26 @@
         { regex: /^[^\s#-][^#]*$/, token: null, sol: true },
       ],
     });
+    CodeMirror.defineSimpleMode("dbml", {
+      start: [
+        { regex: /\/\/.*/, token: "comment" },
+        { regex: /\/\*/, token: "comment", next: "comment" },
+        { regex: /'''/, token: "string", next: "note" },
+        { regex: /'(?:[^'\\]|\\.)*'?/, token: "string" },
+        { regex: /"(?:[^"\\]|\\.)*"?/, token: "variable-2" },
+        { regex: /`[^`]*`?/, token: "string-2" },
+        { regex: /#[0-9a-fA-F]{3,6}\b/, token: "number" },
+        { regex: /\b(Table|TablePartial|TableGroup|Ref|Enum|Project|Note|indexes|checks|records|Dep|as)\b/i, token: "qdbd-kw" },
+        { regex: /\b(pk|primary key|not null|null|unique|increment|default|note|ref|headercolor|delete|update)\b/i, token: "keyword" },
+        { regex: /\?(<>|<|>|-)\??|(<>|<|>|-)\?|<>|[<>~]/, token: "qdbd-op" },
+        { regex: /-?\d+(\.\d+)?/, token: "number" },
+      ],
+      comment: [{ regex: /.*?\*\//, token: "comment", next: "start" }, { regex: /.*/, token: "comment" }],
+      note: [{ regex: /.*?'''/, token: "string", next: "start" }, { regex: /.*/, token: "string" }],
+    });
   }
+
+  function modeOf(f) { return f.syntax === "dbml" || /\.dbml$/i.test(f.path) ? "dbml" : "qdbd"; }
 
   function editorValue() { return cm ? cm.getValue() : textarea.value; }
 
@@ -43,7 +62,7 @@
 
   function setEditorText(f) {
     if (cm) {
-      if (!f.doc) f.doc = CodeMirror.Doc(f.text, "qdbd");
+      if (!f.doc) f.doc = CodeMirror.Doc(f.text, modeOf(f));
       cm.swapDoc(f.doc);
     } else {
       textarea.value = f.buffer != null ? f.buffer : f.text;
@@ -205,7 +224,7 @@
         seen[sf.path] = true;
         var f = files[sf.path];
         if (!f) {
-          files[sf.path] = { path: sf.path, text: sf.text, mtime: sf.mtime, dirty: false };
+          files[sf.path] = { path: sf.path, text: sf.text, mtime: sf.mtime, syntax: sf.syntax, dirty: false };
           order.push(sf.path);
           return;
         }

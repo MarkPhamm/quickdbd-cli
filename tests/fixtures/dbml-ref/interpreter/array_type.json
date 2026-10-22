@@ -1,0 +1,53 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "name",
+      "pk": false,
+      "type": "text",
+      "unique": false
+     },
+     {
+      "name": "pay_by_quarter",
+      "not_null": true,
+      "pk": false,
+      "type": "int[]",
+      "unique": false
+     },
+     {
+      "name": "schedule",
+      "not_null": false,
+      "pk": false,
+      "type": "text[][]",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "sal_emp",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "squares",
+      "pk": false,
+      "type": "integer[3][3]",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "tictactoe",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

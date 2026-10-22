@@ -7,6 +7,7 @@ import {
   findTable,
   firstUrl,
   hasTable,
+  looksLikeDbml,
   looksLikeQuickdbd,
   parseVersion,
   refAt,
@@ -96,4 +97,37 @@ test("column details and tables grouped by file, for the sidebar", () => {
       ["b.txt", ["orders"]],
     ],
   );
+});
+
+const DBML = `// Invented
+Table guests {
+  guest_sk integer [primary key]
+}
+
+Table "visits" {
+  guest_sk integer [ref: > guests.guest_sk]
+}
+
+Ref: visits.guest_sk > guests.guest_sk
+`;
+
+test("looksLikeDbml: DBML declarations, but never a QuickDBD schema", () => {
+  assert.ok(looksLikeDbml(DBML));
+  assert.ok(looksLikeDbml("Ref: a.id > b.id\n"));
+  assert.ok(looksLikeDbml('table "my table" as t {\n}\n'));
+  assert.ok(looksLikeDbml("Project shop {\n  database_type: 'PostgreSQL'\n}\n"));
+  assert.ok(!looksLikeDbml(SCHEMA));
+  assert.ok(!looksLikeDbml("Ref\n-\nid PK int\n"));
+  assert.ok(!looksLikeDbml("# Table x {\nCustomer\n-\nid PK int\n"));
+  assert.ok(!looksLikeDbml("Customer\n-\nTable int\nRef: varchar\n"));
+  assert.ok(!looksLikeDbml("/* Table a {\n*/\nCustomer\n-\nid int\n"));
+  // A `#` comment ending in `{` stays QuickDBD; one-line tables and a `{` on the next line are DBML.
+  assert.ok(!looksLikeDbml("Customer\n-\ntable int # like {\nid PK int\n"));
+  assert.ok(!looksLikeDbml("Project # the main one {\n-\nid PK int\n"));
+  assert.ok(looksLikeDbml("Table a { id int }\n"));
+  assert.ok(looksLikeDbml("Table users\n{\n  id int\n}\n"));
+  assert.ok(looksLikeDbml("records users(id, name) {\n  1, 'a'\n}\n"));
+  const start = Date.now();
+  assert.ok(!looksLikeDbml("Customer\n-\nid PK int\n" + "x int /* never closed\n".repeat(20000)));
+  assert.ok(Date.now() - start < 500, "an unclosed /* doesn't make the scan quadratic");
 });

@@ -1,4 +1,4 @@
-# 3.3 Table Positions
+# 3.4 Table Positions
 
 ## Auto-layout
 

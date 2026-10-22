@@ -1,0 +1,99 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [
+   {
+    "fields": [
+     {
+      "default": {
+       "type": "number",
+       "value": -2
+      },
+      "name": "id",
+      "type": "int(-1)"
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": -2
+      },
+      "name": "id2",
+      "type": "int(--1)"
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": -7.2225
+      },
+      "name": "id3",
+      "type": "int(+-+---+0.1)"
+     }
+    ],
+    "indexes": [],
+    "name": "P1"
+   }
+  ],
+  "tables": [
+   {
+    "fields": [
+     {
+      "default": {
+       "type": "number",
+       "value": -2
+      },
+      "name": "id",
+      "pk": false,
+      "type": "int(-1)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": -2
+      },
+      "name": "id2",
+      "pk": false,
+      "type": "int(--1)",
+      "unique": false
+     },
+     {
+      "default": {
+       "type": "number",
+       "value": 7.2225
+      },
+      "name": "id3",
+      "pk": false,
+      "type": "int(+-+---+0.1)",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "a",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "b",
+    "partials": [
+     {
+      "name": "P1",
+      "order": 1
+     }
+    ],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

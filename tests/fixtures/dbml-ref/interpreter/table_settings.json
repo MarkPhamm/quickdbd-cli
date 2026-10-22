@@ -1,0 +1,158 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "user"
+     },
+     {
+      "fields": [
+       "user_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "merchant"
+     }
+    ]
+   },
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "id"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "product"
+     },
+     {
+      "fields": [
+       "product_id"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "merchant"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "name",
+      "pk": false,
+      "type": "string",
+      "unique": false
+     }
+    ],
+    "headerColor": "#555",
+    "indexes": [],
+    "name": "user",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "name",
+      "not_null": true,
+      "pk": false,
+      "type": "string",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "country",
+    "note": "name is required",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "name",
+      "pk": false,
+      "type": "string",
+      "unique": false
+     },
+     {
+      "name": "price",
+      "not_null": true,
+      "pk": false,
+      "type": "decimal",
+      "unique": false
+     }
+    ],
+    "headerColor": "#17DACC",
+    "indexes": [],
+    "name": "product",
+    "note": "product must have price",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "user_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "product_id",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     },
+     {
+      "name": "address",
+      "pk": false,
+      "type": "string",
+      "unique": false
+     }
+    ],
+    "headerColor": "#08DAFF",
+    "indexes": [],
+    "name": "merchant",
+    "note": "merchants sell a lot",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

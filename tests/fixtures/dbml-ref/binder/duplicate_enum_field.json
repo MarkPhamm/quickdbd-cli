@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_COLUMN_NAME",
+   "line": 2,
+   "message": "Duplicate enum field 'churn'"
+  },
+  {
+   "code": "DUPLICATE_COLUMN_NAME",
+   "line": 3,
+   "message": "Duplicate enum field 'churn'"
+  },
+  {
+   "code": "DUPLICATE_COLUMN_NAME",
+   "line": 4,
+   "message": "Duplicate enum field 'churn'"
+  }
+ ]
+}

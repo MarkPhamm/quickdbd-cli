@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 2,
+   "message": "Column 'un_col1' does not exist in Table 'public.T1'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 3,
+   "message": "Column 'un_col2' does not exist in Table 'public.T2'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 4,
+   "message": "Table 'un_T' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 8,
+   "message": "Column 'un_col' does not exist in Table 'public.T2'"
+  }
+ ]
+}

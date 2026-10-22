@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "TABLE_REAPPEAR_IN_TABLEGROUP",
+   "line": 23,
+   "message": "Table \"follows\" already appears in group \"A1\""
+  },
+  {
+   "code": "TABLE_REAPPEAR_IN_TABLEGROUP",
+   "line": 28,
+   "message": "Table \"users\" already appears in group \"A2\""
+  },
+  {
+   "code": "TABLE_REAPPEAR_IN_TABLEGROUP",
+   "line": 32,
+   "message": "Table \"U\" already appears in group \"A2\""
+  },
+  {
+   "code": "TABLE_REAPPEAR_IN_TABLEGROUP",
+   "line": 40,
+   "message": "Table \"A.users\" already appears in group \"A5\""
+  }
+ ]
+}

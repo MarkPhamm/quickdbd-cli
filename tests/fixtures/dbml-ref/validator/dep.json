@@ -1,0 +1,29 @@
+{
+ "errors": [
+  {
+   "code": "INVALID_DEP_FIELD",
+   "line": 19,
+   "message": "Dep edges must use the '->' or '<-' operator"
+  },
+  {
+   "code": "INVALID_DEP_FIELD",
+   "line": 23,
+   "message": "Dep edges must use the '->' or '<-' operator"
+  },
+  {
+   "code": "INVALID_DEP_CONTEXT",
+   "line": 29,
+   "message": "A Dep must appear top-level"
+  },
+  {
+   "code": "INVALID_TABLE_SETTING_VALUE",
+   "line": 60,
+   "message": "'dep' must be `-> target` or `<- source`"
+  },
+  {
+   "code": "INVALID_TABLE_SETTING_VALUE",
+   "line": 61,
+   "message": "'dep' must be `-> target` or `<- source`"
+  }
+ ]
+}

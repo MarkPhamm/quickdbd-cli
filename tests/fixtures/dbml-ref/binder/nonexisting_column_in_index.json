@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 8,
+   "message": "No column named 'non_existent_column' inside Table 'posts'"
+  }
+ ]
+}

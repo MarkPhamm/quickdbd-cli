@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_TABLE_PARTIAL_SETTING",
+   "line": 3,
+   "message": "'note' can only appear once"
+  },
+  {
+   "code": "DUPLICATE_TABLE_PARTIAL_SETTING",
+   "line": 4,
+   "message": "'note' can only appear once"
+  },
+  {
+   "code": "DUPLICATE_COLUMN_SETTING",
+   "line": 8,
+   "message": "'note' can only appear once"
+  }
+ ]
+}

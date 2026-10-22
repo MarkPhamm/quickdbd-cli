@@ -1,0 +1,24 @@
+checks {}
+
+Table Users {
+  balance int
+
+
+  checks {
+    `balance > 0` [name: 'positive_balance']
+    
+    `duplicate name` [name: 'dup', name: 'dup']
+    `invalid setting` [invalid]
+  }
+}
+
+TablePartial Users {
+  balance int
+
+  checks {
+    `balance > 0` [name: 'positive_balance']
+    
+    `duplicate name` [name: 'dup', name: 'dup']
+    `invalid setting` [invalid]
+  }
+}

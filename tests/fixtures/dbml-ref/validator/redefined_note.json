@@ -1,0 +1,24 @@
+{
+ "errors": [
+  {
+   "code": "NOTE_REDEFINED",
+   "line": 2,
+   "message": "Duplicate notes are defined"
+  },
+  {
+   "code": "NOTE_REDEFINED",
+   "line": 3,
+   "message": "Duplicate notes are defined"
+  },
+  {
+   "code": "INVALID_NAME",
+   "line": 8,
+   "message": "Sticky note must have a name"
+  },
+  {
+   "code": "INVALID_NAME",
+   "line": 12,
+   "message": "Sticky note must have a name"
+  }
+ ]
+}

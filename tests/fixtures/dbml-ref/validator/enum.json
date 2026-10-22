@@ -1,0 +1,19 @@
+{
+ "errors": [
+  {
+   "code": "EMPTY_ENUM",
+   "line": 1,
+   "message": "An Enum must have at least one element"
+  },
+  {
+   "code": "NAME_NOT_FOUND",
+   "line": 5,
+   "message": "An Enum must have a name"
+  },
+  {
+   "code": "INVALID_ENUM_ELEMENT_NAME",
+   "line": 8,
+   "message": "An enum field must be an identifier or a quoted identifier"
+  }
+ ]
+}

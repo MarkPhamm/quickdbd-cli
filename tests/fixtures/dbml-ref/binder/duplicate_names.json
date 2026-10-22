@@ -1,0 +1,34 @@
+{
+ "errors": [
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 5,
+   "message": "Table 'Users' already exists in schema 'public'"
+  },
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 13,
+   "message": "TableGroup 'Users' already exists in schema 'public'"
+  },
+  {
+   "code": "EMPTY_ENUM",
+   "line": 17,
+   "message": "An Enum must have at least one element"
+  },
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 21,
+   "message": "Enum 'Users' already exists in schema 'public'"
+  },
+  {
+   "code": "EMPTY_ENUM",
+   "line": 21,
+   "message": "An Enum must have at least one element"
+  },
+  {
+   "code": "DUPLICATE_NAME",
+   "line": 29,
+   "message": "TablePartial 'Users' already exists in schema 'public'"
+  }
+ ]
+}

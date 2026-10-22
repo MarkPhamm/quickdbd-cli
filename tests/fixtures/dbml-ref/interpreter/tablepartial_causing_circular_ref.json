@@ -1,0 +1,96 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [
+   {
+    "endpoints": [
+     {
+      "fields": [
+       "col2"
+      ],
+      "relation": "*",
+      "schema": null,
+      "table": "T"
+     },
+     {
+      "fields": [
+       "col3"
+      ],
+      "relation": "1",
+      "schema": null,
+      "table": "T"
+     }
+    ]
+   }
+  ],
+  "tableGroups": [],
+  "tablePartials": [
+   {
+    "fields": [
+     {
+      "inline_refs": [
+       {
+        "fields": [
+         "col1"
+        ],
+        "relation": ">",
+        "schema": null,
+        "table": "T"
+       }
+      ],
+      "name": "col1",
+      "type": "type"
+     },
+     {
+      "inline_refs": [
+       {
+        "fields": [
+         "col2"
+        ],
+        "relation": ">",
+        "schema": null,
+        "table": "T"
+       }
+      ],
+      "name": "col3",
+      "type": "type"
+     }
+    ],
+    "indexes": [],
+    "name": "T"
+   }
+  ],
+  "tables": [
+   {
+    "fields": [
+     {
+      "inline_refs": [
+       {
+        "fields": [
+         "col3"
+        ],
+        "relation": ">",
+        "schema": null,
+        "table": "T"
+       }
+      ],
+      "name": "col2",
+      "pk": false,
+      "type": "type",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "T",
+    "partials": [
+     {
+      "name": "T",
+      "order": 0
+     }
+    ],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

@@ -1,0 +1,14 @@
+{
+ "errors": [
+  {
+   "code": "NOTE_REDEFINED",
+   "line": 7,
+   "message": "Duplicate notes are defined"
+  },
+  {
+   "code": "NOTE_REDEFINED",
+   "line": 19,
+   "message": "Duplicate notes are defined"
+  }
+ ]
+}

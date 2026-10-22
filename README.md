@@ -25,11 +25,11 @@ qdbd is a **command-line tool that turns a database schema written as text into 
 - Diagrams drawn by hand look good, but they live outside the repo and go stale the first time the schema changes.
 - Generated diagrams stay current, but most become unreadable past a few dozen tables.
 
-With qdbd the schema is a plain-text file in git, written in [QuickDBD](https://www.quickdatabasediagrams.com)'s syntax or generated from a dbt project. qdbd checks it, lays it out, and builds **one self-contained HTML page** you can search, filter, click through and share.
+With qdbd the schema is a plain-text file in git, written in [QuickDBD](https://www.quickdatabasediagrams.com)'s syntax or [DBML](https://dbml.dbdiagram.io/docs/) (dbdiagram.io's), or generated from a dbt project. qdbd checks it, lays it out, and builds **one self-contained HTML page** you can search, filter, click through and share.
 
 You get **a diagram that lives next to your code** and **stays usable at hundreds of tables**.
 
-qdbd is not affiliated with QuickDBD. It reads the same text syntax, so schemas copy back and forth between the two.
+qdbd is not affiliated with QuickDBD or dbdiagram.io. It reads the same text syntaxes, so schemas copy back and forth, and `qdbd convert` turns one syntax into the other.
 
 ## Key features
 
@@ -50,7 +50,7 @@ Every demo is a single HTML page written by `qdbd build`, from a QuickDBD schema
 | [![200 tables](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthetic.png)](https://qdbd.dev/demo/synthetic/)<br>**[200 tables](https://qdbd.dev/demo/synthetic/)**<br>Five business domains, 200 tables and every relationship type. Search, filter, click a table to focus it. | [![Schema diff](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/diff.png)](https://qdbd.dev/demo/diff/)<br>**[Schema diff](https://qdbd.dev/demo/diff/)**<br>What a branch changed, coloured in: new tables in green, changed columns in amber, removals listed. |
 | [![AdventureWorks](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/adventureworks.png)](https://qdbd.dev/demo/adventureworks/)<br>**[AdventureWorks](https://qdbd.dev/demo/adventureworks/)**<br>Microsoft's bicycle-company OLTP database: 68 tables in five schemas, one region each, with column descriptions. | [![OMOP CDM on Synthea](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthea.png)](https://qdbd.dev/demo/synthea/#t=concept)<br>**[OMOP CDM on Synthea](https://qdbd.dev/demo/synthea/#t=concept)**<br>OHDSI's dbt-synthea: synthetic patient records mapped to the OMOP Common Data Model. 145 tables, 235 relationships from tests. |
 
-[View all 18 demos →](https://qdbd.dev/demo/)
+[View all 19 demos →](https://qdbd.dev/demo/)
 <!-- gallery:end -->
 
 ## Quickstart
@@ -91,7 +91,7 @@ CustomerId int FK >- Customer.CustomerId
 Total decimal(10,2)
 ```
 
-A table is a name, a line of dashes, then one column per line. `FK >- Customer.CustomerId` means many orders to one customer. The full syntax is in [Schema Syntax](https://qdbd.dev/syntax/).
+A table is a name, a line of dashes, then one column per line. `FK >- Customer.CustomerId` means many orders to one customer. The full syntax is in [Schema Syntax](https://qdbd.dev/syntax/). DBML from dbdiagram.io works as it is, as `.dbml` or `.txt` ([DBML](https://qdbd.dev/dbml/)).
 
 For a dbt project, generate the schema instead:
 
@@ -188,7 +188,7 @@ qdbd build schema/ -o erd.html
 | Text syntax | QuickDBD's | QuickDBD's |
 | Tables per diagram | no limit | 10 on the free plan |
 | Where it runs | your terminal and CI; the result is a static HTML file | the QuickDBD web app |
-| Where the schema lives | `.txt` files in your git repo | the web app |
+| Where the schema lives | `.txt` / `.dbml` files in your git repo | the web app |
 | dbt import, schema diffs, PR comments | ✅ | — |
 
 Use QuickDBD's editor when you want it: a schema that passes `qdbd check --strict` pastes in unchanged.
@@ -199,7 +199,7 @@ Use QuickDBD's editor when you want it: a schema that passes `qdbd check --stric
 No. qdbd only borrows the text syntax.
 
 **Does qdbd connect to my database?**
-No. It reads `.txt` schema files or a dbt `manifest.json`. Nothing connects to a warehouse.
+No. It reads `.txt` / `.dbml` schema files or a dbt `manifest.json`. Nothing connects to a warehouse.
 
 **Does my schema leave my machine?**
 Only if you run `qdbd share`, which uploads the page to a GitHub gist in your account (secret by default). `qdbd serve` loads its code editor from a CDN; the built pages load nothing.

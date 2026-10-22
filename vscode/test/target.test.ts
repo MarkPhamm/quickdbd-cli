@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { test } from "node:test";
-import { findTarget, isSchemaFile } from "../src/target.ts";
+import { findTarget, isSchemaFile, schemaLanguage } from "../src/target.ts";
 
 const TABLE = "Customer\n-\nCustomerId PK int\n";
 
@@ -57,4 +57,27 @@ test("schema files: a sidecar always counts; content only with auto-detect on", 
   assert.ok(isSchemaFile(path.join(root, "keyed.txt"), TABLE, true));
   assert.ok(!isSchemaFile(path.join(root, "keyed.txt"), TABLE, false));
   assert.ok(!isSchemaFile(path.join(root, "notes.txt"), "hello", true));
+});
+
+const DBML = "Table guests {\n  id int [pk]\n}\n";
+
+test("schemaLanguage: .dbml files, DBML in a .txt, QuickDBD, or neither", () => {
+  const root = tree({ "a.dbml": "", "b.txt": DBML, "c.txt": TABLE + "x int FK >- Customer.CustomerId\n", "notes.txt": "hi" });
+  assert.equal(schemaLanguage(path.join(root, "a.dbml"), "", false), "dbml");
+  assert.equal(schemaLanguage(path.join(root, "b.txt"), DBML, true), "dbml");
+  assert.equal(schemaLanguage(path.join(root, "c.txt"), TABLE + "x int FK >- Customer.CustomerId\n", true), "quickdbd");
+  assert.equal(schemaLanguage(path.join(root, "notes.txt"), "hi", true), null);
+  assert.equal(schemaLanguage(path.join(root, "b.txt"), DBML, false), null);
+  assert.ok(isSchemaFile(path.join(root, "b.txt"), DBML, true));
+});
+
+test("a folder mixing QuickDBD and DBML files is one project", () => {
+  const root = tree({ "a.txt": TABLE, "b.dbml": DBML, "c.txt": DBML });
+  assert.deepEqual(findTarget(path.join(root, "b.dbml"), root), { cwd: root, paths: ["."] });
+  assert.deepEqual(findTarget(path.join(root, "a.txt"), root), { cwd: root, paths: ["."] });
+});
+
+test("a .dbml file with its own layout sidecar is a one-file project", () => {
+  const root = tree({ "shop.dbml": DBML, "shop.layout.json": "{}", "other.txt": TABLE });
+  assert.deepEqual(findTarget(path.join(root, "shop.dbml"), root), { cwd: root, paths: ["shop.dbml"] });
 });

@@ -1,0 +1,69 @@
+{
+ "errors": [
+  {
+   "code": "BINDING_ERROR",
+   "line": 47,
+   "message": "Table 'unknown_table' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 48,
+   "message": "Column 'unknown_col' does not exist in Table 'public.users'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 49,
+   "message": "Schema or Table 'unknown_schema' does not exist"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 50,
+   "message": "Table 'unknown_table' does not exist in Schema 'my_schema'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 51,
+   "message": "Column 'unknown_col' does not exist in Table 'my_schema.events'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 56,
+   "message": "Table 'unknown_a' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 57,
+   "message": "Table 'unknown_b' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 58,
+   "message": "Schema or Table 'unknown_c' does not exist"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 59,
+   "message": "Column 'unknown_d' does not exist in Table 'public.users'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 64,
+   "message": "Table 'unknown_source' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 65,
+   "message": "Schema 'unknown_schema' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 69,
+   "message": "Table 'unknown_table' does not exist in Schema 'public'"
+  },
+  {
+   "code": "BINDING_ERROR",
+   "line": 70,
+   "message": "Table or schema 'unknown_table' does not exist"
+  }
+ ]
+}

@@ -1,0 +1,80 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [],
+  "tablePartials": [
+   {
+    "fields": [
+     {
+      "name": "balance",
+      "type": "int"
+     }
+    ],
+    "indexes": [],
+    "name": "WithMoney"
+   }
+  ],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "name",
+      "pk": false,
+      "type": "TEXT",
+      "unique": false
+     },
+     {
+      "name": "email",
+      "pk": false,
+      "type": "TEXT",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "User",
+    "partials": [
+     {
+      "name": "WithMoney",
+      "order": 0
+     }
+    ],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "balance",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "User2",
+    "partials": [
+     {
+      "name": "WithMoney",
+      "order": 0
+     }
+    ],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "balance",
+      "pk": false,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "User3",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}

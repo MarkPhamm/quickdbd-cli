@@ -1,0 +1,34 @@
+{
+ "errors": [
+  {
+   "code": "UNEXPECTED_SETTINGS",
+   "line": 31,
+   "message": "A Ref shouldn't have a setting list"
+  },
+  {
+   "code": "INVALID_REF_SETTING_VALUE",
+   "line": 36,
+   "message": "'color' must be a color literal"
+  },
+  {
+   "code": "UNKNOWN_REF_SETTING",
+   "line": 40,
+   "message": "Unknown ref setting 'hello'"
+  },
+  {
+   "code": "UNEXPECTED_SETTINGS",
+   "line": 43,
+   "message": "A Ref shouldn't have a setting list"
+  },
+  {
+   "code": "INVALID_REF_SETTING_VALUE",
+   "line": 44,
+   "message": "'color' must be a color literal"
+  },
+  {
+   "code": "UNKNOWN_REF_SETTING",
+   "line": 45,
+   "message": "Unknown ref setting 'hello'"
+  }
+ ]
+}

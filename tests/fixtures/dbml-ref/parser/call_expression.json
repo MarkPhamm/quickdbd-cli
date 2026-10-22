@@ -1,0 +1,9 @@
+{
+ "errors": [
+  {
+   "code": "MISSING_SPACES",
+   "line": 2,
+   "message": "Expect a following space"
+  }
+ ]
+}

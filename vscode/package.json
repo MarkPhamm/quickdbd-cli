@@ -1,8 +1,8 @@
 {
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
-  "description": "QuickDBD schema files in VS Code: a sidebar with every schema, highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
-  "version": "0.3.1",
+  "description": "QuickDBD and DBML schema files in VS Code: a sidebar with every schema, highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
+  "version": "0.4.0",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",
@@ -28,12 +28,16 @@
     "er diagram",
     "database",
     "schema",
+    "dbml",
+    "dbdiagram",
     "dbt"
   ],
   "main": "./out/extension.js",
   "activationEvents": [
     "onLanguage:plaintext",
-    "workspaceContains:**/qdbd.layout.json"
+    "workspaceContains:**/qdbd.layout.json",
+    "onLanguage:dbml",
+    "workspaceContains:**/*.dbml"
   ],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -50,6 +54,17 @@
           "qdbd"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "dbml",
+        "aliases": [
+          "DBML",
+          "dbml"
+        ],
+        "extensions": [
+          ".dbml"
+        ],
+        "configuration": "./language-configuration-dbml.json"
       }
     ],
     "grammars": [
@@ -57,6 +72,11 @@
         "language": "quickdbd",
         "scopeName": "source.quickdbd",
         "path": "./syntaxes/quickdbd.tmLanguage.json"
+      },
+      {
+        "language": "dbml",
+        "scopeName": "source.dbml",
+        "path": "./syntaxes/dbml.tmLanguage.json"
       }
     ],
     "commands": [
@@ -131,53 +151,71 @@
         "title": "Show in Diagram",
         "category": "QuickDBD",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "quickdbd.convertToDbml",
+        "title": "Convert to DBML",
+        "category": "QuickDBD"
+      },
+      {
+        "command": "quickdbd.convertToQuickdbd",
+        "title": "Convert to QuickDBD Syntax",
+        "category": "QuickDBD"
       }
     ],
     "menus": {
       "editor/title": [
         {
           "command": "quickdbd.openPreview",
-          "when": "editorLangId == quickdbd",
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/",
           "group": "navigation@1"
         },
         {
           "command": "quickdbd.compare",
-          "when": "editorLangId == quickdbd",
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/",
           "group": "navigation@2"
         }
       ],
       "commandPalette": [
         {
           "command": "quickdbd.openPreview",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.export",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.exportPng",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.exportSvg",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.exportDrawio",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.exportHtml",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.share",
-          "when": "editorLangId == quickdbd"
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.compare",
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
+        },
+        {
+          "command": "quickdbd.convertToDbml",
           "when": "editorLangId == quickdbd"
+        },
+        {
+          "command": "quickdbd.convertToQuickdbd",
+          "when": "editorLangId == dbml"
         },
         {
           "command": "quickdbd.refreshSchemas",
@@ -255,6 +293,16 @@
           "command": "quickdbd.share",
           "when": "view == quickdbd.schemas && viewItem == schema",
           "group": "3_share"
+        },
+        {
+          "command": "quickdbd.convertToDbml",
+          "when": "view == quickdbd.schemas && viewItem == schema",
+          "group": "4_convert@1"
+        },
+        {
+          "command": "quickdbd.convertToQuickdbd",
+          "when": "view == quickdbd.schemas && viewItem == schema",
+          "group": "4_convert@2"
         }
       ]
     },
@@ -278,7 +326,7 @@
         "quickdbd.autoDetect": {
           "type": "boolean",
           "default": true,
-          "description": "Open .txt files that look like QuickDBD schemas, or sit next to a qdbd layout file, as QuickDBD."
+          "description": "Open .txt files that look like QuickDBD or DBML schemas, or sit next to a qdbd layout file, as QuickDBD (or DBML)."
         },
         "quickdbd.strict": {
           "type": "boolean",
@@ -330,7 +378,7 @@
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts && npm run test:grammar",
-    "test:grammar": "vscode-tmgrammar-test -g syntaxes/quickdbd.tmLanguage.json \"test/grammar/*.txt\"",
+    "test:grammar": "vscode-tmgrammar-test -g syntaxes/quickdbd.tmLanguage.json \"test/grammar/*.txt\" && vscode-tmgrammar-test -g syntaxes/dbml.tmLanguage.json \"test/grammar/*.dbml\"",
     "test:integration": "node esbuild.mjs && node test/integration/run.mjs",
     "vscode:prepublish": "node esbuild.mjs --production",
     "package": "vsce package --no-dependencies"

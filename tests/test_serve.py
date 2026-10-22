@@ -61,7 +61,8 @@ def test_page_and_state(srv):
     code, st = call(base, "/state")
     assert code == 200
     assert [t["name"] for t in st["model"]["tables"]] == ["Customer", "Order"]
-    assert st["files"] == [{"path": display_path(f), "text": SCHEMA, "mtime": st["files"][0]["mtime"]}]
+    mtime = st["files"][0]["mtime"]
+    assert st["files"] == [{"path": display_path(f), "text": SCHEMA, "mtime": mtime, "syntax": "quickdbd"}]
     assert isinstance(st["files"][0]["mtime"], str)  # ns mtimes overflow JS numbers
     assert st["diagnostics"] == []
 
@@ -258,3 +259,47 @@ def test_cli_explicit_busy_port_is_a_clean_error(tmp_path, capsys):
         assert "already in use" in capsys.readouterr().err
     finally:
         first.server_close()
+
+
+DBML = """Table customer {
+  id int [pk]
+  name varchar
+}
+
+Table orders {
+  id int [pk]
+  customer_id int [ref: > customer.id]
+}
+"""
+
+
+@pytest.fixture
+def dbml_srv(tmp_path):
+    f = tmp_path / "shop.dbml"
+    f.write_text(DBML)
+    server, state = make_server(Project.open([f]), port=0)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_address[1]}", state, f
+    server.shutdown()
+    server.server_close()
+
+
+def test_serve_dbml_round_trip(dbml_srv):
+    base, state, f = dbml_srv
+    _, st = call(base, "/state")
+    (file,) = st["files"]
+    assert file["syntax"] == "dbml" and file["text"] == DBML
+    assert [t["name"] for t in st["model"]["tables"]] == ["customer", "orders"]
+    before = dict(st["positions"])
+    code, res = call(base, "/file", "PUT", {"path": file["path"], "text": DBML, "mtime": file["mtime"]})
+    assert code == 200 and f.read_bytes() == DBML.encode()
+    new = DBML + "\nTable items {\n  id int [pk]\n  order_id int [ref: > orders.id]\n}\n"
+    code, _ = call(base, "/file", "PUT", {"path": file["path"], "text": new, "mtime": res["mtime"]})
+    assert code == 200
+    bump_mtime(f)
+    assert poll_once(state)
+    _, after = call(base, "/state")
+    assert [t["name"] for t in after["model"]["tables"]] == ["customer", "orders", "items"]
+    for name in ("customer", "orders"):
+        assert after["positions"][name] == before[name]
+    assert set(layout.read_sidecar(f.with_name("shop.layout.json"))) == {"customer", "orders", "items"}

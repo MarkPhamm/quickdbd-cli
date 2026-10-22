@@ -1,0 +1,61 @@
+{
+ "database": {
+  "enums": [],
+  "refs": [],
+  "tableGroups": [
+   {
+    "name": "group1",
+    "tables": [
+     {
+      "name": "table1",
+      "schema": null
+     },
+     {
+      "name": "table2",
+      "schema": null
+     }
+    ]
+   },
+   {
+    "name": "group2",
+    "tables": []
+   },
+   {
+    "name": "group3",
+    "tables": []
+   }
+  ],
+  "tablePartials": [],
+  "tables": [
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "table1",
+    "partials": [],
+    "schema": null
+   },
+   {
+    "fields": [
+     {
+      "name": "id",
+      "pk": true,
+      "type": "int",
+      "unique": false
+     }
+    ],
+    "indexes": [],
+    "name": "table2",
+    "partials": [],
+    "schema": null
+   }
+  ]
+ },
+ "errors": []
+}
