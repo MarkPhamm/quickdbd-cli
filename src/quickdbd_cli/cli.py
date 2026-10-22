@@ -376,7 +376,13 @@ def cmd_serve(args) -> int:
         print("error: --read-only and --embed don't go together", file=sys.stderr)
         return 2
     return serve(
-        project, port=port, open_browser=not args.no_open, read_only=args.read_only, tries=tries, embed=args.embed
+        project,
+        port=port,
+        open_browser=not args.no_open,
+        read_only=args.read_only,
+        tries=tries,
+        embed=args.embed,
+        diff_base=args.diff_base,
     )
 
 
@@ -522,6 +528,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--embed",
         action="store_true",
         help="for the VS Code extension's preview: no editor pane, dragging saves the layout",
+    )
+    sp.add_argument(
+        "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
     )
     sp.set_defaults(func=cmd_serve)
     return p

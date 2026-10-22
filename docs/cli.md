@@ -44,7 +44,7 @@ Writes one self-contained HTML page. Builds are deterministic (same input, same 
 ## 8.3 serve { #serve }
 
 ```bash
-qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed]
+qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
 ```
 
 Local live editor on `127.0.0.1`: reloads when files change, browser editor pane with autosave, drag tables to save positions. Ctrl+C stops it.
@@ -54,6 +54,8 @@ The default port is 8765. If it's busy (for example, a second `qdbd serve` is ru
 `--read-only` serves a live view with no editor that never writes to disk, safe to put behind a tunnel ([4.4 Sharing a Link](sharing.md#live-read-only-link)).
 
 `--embed` is the page behind the [VS Code extension](vscode.md)'s preview: a live view with no editor pane, where dragging still saves positions but files can't be written. It talks to the editor through `postMessage`. `--port 0` picks any free port.
+
+`--diff-base REF` colours what changed since that ref, as [`build --diff-base`](#build) does, and keeps comparing as you edit: the ref is read once, at start.
 
 ## 8.4 export { #export }
 

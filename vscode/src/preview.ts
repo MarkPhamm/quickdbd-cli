@@ -1,4 +1,5 @@
-/* The diagram beside the editor: `qdbd serve --embed` per schema, shown in a webview through an iframe.
+/* The diagram beside the editor: `qdbd serve --embed` per schema (and per git ref it's compared with, through
+ * `--diff-base`), shown in a webview through an iframe.
  * The page (viewer.js, embed mode) and the extension talk through postMessage, relayed by the webview:
  *   page -> extension: qdbd.ready, qdbd.reveal {file, line}
  *   extension -> page: qdbd.focus {table}, qdbd.theme {theme} */
@@ -9,9 +10,11 @@ import * as vscode from "vscode";
 import type { Checker } from "./checker.ts";
 import type { Qdbd } from "./cli.ts";
 import { firstUrl, tableAt, targetKey, type Target } from "./schema.ts";
+import { targetTitle } from "./target.ts";
 
 interface Preview {
   target: Target;
+  base?: string;
   panel: vscode.WebviewPanel;
   proc: ChildProcess;
   focused?: string;
@@ -42,9 +45,10 @@ export class Previews implements vscode.Disposable {
     );
   }
 
-  async show(doc: vscode.TextDocument): Promise<void> {
+  /** Open (or reveal) the diagram of `doc`'s schema; with `base`, coloured by what changed since that git ref. */
+  async show(doc: vscode.TextDocument, base?: string): Promise<void> {
     const target = this.checker.targetFor(doc);
-    const key = targetKey(target);
+    const key = targetKey(target) + (base ? "\0" + base : "");
     const existing = this.open.get(key);
     if (existing) {
       existing.panel.reveal(vscode.ViewColumn.Beside, true);
@@ -53,30 +57,32 @@ export class Previews implements vscode.Disposable {
     if (this.starting.has(key)) return;
     this.starting.add(key);
     try {
-      await this.create(target, key);
+      await this.create(target, key, base);
     } finally {
       this.starting.delete(key);
     }
   }
 
-  private async create(target: Target, key: string): Promise<void> {
-    const proc = await this.qdbd.start(["serve", "--embed", "--port", "0", "--no-open", ...target.paths], target.cwd);
+  private async create(target: Target, key: string, base?: string): Promise<void> {
+    const diff = base ? ["--diff-base", base] : [];
+    const args = ["serve", "--embed", "--port", "0", "--no-open", ...diff, ...target.paths];
+    const proc = await this.qdbd.start(args, target.cwd);
     if (!proc) return;
-    const url = await serverUrl(proc, this.log);
+    const { url, error } = await serverUrl(proc, this.log);
     if (!url) {
       proc.kill();
-      void vscode.window.showErrorMessage("qdbd serve didn't start; see Output → QuickDBD.");
+      void vscode.window.showErrorMessage(`qdbd serve didn't start: ${error || "see Output → QuickDBD"}`);
       return;
     }
     const external = await vscode.env.asExternalUri(vscode.Uri.parse(url));
-    const title = "ERD: " + (target.paths[0] === "." ? path.basename(target.cwd) : target.paths[0]);
+    const title = `ERD: ${targetTitle(target)}` + (base ? ` vs ${base}` : "");
     const panel = vscode.window.createWebviewPanel(
       "quickdbd.preview",
       title,
       { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true, retainContextWhenHidden: true },
     );
-    const p: Preview = { target, panel, proc };
+    const p: Preview = { target, base, panel, proc };
     this.open.set(key, p);
     panel.webview.html = page(external.toString(true), panel.webview.cspSource);
     panel.webview.onDidReceiveMessage((m: { type?: string; file?: string; line?: number }) => {
@@ -102,16 +108,18 @@ export class Previews implements vscode.Disposable {
     });
   }
 
-  /** Cursor in a table -> select it in that schema's preview. */
+  /** Cursor in a table -> select it in that schema's previews. */
   private follow(ed: vscode.TextEditor): void {
     if (!this.open.size) return;
     const r = this.checker.reportFor(ed.document);
-    const p = r && this.open.get(targetKey(r.target));
-    if (!r || !p) return;
+    if (!r) return;
     const t = tableAt(r.report, r.file, ed.selection.active.line + 1);
-    if (!t || t.name === p.focused) return;
-    p.focused = t.name;
-    void p.panel.webview.postMessage({ type: "qdbd.focus", table: t.name });
+    if (!t) return;
+    for (const p of this.open.values()) {
+      if (targetKey(p.target) !== targetKey(r.target) || t.name === p.focused) continue;
+      p.focused = t.name;
+      void p.panel.webview.postMessage({ type: "qdbd.focus", table: t.name });
+    }
   }
 
   dispose(): void {
@@ -138,11 +146,13 @@ async function reveal(file: string, line: number): Promise<void> {
   });
 }
 
-/** Wait for `qdbd serve`'s "serving … at http://127.0.0.1:PORT/" line. */
-function serverUrl(proc: ChildProcess, log: vscode.OutputChannel): Promise<string | undefined> {
+/** Wait for `qdbd serve`'s "serving … at http://127.0.0.1:PORT/" line; else its last error line. */
+function serverUrl(proc: ChildProcess, log: vscode.OutputChannel): Promise<{ url?: string; error?: string }> {
   return new Promise((resolve) => {
     let out = "";
-    const timer = setTimeout(() => resolve(undefined), 30000);
+    let err = "";
+    const lastError = () => /^error: (.*)$/m.exec(err)?.[1] ?? err.trim().split("\n").pop();
+    const timer = setTimeout(() => resolve({ error: "it didn't answer within 30 seconds" }), 30000);
     const onData = (b: Buffer) => {
       const text = b.toString();
       log.append(text);
@@ -150,16 +160,19 @@ function serverUrl(proc: ChildProcess, log: vscode.OutputChannel): Promise<strin
       const url = firstUrl(out);
       if (url) {
         clearTimeout(timer);
-        resolve(url);
+        resolve({ url });
       }
     };
     proc.stdout?.on("data", onData);
-    proc.stderr?.on("data", (b: Buffer) => log.append(b.toString()));
+    proc.stderr?.on("data", (b: Buffer) => {
+      log.append(b.toString());
+      err += b.toString();
+    });
     proc.on("error", (e) => {
       log.appendLine(e.message);
-      resolve(undefined);
+      resolve({ error: e.message });
     });
-    proc.on("exit", () => resolve(firstUrl(out)));
+    proc.on("exit", () => resolve({ url: firstUrl(out), error: lastError() }));
   });
 }
 

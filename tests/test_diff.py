@@ -125,3 +125,30 @@ def test_build_diff_base_marks_model(repo, capsys):
     sel = repo / "s.html"
     assert main(["build", str(repo / "erd"), "--diff-base", "main", "-s", "diff:added", "-o", str(sel)]) == 0
     assert "(1 tables" in capsys.readouterr().out.splitlines()[-1]
+
+
+def test_serve_diff_base_colours_the_live_model(repo):
+    import os
+
+    from quickdbd_cli.project import Project
+    from quickdbd_cli.serve import make_server, poll_once
+
+    server, state = make_server(Project.open([repo / "erd"]), port=0, embed=True, diff_base="main")
+    server.server_close()
+    tables = {t["name"]: t for t in state.model["tables"]}
+    assert tables["products"]["diff"] == {"state": "added"}
+    assert tables["customers"]["diff"]["removedCols"] == ["legacy_flag"]
+    assert state.model["diff"]["base"] == "main" and state.model["diff"]["removed"] == ["audit"]
+    # Edits are compared with the same base: back to the base text, nothing is marked.
+    f = repo / "erd" / "core.txt"
+    f.write_text(OLD)
+    st = f.stat()
+    os.utime(f, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000_000))
+    assert poll_once(state)
+    assert not any("diff" in t for t in state.model["tables"])
+    assert state.model["diff"]["added"] == 0 and state.model["diff"]["removed"] == []
+
+
+def test_serve_bad_diff_base_is_a_clean_error(repo, capsys):
+    assert main(["serve", str(repo / "erd"), "--no-open", "--port", "0", "--diff-base", "nope-ref"]) == 2
+    assert "error:" in capsys.readouterr().err

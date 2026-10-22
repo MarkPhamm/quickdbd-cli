@@ -2,7 +2,8 @@
 
 Uses the GitHub CLI (``gh api``), so it inherits the user's login. Gists are secret (unlisted) unless
 ``public``. The gist made for each input/selection is remembered in the user's cache directory, so
-sharing again updates the same gist and the link stays the same.
+sharing again updates the same gist and the link stays the same. The VS Code extension does the same
+without gh (vscode/src/gist.ts) and shares the cache: keep the two in step.
 """
 
 from __future__ import annotations
