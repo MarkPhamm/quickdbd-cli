@@ -249,6 +249,8 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
       row("Compare with Git Ref…", "git-compare", "quickdbd.compare", "The diagram coloured by what changed since a branch, tag or commit"),
       row("Export…", "desktop-download", "quickdbd.export", "PNG, SVG, draw.io or an HTML page"),
       row("Share as a Gist Link", "link-external", "quickdbd.share", "A secret gist; the link is copied"),
+      row("Convert to DBML", "arrow-swap", "quickdbd.convertToDbml", "The schema in dbdiagram.io's syntax; what DBML can't express is listed"),
+      row("Convert to QuickDBD Syntax", "arrow-swap", "quickdbd.convertToQuickdbd", "The schema in QuickDBD's syntax; what QuickDBD can't express is listed"),
       row("Import dbt Project…", "database", "quickdbd.importDbt", "Schema files from target/manifest.json"),
       row("New Schema File…", "new-file", "quickdbd.newSchema"),
       cli,
