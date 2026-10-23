@@ -89,7 +89,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | **Share** | **QuickDBD: Share as a Gist Link** publishes the diagram as a secret gist, like [`qdbd share`](sharing.md#qdbd-share), and copies the link. It signs in with VS Code's GitHub account (the first time, VS Code asks), so the `gh` CLI isn't needed. Sharing again updates the same gist, also one made by `qdbd share`, so the link stays the same. |
 | **Compare with git** | **QuickDBD: Compare with Git Ref…** (the compare button at the top right of the editor) picks a branch, tag or commit and opens the diagram coloured by what changed since then, as in a [PR diff](diffs.md). It updates as you save. Pick **HEAD** to see what you haven't committed. |
 | **Import dbt** | **QuickDBD: Import dbt Project…** turns a dbt project's `target/manifest.json` into schema files, like [`qdbd import dbt`](dbt.md), into `erd/` (one file per dbt folder) or one file you choose, then opens the diagram. Run `dbt compile` first; `dbt docs generate` adds column types. |
-| **Convert** | **QuickDBD: Convert to DBML** / **Convert to QuickDBD Syntax**, from the editor or a schema's row in the sidebar, like [`qdbd convert`](dbml.md#convert). A one-file schema is written next to it; a folder schema into a new folder beside it. What the other syntax can't express is listed in the QuickDBD output channel. |
+| **Convert** | **QuickDBD: Convert to DBML** / **Convert to QuickDBD Syntax**, from the editor, a schema's row in the sidebar or **Actions**, like [`qdbd convert`](dbml.md#convert). A one-file schema is written next to it; a folder schema into a new folder beside it. What the other syntax can't express is listed in the QuickDBD output channel. |
 
 ## Settings
 

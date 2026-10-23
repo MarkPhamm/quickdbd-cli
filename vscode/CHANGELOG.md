@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- **Convert to DBML** and **Convert to QuickDBD Syntax** are in the sidebar's **Actions** too, for the schema in its header.
+
 ## 0.4.1
 
 - Fix: 0.4.0 shipped without DBML's language settings, so in `.dbml` files **Toggle Line Comment**, bracket matching and auto-closing quotes didn't work.
