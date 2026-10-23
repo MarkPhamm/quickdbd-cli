@@ -11,11 +11,12 @@ Edit [QuickDBD](https://www.quickdatabasediagrams.com) and [DBML](https://dbml.d
 - **Errors as you type**: squiggles and the Problems panel, with QuickDBD's own error messages. Unsaved text is checked against the rest of the schema.
 - **Outline and go to definition**: tables and columns in the Outline view and breadcrumbs; **F12** on `Customer.CustomerId` jumps to it, across files.
 - **The diagram beside the editor**: **Cmd/Ctrl+K V**. It follows your cursor, updates on save, and follows your theme. Double-click a table to jump to it; drag to arrange (saved to the layout file).
+- **Open in Browser**: the schema on localhost in your browser, with the diagram and an editor side by side, as `qdbd serve` runs it.
 - **Export**: PNG, SVG, editable draw.io, or the interactive diagram as one HTML page.
 - **Share**: a secret gist link, signed in with VS Code's GitHub account.
 - **Compare with git**: the diagram coloured by what changed since a branch, tag or commit, updating as you save.
 - **Import dbt**: schema files from a dbt project's `target/manifest.json`, opened with their diagram.
-- **Convert** between QuickDBD and DBML, both ways.
+- **Convert** between QuickDBD and DBML, both ways, from the editor or the sidebar.
 
 ![The QuickDBD sidebar: schemas, a table expanded to its columns with their types and keys, and the actions](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/vscode-sidebar.png)
 
