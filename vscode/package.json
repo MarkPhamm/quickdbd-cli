@@ -2,7 +2,7 @@
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
   "description": "QuickDBD and DBML schema files in VS Code: a sidebar with every schema, highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",
@@ -85,6 +85,12 @@
         "title": "Open Diagram to the Side",
         "category": "QuickDBD",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "quickdbd.openInBrowser",
+        "title": "Open in Browser",
+        "category": "QuickDBD",
+        "icon": "$(globe)"
       },
       {
         "command": "quickdbd.export",
@@ -182,6 +188,10 @@
           "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
+          "command": "quickdbd.openInBrowser",
+          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
+        },
+        {
           "command": "quickdbd.export",
           "when": "editorLangId =~ /^(quickdbd|dbml)$/"
         },
@@ -265,9 +275,14 @@
           "group": "1_open@1"
         },
         {
-          "command": "quickdbd.compare",
+          "command": "quickdbd.openInBrowser",
           "when": "view == quickdbd.schemas && viewItem == schema",
           "group": "1_open@2"
+        },
+        {
+          "command": "quickdbd.compare",
+          "when": "view == quickdbd.schemas && viewItem == schema",
+          "group": "1_open@3"
         },
         {
           "command": "quickdbd.exportPng",

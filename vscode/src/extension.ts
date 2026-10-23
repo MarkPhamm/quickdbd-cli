@@ -97,6 +97,10 @@ export function activate(context: vscode.ExtensionContext): Api {
       sidebar.schemas.refresh();
     }),
     vscode.commands.registerCommand("quickdbd.openPreview", withSchema((doc) => previews.show(doc))),
+    vscode.commands.registerCommand(
+      "quickdbd.openInBrowser",
+      withSchema((doc, opts) => previews.browse(doc, opts.open !== false)),
+    ),
     vscode.commands.registerCommand("quickdbd.exportPng", exporter("png")),
     vscode.commands.registerCommand("quickdbd.exportSvg", exporter("svg")),
     vscode.commands.registerCommand("quickdbd.exportDrawio", exporter("drawio")),

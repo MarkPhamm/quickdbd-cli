@@ -81,6 +81,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | **Outline** | The Outline view, breadcrumbs and **Ctrl+Shift+O** list tables and their columns. **Ctrl+T** finds a table in any open schema. |
 | **Go to definition** | **F12** (or Ctrl/Cmd+click) on `Customer.CustomerId`, `rel >- Product` or an alias jumps to that table or column, in whichever file it is. |
 | **Diagram** | **QuickDBD: Open Diagram to the Side** (**Cmd+K V** / **Ctrl+K V**, or the preview button at the top right of the editor). It's the same viewer as [`qdbd serve`](cli.md#serve), and it updates when you save. |
+| **Open in browser** | **QuickDBD: Open in Browser** (also in **Actions** and a schema's right-click menu) runs [`qdbd serve`](cli.md#serve) for the schema and opens it on localhost: the diagram with an editor beside it. The server keeps running until VS Code closes, so opening it again reuses it. |
 | **Follows your cursor** | Move the cursor into a table and the diagram selects it and pans to it. Click it there for its details. |
 | **Back to the text** | Double-click a table in the diagram, or click its `file:line` in the details panel, to open it in the editor. |
 | **Arrange** | Drag tables in the diagram; positions are saved to the layout file, as in `qdbd serve`. |

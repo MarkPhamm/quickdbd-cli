@@ -192,6 +192,14 @@ export async function run(): Promise<void> {
   await until("sample diagram from its sidebar row", webviewTab("ERD: quickdbd-sample"));
   step("open diagram from a sidebar row");
 
+  // Open in Browser: plain `qdbd serve` (with the editor pane), reused when opened again.
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(sampleRow.file));
+  const url = (await vscode.commands.executeCommand("quickdbd.openInBrowser", { open: false })) as string | undefined;
+  assert.ok(typeof url === "string" && url.startsWith("http://127.0.0.1:"), `a localhost URL, got ${url}`);
+  assert.match(await (await fetch(url)).text(), /id="side"/, "the page has the editor pane");
+  assert.equal(await vscode.commands.executeCommand("quickdbd.openInBrowser", { open: false }), url, "the server is reused");
+  step(`open in browser: ${url}`);
+
   // New Schema File writes a starter, opens it with its diagram, and the sidebar picks it up from the file watcher.
   await vscode.commands.executeCommand("quickdbd.newSchema", { output: "starter/schema.txt" });
   // Alone in its folder, the schema is the folder's: "starter".
