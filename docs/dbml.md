@@ -87,4 +87,4 @@ The output is recompiled before anything is written, and must give the same tabl
 
 With `-o DIR`, DBML `TableGroup`s become one QuickDBD file each (tables outside any group stay in a file named after the source), since QuickDBD groups tables by file. To a single file, groups are dropped with a warning.
 
-In VS Code, **QuickDBD: Convert to DBML** and **Convert to QuickDBD Syntax** do the same from the editor or a schema's row in the sidebar.
+In VS Code, **QuickDBD: Convert to DBML** and **Convert to QuickDBD Syntax** do the same from the editor, a schema's row in the sidebar, or the sidebar's **Actions**.

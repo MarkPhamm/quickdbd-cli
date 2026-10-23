@@ -38,7 +38,7 @@ Click the **QuickDBD** icon in the Activity Bar (two boxes joined by a line).
 
 **Schemas** lists every schema in the workspace, found the same way files are [opened as QuickDBD](#which-files-it-opens-as-quickdbd), without opening them:
 
-- A **schema** shows its table count, its files and any errors. Hover it for **Open Diagram** and **Compare with Git Ref**; right-click it for the exports and **Share**.
+- A **schema** shows its table count, its files and any errors. Hover it for **Open Diagram** and **Compare with Git Ref**; right-click it for **Open in Browser**, the exports, **Share** and the conversions.
 - A schema made of several files lists them, then their tables. Click a **table** to open it in the editor (an open diagram follows), or hover it for **Show in Diagram**.
 - A table lists its **columns**, with their types and a key icon for a primary key or a link icon for a foreign key. Click one to jump to its line.
 - The buttons at the top create a **New Schema File** (a small starter schema, opened with its diagram), **Import a dbt Project**, or **Refresh** the list. It also updates by itself when schema files are added or deleted.
