@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+- New: **Open in Browser** runs `qdbd serve` for the schema and opens it on localhost in your browser, with the diagram and an editor side by side. It's in **Actions**, a schema's right-click menu and the Command Palette.
+
 ## 0.4.2
 
 - **Convert to DBML** and **Convert to QuickDBD Syntax** are in the sidebar's **Actions** too, for the schema in its header.

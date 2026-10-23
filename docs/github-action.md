@@ -99,7 +99,7 @@ To check schema files before every commit, add the [pre-commit](https://pre-comm
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.2.2
+    rev: v0.2.3
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.txt$

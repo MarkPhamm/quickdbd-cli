@@ -246,6 +246,7 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
     }
     return [
       row("Open Diagram", "open-preview", "quickdbd.openPreview"),
+      row("Open in Browser", "globe", "quickdbd.openInBrowser", "The diagram and an editor on localhost, in your browser"),
       row("Compare with Git Ref…", "git-compare", "quickdbd.compare", "The diagram coloured by what changed since a branch, tag or commit"),
       row("Export…", "desktop-download", "quickdbd.export", "PNG, SVG, draw.io or an HTML page"),
       row("Share as a Gist Link", "link-external", "quickdbd.share", "A secret gist; the link is copied"),

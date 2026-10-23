@@ -1,5 +1,6 @@
 /* The diagram beside the editor: `qdbd serve --embed` per schema (and per git ref it's compared with, through
- * `--diff-base`), shown in a webview through an iframe.
+ * `--diff-base`), shown in a webview through an iframe. Open in Browser is plain `qdbd serve` (editor pane and
+ * diagram) in the system browser.
  * The page (viewer.js, embed mode) and the extension talk through postMessage, relayed by the webview:
  *   page -> extension: qdbd.ready, qdbd.reveal {file, line}
  *   extension -> page: qdbd.focus {table}, qdbd.theme {theme} */
@@ -23,6 +24,7 @@ interface Preview {
 export class Previews implements vscode.Disposable {
   private readonly open = new Map<string, Preview>();
   private readonly starting = new Set<string>();
+  private readonly browsers = new Map<string, Promise<{ proc: ChildProcess; url: string } | undefined>>();
   private readonly subs: vscode.Disposable[] = [];
 
   private readonly qdbd: Qdbd;
@@ -108,6 +110,36 @@ export class Previews implements vscode.Disposable {
     });
   }
 
+  /** Open in Browser: `qdbd serve` for `doc`'s schema, opened in the system browser. One server per schema, kept
+   * until the extension stops, so opening it again reuses it. Returns the page's URL; `open: false` (tests) only
+   * starts the server. */
+  async browse(doc: vscode.TextDocument, open = true): Promise<string | undefined> {
+    const target = this.checker.targetFor(doc);
+    const key = targetKey(target);
+    let server = this.browsers.get(key);
+    if (!server) {
+      server = this.startBrowser(target, key);
+      this.browsers.set(key, server);
+    }
+    const s = await server;
+    if (!s) return undefined;
+    if (open) void vscode.env.openExternal(await vscode.env.asExternalUri(vscode.Uri.parse(s.url)));
+    return s.url;
+  }
+
+  private async startBrowser(target: Target, key: string): Promise<{ proc: ChildProcess; url: string } | undefined> {
+    const proc = await this.qdbd.start(["serve", "--port", "0", "--no-open", ...target.paths], target.cwd);
+    const { url, error } = proc ? await serverUrl(proc, this.log) : { error: undefined };
+    if (!proc || !url) {
+      proc?.kill();
+      this.browsers.delete(key);
+      if (proc) void vscode.window.showErrorMessage(`qdbd serve didn't start: ${error || "see Output → QuickDBD"}`);
+      return undefined;
+    }
+    proc.on("exit", () => this.browsers.delete(key));
+    return { proc, url };
+  }
+
   /** Cursor in a table -> select it in that schema's previews. */
   private follow(ed: vscode.TextEditor): void {
     if (!this.open.size) return;
@@ -127,6 +159,7 @@ export class Previews implements vscode.Disposable {
       p.proc.kill();
       p.panel.dispose();
     }
+    for (const s of this.browsers.values()) void s.then((b) => b?.proc.kill());
     this.subs.forEach((s) => s.dispose());
   }
 }
