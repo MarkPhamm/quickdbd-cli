@@ -76,7 +76,7 @@ def test_cli_two_paths_formats(tmp_path, capsys):
     data = json.loads(capsys.readouterr().out)
     assert data["tables_added"] == ["products"]
     assert main(["diff", str(a), str(b), "--format", "markdown", "-o", str(tmp_path / "d.md")]) == 0
-    md = (tmp_path / "d.md").read_text()
+    md = (tmp_path / "d.md").read_text(encoding="utf-8")
     assert md.startswith("### Schema changes") and "| `customers` |" in md
     assert main(["diff", str(a), str(a), "--exit-code"]) == 0
 

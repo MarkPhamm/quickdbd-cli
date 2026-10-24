@@ -61,6 +61,7 @@ def _gh(method: str, endpoint: str, payload: dict) -> dict:
             input=json.dumps(payload),
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
         )
     except FileNotFoundError:
