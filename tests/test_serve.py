@@ -153,15 +153,42 @@ def test_external_edit_reloads_and_places_new_table(srv):
     assert not poll_once(state)  # nothing changed since
 
 
-def test_errors_keep_last_good_model(srv):
+def test_errors_draw_the_current_text(srv):
     base, state, f = srv
-    f.write_text(SCHEMA + "\nBad\n-\nX int FK >- Nope.Id\n")
+    side = f.with_name("shop.layout.json")
+    f.write_text("Order\n-\nOrderId PK int\nCustomerId int FK >- Customer.CustomerId\n")  # Customer removed
     bump_mtime(f)
     poll_once(state)
     _, st = call(base, "/state")
     assert [d["severity"] for d in st["diagnostics"]] == ["error"]
-    assert "Invalid relationship, the table 'Nope' does not exist" in st["diagnostics"][0]["text"]
+    assert "Invalid relationship, the table 'Customer' does not exist" in st["diagnostics"][0]["text"]
+    assert [t["name"] for t in st["model"]["tables"]] == ["Order"] and st["model"]["rels"] == []
+    assert st["stale"] is False
+    call(base, "/layout", "POST", {"Order": [10, 20]})  # dragging while broken keeps Customer's place
+    assert set(layout.read_sidecar(side)) == {"Customer", "Order"}
+
+
+def test_unparseable_text_keeps_last_good_model(srv):
+    base, state, f = srv
+    f.write_text("garbage (((\n")
+    bump_mtime(f)
+    poll_once(state)
+    _, st = call(base, "/state")
+    assert st["stale"] is True and st["diagnostics"][0]["severity"] == "error"
     assert [t["name"] for t in st["model"]["tables"]] == ["Customer", "Order"]
+
+
+def test_put_file_recompiles_before_answering(srv):
+    base, state, f = srv
+    _, st = call(base, "/state")
+    path, mtime = st["files"][0]["path"], st["files"][0]["mtime"]
+    code, _ = call(
+        base, "/file", "PUT", {"path": path, "text": SCHEMA + "\nProduct\n-\nProductId PK int\n", "mtime": mtime}
+    )
+    assert code == 200
+    _, after = call(base, "/state")
+    assert after["version"] > st["version"] and "Product" in [t["name"] for t in after["model"]["tables"]]
+    assert not poll_once(state)  # the watcher has nothing left to do
 
 
 def test_events_stream_announces_versions(srv):

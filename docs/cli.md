@@ -55,7 +55,7 @@ qdbd build docs/erd/*/ --site public/
 qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
 ```
 
-Local live editor on `127.0.0.1`: reloads when files change, browser editor pane with autosave, drag tables to save positions. Ctrl+C stops it. The [VS Code extension](vscode.md#what-you-get)'s **Open in Browser** runs this, on any free port.
+Local live editor on `127.0.0.1`: reloads when files change, browser editor pane that writes the file on **Save** (or Ctrl/Cmd+S), drag tables to save positions. Ctrl+C stops it. The [VS Code extension](vscode.md#what-you-get)'s **Open in Browser** runs this, on any free port.
 
 The default port is 8765. If it's busy (for example, a second `qdbd serve` is running), the next free port is used and printed. An explicit `--port` that's busy is an error.
 

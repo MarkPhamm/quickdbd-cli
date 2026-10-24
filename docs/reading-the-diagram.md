@@ -98,6 +98,6 @@ See [6. Reviewing Changes](diffs.md).
 
 The live editor adds:
 
-- an editor pane with one tab per file (autosaves 1 s after you stop typing) and an error panel;
+- an editor pane with one tab per file (**Save** or Ctrl/Cmd+S writes it; typing alone changes nothing) and an error panel;
 - dragged positions are **saved** to the layout file;
 - if a file changes on disk while you have unsaved edits, a banner lets you keep yours or reload.

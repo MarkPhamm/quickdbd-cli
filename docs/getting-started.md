@@ -43,7 +43,7 @@ qdbd serve schema.txt
 
 A browser tab opens with the diagram and an editor pane. The editor pane loads CodeMirror from a CDN, so it needs internet; the diagram itself works offline.
 
-- **Edit** in the pane (it autosaves 1 s after you stop typing) or in your own editor. The diagram reloads on save.
+- **Edit** in the pane and press **Save** (or Ctrl/Cmd+S), or edit in your own editor and save there. Either save updates the file, the error panel and the diagram together. With errors, the diagram draws whatever still parses.
 - **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.4 Table Positions](layout.md)).
 - **Stop** the server with ++ctrl+c++.
 
