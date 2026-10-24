@@ -33,7 +33,7 @@ STYLE = {
 
 @cache
 def _metrics() -> dict:
-    return json.loads(resources.files("quickdbd_cli").joinpath("assets/font-metrics.json").read_text())
+    return json.loads(resources.files("quickdbd_cli").joinpath("assets/font-metrics.json").read_text(encoding="utf-8"))
 
 
 def text_width(text: str, size: float, bold: bool = False) -> float:
