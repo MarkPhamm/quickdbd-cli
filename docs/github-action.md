@@ -1,6 +1,6 @@
 # 7. CI and Automation
 
-qdbd is a plain CLI, so it runs in any CI. On GitHub, the action below does the whole job; elsewhere, see [7.6](#not-on-github).
+qdbd is a plain CLI, so it runs in any CI. On **GitHub**, the action below does the whole job ([7.1](#github-action)); on **GitLab**, one `.gitlab-ci.yml` does the same ([7.6](#gitlab)); elsewhere, see [7.7](#not-on-github).
 
 ## 7.1 GitHub Action { #github-action }
 
@@ -15,7 +15,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }   # write: for the PR comment
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.6.8
+      - uses: MarkPhamm/quickdbd-cli@v0.6.11
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -74,7 +74,7 @@ Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with
 When each folder is its own diagram (say `docs/erd/sales/` and `docs/erd/hr/`), set `site` instead of `output`. The action then builds `site/sales.html`, `site/hr.html` and an `index.html` linking them, with [`qdbd build --site`](cli.md#build). Each folder is checked and diffed on its own, so two diagrams can share table names, and the pull request comment has a section per folder:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.6.8
+- uses: MarkPhamm/quickdbd-cli@v0.6.11
   with:
     path: docs/erd/*/
     site: site/
@@ -87,7 +87,7 @@ The glob is expanded by the shell, and folders with no schema files are skipped.
 Run your dbt build first, then point the action at the manifest:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.6.8
+- uses: MarkPhamm/quickdbd-cli@v0.6.11
   with:
     dbt-manifest: target/
     dbt-args: --infer-fks
@@ -98,25 +98,68 @@ Commit `erd/` so pull requests have a base to diff against. Walkthrough: [5.6 St
 
 For a hand-drawn ERD linked to the yml with `# @dbt:` (no manifest), [qdbd-dbt-demo](https://github.com/MarkPhamm/qdbd-dbt-demo) is a working setup: `qdbd check --strict` fails a pull request on drift, and each branch publishes its own diagram to Pages.
 
-## 7.6 GitLab CI and others { #not-on-github }
+## 7.6 GitLab CI { #gitlab }
 
-The action only wraps the CLI, so any CI can run the same commands. On GitLab, this checks the schema on every pipeline that changes it, keeps the diagram as a job artifact, and publishes it to GitLab Pages from the default branch:
+GitLab gets the same results from plain `qdbd` commands, in one `.gitlab-ci.yml`:
+
+| | GitHub (7.1) | GitLab (this section) |
+|---|---|---|
+| Check the schema, fail on errors | yes | yes |
+| Diagram as a download | **erd** artifact | **ERD** link in the merge request |
+| Schema diff as a comment, updated on each push | yes | yes, with a project access token |
+| Diagram with the changes coloured | yes | yes |
+| Publish from the default branch | GitHub Pages (7.4) | GitLab Pages |
 
 ```yaml title=".gitlab-ci.yml"
 .qdbd:
-  image: python:3.12-slim
-  before_script: [pip install quickdbd-cli]
-  rules:
-    - changes: [erd/**/*]
+  image: python:3.12            # includes git, for --base and --diff-base
+  before_script: [pip install quickdbd-cli==0.6.11]
 
+# every pipeline that changes erd/: check, then build the diagram
 erd:
   extends: .qdbd
+  rules:
+    - changes: [erd/**/*]
   script:
     - qdbd check --strict erd/
     - qdbd build erd/ -o public/index.html
   artifacts:
     paths: [public/]
+    expose_as: ERD
 
+# merge requests: the diff as a comment, and the diagram with the changes coloured
+erd-diff:
+  extends: .qdbd
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [erd/**/*]
+  variables:
+    GIT_DEPTH: 0
+    BASE: origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+  script:
+    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - qdbd build erd/ --diff-base "$BASE" -o changes/index.html
+    - qdbd diff --base "$BASE" erd/ --format markdown -o changes/diff.md --exit-code || code=$?
+    - if [ "${code:-0}" -gt 1 ]; then exit "$code"; fi
+    - |
+      if [ "${code:-0}" -eq 1 ] && [ -n "$QDBD_GITLAB_TOKEN" ]; then python - <<'EOF'
+      import json, os, urllib.request
+      api = "{}/projects/{}/merge_requests/{}/notes".format(
+          os.environ["CI_API_V4_URL"], os.environ["CI_PROJECT_ID"], os.environ["CI_MERGE_REQUEST_IID"])
+      head = {"PRIVATE-TOKEN": os.environ["QDBD_GITLAB_TOKEN"], "Content-Type": "application/json"}
+      marker = "<!-- qdbd-erd-diff -->"
+      body = marker + "\n" + open("changes/diff.md", encoding="utf-8").read()
+      notes = json.load(urllib.request.urlopen(urllib.request.Request(api + "?per_page=100", headers=head)))
+      old = next((n for n in notes if n["body"].startswith(marker)), None)
+      url, method = (f"{api}/{old['id']}", "PUT") if old else (api, "POST")
+      urllib.request.urlopen(urllib.request.Request(url, json.dumps({"body": body}).encode(), head, method=method))
+      EOF
+      fi
+  artifacts:
+    paths: [changes/]
+    expose_as: ERD changes
+
+# the default branch: publish the diagram to GitLab Pages
 pages:
   extends: .qdbd
   rules:
@@ -128,26 +171,43 @@ pages:
     paths: [public/]
 ```
 
-GitLab publishes the `public/` folder of a job named `pages`.
+**What it does.**
+
+1. `erd` runs `qdbd check --strict` and fails the pipeline on errors or warnings (drop `--strict` to allow warnings), then builds the diagram. The merge request shows an **ERD** link to it.
+2. On a merge request, `erd-diff` compares `erd/` with the target branch. **ERD changes** links to the diagram with new tables in green, changed in amber and removed in red ([6.2](diffs.md#see-the-changes-in-the-diagram)), and to `diff.md`.
+3. When the schema changed, it posts the diff as **one** comment on the merge request and updates that same comment on later pushes, like the GitHub action.
+4. On the default branch, `pages` publishes the diagram. GitLab publishes the `public/` folder of a job named `pages`.
+
+**The comment needs a token.** GitLab's built-in job token can't write comments. Create a project access token (**Settings > Access tokens**, role *Reporter*, scope `api`) and save it as a masked CI/CD variable named `QDBD_GITLAB_TOKEN`. Without it, everything else still runs and `diff.md` stays in the artifacts. Merge requests from forks don't get the variable, so they get no comment.
 
 !!! warning "A Pages site may be public"
     Who can open a GitLab Pages site depends on the project's visibility and its Pages access control setting. Publish a client's schema only where their agreement allows it. Publishing means you accept the [disclaimer](sharing.md#disclaimer).
 
-For one diagram per folder, as in [several diagrams](#several-diagrams), use `--each` and `--site`:
+**Several diagrams.** For one diagram per folder, as in [several diagrams](#several-diagrams), use `--each` and `--site`:
 
 ```yaml
     - qdbd check --strict --each docs/erd/*/
     - qdbd build docs/erd/*/ --site public/
 ```
 
-## 7.7 pre-commit { #pre-commit }
+**With dbt.** Run your dbt build first, then regenerate `erd/` from the manifest before the other commands, as the action's `dbt-manifest` input does ([7.5](#with-dbt)):
+
+```yaml
+    - qdbd import dbt target/ -o erd/ --infer-fks
+```
+
+## 7.7 Other CI { #not-on-github }
+
+The action and the GitLab jobs only wrap the CLI, so any CI that runs Python 3.11+ can do the same: `pip install quickdbd-cli`, then `qdbd check --strict`, `qdbd build`, and on a branch `qdbd diff --base <ref> --format markdown` and `qdbd build --diff-base <ref>` ([8. CLI Reference](cli.md)). `git` must be installed for `--base` and `--diff-base`.
+
+## 7.8 pre-commit { #pre-commit }
 
 To check schema files before every commit, add the [pre-commit](https://pre-commit.com) hook:
 
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.6.8
+    rev: v0.6.11
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.(txt|dbml)$
