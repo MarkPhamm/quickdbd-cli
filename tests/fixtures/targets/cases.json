@@ -1,0 +1,196 @@
+[
+ {
+  "name": "a file with its own layout sidecar is a one-file project",
+  "files": {
+   "shop.txt": "Customer\n-\nCustomerId PK int\n",
+   "shop.layout.json": "{}",
+   "other.txt": "Customer\n-\nCustomerId PK int\n"
+  },
+  "file": "shop.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "shop.txt"
+   ]
+  }
+ },
+ {
+  "name": "the nearest qdbd.layout.json marks the schema folder",
+  "files": {
+   "erd/qdbd.layout.json": "{}",
+   "erd/sales/orders.txt": "Customer\n-\nCustomerId PK int\n",
+   "notes.txt": "hello"
+  },
+  "file": "erd/sales/orders.txt",
+  "expect": {
+   "cwd": "erd",
+   "paths": [
+    "."
+   ]
+  }
+ },
+ {
+  "name": "never looks above the workspace folder",
+  "files": {
+   "qdbd.layout.json": "{}",
+   "ws/a.txt": "Customer\n-\nCustomerId PK int\n",
+   "ws/notes.txt": "hello"
+  },
+  "file": "ws/a.txt",
+  "stopAt": "ws",
+  "expect": {
+   "cwd": "ws",
+   "paths": [
+    "a.txt"
+   ]
+  }
+ },
+ {
+  "name": "a folder of schemas is one project",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.txt": "Customer\n-\nCustomerId PK int\n",
+   "empty.txt": ""
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "."
+   ]
+  }
+ },
+ {
+  "name": "a stray text file keeps it to one file",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "requirements.txt": "flask\n"
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "a.txt"
+   ]
+  }
+ },
+ {
+  "name": "a standalone file next to a separate project",
+  "files": {
+   "sample.txt": "Customer\n-\nCustomerId PK int\n",
+   "synthetic/qdbd.layout.json": "{}",
+   "synthetic/a.txt": "Customer\n-\nCustomerId PK int\n"
+  },
+  "file": "sample.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "sample.txt"
+   ]
+  }
+ },
+ {
+  "name": "the separate project keeps its folder",
+  "files": {
+   "sample.txt": "Customer\n-\nCustomerId PK int\n",
+   "synthetic/qdbd.layout.json": "{}",
+   "synthetic/a.txt": "Customer\n-\nCustomerId PK int\n"
+  },
+  "file": "synthetic/a.txt",
+  "expect": {
+   "cwd": "synthetic",
+   "paths": [
+    "."
+   ]
+  }
+ },
+ {
+  "name": "a sibling with its own layout file is a project of its own",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.layout.json": "{}"
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "a.txt"
+   ]
+  }
+ },
+ {
+  "name": "a folder mixing QuickDBD and DBML files is one project (dbml)",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.dbml": "Table guests {\n  id int [pk]\n}\n",
+   "c.txt": "Table guests {\n  id int [pk]\n}\n"
+  },
+  "file": "b.dbml",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "."
+   ]
+  }
+ },
+ {
+  "name": "a folder mixing QuickDBD and DBML files is one project (txt)",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.dbml": "Table guests {\n  id int [pk]\n}\n",
+   "c.txt": "Table guests {\n  id int [pk]\n}\n"
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "."
+   ]
+  }
+ },
+ {
+  "name": "a .dbml file with its own layout sidecar is a one-file project",
+  "files": {
+   "shop.dbml": "Table guests {\n  id int [pk]\n}\n",
+   "shop.layout.json": "{}",
+   "other.txt": "Customer\n-\nCustomerId PK int\n"
+  },
+  "file": "shop.dbml",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "shop.dbml"
+   ]
+  }
+ },
+ {
+  "name": "a dot-folder below means not one schema",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "b.txt": "Customer\n-\nCustomerId PK int\n",
+   ".history/x/a.txt": "Customer\n-\nCustomerId PK int\n"
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "a.txt"
+   ]
+  }
+ },
+ {
+  "name": "node_modules below means not one schema",
+  "files": {
+   "a.txt": "Customer\n-\nCustomerId PK int\n",
+   "node_modules/x/readme.txt": "hello"
+  },
+  "file": "a.txt",
+  "expect": {
+   "cwd": "",
+   "paths": [
+    "a.txt"
+   ]
+  }
+ }
+]
