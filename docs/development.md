@@ -50,7 +50,7 @@ python scripts/gen_font_metrics.py   # regenerate the font width table
 
 ## 9.4 Releasing { #releasing }
 
-Put PyPI credentials in `.env` (gitignored): `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=pypi-…`. Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`. Bump the version pins in the docs too (`grep -rn '@v0\.\|rev: v0\.' README.md docs`). Commit, then:
+Put PyPI credentials in `.env` (gitignored): `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=pypi-…`. Bump `version` in `pyproject.toml` and `src/quickdbd_cli/__init__.py`. Bump the version pins in the README and docs too (`@vX.Y.Z`, `==X.Y.Z`, `rev: vX.Y.Z`); `tests/test_version_pins.py` fails until they match. Commit, then:
 
 ```bash
 PATH="$PWD/.venv/bin:$PATH" scripts/release.sh
