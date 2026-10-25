@@ -123,7 +123,15 @@ def diff_schemas(old: Schema, new: Schema) -> SchemaDiff:
 
 def _git(args: list[str], cwd: Path) -> str:
     try:
-        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", check=False)
+        r = subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
     except FileNotFoundError:
         raise DiffError("git is not installed") from None
     if r.returncode != 0:
@@ -131,10 +139,27 @@ def _git(args: list[str], cwd: Path) -> str:
     return r.stdout
 
 
+def check_ref(ref: str) -> None:
+    """Refs reach git as arguments: one starting with "-" would be read as an option (`git show --output=…`)."""
+    if not ref or ref.startswith("-") or any(c in ref for c in "\0\r\n"):
+        raise DiffError(f"not a git ref: {ref!r}")
+
+
+def _toplevel(inputs: list[Path]) -> Path:
+    first = inputs[0].resolve()
+    return Path(_git(["rev-parse", "--show-toplevel"], first if first.is_dir() else first.parent).strip())
+
+
+def merge_base(ref: str, inputs: list[Path]) -> str:
+    """The commit where HEAD branched off ``ref`` (what a pull request is compared against)."""
+    check_ref(ref)
+    return _git(["merge-base", ref, "HEAD"], _toplevel(inputs)).strip()
+
+
 def sources_at_ref(ref: str, inputs: list[Path]) -> list[tuple[str, str]]:
     """The .txt and .dbml schema files under ``inputs`` as they were at git ``ref``."""
-    first = inputs[0].resolve()
-    root = Path(_git(["rev-parse", "--show-toplevel"], first if first.is_dir() else first.parent).strip())
+    check_ref(ref)
+    root = _toplevel(inputs)
     _git(["rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"], root)
     out: list[tuple[str, str]] = []
     seen = set()

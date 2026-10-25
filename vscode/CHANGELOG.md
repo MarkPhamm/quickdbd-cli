@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- New: **AI agent tools**. In VS Code 1.101 or later, Copilot's agent mode (and any chat that uses MCP servers) gets QuickDBD's schema tools with no setup: list and describe tables, search, join paths with SQL, check edits, diff against git, render a diagram. The extension offers `qdbd mcp` for each workspace folder with a schema or a dbt project. See [AI Agents (MCP)](https://qdbd.dev/mcp/).
+- The AI tools need qdbd 0.3.0 or later; everything else still works with 0.2.0.
+
 ## 0.4.3
 
 - New: **Open in Browser** runs `qdbd serve` for the schema and opens it on localhost in your browser, with the diagram and an editor side by side. It's in **Actions**, a schema's right-click menu and the Command Palette.

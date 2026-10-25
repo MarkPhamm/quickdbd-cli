@@ -7,7 +7,7 @@ qdbd's selectors are modelled on dbt's `--select`, but they follow **relationshi
 | Selector | Tables |
 |---|---|
 | `orders` | by name or alias |
-| `stg_*`, `*_dim`, `ord?rs` | glob, case-insensitive |
+| `stg_*`, `*_dim`, `ord?rs` | glob, case-insensitive; `?` also matches a space (`Product?Catalog`) |
 | `+orders` | `orders` and every table it references, at any depth |
 | `1+orders` | … only one hop |
 | `orders+` | `orders` and every table that references it |

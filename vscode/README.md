@@ -17,12 +17,13 @@ Edit [QuickDBD](https://www.quickdatabasediagrams.com) and [DBML](https://dbml.d
 - **Compare with git**: the diagram coloured by what changed since a branch, tag or commit, updating as you save.
 - **Import dbt**: schema files from a dbt project's `target/manifest.json`, opened with their diagram.
 - **Convert** between QuickDBD and DBML, both ways, from the editor or the sidebar.
+- **AI agent tools**: Copilot's agent mode gets your schema's tables, join paths with SQL, checks and diffs through [`qdbd mcp`](https://qdbd.dev/mcp/), with no setup (VS Code 1.101+).
 
 ![The QuickDBD sidebar: schemas, a table expanded to its columns with their types and keys, and the actions](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/vscode-sidebar.png)
 
 ## Requirements
 
-None to install by hand: the extension runs the `qdbd` CLI (0.2.0 or later), and when it's missing, **Install qdbd** sets it up in a Python environment of the extension's own. That needs Python 3.11+ or [uv](https://docs.astral.sh/uv/) on the machine.
+None to install by hand: the extension runs the `qdbd` CLI (0.2.0 or later; 0.3.0 for the AI agent tools), and when it's missing, **Install qdbd** sets it up in a Python environment of the extension's own. That needs Python 3.11+ or [uv](https://docs.astral.sh/uv/) on the machine.
 
 If you already have `qdbd` (`uv tool install quickdbd-cli`), the extension uses it: the `quickdbd.qdbdPath` setting, else the workspace's `.venv`, else the newer of its own install and the one on your `PATH`.
 

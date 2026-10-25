@@ -370,7 +370,9 @@
    *   x+   x plus the tables referencing it (children); x+1 limits to 1 hop
    */
   function globRe(p) {
-    return new RegExp("^" + p.replace(/[.^$|()[\]{}\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$", "i");
+    // Runs of * collapse to one, so a pattern like ******x can't backtrack for seconds.
+    var src = p.replace(/\*+/g, "*").replace(/[.^$|()[\]{}\\+]/g, "\\$&");
+    return new RegExp("^" + src.replace(/\*/g, ".*").replace(/\?/g, ".") + "$", "i");
   }
   function edges(model) {
     var up = {}, down = {};
@@ -417,8 +419,14 @@
       var n = before ? op.slice(0, -1) : op.slice(1);
       return n ? parseInt(n, 10) : Infinity;
     }
-    if (up) walk(base, g.up, hops(up, true), out);
-    if (down) walk(base, g.down, hops(down, false), out);
+    // Separate visited sets, so the down-walk isn't cut short by tables the up-walk reached (cycles).
+    [[up, g.up, true], [down, g.down, false]].forEach(function (w) {
+      if (!w[0]) return;
+      var seen = {};
+      base.forEach(function (id) { seen[id] = true; });
+      walk(base, w[1], hops(w[0], w[2]), seen);
+      Object.keys(seen).forEach(function (id) { out[id] = true; });
+    });
     return out;
   }
   /* Returns the ids matching `expr`, in model order, or null when expr is blank (= everything). */
@@ -445,12 +453,17 @@
   /* ------------------------------------------------------------------ path finder
    * Shortest chain of relationships between two tables (relationships are walked in either
    * direction). Each step says which columns join. */
+  var VIRTUAL = "qdbdvirtualfield";
   function findPath(model, from, to) {
     if (from === to) return [];
     var adj = {};
     model.rels.forEach(function (r, i) {
-      (adj[r.a.t] = adj[r.a.t] || []).push({ to: r.b.t, i: i, fwd: true });
-      (adj[r.b.t] = adj[r.b.t] || []).push({ to: r.a.t, i: i, fwd: false });
+      (adj[r.a.t] = adj[r.a.t] || []).push({ to: r.b.t, i: i, fwd: true, cols: r.a.c !== VIRTUAL });
+      (adj[r.b.t] = adj[r.b.t] || []).push({ to: r.a.t, i: i, fwd: false, cols: r.a.c !== VIRTUAL });
+    });
+    // Between the same two tables, a relationship with join columns beats a table-level one.
+    Object.keys(adj).forEach(function (k) {
+      adj[k] = adj[k].filter(function (e) { return e.cols; }).concat(adj[k].filter(function (e) { return !e.cols; }));
     });
     var prev = {}, queue = [from], seen = {};
     seen[from] = true;
@@ -469,19 +482,38 @@
     while (at !== from) {
       var pv = prev[at], r = model.rels[pv.e.i];
       var here = pv.e.fwd ? r.a : r.b, there = pv.e.fwd ? r.b : r.a; // here = side of pv.from
-      steps.unshift({ rel: pv.e.i, from: { t: pv.from, c: here.c, card: here.card }, to: { t: at, c: there.c, card: there.card } });
+      steps.unshift({
+        rel: pv.e.i, from: { t: pv.from, c: here.c, card: here.card }, to: { t: at, c: there.c, card: there.card },
+        pairs: stepPairs(model, pv.e.i, pv.from),
+      });
       at = pv.from;
     }
     return steps;
+  }
+
+  /* Every [fromCol, toCol] the step joins on: all columns of a composite key (rels sharing "k"), [] when
+   * table-level. */
+  function stepPairs(model, i, fromT) {
+    var r = model.rels[i];
+    if (r.a.c === VIRTUAL || r.b.c === VIRTUAL) return [];
+    var group = r.k === undefined ? [r] : model.rels.filter(function (x) {
+      return x.k === r.k && ((x.a.t === r.a.t && x.b.t === r.b.t) || (x.a.t === r.b.t && x.b.t === r.a.t));
+    });
+    return group.map(function (x) { return x.a.t === fromT ? [x.a.c, x.b.c] : [x.b.c, x.a.c]; });
   }
 
   var SQL_RESERVED = ("all and any as asc between by case check column constraint create cross default delete desc distinct " +
     "drop else end exists foreign from full grant group having in index inner insert intersect into is join key left like " +
     "limit not null offset on or order outer primary references right select set table then to union unique update user " +
     "using values view when where with").split(" ");
-  function sqlIdent(name) {
+  function sqlPart(name) {
     var plain = /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) && SQL_RESERVED.indexOf(name.toLowerCase()) < 0;
     return plain ? name : '"' + name.replace(/"/g, '""') + '"';
+  }
+  /* A dotted name (DBML schema.table, a dbt source) is a qualified name: each part is quoted on its own. */
+  function sqlIdent(name) {
+    var parts = name.split(".");
+    return parts.length > 1 && parts.every(Boolean) ? parts.map(sqlPart).join(".") : sqlPart(name);
   }
 
   /* SQL FROM/JOIN clause following a path. */
@@ -490,19 +522,22 @@
     model.tables.forEach(function (t) { byId[t.id] = t; });
     function col(t, c) {
       var x = byId[t].cols.filter(function (k) { return k.id === c; })[0];
-      return x ? sqlIdent(x.name) : null;
+      return x ? sqlPart(x.name) : null;
     }
     var lines = ["FROM " + sqlIdent(byId[from].name)];
     steps.forEach(function (s) {
-      var a = byId[s.from.t].name, b = byId[s.to.t].name, ca = col(s.from.t, s.from.c), cb = col(s.to.t, s.to.c);
-      if (ca && cb) lines.push("JOIN " + sqlIdent(b) + " ON " + sqlIdent(b) + "." + cb + " = " + sqlIdent(a) + "." + ca);
-      else lines.push("JOIN " + sqlIdent(b) + " ON ...  -- table-level relationship: join columns not specified");
+      var a = sqlIdent(byId[s.from.t].name), b = sqlIdent(byId[s.to.t].name);
+      var pairs = s.pairs || (s.from.c === VIRTUAL ? [] : [[s.from.c, s.to.c]]);
+      var on = pairs.map(function (p) { return b + "." + col(s.to.t, p[1]) + " = " + a + "." + col(s.from.t, p[0]); });
+      if (on.length) lines.push("JOIN " + b + " ON " + on.join(" AND "));
+      else lines.push("JOIN " + b + " ON ...  -- table-level relationship: join columns not specified");
     });
     return lines.join("\n");
   }
 
   root.qdbd = {
     findPath: findPath,
+    stepPairs: stepPairs,
     pathSql: pathSql,
     renderDrawio: renderDrawio,
     regions: regions,

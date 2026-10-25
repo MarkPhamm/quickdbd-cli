@@ -15,6 +15,7 @@ uv venv && uv pip install -e ".[dev,docs]"
 | `src/quickdbd_cli/assets/viewer.js` | the interactive page |
 | `src/quickdbd_cli/layout.py` | ELK layout, placement of new tables, layout files |
 | `src/quickdbd_cli/dbt.py`, `diff.py`, `serve.py` | dbt import, diffs, live editor |
+| `src/quickdbd_cli/mcp.py`, `agent.py`, `targets.py` | `qdbd mcp`: the protocol, the agent tools, finding schema projects in a folder |
 | `action.yml` | the GitHub Action |
 | `docs/`, `mkdocs.yml` | this site |
 

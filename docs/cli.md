@@ -1,6 +1,6 @@
 # 8. CLI Reference
 
-Every command takes one or more `PATH`s: a `.txt` or `.dbml` file, or a folder (every `*.txt` and `*.dbml` under it, recursively). QuickDBD and [DBML](dbml.md) files can be mixed. `qdbd <command> --help` shows all options.
+Every command except [`mcp`](#mcp) takes one or more `PATH`s: a `.txt` or `.dbml` file, or a folder (every `*.txt` and `*.dbml` under it, recursively). QuickDBD and [DBML](dbml.md) files can be mixed. `qdbd <command> --help` shows all options.
 
 ## 8.1 check { #check }
 
@@ -81,6 +81,8 @@ qdbd path PATH... --from TABLE --to TABLE
 
 Prints the shortest relationship path and a SQL `FROM … JOIN … ON …` snippet. Exits 1 when the tables aren't connected.
 
+A composite foreign key joins on every column: a DBML `Ref: a.(x, y) > b.(x, y)`, or QuickDBD FK lines that together point at all of a table's composite primary key. Between two tables with several relationships, one with join columns wins over a table-level `rel`. Dotted names such as `sales.orders` come out as `schema.table`.
+
 ## 8.7 diff { #diff }
 
 ```bash
@@ -114,7 +116,15 @@ qdbd convert PATH... --to dbml|quickdbd [-o FILE_OR_DIR]
 
 Converts between QuickDBD text and DBML. With one file and no `-o`, prints the result; with `-o DIR`, writes each file under it with the new extension (DBML `TableGroup`s become one QuickDBD file each). Anything the target syntax can't express is a warning; the output is recompiled and must otherwise match the input, or nothing is written. See [3.2 DBML](dbml.md#convert).
 
-## 8.11 Exit codes { #exit-codes }
+## 8.11 mcp { #mcp }
+
+```bash
+qdbd mcp [PATH...] [--root DIR] [--infer-fks]
+```
+
+Runs an [MCP](https://modelcontextprotocol.io) server on stdin/stdout, so AI agents (Claude, Copilot, Cursor) can query the schema: tables, join paths with SQL, checks, diffs and diagrams. With no `PATH` it serves every schema project under `--root` (default: the project folder, else the current folder); with paths, just that schema or dbt `manifest.json`. It runs until the client closes it. See [3.7 AI Agents (MCP)](mcp.md).
+
+## 8.12 Exit codes { #exit-codes }
 
 | Code | Meaning |
 |---|---|

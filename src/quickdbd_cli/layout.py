@@ -37,7 +37,7 @@ MARGIN = 30
 Positions = dict[str, tuple[int, int]]
 
 
-def elk_layout(tables: list[dict], rels: list[dict]) -> Positions:
+def elk_layout(tables: list[dict], rels: list[dict], timeout_sec: float | None = None) -> Positions:
     """Lay out ``tables`` (model_json table dicts) with ELK; only rels between them are used."""
     if not tables:
         return {}
@@ -62,7 +62,7 @@ def elk_layout(tables: list[dict], rels: list[dict]) -> Positions:
         "children": [{"id": t["id"], "width": t["w"], "height": t["h"]} for t in tables],
         "edges": edges,
     }
-    first = rt.call_async("qdbdElkLayout", graph)
+    first = rt.call_async("qdbdElkLayout", graph, timeout_sec=timeout_sec)
     first = _landscape(tables, {k: (v[0], v[1]) for k, v in first.items()})
     graph = {
         "id": "root",
@@ -73,7 +73,7 @@ def elk_layout(tables: list[dict], rels: list[dict]) -> Positions:
         ],
         "edges": [],
     }
-    raw = rt.call_async("qdbdElkLayout", graph)
+    raw = rt.call_async("qdbdElkLayout", graph, timeout_sec=timeout_sec)
     min_x = min(v[0] for v in raw.values())
     min_y = min(v[1] for v in raw.values())
     return {k: (int(v[0] - min_x), int(v[1] - min_y)) for k, v in raw.items()}

@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "quickdbd-cli"
-version = "0.2.4"
+version = "0.3.0"
 description = "Compile QuickDBD-syntax schema files into interactive HTML ER diagrams, with no table limit."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE", "src/quickdbd_cli/assets/*LICENSE*"]
 requires-python = ">=3.11"
 authors = [{ name = "Minh (Mark) Pham" }]
-keywords = ["erd", "database", "diagram", "quickdbd", "schema"]
+keywords = ["erd", "database", "diagram", "quickdbd", "schema", "dbml", "mcp"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Environment :: Console",
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "fonttools>=4.50"]
+dev = ["pytest>=8", "ruff>=0.6", "fonttools>=4.50", "mcp>=2.3,<3"]  # mcp: interop tests only, not a runtime dep
 docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10"]
 
 [project.scripts]

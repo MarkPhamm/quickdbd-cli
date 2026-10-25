@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -379,14 +380,18 @@ def cmd_path(args) -> int:
     by_id = {t["id"]: t for t in model["tables"]}
     card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
 
-    def end(e):
+    def end(e, cols):
         t = by_id[e["t"]]
-        col = next((c["name"] for c in t["cols"] if c["id"] == e["c"]), None)
-        return f"{t['name']}.{col}" if col else t["name"]
+        names = [c["name"] for k in cols for c in t["cols"] if c["id"] == k]
+        if not names:
+            return t["name"]
+        return f"{t['name']}.{names[0]}" if len(names) == 1 else f"{t['name']}.({', '.join(names)})"
 
     print(f"{a} -> {b}: {len(steps)} join(s)")
     for st in steps:
-        print(f"  {end(st['from'])} -> {end(st['to'])} ({card[st['from']['card']]}:{card[st['to']['card']]})")
+        pairs = st["pairs"]
+        joined = f"{end(st['from'], [p[0] for p in pairs])} -> {end(st['to'], [p[1] for p in pairs])}"
+        print(f"  {joined} ({card[st['from']['card']]}:{card[st['to']['card']]})")
     if steps:
         print()
         print(rt.call("qdbdPathSql", model, ends[0]["id"], steps))
@@ -447,6 +452,69 @@ def cmd_serve(args) -> int:
         embed=args.embed,
         diff_base=args.diff_base,
     )
+
+
+def _mcp_target(paths: list[Path]):
+    """The one project PATHs name: a dbt manifest (or its target/ folder), else schema files. None if they mix."""
+    from .targets import Target, target_title
+
+    def dbt_manifest(p: Path) -> Path | None:
+        if p.is_file() and p.suffix.lower() == ".json":
+            return p
+        if p.is_dir() and (p / "manifest.json").is_file() and not any(p.glob("*.txt")) and not any(p.glob("*.dbml")):
+            return p / "manifest.json"
+        return None
+
+    manifests = [dbt_manifest(p) for p in paths]
+    if any(manifests):
+        if len(paths) != 1:
+            return None
+        m = manifests[0].resolve()
+        root = m.parent.parent if m.parent.name == "target" else m.parent
+        return Target(f"{root.name} (dbt)", "dbt", root, (os.path.relpath(m, root),))
+    if len(paths) == 1:
+        p = paths[0].resolve()
+        root, rel = (p, (".",)) if p.is_dir() else (p.parent, (p.name,))
+    else:
+        root = Path(os.path.commonpath([p.resolve() for p in paths]))
+        rel = tuple(os.path.relpath(p.resolve(), root) for p in paths)
+    return Target(target_title(root, rel) if len(rel) == 1 else root.name or "schema", "schema", root, rel)
+
+
+def cmd_mcp(args) -> int:
+    from .agent import Workspace
+
+    paths = [Path(p).resolve() for p in args.paths]
+    for p in paths:
+        if not p.exists():
+            print(f"error: no such file or directory: {p}", file=sys.stderr)
+            return 2
+    root = Path(args.root or os.environ.get("CLAUDE_PROJECT_DIR") or ".").resolve()
+    if not root.is_dir():
+        print(f"error: --root {root} is not a folder", file=sys.stderr)
+        return 2
+    fixed = _mcp_target(paths) if paths else None
+    if paths and fixed is None:
+        print("error: give either schema files/folders or one dbt manifest, not both", file=sys.stderr)
+        return 2
+    refused = None
+    system = Path(os.environ.get("SystemRoot", "/nonexistent")).resolve()
+    if not paths and (root == Path(root.anchor) or root == Path.home().resolve() or root == system):
+        refused = (
+            f"qdbd mcp was started in {root}, which is too broad to search; "
+            "start it with --root PROJECT_FOLDER or a schema path"
+        )
+    os.chdir(root)
+
+    from . import mcp
+    from .jsrt import runtime
+
+    rfile, wfile = mcp.isolate_stdio()
+    runtime()  # V8 starts on this thread, outside any event loop
+    ws = Workspace(root, fixed, infer_fks=args.infer_fks, refused=refused)
+    what = fixed.name if fixed else f"schema projects under {root}"
+    mcp._Log().line(f"qdbd {__version__} serving {what} over stdio")
+    return mcp.serve(mcp.Server(ws), rfile, wfile)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -604,6 +672,21 @@ def build_parser() -> argparse.ArgumentParser:
         "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
     )
     sp.set_defaults(func=cmd_serve)
+
+    sp = sub.add_parser(
+        "mcp",
+        help="MCP server over stdio: lets AI agents (Claude, Copilot, Cursor) query the schema",
+        description="Serve the schema to AI agents over the Model Context Protocol (stdio). With no PATH, every "
+        "schema project found under the root is served.",
+    )
+    sp.add_argument(
+        "paths", nargs="*", metavar="PATH", help="serve just this schema (files, a folder, or a dbt manifest.json)"
+    )
+    sp.add_argument("--root", metavar="DIR", help="project folder (default: $CLAUDE_PROJECT_DIR, else the cwd)")
+    sp.add_argument(
+        "--infer-fks", action="store_true", help="dbt manifests: also link <entity>_id columns (labelled inferred)"
+    )
+    sp.set_defaults(func=cmd_mcp)
     return p
 
 
