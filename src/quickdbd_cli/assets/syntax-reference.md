@@ -1,0 +1,137 @@
+# QuickDBD syntax (.txt)
+
+qdbd reads QuickDBD's text format exactly as QuickDBD does. A table is a header line, a separator line of `-`, then column lines. A blank line ends a table; comment lines don't.
+
+```text
+# Customers who placed at least one order.
+Customer as c, cust
+-
+CustomerId PK int
+Name string
+Email varchar(200) UNIQUE
+CreatedAt datetime default=now
+
+Order
+-
+OrderId PK int IDENTITY
+CustomerId int FK >- Customer.CustomerId
+Status string default=pending   # current fulfilment state
+ShippedAt datetime NULL
+```
+
+## Names
+
+- Names with spaces or dots must be double-quoted: `"Product Catalog"`, `"dbo.Customer"`. Quoted names work in FK targets too: `FK >- "dbo.Customer"."Customer Id"`.
+- Aliases follow `as`, comma-separated, and can be used anywhere a table name is referenced.
+- Name lookups are case-insensitive unless the file sets `CaseSensitive on`.
+- All files of a project share one namespace: an FK can point at a table in another file, and a table name must be unique across files.
+
+## Columns
+
+`name [type] [modifiers…]`, modifiers in any order, case-insensitive:
+
+| Token | Meaning |
+|---|---|
+| `int`, `varchar(200)`, `decimal(10,2)` | the type: the first word that isn't a keyword (no spaces inside the parentheses) |
+| `PK` | primary key; several `PK` columns make a composite key |
+| `FK` | foreign key, optionally followed by a relationship: `FK >- Customer.CustomerId` |
+| `NULL` / `NULLABLE` | nullable. Columns are NOT NULL by default; don't write `NOT NULL` |
+| `UNIQUE`, `INDEX` | unique key, index |
+| `IDENTITY` / `AUTOINCREMENT` | auto-generated |
+| `default=value`, `int=27`, `string="two words"` | default value |
+
+PK can't be combined with UNIQUE or INDEX, and UNIQUE can't be combined with INDEX.
+
+## Relationships
+
+| Operator | Left to right |
+|---|---|
+| `-` | one to one |
+| `-<` | one to many |
+| `>-` | many to one |
+| `>-<` | many to many |
+| `-0` | one to zero-or-one |
+| `0-` | zero-or-one to one |
+| `0-0` | zero-or-one to zero-or-one |
+| `-0<` | one to zero-or-many |
+| `>0-` | zero-or-many to one |
+
+Inline, on the column that holds the key: `CustomerId int FK >- Customer.CustomerId`. A composite foreign key is one FK line per column, each pointing at a column of the parent's composite PK.
+
+Table-level, between the header and the separator (no join columns, so joins can't be written from it; prefer inline FKs):
+
+```text
+Product
+-
+ProductId PK int
+
+OrderLine
+rel >- Product
+-
+LineId PK int
+```
+
+Declare a relationship once, in either direction.
+
+## Comments, docs, tags
+
+- `#` starts a comment, except inside double quotes. Comment lines directly above a table or column, plus a comment at the end of its line, become its documentation.
+- Tags give tables a role and a header colour: `# @tag: gold, pii` above a table. Names like `dim_`, `fct_`, `stg_`, `int_`, `raw_` are tagged automatically.
+- `# @color gold #b8860b` sets a tag's colour (anywhere in any file).
+
+## Settings and layout sections
+
+```text
+[settings]
+Zoom 100
+CaseSensitive on
+DefaultFieldType int
+
+[layout]
+Customer 120 80
+```
+
+QuickDBD rejects (qdbd only warns about): tab characters, spaces inside a type `decimal(10, 2)`, explicit `NOT NULL`, indented table names, `[layout]` lines for unknown tables. Avoid them so the file still pastes into QuickDBD.
+
+# DBML syntax (.dbml)
+
+qdbd also reads DBML (dbdiagram.io's syntax), checked against @dbml/parse. A `.dbml` file is always DBML; a `.txt` file is DBML when it has a line like `Table name {` or `Ref:` with a relationship. DBML and QuickDBD files can sit in one project and share one namespace.
+
+```dbml
+// @tag: pii
+Table customers {
+  id int [pk, increment]
+  email varchar(255) [unique, not null, note: 'login']
+}
+
+Table orders {
+  id int [pk]
+  region varchar [pk]
+  customer_id int [ref: > customers.id]
+  status order_status
+}
+
+Table order_items {
+  order_id int
+  region varchar
+}
+
+Enum order_status {
+  placed
+  shipped
+}
+
+Ref: order_items.(order_id, region) > orders.(id, region)
+```
+
+- Drawn: tables (`schema.table`, `public.users` = `users`), columns and types, `pk`, `null`, `unique`, `increment`, `default:`, indexes, `note`/`Note`, every `Ref` form (short, long, inline, composite, with `?` for an optional side), `TableGroup`, `headercolor`, `TablePartial`.
+- Accepted but not drawn: `Project`, `Enum` (the column shows the enum name as its type), `checks`, `records`, sticky notes, ref `delete:`/`update:`, `TableGroup` colours and notes.
+- `use` imports aren't followed: every file you give qdbd is read into one namespace.
+- `// @tag:` and `// @color` comments work; plain `//` comments are not documentation (use `note`).
+
+# Notes
+
+- Renaming a table loses its saved diagram position: the layout file is keyed by table name.
+- qdbd's error messages may show a name's non-alphanumeric characters as character codes: `dbo46Order32Line` is `dbo.Order Line`.
+- Files written by `qdbd import dbt` start with `# Generated by qdbd import dbt`: edit the dbt YAML and re-run the import instead of editing them.
+- After editing, run the check tool; it reports `path:line: severity: message`.

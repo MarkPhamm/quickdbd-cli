@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "fonttools>=4.50"]
+dev = ["pytest>=8", "ruff>=0.6", "fonttools>=4.50", "mcp>=2.3,<3"]  # mcp: interop tests only, not a runtime dep
 docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10"]
 
 [project.scripts]

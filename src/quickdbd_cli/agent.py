@@ -30,7 +30,7 @@ LAYOUT_TIMEOUT = 60.0
 MAX_ARG = 500
 DIAGRAM_LIMITS = {"full": 30, "keys": 60, "header": 100}
 IMAGE_SIDE = 1568  # Claude scales larger images down
-MIN_SCALE = 0.6
+MIN_SCALE = {"full": 0.5, "keys": 0.5, "header": 0.45}  # smaller and the text can't be read
 
 
 class ToolError(Exception):
@@ -665,16 +665,20 @@ def render_diagram(ws: Workspace, args: dict) -> Result:
     rels = [r for r in c.model["rels"] if r["a"]["t"] in keep and r["b"]["t"] in keep]
     if n > DIAGRAM_LIMITS["header"]:
         raise ToolError(f"{n} tables is too many for a readable image (at most 100); narrow with `select` or `focus`")
-    try:
-        pos = {k: [v[0], v[1]] for k, v in layout.elk_layout(tables, rels, timeout_sec=LAYOUT_TIMEOUT).items()}
-    except JSTimeout:
-        raise ToolError("the layout took too long; narrow with `select` or `focus`") from None
+    sub = {**c.model, "tables": tables, "rels": rels}
     for mode in modes[start:]:
         if n > DIAGRAM_LIMITS[mode]:
             continue
+        geo = _js("qdbd.geometry", sub, mode)  # collapsed modes have shorter tables: lay them out as drawn
+        sized = [{**t, "h": geo[t["id"]]["h"]} for t in tables]
+        try:
+            laid = layout.elk_layout(sized, rels, timeout_sec=LAYOUT_TIMEOUT)
+        except JSTimeout:
+            raise ToolError("the layout took too long; narrow with `select` or `focus`") from None
+        pos = {k: [v[0], v[1]] for k, v in laid.items()}
         svg = export.render_svg(c.model, pos, only=ids, mode=mode, embed_font=False)
         scale = min(2.0, IMAGE_SIDE / max(_svg_size(svg)))
-        if scale >= MIN_SCALE:
+        if scale >= MIN_SCALE[mode]:
             png = export.svg_to_png(svg, scale)
             names = ", ".join(t["name"] for t in tables[:40]) + (", …" if n > 40 else "")
             note = "" if mode == (args.get("mode") or "full") else f" (switched to {mode} mode to stay readable)"
