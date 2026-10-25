@@ -35,8 +35,11 @@ def discover(inputs: list[Path]) -> list[Path]:
 
 
 def display_path(p: Path) -> str:
+    cwd = Path.cwd().resolve()
+    if cwd == Path(cwd.anchor):  # relative to / would just drop the leading slash
+        return str(p.resolve())
     try:
-        return str(p.resolve().relative_to(Path.cwd().resolve()))
+        return str(p.resolve().relative_to(cwd))
     except ValueError:
         return str(p)
 

@@ -152,3 +152,35 @@ def test_serve_diff_base_colours_the_live_model(repo):
 def test_serve_bad_diff_base_is_a_clean_error(repo, capsys):
     assert main(["serve", str(repo / "erd"), "--no-open", "--port", "0", "--diff-base", "nope-ref"]) == 2
     assert "error:" in capsys.readouterr().err
+
+
+def test_refs_that_look_like_options_are_refused(repo, capsys):
+    from quickdbd_cli import diff
+
+    for bad in ("--output=x", "-p", "main\nHEAD"):
+        with pytest.raises(diff.DiffError, match="not a git ref"):
+            diff.sources_at_ref(bad, [repo / "erd"])
+    assert diff.sources_at_ref("HEAD@{0}", [repo / "erd"])  # reflog syntax with braces still works
+    assert not (repo / "x").exists()
+
+
+def test_merge_base_is_where_the_branch_left(repo):
+    from quickdbd_cli import diff
+
+    def git(*args):
+        return subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args],
+            cwd=repo,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+    fork = git("rev-parse", "HEAD")
+    git("checkout", "-q", "-b", "feature")
+    git("commit", "-qam", "feature work")
+    git("checkout", "-q", "main")
+    (repo / "erd" / "core.txt").write_text(OLD + "\nlater\n-\nid PK int\n")
+    git("commit", "-qam", "main moves on")
+    git("checkout", "-q", "feature")
+    assert diff.merge_base("main", [repo / "erd"]) == fork
