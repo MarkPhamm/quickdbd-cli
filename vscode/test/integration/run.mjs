@@ -15,6 +15,7 @@ const ws = fs.mkdtempSync(path.join(os.tmpdir(), "qdbd-vscode-"));
 // One level down, so the .vscode settings folder isn't inside examples/ (it would change how folders are judged).
 fs.cpSync(path.join(repo, "examples"), path.join(ws, "examples"), { recursive: true });
 fs.cpSync(path.join(repo, "tests", "fixtures", "jaffle"), path.join(ws, "jaffle", "target"), { recursive: true });
+fs.writeFileSync(path.join(ws, "jaffle", "dbt_project.yml"), "name: jaffle_shop\n"); // a dbt project, for `qdbd mcp`
 // DBML: a one-file schema folder, and a folder mixing a QuickDBD file with a DBML one.
 fs.mkdirSync(path.join(ws, "dbml"));
 fs.copyFileSync(path.join(repo, "tests", "fixtures", "dbml", "team.dbml"), path.join(ws, "dbml", "team.dbml"));

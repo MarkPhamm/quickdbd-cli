@@ -2,6 +2,7 @@
  * diagnostics on unsaved edits, the preview panel, HTML export, comparing with a git ref, dbt import, and (with
  * QDBD_TEST_INSTALL) installing qdbd. */
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
@@ -207,6 +208,7 @@ export async function run(): Promise<void> {
   await until("starter in the sidebar", async () => (await api.schemas()).some((x) => x.title === "starter" && x.tables === 2));
   step("new schema file: opened with its diagram, listed in the sidebar");
 
+  await testMcp(api, ws);
   if (process.env.QDBD_TEST_INSTALL) await testInstall(doc);
 
   // QDBD_HOLD=ms keeps the window open (cursor on Ledger, so the preview should select it) for a screenshot.
@@ -220,6 +222,26 @@ export async function run(): Promise<void> {
     vscode.window.activeTextEditor!.selection = new vscode.Selection(line, line);
     await new Promise((r) => setTimeout(r, hold));
   }
+}
+
+/** The MCP server offered to AI chat, then `qdbd mcp` itself: discover, and a tool call that sees the projects. */
+async function testMcp(api: Api, ws: string): Promise<void> {
+  const defs = await api.mcpServers();
+  assert.deepEqual(defs.map((d) => [d.label, d.args]), [["QuickDBD", ["mcp", "--root", ws]]]);
+  const exe = vscode.workspace.getConfiguration("quickdbd").get<string>("qdbdPath")!;
+  const meta = { "io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {} };
+  const input = [
+    { jsonrpc: "2.0", id: 1, method: "server/discover", params: { _meta: meta } },
+    { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "list_projects", arguments: {}, _meta: meta } },
+  ].map((m) => JSON.stringify(m) + "\n").join("");
+  const out = execFileSync(exe, defs[0].args, { cwd: defs[0].cwd, input, timeout: 60000 }).toString();
+  const [discover, projects] = out.trim().split("\n").map((l) => JSON.parse(l));
+  assert.equal(discover.result.resultType, "complete");
+  assert.ok(discover.result.ttlMs >= 0 && discover.result.cacheScope, "caching hints");
+  assert.equal(discover.result._meta["io.modelcontextprotocol/serverInfo"].name, "qdbd");
+  const text: string = projects.result.content[0].text;
+  assert.ok(text.includes("synthetic") && text.includes("jaffle (dbt)"), text);
+  step("MCP server for AI chat: qdbd mcp answers discover and list_projects");
 }
 
 /** Without quickdbd.qdbdPath, install qdbd (from this checkout, QDBD_PIP_SPEC) into the extension's own virtualenv,

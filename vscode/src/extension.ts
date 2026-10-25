@@ -12,6 +12,8 @@ import { pickRef } from "./compare.ts";
 import { convertSchema } from "./convert.ts";
 import { importDbt, type ImportOptions } from "./dbt.ts";
 import { exportDiagram, share, type Format } from "./export.ts";
+import { registerMcp, schemaFolders } from "./mcp.ts";
+import { serverDefs, type ServerDef } from "./mcpdef.ts";
 import { Previews } from "./preview.ts";
 import type { Target } from "./schema.ts";
 import { isSchemaArg, Sidebar, type Node } from "./sidebar.ts";
@@ -39,6 +41,8 @@ Total money
 /** For tests: the sidebar's schemas, with their table counts once checked. */
 export interface Api {
   schemas(): Promise<{ title: string; tables?: number; target: Target; file: string }[]>;
+  /** The MCP servers offered to AI chat (before qdbd is resolved). */
+  mcpServers(): Promise<ServerDef[]>;
 }
 
 export function activate(context: vscode.ExtensionContext): Api {
@@ -152,9 +156,13 @@ export function activate(context: vscode.ExtensionContext): Api {
       await previews.show(doc);
     }),
   );
+  context.subscriptions.push(...registerMcp(qdbd, log));
   vscode.workspace.textDocuments.forEach((doc) => void opened(doc, checker));
 
   return {
+    async mcpServers() {
+      return serverDefs(await schemaFolders());
+    },
     async schemas() {
       return (await sidebar.schemas.all()).map((s) => ({
         ...s,

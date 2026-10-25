@@ -12,9 +12,9 @@ import { findTarget, isSchemaFile, targetTitle } from "./target.ts";
 // Never schemas: hidden folders (.git, .venv, editor history and test sandboxes such as .vscode-test, like
 // target.ts's folder walk), dependencies and build output.
 const SKIP = ["node_modules", "venv", "dbt_packages", "target", "site", "dist", "build"];
-const EXCLUDE = `**/{.*,${SKIP.join(",")}}/**`;
+export const EXCLUDE = `**/{.*,${SKIP.join(",")}}/**`;
 const MAX_FILES = 5000;
-const MAX_BYTES = 2_000_000;
+export const MAX_BYTES = 2_000_000;
 const RESCAN_DELAY = 500;
 
 /** A schema: what qdbd runs on, and one of its files (absolute), to open it by. */

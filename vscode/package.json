@@ -2,7 +2,7 @@
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
   "description": "QuickDBD and DBML schema files in VS Code: a sidebar with every schema, highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",
@@ -30,7 +30,9 @@
     "schema",
     "dbml",
     "dbdiagram",
-    "dbt"
+    "dbt",
+    "mcp",
+    "ai"
   ],
   "main": "./out/extension.js",
   "activationEvents": [
@@ -46,6 +48,12 @@
     }
   },
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "quickdbd",
+        "label": "QuickDBD schemas"
+      }
+    ],
     "languages": [
       {
         "id": "quickdbd",

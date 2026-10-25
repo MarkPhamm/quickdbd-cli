@@ -8,6 +8,7 @@ The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf a
 - the interactive diagram beside the editor, following your cursor
 - a sidebar listing every schema in the workspace, down to its columns, with each action one click away
 - export, share as a link, compare with a git branch, and import a dbt project
+- your schema as tools for Copilot's agent mode ([3.7 AI Agents](mcp.md))
 
 You never need a terminal: the extension installs the `qdbd` CLI it runs on.
 
@@ -18,7 +19,7 @@ You never need a terminal: the extension installs the `qdbd` CLI it runs on.
 ## Install
 
 1. Install the extension: open the Extensions view (**Cmd+Shift+X** / **Ctrl+Shift+X**), search **QuickDBD** and pick **QuickDBD (qdbd)** by Minh Pham. It's on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) and, for Cursor, Windsurf and VSCodium, on [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd). Each [GitHub release](https://github.com/MarkPhamm/quickdbd-cli/releases/latest) also has the `.vsix` file, for **Install from VSIX…** in the Extensions view's **⋯** menu.
-2. Open a schema file. The extension runs the `qdbd` CLI (version 0.1.17 or later) for every check and for the diagram. If it can't find one, it says so: click **Install qdbd**. It sets up a Python environment of its own and installs `qdbd` there, which takes about a minute. You can also run **QuickDBD: Install or Update qdbd** from the Command Palette at any time.
+2. Open a schema file. The extension runs the `qdbd` CLI (version 0.2.0 or later; 0.3.0 for the AI agent tools) for every check and for the diagram. If it can't find one, it says so: click **Install qdbd**. It sets up a Python environment of its own and installs `qdbd` there, which takes about a minute. You can also run **QuickDBD: Install or Update qdbd** from the Command Palette at any time.
 
 Installing needs Python 3.11 or later on the machine ([python.org](https://www.python.org/downloads/)), or [uv](https://docs.astral.sh/uv/), which downloads a Python by itself.
 
@@ -90,6 +91,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | **Share** | **QuickDBD: Share as a Gist Link** publishes the diagram as a secret gist, like [`qdbd share`](sharing.md#qdbd-share), and copies the link. It signs in with VS Code's GitHub account (the first time, VS Code asks), so the `gh` CLI isn't needed. Sharing again updates the same gist, also one made by `qdbd share`, so the link stays the same. |
 | **Compare with git** | **QuickDBD: Compare with Git Ref…** (the compare button at the top right of the editor) picks a branch, tag or commit and opens the diagram coloured by what changed since then, as in a [PR diff](diffs.md). It updates as you save. Pick **HEAD** to see what you haven't committed. |
 | **Import dbt** | **QuickDBD: Import dbt Project…** turns a dbt project's `target/manifest.json` into schema files, like [`qdbd import dbt`](dbt.md), into `erd/` (one file per dbt folder) or one file you choose, then opens the diagram. Run `dbt compile` first; `dbt docs generate` adds column types. |
+| **AI agent tools** | In VS Code 1.101+, Copilot's agent mode lists a **QuickDBD** MCP server for each workspace folder with a schema or a dbt project, and starts `qdbd mcp` when it needs it: tables, join paths with SQL, checks, diffs and diagrams. See [3.7 AI Agents](mcp.md). |
 | **Convert** | **QuickDBD: Convert to DBML** / **Convert to QuickDBD Syntax**, from the editor, a schema's row in the sidebar or **Actions**, like [`qdbd convert`](dbml.md#convert). A one-file schema is written next to it; a folder schema into a new folder beside it. What the other syntax can't express is listed in the QuickDBD output channel. |
 
 ## Settings
