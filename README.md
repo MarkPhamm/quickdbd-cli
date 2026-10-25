@@ -38,6 +38,7 @@ qdbd is not affiliated with QuickDBD or dbdiagram.io. It reads the same text syn
 - **Readable at 200+ tables**: automatic layout, search, dbt-style selectors (`+orders+1`, `group:marts`, `tag:fact`), shaded regions per file, collapsed views and a minimap.
 - **Review changes in pull requests**: `qdbd diff` reports what a branch changed, the GitHub Action posts it as a PR comment, and `--diff-base` colours the changes in the diagram.
 - **VS Code extension**: highlighting, errors as you type, outline, F12 across files, and the diagram beside the editor, following your cursor, or in your browser on localhost. Export, share, compare with git, convert to and from DBML, and dbt import from the sidebar or the Command Palette, with no terminal: it installs the CLI itself. Get it from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) or, for Cursor, Windsurf and VSCodium, [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd) ([docs](https://qdbd.dev/vscode/)).
+- **AI agents**: `qdbd mcp` gives Claude, Copilot and Cursor your schema as tools: tables and columns, join paths as SQL (composite keys included), checks for their edits and diffs against `main` ([docs](https://qdbd.dev/mcp/)).
 - **One schema, many outputs**: an HTML page, PNG, SVG, editable draw.io, or a shareable link. Installs with pip: no Node, Graphviz or browser needed.
 
 ## Demo gallery
@@ -150,7 +151,8 @@ hand-written / pasted ─────────┘           │
                                            ├──▶ qdbd serve   live editor, drag to arrange           ──▶ schema.layout.json
                                            ├──▶ qdbd build   interactive HTML                       ──▶ GitHub Pages, artifacts
                                            ├──▶ qdbd diff    what changed vs main                   ──▶ PR comment
-                                           └──▶ qdbd export  PNG · SVG · draw.io                    ──▶ docs, slides, wikis
+                                           ├──▶ qdbd export  PNG · SVG · draw.io                    ──▶ docs, slides, wikis
+                                           └──▶ qdbd mcp     schema tools for AI agents             ──▶ Claude, Copilot, Cursor
 ```
 
 - **The parser** follows QuickDBD's own parser step by step, so the same text gives the same tables and the same errors.
@@ -202,7 +204,7 @@ No. qdbd only borrows the text syntax.
 No. It reads `.txt` / `.dbml` schema files or a dbt `manifest.json`. Nothing connects to a warehouse.
 
 **Does my schema leave my machine?**
-Only if you run `qdbd share`, which uploads the page to a GitHub gist in your account (secret by default). `qdbd serve` loads its code editor from a CDN; the built pages load nothing.
+Only if you run `qdbd share`, which uploads the page to a GitHub gist in your account (secret by default), or connect an AI agent through `qdbd mcp`, whose answers go to your AI provider. `qdbd serve` loads its code editor from a CDN; the built pages load nothing.
 
 **How big can a diagram get?**
 The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable; `--select` builds a page with just the part you need.
@@ -216,6 +218,7 @@ You edit the text; the diagram is generated from it. Table positions are the one
 - [Schema Syntax](https://qdbd.dev/syntax/), [many files](https://qdbd.dev/files/), [table positions](https://qdbd.dev/layout/), [tags and colours](https://qdbd.dev/tags/)
 - [Reading the Diagram](https://qdbd.dev/reading-the-diagram/), [selectors](https://qdbd.dev/selectors/), [exports](https://qdbd.dev/exports/), [sharing a link](https://qdbd.dev/sharing/)
 - [dbt Projects](https://qdbd.dev/dbt/), with a [jaffle_shop walkthrough](https://qdbd.dev/example/)
+- [AI Agents (MCP)](https://qdbd.dev/mcp/): `qdbd mcp` for Claude, Copilot and Cursor
 - [Schema Diffs](https://qdbd.dev/diffs/), the [GitHub Action](https://qdbd.dev/github-action/) and the [CLI reference](https://qdbd.dev/cli/)
 - [Development](https://qdbd.dev/development/): working on qdbd itself, releasing, and adding a demo
 

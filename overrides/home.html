@@ -215,7 +215,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <h2>Frequently asked questions</h2>
     <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD's text syntax, and it isn't affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
     <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
-    <details><summary>Does my schema leave my machine?</summary><p>Only if you run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default). Built pages load nothing from the network.</p></details>
+    <details><summary>Does my schema leave my machine?</summary><p>Only if you run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default), or connect an AI agent through <code>qdbd mcp</code>, whose answers go to your AI provider. Built pages load nothing from the network.</p></details>
     <details><summary>How big can a diagram get?</summary><p>The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable, and <code>--select</code> builds a page with just the part you need.</p></details>
     <details><summary>What do I need to install?</summary><p>Python 3.11 or newer. No Node, Graphviz or browser: the layout engine runs inside Python.</p></details>
     <details><summary>Can I use it in CI?</summary><p>Yes. The GitHub Action checks the schema, builds the page and comments on pull requests; any other CI can run the same commands. <a href="{{ 'github-action/' | url }}">CI and Automation →</a></p></details>

@@ -11,7 +11,7 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE", "src/quickdbd_cli/assets/*LICENSE*"]
 requires-python = ">=3.11"
 authors = [{ name = "Minh (Mark) Pham" }]
-keywords = ["erd", "database", "diagram", "quickdbd", "schema"]
+keywords = ["erd", "database", "diagram", "quickdbd", "schema", "dbml", "mcp"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Environment :: Console",

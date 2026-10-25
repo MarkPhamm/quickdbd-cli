@@ -77,3 +77,4 @@ qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and it
 | Send someone a link to the diagram | [4.4 Sharing a Link](sharing.md) |
 | See what a branch changes | [6. Reviewing Changes](diffs.md) |
 | Run it on every pull request | [7. CI and Automation](github-action.md) |
+| Let an AI agent (Claude, Copilot, Cursor) query the schema | [3.7 AI Agents (MCP)](mcp.md) |
