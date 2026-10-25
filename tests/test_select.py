@@ -141,3 +141,45 @@ def test_selector_expr():
 
     assert selector_expr(["a b", "c+"], ["d"]) == "a b c+ !d"
     assert selector_expr(None, None) == ""
+
+
+def test_both_way_walk_in_a_cycle_reaches_what_one_way_does():
+    text = """A
+-
+id PK int
+b_id int FK >- B.id
+
+B
+-
+id PK int
+a_id int FK >- A.id
+
+D
+-
+id PK int
+b_id int FK >- B.id
+"""
+    from quickdbd_cli.parser import compile_text
+
+    m = model_json(compile_text(text))
+    assert set(sel(m, "+A+")) >= set(sel(m, "A+")) | set(sel(m, "+A"))
+    assert "D" in sel(m, "+A+")
+
+
+def test_star_runs_are_fast_and_plus_is_literal(model):
+    import time
+
+    t = time.monotonic()
+    assert sel(model, "name:" + "*" * 30 + "Z") == []
+    assert time.monotonic() - t < 0.5
+    assert sel(model, "name:a+b") == []
+    assert sel(model, "name:order*") == ["orders", "order_items"]
+
+
+def test_js_timeout_leaves_the_runtime_usable():
+    from quickdbd_cli.jsrt import JSTimeout
+
+    rt = runtime()
+    with pytest.raises(JSTimeout):
+        rt.call("(function(){ while (true) {} })", timeout_sec=0.3)
+    assert rt.call("Math.max", 1, 2) == 2

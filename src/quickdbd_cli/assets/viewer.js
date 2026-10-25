@@ -568,7 +568,8 @@
     var to = byId[S.path.to];
     if (!S.path.steps) return '<div class="none">No relationship path from ' + Q.esc(byId[id].name) + " to " + Q.esc(to.name) + " (with the current filter).</div>";
     var items = S.path.steps.map(function (st) {
-      return "<li>" + link(st.from.t, st.from.c) + " &rarr; " + link(st.to.t, st.to.c) +
+      var pairs = st.pairs && st.pairs.length > 1 ? st.pairs : [[st.from.c, st.to.c]]; // composite keys: every column
+      return "<li>" + pairs.map(function (p) { return link(st.from.t, p[0]) + " &rarr; " + link(st.to.t, p[1]); }).join(", ") +
         '<span class="card">' + CARD[st.from.card] + ":" + CARD[st.to.card] + "</span></li>";
     }).join("");
     return "<h3>Path to " + Q.esc(to.name) + " (" + S.path.steps.length + " join" + (S.path.steps.length === 1 ? "" : "s") + ")</h3><ol>" + items +

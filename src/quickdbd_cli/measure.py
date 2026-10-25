@@ -12,7 +12,7 @@ from importlib import resources
 from pathlib import PurePath, PurePosixPath
 
 from . import tags
-from .model import Column, Schema, Table
+from .model import VIRTUAL_FIELD, Column, End, Relationship, Schema, Table
 
 STYLE = {
     "font": "Inter",
@@ -117,17 +117,51 @@ def _groups(schema: Schema) -> dict[str, str]:
     return out
 
 
+def _child_parent(r: Relationship) -> tuple[End, End]:
+    many = ("many", "zeroMany")
+    return (r.a, r.b) if r.a.card in many or r.b.card not in many else (r.b, r.a)
+
+
+def composite_keys(schema: Schema, rels: list[Relationship]) -> dict[int, int]:
+    """Index in ``rels`` -> composite key number, for relationships that only together make one join: the column
+    pairs of one multi-column DBML ref, or FK lines from one table that cover exactly another table's composite PK."""
+    groups: dict[tuple, list[int]] = {}
+    for i, r in enumerate(rels):
+        if VIRTUAL_FIELD in (r.a.column, r.b.column):
+            continue
+        child, parent = _child_parent(r)
+        groups.setdefault(("ref", r.path, r.line, child.table, parent.table), []).append(i)
+        groups.setdefault(("pk", child.table, parent.table), []).append(i)
+    out: dict[int, int] = {}
+    for key, idx in groups.items():
+        if len(idx) < 2 or any(i in out for i in idx):
+            continue
+        if key[0] == "pk":
+            parent = schema.tables[key[2]]
+            pk = {c.id for c in parent.columns.values() if c.pk}
+            cols = [_child_parent(rels[i])[1].column for i in idx]
+            if len(pk) < 2 or len(set(cols)) != len(cols) or set(cols) != pk:
+                continue
+        n = len(set(out.values()))
+        for i in idx:
+            out[i] = n
+    return out
+
+
 def model_json(schema: Schema) -> dict:
     """Plain-JSON diagram model (no positions)."""
     groups = _groups(schema)
+    valid = schema.valid_relationships()
+    keys = composite_keys(schema, valid)
     rels = []
-    for r in schema.valid_relationships():
-        rels.append(
-            {
-                "a": {"t": r.a.table, "c": r.a.column, "card": r.a.card},
-                "b": {"t": r.b.table, "c": r.b.column, "card": r.b.card},
-            }
-        )
+    for i, r in enumerate(valid):
+        rel = {
+            "a": {"t": r.a.table, "c": r.a.column, "card": r.a.card},
+            "b": {"t": r.b.table, "c": r.b.column, "card": r.b.card},
+        }
+        if i in keys:
+            rel["k"] = keys[i]
+        rels.append(rel)
     tables = [
         {**table_json(t), "group": t.group or groups[t.path], "file": PurePath(t.path).as_posix(), "line": t.line}
         for t in schema.tables.values()

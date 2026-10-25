@@ -379,14 +379,18 @@ def cmd_path(args) -> int:
     by_id = {t["id"]: t for t in model["tables"]}
     card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
 
-    def end(e):
+    def end(e, cols):
         t = by_id[e["t"]]
-        col = next((c["name"] for c in t["cols"] if c["id"] == e["c"]), None)
-        return f"{t['name']}.{col}" if col else t["name"]
+        names = [c["name"] for k in cols for c in t["cols"] if c["id"] == k]
+        if not names:
+            return t["name"]
+        return f"{t['name']}.{names[0]}" if len(names) == 1 else f"{t['name']}.({', '.join(names)})"
 
     print(f"{a} -> {b}: {len(steps)} join(s)")
     for st in steps:
-        print(f"  {end(st['from'])} -> {end(st['to'])} ({card[st['from']['card']]}:{card[st['to']['card']]})")
+        pairs = st["pairs"]
+        joined = f"{end(st['from'], [p[0] for p in pairs])} -> {end(st['to'], [p[1] for p in pairs])}"
+        print(f"  {joined} ({card[st['from']['card']]}:{card[st['to']['card']]})")
     if steps:
         print()
         print(rt.call("qdbdPathSql", model, ends[0]["id"], steps))
