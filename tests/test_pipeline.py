@@ -141,15 +141,16 @@ def test_check_format_github(tmp_path, capsys):
     bad.write_text("T\n-\nA int foo\nB decimal(10, 2)\n")
     assert main(["check", "--format", "github", str(bad)]) == 1
     out = capsys.readouterr().out.splitlines()
-    assert f"::error file={bad},line=3,title=qdbd::Unrecognized keyword 'foo'" in out
-    assert any(line.startswith(f"::warning file={bad},line=4,title=qdbd::QuickDBD would reject this") for line in out)
+    path = str(bad).replace(":", "%3A")  # a Windows drive colon is escaped in annotation properties
+    assert f"::error file={path},line=3,title=qdbd::Unrecognized keyword 'foo'" in out
+    assert any(line.startswith(f"::warning file={path},line=4,title=qdbd::QuickDBD would reject this") for line in out)
 
 
 def test_check_format_github_strict_promotes_warnings(tmp_path, capsys):
     f = tmp_path / "w.txt"
     f.write_text("T\n-\nA decimal(10, 2)\n")
     assert main(["check", "--format", "github", "--strict", str(f)]) == 1
-    assert capsys.readouterr().out.startswith(f"::error file={f},line=3,")
+    assert capsys.readouterr().out.startswith(f"::error file={str(f).replace(':', '%3A')},line=3,")
 
 
 def test_github_annotation_escaping():

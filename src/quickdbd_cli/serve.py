@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import errno
 import json
+import socket
 import sys
 import threading
 import time
@@ -122,7 +123,7 @@ class State:
         current = str(target.stat().st_mtime_ns)
         if base_mtime is not None and current != str(base_mtime):
             return 409, {"error": "changed on disk", "text": target.read_text(encoding="utf-8"), "mtime": current}
-        target.write_text(text, encoding="utf-8")
+        target.write_text(text, encoding="utf-8", newline="")  # as sent: no CRLF on Windows
         return 200, {"mtime": str(target.stat().st_mtime_ns)}
 
 
@@ -207,6 +208,16 @@ class PortInUse(OSError):
     pass
 
 
+class _Server(ThreadingHTTPServer):
+    # On Windows, SO_REUSEADDR lets a second server bind a port that's already in use; ask for it exclusively.
+    allow_reuse_address = sys.platform != "win32"
+
+    def server_bind(self) -> None:
+        if sys.platform == "win32":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def make_server(
     project: Project,
     port: int = 8765,
@@ -222,7 +233,7 @@ def make_server(
     server = None
     for p in range(port, port + max(tries, 1)) if port else [0]:
         try:
-            server = ThreadingHTTPServer(("127.0.0.1", p), _handler(state, title))
+            server = _Server(("127.0.0.1", p), _handler(state, title))
             break
         except OSError as e:
             if e.errno != errno.EADDRINUSE:

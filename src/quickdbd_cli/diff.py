@@ -123,7 +123,7 @@ def diff_schemas(old: Schema, new: Schema) -> SchemaDiff:
 
 def _git(args: list[str], cwd: Path) -> str:
     try:
-        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=False)
+        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", check=False)
     except FileNotFoundError:
         raise DiffError("git is not installed") from None
     if r.returncode != 0:

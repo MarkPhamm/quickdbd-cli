@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from functools import cache
 from importlib import resources
-from pathlib import PurePosixPath
+from pathlib import PurePath, PurePosixPath
 
 from . import tags
 from .model import Column, Schema, Table
@@ -33,7 +33,7 @@ STYLE = {
 
 @cache
 def _metrics() -> dict:
-    return json.loads(resources.files("quickdbd_cli").joinpath("assets/font-metrics.json").read_text())
+    return json.loads(resources.files("quickdbd_cli").joinpath("assets/font-metrics.json").read_text(encoding="utf-8"))
 
 
 def text_width(text: str, size: float, bold: bool = False) -> float:
@@ -129,7 +129,7 @@ def model_json(schema: Schema) -> dict:
             }
         )
     tables = [
-        {**table_json(t), "group": t.group or groups[t.path], "file": t.path, "line": t.line}
+        {**table_json(t), "group": t.group or groups[t.path], "file": PurePath(t.path).as_posix(), "line": t.line}
         for t in schema.tables.values()
     ]
     legend = tags.annotate(schema, tables)

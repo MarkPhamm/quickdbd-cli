@@ -20,7 +20,7 @@
     pip install quickdbd-cli
     ```
 
-You need **Python 3.11+**. Nothing else: no Graphviz, Node or browser. Layout uses the [Eclipse Layout Kernel](https://eclipse.dev/elk/) in an embedded JavaScript engine that comes with the package.
+You need **Python 3.11+** on macOS, Linux or Windows. Nothing else: no Graphviz, Node or browser. Layout uses the [Eclipse Layout Kernel](https://eclipse.dev/elk/) in an embedded JavaScript engine that comes with the package.
 
 ## 1.2 Check it works { #check-it-works }
 
