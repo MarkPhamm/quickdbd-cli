@@ -18,6 +18,7 @@
   padding-top: 64px; padding-bottom: 48px; }
 .qh-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--qd-label); margin: 0 0 18px; }
 .qh-eyebrow code { background: none; padding: 0; font-size: 1em; color: inherit; }
+.qh-eyebrow a { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
 .qh h1 { font-size: clamp(36px, 4.6vw, 58px); line-height: 1.06; font-weight: 800; }
 .qh h1 span { color: var(--qd-mint); }
 .qh-lead { font-size: 18px; color: var(--qd-muted); margin: 22px 0 28px; max-width: 34em; }

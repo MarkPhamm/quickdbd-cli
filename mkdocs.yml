@@ -87,3 +87,4 @@ nav:
   - 7. CI and Automation: github-action.md
   - 8. CLI Reference: cli.md
   - 9. Development: development.md
+  - Release Notes: https://github.com/MarkPhamm/quickdbd-cli/releases
