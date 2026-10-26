@@ -269,6 +269,15 @@ Table a [headercolor: #0A0] {
     assert fp.colors["hot"][0] == "#ff0000"
 
 
+def test_column_tags_from_comments():
+    text = "Table a {\n  id int // @tag: added\n  // @tag: removed\n  // @dbt-tags: x\n  old int [note: 'gone']\n}\n"
+    _, schema = compile_dbml(text)
+    assert errors(schema) == []
+    cols = schema.tables["a"].columns
+    assert cols["id"].tags == ["added"]
+    assert cols["old"].tags == ["removed"] and cols["old"].comments == ["gone"]
+
+
 def test_optional_relationship_operators():
     text = "Table a {\n  id int [pk]\n}\nTable b {\n  a_id int\n}\nRef: b.a_id >? a.id\n"
     _, schema = compile_dbml(text)

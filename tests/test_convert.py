@@ -146,6 +146,15 @@ def test_docs_and_tags_round_trip():
     assert t.columns["Id"].comments == ["the key"]
 
 
+def test_column_tags_round_trip():
+    text = "a\n-\nid PK int\nnew int # @tag: added\n# @tag: removed, pii\nold int\n"
+    dbml = conv.convert([("s.txt", "s.txt", text)], "dbml", split_groups=False).files["s.dbml"]
+    assert "  new int // @tag: added\n" in dbml
+    back = conv.convert([("s.dbml", "s.dbml", dbml)], "quickdbd", split_groups=False).files["s.txt"]
+    cols = compile_sources([("s.txt", back)]).tables["a"].columns
+    assert cols["new"].tags == ["added"] and cols["old"].tags == ["removed", "pii"]
+
+
 def test_already_in_target_syntax_is_copied():
     res = conv.convert([("t.dbml", "t.dbml", TEAM)], "dbml", split_groups=False)
     assert res.files == {"t.dbml": TEAM}

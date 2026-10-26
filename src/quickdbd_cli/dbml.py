@@ -1131,6 +1131,7 @@ class _Interpreter:
                     elif s.key == "note" and s.value and s.value[0].kind in ("str", "quoted"):
                         v = s.value[0]
                         col.comments = _doc_lines(_normalize_note(v.value) if v.multiline else v.value)
+                self._col_tags(col)
                 t.columns[col.id] = col
             for ix in indexes:
                 missing = [c for c in ix.columns if encode(c) not in t.columns]
@@ -1290,6 +1291,18 @@ class _Interpreter:
                 target = t.dbt_tags if m.group(1).lower().startswith("dbt") else t.tags
                 target[:0] = [x for x in split_tags(m.group(2)) if x not in target]
             line -= 1
+
+    def _col_tags(self, col: Column) -> None:
+        """`// @tag:` at the end of the column's line, or on comment lines right above it."""
+        lines = [col.line]
+        line = col.line - 1
+        while line in self.comments and line not in self.code_lines:
+            lines.append(line)
+            line -= 1
+        for line in reversed(lines):
+            m = TAG_RE.match(self.comments.get(line, ""))
+            if m and not m.group(1).lower().startswith("dbt"):
+                col.tags += [x for x in split_tags(m.group(2)) if x not in col.tags]
 
     def colors(self) -> None:
         first_code = min(self.code_lines, default=0)

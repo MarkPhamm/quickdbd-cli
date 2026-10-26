@@ -52,14 +52,14 @@
     return set;
   }
 
-  /* Visible columns of each table for a collapse mode: "full" | "keys" | "header". */
+  /* Visible columns of each table for a collapse mode: "full" | "keys" | "header". Tagged columns count as keys. */
   function geometry(model, mode) {
     var st = model.style, rel = mode === "keys" ? relatedColumns(model) : null, out = {};
     model.tables.forEach(function (t) {
       var cols = [];
       if (mode !== "header") {
         t.cols.forEach(function (c) {
-          if (mode === "full" || c.pk || c.fk || rel[t.id + "\u0000" + c.id]) cols.push(c);
+          if (mode === "full" || c.pk || c.fk || c.color || rel[t.id + "\u0000" + c.id]) cols.push(c);
         });
       }
       var rows = {};
@@ -105,14 +105,22 @@
     g.cols.forEach(function (c, i) {
       var y = st.headerH + i * st.rowH, cy = y + st.rowH / 2, base = n(cy + st.rowSize * 0.36);
       var weight = c.pk || c.fk ? ' font-weight="bold"' : "";
-      var color = c.pk ? C.pk : c.fk ? C.fk : C.text, rn = c.pk ? "rn rpk" : c.fk ? "rn rfk" : "rn";
+      var color = c.color || (c.pk ? C.pk : c.fk ? C.fk : C.text), rn = c.pk ? "rn rpk" : c.fk ? "rn rfk" : "rn";
       out.push('<g class="r" data-c="' + esc(c.id) + '">');
+      // a tagged column: tinted row and a bar in the tag colour (a diff bar, drawn next, covers the bar)
+      if (c.color) {
+        out.push('<rect y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + c.color + '" fill-opacity=".1"/>');
+        out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + c.color + '"/>');
+      }
       out.push('<rect class="rb" y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + C.body + '" fill-opacity="0"/>');
       var cstate = t.diff && t.diff.cols && t.diff.cols[c.id];
       if (cstate) out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + C[cstate] + '"/>');
-      out.push('<text class="' + rn + '" x="' + st.padX + '" y="' + base + '" fill="' + color + '" font-family="' + FONT + '" font-size="' +
-        st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
+      out.push('<text class="' + rn + '" x="' + st.padX + '" y="' + base + '" fill="' + color + '"' + (c.color ? ' style="fill:' + c.color + '"' : "") +
+        ' font-family="' + FONT + '" font-size="' + st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
       if (docMarks && c.doc) out.push(docMark(st.padX, cy + st.rowSize * 0.36 + 2.5, c.nameW, color));
+      if (c.tags && c.tags.indexOf("removed") >= 0) {
+        out.push('<line x1="' + st.padX + '" y1="' + n(cy) + '" x2="' + n(st.padX + c.nameW) + '" y2="' + n(cy) + '" stroke="' + color + '" stroke-width="1.2"/>');
+      }
       var bx = st.padX + c.nameW + 6;
       c.badges.forEach(function (b) {
         var bh = st.badgeSize + 5;
@@ -337,11 +345,12 @@
         }, g(0, HEADH + i * ROWH, w, ROWH)));
         var base = "shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;html=0;";
         var flags = c.badges.map(function (x) { return x.t; }).join(" ");
+        var fs = (c.pk ? 5 : c.fk ? 1 : 0) | (c.tags && c.tags.indexOf("removed") >= 0 ? 8 : 0); // bold, underline, strike
         cells.push(cell({ id: id(), value: key, vertex: "1", parent: rid, style: base + "fontStyle=1;fontColor=#2b5797;align=center;fontSize=11;" },
           g(0, 0, KEYW, ROWH)));
         cells.push(cell({
           id: id(), value: c.name + (flags ? "  [" + flags + "]" : "") + (c.type ? " : " + c.type : ""), vertex: "1", parent: rid,
-          style: base + "align=left;spacingLeft=6;fontSize=12;" + (c.pk ? "fontStyle=5;" : c.fk ? "fontStyle=1;" : ""),
+          style: base + "align=left;spacingLeft=6;fontSize=12;" + (fs ? "fontStyle=" + fs + ";" : "") + (c.color ? "fontColor=" + c.color + ";" : ""),
         }, g(KEYW, 0, w - KEYW, ROWH)));
       });
     });
@@ -407,7 +416,10 @@
       else if (method === "group") ok = re.test(t.group || "") || (t.group || "").toLowerCase().indexOf(pat.toLowerCase() + "/") === 0;
       else if (method === "file") ok = re.test(t.file || "") || re.test((t.file || "").split("/").pop());
       else if (method === "col" || method === "column") ok = t.cols.some(function (c) { return re.test(c.name); });
-      else if (method === "tag") ok = (t.tags || []).some(function (x) { return re.test(x); });
+      else if (method === "tag") {
+        var has = function (x) { return re.test(x); };
+        ok = (t.tags || []).some(has) || t.cols.some(function (c) { return (c.tags || []).some(has); });
+      }
       else if (method === "diff" || method === "state") {
         var ds = t.diff && t.diff.state, want = pat.toLowerCase();
         ok = !!ds && (want === "modified" || want === "*" || want === ds || (want === "new" && ds === "added"));

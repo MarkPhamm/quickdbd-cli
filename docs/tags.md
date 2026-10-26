@@ -60,11 +60,35 @@ Other tags get colours from a fixed palette, in alphabetical order of tag name, 
 
 The value must be a `#rgb` or `#rrggbb` hex colour; anything else is a warning. If two files set different colours for the same tag, the first file (in sorted order) wins, with a warning. The defaults avoid green and amber, which [diff views](diffs.md) use for new and changed tables; in a diff view those colours take precedence.
 
+## Column tags { #columns }
+
+A `# @tag:` comment on a column line, or on the line above it, tags that **column**. The row gets a tint, a bar and a name in the tag's colour. It's made for proposing column changes in a review: mark what you're adding and removing, and reviewers see both at a glance.
+
+```text
+orders
+-
+id PK int
+customer_id int FK >- customers.id
+discount_pct decimal     # @tag: added
+legacy_code varchar      # @tag: removed
+# @tag: pii
+email varchar
+```
+
+| Tag | Default | Drawn as |
+|---|---|---|
+| `added` | <span style="color:#2e7d32">■</span> `#2e7d32` green | green row |
+| `removed` | <span style="color:#c62828">■</span> `#c62828` red | red row, name struck through |
+
+Any other tag works too, with its colour from `# @color` or the palette, as for tables. Column tags don't change the table's header colour. They show in the legend (the count is the number of tables that carry the tag), `tag:removed` selects the tables that have such a column, and the **Keys** view (`--mode keys`) keeps tagged columns visible. In DBML, use `// @tag:` at the end of the column line.
+
+Hand-tagging is for proposals. To get added and changed columns from git automatically, use [`--diff-base`](diffs.md).
+
 ## In the page
 
 - **Legend:** under the filter box, one chip per tag with its colour and table count. Click a chip to show only that tag; click it again to clear.
 - **Explorer:** a coloured dot before each tagged table.
-- **Details panel:** the table's tags, as clickable chips.
+- **Details panel:** the table's tags and each column's tags, as clickable chips.
 - **Minimap and exports:** PNG, SVG and draw.io keep the header colours.
 
 ## Selecting by tag

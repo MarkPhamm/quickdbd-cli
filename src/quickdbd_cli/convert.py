@@ -82,7 +82,7 @@ def canonical(schema: Schema, lost: set[tuple]) -> dict:
                 continue
             col = {
                 "type": c.type or "", "pk": c.pk, "unique": c.unique, "index": c.index, "nullable": c.nullable,
-                "identity": c.identity, "default": _norm_default(c.default), "doc": _doc(c.comments),
+                "identity": c.identity, "default": _norm_default(c.default), "doc": _doc(c.comments), "tags": c.tags,
             }  # fmt: skip
             for k in list(col):
                 if ("col", t.name, c.name, k) in lost:
@@ -202,7 +202,8 @@ class _DbmlWriter:
                 self.res.lost.add(("col", t.name, c.name, "type"))
                 typ = "unknown"
             typ = typ if _DBML_TYPE.fullmatch(typ) else _dbml_name(typ)
-            out.append(f"  {_dbml_name(c.name)} {typ}" + (f" [{', '.join(settings)}]" if settings else ""))
+            tags = f" // @tag: {', '.join(c.tags)}" if c.tags else ""
+            out.append(f"  {_dbml_name(c.name)} {typ}" + (f" [{', '.join(settings)}]" if settings else "") + tags)
         if indexed:
             out += ["", "  indexes {"] + [f"    {_dbml_name(n)}" for n in indexed] + ["  }"]
         if t.comments:
@@ -367,6 +368,8 @@ class _QuickdbdWriter:
                 self.res.lost.add(("col", t.name, c.name, "default"))
                 c = dataclasses.replace(c, default=None)
             out += [f"# {x}" for x in c.comments if x.strip()]
+            if c.tags:
+                out.append(f"# @tag: {', '.join(c.tags)}")
             out.append(_quickdbd_column(c, self.fks.get((t.id, c.id), [])))
         return out
 

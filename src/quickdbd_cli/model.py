@@ -47,6 +47,7 @@ class Column:
     default: str | None = None
     virtual: bool = False
     comments: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)  # `# @tag: ...` comments
 
 
 @dataclass

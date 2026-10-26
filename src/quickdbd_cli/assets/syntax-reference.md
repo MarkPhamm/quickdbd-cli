@@ -78,6 +78,7 @@ Declare a relationship once, in either direction.
 - `#` starts a comment, except inside double quotes. Comment lines directly above a table or column, plus a comment at the end of its line, become its documentation.
 - Tags give tables a role and a header colour: `# @tag: gold, pii` above a table. Names like `dim_`, `fct_`, `stg_`, `int_`, `raw_` are tagged automatically.
 - `# @color gold #b8860b` sets a tag's colour (anywhere in any file).
+- Columns take tags too, on or above the column line: `discount decimal # @tag: added`. The row is tinted in the tag's colour; `added` is green, `removed` is red and struck through. Use them to mark proposed column changes for review.
 
 ## Settings and layout sections
 

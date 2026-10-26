@@ -475,7 +475,13 @@ class _FileParser:
         if is_virtual(ident):
             return Column(VIRTUAL_FIELD, "", e.line, virtual=True)
         tokens = [tokens[0]] + self._merge_paren_tokens(tokens[1:], e.line)
-        col = Column(ident, name, e.line, comments=list(e.comments))
+        col = Column(ident, name, e.line)
+        for c in e.comments:
+            m = TAG_RE.match(c)
+            if m and not m.group(1).lower().startswith("dbt"):
+                col.tags += [t for t in split_tags(m.group(2)) if t not in col.tags]
+            else:
+                col.comments.append(c)
         fk_at = -1
         d = 0
         while d + 1 < len(tokens):
