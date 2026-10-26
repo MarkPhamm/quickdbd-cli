@@ -37,7 +37,10 @@
 /* ---------------------------------------------------------------- header */
 .qd-header { background: var(--qd-header); box-shadow: none; border-bottom: 1px solid #22324d; height: 3.2rem; }
 .qd-header__inner { max-width: none; padding: 0 1rem; height: 3.2rem; display: flex; align-items: center; gap: .4rem; }
-.qd-brand { font-weight: 700; font-size: .95rem; color: #fff !important; margin-right: 1rem; }
+.qd-brand { font-weight: 700; font-size: .95rem; color: #fff !important; margin-right: .5rem; }
+.qd-version { font: 500 .68rem/1 "JetBrains Mono", monospace; color: #c9c9c9 !important; border: 1px solid #3a4459;
+  border-radius: 999px; padding: .2rem .5rem; margin-right: 1rem; }
+.qd-version:hover { color: #fff !important; border-color: #5a6680; }
 .qd-navlink { color: #e6e6e6 !important; font-size: .9rem; padding: .3rem .6rem; border-radius: 6px; }
 .qd-navlink:hover { background: #2a3346; }
 .qd-header__title { flex: 1; visibility: hidden; }

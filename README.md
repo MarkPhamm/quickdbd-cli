@@ -8,6 +8,21 @@
 <p align="center"><b>Interactive ER diagrams from QuickDBD text or a dbt project, readable at 200+ tables</b></p>
 
 <p align="center">
+  <a href="https://pypi.org/project/quickdbd-cli/"><img src="https://img.shields.io/pypi/v/quickdbd-cli?label=PyPI" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/quickdbd-cli/"><img src="https://img.shields.io/pypi/pyversions/quickdbd-cli" alt="Python versions"></a>
+  <a href="https://github.com/MarkPhamm/quickdbd-cli/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/MarkPhamm/quickdbd-cli/ci.yml?branch=main&label=CI" alt="CI status"></a>
+  <a href="https://qdbd.dev/"><img src="https://img.shields.io/github/actions/workflow/status/MarkPhamm/quickdbd-cli/erd.yml?branch=main&label=docs" alt="Docs status"></a>
+  <a href="https://pepy.tech/projects/quickdbd-cli"><img src="https://img.shields.io/pepy/dt/quickdbd-cli?label=downloads" alt="Total downloads"></a>
+  <br>
+  <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd"><img src="https://vsmarketplacebadges.dev/version-short/MarkPhamm.quickdbd.svg?label=VS%20Code" alt="VS Code Marketplace version"></a>
+  <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd"><img src="https://img.shields.io/open-vsx/v/MarkPhamm/quickdbd?label=Open%20VSX" alt="Open VSX version"></a>
+  <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd"><img src="https://img.shields.io/open-vsx/dt/MarkPhamm/quickdbd?label=Open%20VSX%20downloads" alt="Open VSX downloads"></a>
+  <a href="https://github.com/MarkPhamm/quickdbd-cli/releases"><img src="https://img.shields.io/github/v/release/MarkPhamm/quickdbd-cli?label=release" alt="Latest release"></a>
+  <a href="https://github.com/MarkPhamm/quickdbd-cli/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MarkPhamm/quickdbd-cli" alt="License"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+</p>
+
+<p align="center">
   <a href="https://qdbd.dev/">Docs</a> · <a href="https://qdbd.dev/demo/">Live demos</a> · <a href="#quickstart">Quickstart</a> · <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a> · <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> · <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a>
 </p>
 
