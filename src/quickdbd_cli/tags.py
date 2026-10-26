@@ -8,9 +8,14 @@ A table's tags come from the first source that has any:
 
 The header takes the colour of the table's first tag. ``# @color TAG #hex`` overrides the defaults, and a DBML
 ``headercolor`` beats both.
+
+Columns take tags too (``# @tag: added`` on or above the column line), which mark the row in the first tag's colour;
+``added`` and ``removed`` default to green and red, for hand-marked proposed changes.
 """
 
 from __future__ import annotations
+
+from collections.abc import Iterable
 
 from .model import Schema, Table
 
@@ -23,13 +28,16 @@ NAME_TAGS: list[tuple[str, tuple[str, ...]]] = [
     ("raw", ("raw", "src")),
 ]
 
-# Defaults avoid the diff colours (green = added, amber = changed) and the untagged blue.
+# Table-role defaults avoid the diff colours (green = added, amber = changed) and the untagged blue; `added` and
+# `removed` are meant for columns, and use the diff green on purpose.
 DEFAULT_COLORS = {
     "dim": "#00838f",
     "fact": "#c2185b",
     "staging": "#546e7a",
     "intermediate": "#7b1fa2",
     "raw": "#6d4c41",
+    "added": "#2e7d32",
+    "removed": "#c62828",
 }
 PALETTE = ["#0277bd", "#4527a0", "#00695c", "#ad1457", "#827717", "#bf360c", "#37474f", "#283593", "#5d4037"]
 
@@ -65,9 +73,9 @@ def table_tags(t: Table) -> list[str]:
     return list(t.dbt_tags)
 
 
-def tag_colors(schema: Schema, tags_by_table: dict[str, list[str]]) -> dict[str, str]:
+def tag_colors(schema: Schema, tag_lists: Iterable[list[str]]) -> dict[str, str]:
     """Colour of every tag in use: explicit @color, else the default, else the next palette colour (by name)."""
-    used = sorted({tag for tags in tags_by_table.values() for tag in tags})
+    used = sorted({tag for tags in tag_lists for tag in tags})
     out: dict[str, str] = {}
     i = 0
     for tag in used:
@@ -82,17 +90,22 @@ def tag_colors(schema: Schema, tags_by_table: dict[str, list[str]]) -> dict[str,
 
 
 def annotate(schema: Schema, tables: list[dict]) -> list[dict]:
-    """Add ``tags`` and ``color`` to each table dict of the model JSON; return the legend."""
+    """Add ``tags`` and ``color`` to each table dict of the model JSON, and ``color`` to tagged columns; return the
+    legend (count = tables carrying the tag, on the table or on a column)."""
     by_id = {t["id"]: table_tags(schema.tables[t["id"]]) for t in tables}
-    colors = tag_colors(schema, by_id)
+    col_tags = {t["id"]: [g for c in t["cols"] for g in c.get("tags", [])] for t in tables}
+    colors = tag_colors(schema, [*by_id.values(), *col_tags.values()])
     counts: dict[str, int] = {}
     for t in tables:
         tags = by_id[t["id"]]
         if tags:
             t["tags"] = tags
             t["color"] = colors[tags[0]]
-            for tag in tags:
-                counts[tag] = counts.get(tag, 0) + 1
+        for c in t["cols"]:
+            if c.get("tags"):
+                c["color"] = colors[c["tags"][0]]
+        for tag in dict.fromkeys(tags + col_tags[t["id"]]):
+            counts[tag] = counts.get(tag, 0) + 1
         own = schema.tables[t["id"]].color  # DBML headercolor
         if own:
             t["color"] = own

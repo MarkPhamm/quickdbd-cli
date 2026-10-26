@@ -79,6 +79,8 @@ def _column_json(col: Column) -> dict:
     }
     if col.comments:
         out["doc"] = "\n".join(col.comments)
+    if col.tags:
+        out["tags"] = list(col.tags)
     return out
 
 

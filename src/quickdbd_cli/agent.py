@@ -471,6 +471,8 @@ def describe_tables(ws: Workspace, args: dict) -> Result:
                 flags.append("auto")
             if col["default"] is not None:
                 flags.append(f"default={col['default']}")
+            if col.get("tags"):
+                flags.append(f"tags {', '.join(col['tags'])}")
             if col["type"] in enums:
                 vals = enums[col["type"]]
                 flags.append("enum(" + ", ".join(vals[:20]) + (", …" if len(vals) > 20 else "") + ")")

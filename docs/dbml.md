@@ -62,6 +62,7 @@ The reference is dbdiagram.io's own parser, [@dbml/parse](https://github.com/hol
 // @tag: hot, pii
 Table customers {
   id int
+  email varchar // @tag: pii
 }
 ```
 

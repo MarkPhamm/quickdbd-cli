@@ -165,6 +165,48 @@ def test_diff_colour_wins_over_tag():
     assert b["color"] == DEFAULT_COLORS["dim"] and "#2e7d32" in svg and DEFAULT_COLORS["dim"] not in svg
 
 
+COLUMNS = """# @color pii #ff9800
+orders
+-
+id PK int
+# The discount.
+# @tag: added
+discount decimal
+legacy varchar  # @tag: removed
+email varchar  # @tag: PII
+"""
+
+
+def test_column_tags():
+    s = compile_text(COLUMNS)
+    cols = s.tables["orders"].columns
+    assert cols["discount"].tags == ["added"] and cols["discount"].comments == ["The discount."]
+    assert cols["legacy"].tags == ["removed"] and cols["legacy"].comments == []
+    assert s.diagnostics == []
+    m = model_json(s)
+    c = {c["name"]: c for c in m["tables"][0]["cols"]}
+    assert c["discount"]["color"] == DEFAULT_COLORS["added"] == "#2e7d32"
+    assert c["legacy"]["color"] == DEFAULT_COLORS["removed"]
+    assert c["email"]["tags"] == ["pii"] and c["email"]["color"] == "#ff9800"
+    assert "tags" not in c["id"] and "color" not in c["id"]
+    assert "tags" not in m["tables"][0]  # column tags don't tag (or colour) the table
+    assert {g["name"]: g["count"] for g in m["tags"]} == {"added": 1, "pii": 1, "removed": 1}
+
+
+def test_column_tags_render_select_and_keys_mode():
+    m = model_json(compile_text(COLUMNS + "\nother\n-\nid int\n"))
+    rt = runtime()
+    rt.load("render.js")
+    assert rt.call("qdbdSelect", m, "tag:removed") == ["orders"]
+    pos = {"orders": [0, 0], "other": [300, 0]}
+    svg = render_svg(m, pos, embed_font=False)
+    assert 'fill="#c62828" fill-opacity=".1"' in svg and 'stroke="#c62828"' in svg  # tinted row, struck name
+    keys = render_svg(m, pos, mode="keys", embed_font=False)
+    assert ">legacy<" in keys and ">email<" in keys  # tagged columns stay visible with keys only
+    xml = render_drawio(m, pos)
+    assert "fontStyle=8;fontColor=#c62828;" in xml and "fontColor=#2e7d32;" in xml
+
+
 def test_dbt_import_writes_dbt_tags(tmp_path):
     def node(uid, name, tags=None, config_tags=None):
         return {

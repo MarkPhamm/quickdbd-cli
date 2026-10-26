@@ -552,6 +552,10 @@
       if (c.pk) tags.push('<span class="tag pk">PK</span>');
       if (c.fk) tags.push('<span class="tag fk">FK</span>');
       c.badges.forEach(function (b) { tags.push('<span class="tag">' + Q.esc(b.t) + "</span>"); });
+      (c.tags || []).forEach(function (g) {
+        var tc = (S.model.tags || []).filter(function (x) { return x.name === g; })[0];
+        tags.push('<a class="ttag" data-tag="' + Q.esc(g) + '" style="background:' + Q.esc(tc ? tc.color : "#2b5797") + '">' + Q.esc(g) + "</a>");
+      });
       out.push('<tr><td class="cn">' + Q.esc(c.name) + " " + tags.join("") + (c.doc ? '<div class="cd">' + Q.esc(c.doc) + "</div>" : "") +
         '</td><td class="ct">' + Q.esc(c.type) + "</td></tr>");
     });
