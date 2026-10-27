@@ -33,4 +33,4 @@ qdbd build erd/ --diff-base origin/main -s 'diff:modified+1' -o changes.html
 
 ![Changes highlighted](../assets/img/diff.png){ .shot }
 
-[Next: automate in CI :octicons-arrow-right-24:](ci.md){ .md-button }
+[Next: automate in CI](ci.md){ .md-button }
