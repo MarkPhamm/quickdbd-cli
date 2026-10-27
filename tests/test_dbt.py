@@ -211,7 +211,7 @@ def test_split_by_folder_and_stale_cleanup(tmp_path):
 def test_cli_import_then_build(tmp_path, capsys):
     out = tmp_path / "erd"
     assert main(["import", "dbt", str(JAFFLE), "-o", str(out)]) == 0
-    assert "8 tables, 1 relationships" in capsys.readouterr().out
+    assert "8 tables, 1 relationship" in capsys.readouterr().out
     assert main(["build", str(out), "-o", str(tmp_path / "erd.html")]) == 0
     assert (tmp_path / "erd.html").stat().st_size > 10_000
 
