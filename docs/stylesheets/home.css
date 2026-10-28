@@ -29,7 +29,10 @@
 .qh-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 8px;
   border: 1px solid var(--qh-line); color: var(--qd-text) !important; font-weight: 600; background: rgba(255, 255, 255, .02); }
 .qh-btn:hover { background: var(--qd-pill); }
-.qh-btn--primary { background: var(--qd-accent); border-color: var(--qd-accent); color: #fff !important; }
+.qh-btn--primary { position: relative; overflow: hidden; background: var(--qd-accent); border-color: var(--qd-accent); color: #fff !important; }
+.qh-btn--primary::after { content: ""; position: absolute; inset: 0; pointer-events: none; transform: translateX(-120%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .35) 50%, transparent 70%); animation: qh-shine 4.5s 1.5s ease-in-out infinite; }
+@keyframes qh-shine { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
 .qh-btn--primary:hover { background: var(--qd-accent-hover); border-color: var(--qd-accent-hover); }
 .qh-install { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 10px 10px 10px 16px; max-width: 460px;
   background: var(--qd-code); border: 1px solid var(--qh-line); border-radius: 8px; }
@@ -95,7 +98,7 @@
   border-radius: 50%; background: var(--qd-pill); color: var(--qd-mint); font-weight: 700; font-size: 14px; margin-bottom: 10px; }
 .qh-steps3 b { color: var(--qd-text); }
 
-.qh-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 40px; align-items: start; margin-top: 32px; }
+.qh-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 28px; align-items: start; margin-top: 32px; }
 .qh-tabs { border: 1px solid var(--qh-line); border-radius: 12px; overflow: hidden; background: var(--qd-code); }
 .qh-tabs__bar { display: flex; border-bottom: 1px solid var(--qh-line); background: var(--qh-card); }
 .qh-tabs__bar button { border: 0; background: none; color: var(--qd-label); font: 600 14px "Figtree", sans-serif;
@@ -124,7 +127,8 @@
 .qh-card { display: block; border: 1px solid var(--qh-line); border-radius: 12px; overflow: hidden; background: var(--qh-card);
   color: var(--qd-text) !important; transition: transform .15s, border-color .15s; }
 .qh-card:hover { transform: translateY(-2px); border-color: var(--qd-accent); }
-.qh-card img { display: block; width: 100%; height: auto; }
+.qh-card img { display: block; width: 100%; height: auto; transition: transform .7s cubic-bezier(.2, .7, .2, 1); }
+.qh-card:hover img { transform: scale(1.05); }
 .qh-card__meta { padding: 16px 18px 18px; }
 .qh-card__meta b { font-size: 18px; }
 .qh-card__meta p { color: var(--qd-muted); font-size: 14px; margin: 6px 0 10px; }
@@ -147,10 +151,21 @@
 .qh-faq summary { cursor: pointer; font-weight: 600; font-size: 17px; color: var(--qd-text); list-style: none; display: flex; justify-content: space-between; gap: 16px; }
 .qh-faq summary::-webkit-details-marker { display: none; }
 .qh-faq summary::after { content: "+"; color: var(--qd-mint); font-size: 22px; line-height: 1; }
-.qh-faq details[open] summary::after { content: "–"; }
+.qh-faq details[open] summary::after { transform: rotate(45deg); }
+.qh-faq summary::after { transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+.qh-faq summary { transition: color .2s; }
+.qh-faq summary:hover { color: var(--qd-mint); }
+/* answers slide open where the browser can animate to height: auto; elsewhere they open at once */
+.qh-faq { interpolate-size: allow-keywords; }
+.qh-faq details::details-content { height: 0; overflow: clip; transition: height .35s cubic-bezier(.2, .7, .2, 1), content-visibility .35s allow-discrete; }
+.qh-faq details[open]::details-content { height: auto; }
 .qh-faq details p { color: var(--qd-muted); margin: 10px 0 0; }
 
-.qh-final { text-align: center; padding-top: 96px; padding-bottom: 24px; }
+.qh-final { position: relative; isolation: isolate; overflow-x: clip; text-align: center; padding-top: 96px; padding-bottom: 24px; }
+.qh-final::before { content: ""; position: absolute; left: 50%; top: 40%; width: 760px; height: 380px; margin-left: -380px; z-index: -1;
+  pointer-events: none; background: radial-gradient(closest-side, rgba(59, 130, 246, .22), transparent); filter: blur(20px);
+  animation: qh-drift 9s ease-in-out infinite alternate; }
+@keyframes qh-drift { from { transform: translate(-80px, -20px) scale(.9); } to { transform: translate(80px, 20px) scale(1.1); } }
 .qh-final h2 { margin: 0 auto; }
 .qh-final__note { color: var(--qd-label); font-size: 14px; margin: 12px 0 22px; }
 
@@ -360,6 +375,28 @@ q-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px;
 @keyframes qh-ring { from { transform: scale(1); opacity: .9; } to { transform: scale(2.1); opacity: 0; } }
 .qh-steps4 > li > code { min-height: 2.2em; }
 @media (max-width: 960px) { .qh-steps4__track { display: none; } }
+
+/* PR review: three points in a row, one wide screenshot, the PR comment floating on its corner */
+.qh-pr .qh-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 28px 0 0; }
+.qh-pr .qh-list li { margin: 0; padding: 2px 0 2px 14px; border-left: 2px solid var(--qd-accent); }
+.qh-pr .qh-figure { margin-top: 28px; }
+.qh-pr__stage { position: relative; }
+.qh-pr__stage .qh-comment { position: absolute; left: 24px; bottom: 24px; width: min(460px, 44%); z-index: 2; background: #0f1b2e;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.qh-pr__stage.qh-anim .qh-comment { opacity: 0; transform: translateY(40px); transition: opacity .6s, transform .7s cubic-bezier(.34, 1.56, .64, 1); }
+.qh-pr__stage.qh-in .qh-comment { opacity: 1; transform: none; }
+.qh-pr__stage.qh-anim .qh-comment tr + tr { opacity: 0; transform: translateX(-10px); transition: opacity .45s, transform .45s; transition-delay: var(--d, 0s); }
+.qh-pr__stage.qh-in .qh-comment tr + tr { opacity: 1; transform: none; }
+.qh-pr__stage.qh-in .qh-comment tr + tr td { animation: qh-rowflash 1.4s var(--d, 0s) ease-out; }
+@keyframes qh-rowflash { 0%, 30% { background: rgba(110, 231, 183, .14); } 100% { background: transparent; } }
+@supports (animation-timeline: view()) {
+  .qh-pr__stage { animation: qh-tiltin linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+  @keyframes qh-tiltin { from { transform: perspective(1200px) rotateX(16deg) translateY(40px) scale(.95); opacity: .2; } }
+}
+@media (max-width: 960px) {
+  .qh-pr .qh-list { grid-template-columns: minmax(0, 1fr); }
+  .qh-pr__stage .qh-comment { position: relative; left: auto; bottom: auto; width: auto; margin-top: 16px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .qh *, .qh *::before, .qh *::after { animation: none !important; transition: none !important; }

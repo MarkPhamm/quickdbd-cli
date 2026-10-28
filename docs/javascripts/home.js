@@ -275,7 +275,26 @@
     }, "0px 0px -20% 0px");
   }
 
-  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick] };
+  /* PR review: the points arrive in order, the comment slides up onto the screenshot and its rows flash in. */
+  function pr(root) {
+    var stage = root.querySelector(".qh-pr__stage"), list = root.querySelector(".qh-pr .qh-list");
+    if (list) reveal([].slice.call(list.children), 0.12);
+    if (!stage || reduce.matches) return;
+    stage.classList.add("qh-anim");
+    stage.querySelectorAll(".qh-comment tr + tr").forEach(function (tr, k) { tr.style.setProperty("--d", 0.35 + k * 0.15 + "s"); });
+    onView(stage, function () { stage.classList.add("qh-in"); }, "0px 0px -25% 0px");
+  }
+
+  /* Closing: the install command types itself. */
+  function closing(root) {
+    var code = root.querySelector(".qh-final .qh-install code");
+    if (!code || reduce.matches) return;
+    var t = typer(code);
+    t.clear();
+    onView(code, function () { setTimeout(function () { t.play(null, 45); }, 400); });
+  }
+
+  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick, pr, closing] };
   /* Section scripts register here; run after this file's helpers exist. */
   window.qhome.add = function (fn) { window.qhome.sections.push(fn); };
   function start() {

@@ -223,16 +223,18 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <p class="qh-more"><a href="{{ 'demo/' | url }}">View all {{ demos.count }} demos →</a></p>
   </section>
 
-  <!-- ---------------------------------------------------------------- PR review -->
-  <section class="qh-section qh-wrap">
+  <!-- ---------------------------------------------------------------- PR review
+       The three points in a row, then one wide screenshot with the PR comment floating on its corner. -->
+  <section class="qh-section qh-wrap qh-pr">
     <h2>See what a branch changes before you merge it</h2>
-    <div class="qh-split">
-      <div>
-        <ul class="qh-list">
-          <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
-          <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
-          <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
-        </ul>
+    <ul class="qh-list">
+      <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
+      <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
+      <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
+    </ul>
+    <figure class="qh-figure">
+      <div class="qh-pr__stage">
+        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
         <div class="qh-comment">
           <div class="qh-comment__head"><b>github-actions</b> commented</div>
           <div class="qh-comment__body">
@@ -247,11 +249,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
           </div>
         </div>
       </div>
-      <figure class="qh-figure">
-        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
-        <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
-      </figure>
-    </div>
+      <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
+    </figure>
   </section>
 
   <!-- ---------------------------------------------------------------------- FAQ -->
