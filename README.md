@@ -148,7 +148,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.3.3
+      - uses: MarkPhamm/quickdbd-cli@v0.3.4
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html

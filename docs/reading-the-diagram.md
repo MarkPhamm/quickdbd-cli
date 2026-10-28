@@ -32,6 +32,8 @@ Lines run from column to column; a table-level relationship attaches to the head
 
 Hovering a column highlights its lines and the columns at the other end.
 
+Lines light up: hover a table or a line to see its relationships in blue, with moving dashes and the cardinality written at each end (`1`, `0..1`, `*`, `0..*`). Click a line to keep it lit and dim everything else. A card opens with both ends, a plain-English sentence ("Each Customer row has many Order rows") and the SQL `JOIN`, with **Copy JOIN** and **Show both tables**. Press Esc or click empty space to clear it.
+
 ## Moving tables
 
 Drag any table to rearrange the diagram; lines follow. In a built page or the live demo the new arrangement lasts until you reload. In [`qdbd serve`](#in-qdbd-serve) it's saved to the layout file. Drag empty space to pan.

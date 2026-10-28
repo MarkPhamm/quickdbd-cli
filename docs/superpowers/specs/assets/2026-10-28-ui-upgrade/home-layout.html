@@ -1,0 +1,67 @@
+<style>
+/* Throwaway mockup, third pass: no dead space next to images. */
+.qh { overflow-x: clip; }
+
+/* hero: headline across the full width, then text and screenshot side by side, both inside the page margins */
+.qh-hero__head { grid-column: 1 / -1; }
+.qh-hero h1 span { display: block; }
+.qh-hero .qh-lead { margin-top: 0; }
+@media (min-width: 961px) {
+  .qh-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 36px 40px; align-items: center; }
+  .qh-hero h1 { font-size: clamp(44px, 5vw, 64px); }
+  .qh-callout { right: auto; left: -32px; bottom: -30px; }
+}
+
+/* text to diagram: tighter */
+.qh-split { gap: 28px; }
+
+/* PR review: three points in a row, then one wide screenshot with the comment floating on it */
+.qh-pr .qh-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 28px 0 0; }
+.qh-pr .qh-list li { margin: 0; padding: 2px 0 2px 14px; border-left: 2px solid var(--qd-accent); }
+.qh-pr .qh-figure { margin-top: 28px; }
+.qh-pr__stage { position: relative; }
+.qh-pr__stage > a img { border-radius: 12px; }
+.qh-pr__stage .qh-comment { position: absolute; left: -28px; bottom: -36px; width: min(460px, 44%); z-index: 2;
+  background: #0f1b2e; box-shadow: 0 30px 80px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .03);
+  opacity: 0; transform: translateY(40px); transition: opacity .6s var(--qe), transform .7s var(--qpop); }
+.qh-pr__stage.in .qh-comment { opacity: 1; transform: none; }
+.qh-pr .qh-figure figcaption { margin-top: 48px; padding-left: calc(min(460px, 44%) - 8px); }
+@supports (animation-timeline: view()) {
+  .qh-pr__stage { animation: qhtiltin linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+}
+@media (max-width: 960px) {
+  .qh-pr .qh-list { grid-template-columns: minmax(0, 1fr); }
+  .qh-pr__stage .qh-comment { position: static; width: auto; margin-top: 16px; }
+  .qh-pr .qh-figure figcaption { margin-top: 12px; padding-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .qh-pr__stage .qh-comment { opacity: 1; transform: none; transition: none; } }
+</style>
+<script>
+(function () {
+  // hero: lift the author pill, eyebrow and headline into a full-width row above the split
+  var text = document.querySelector(".qh-hero__text");
+  if (text) {
+    var head = document.createElement("div");
+    head.className = "qh-hero__head";
+    [".qh-author", ".qh-eyebrow", "h1"].forEach(function (sel) { var x = text.querySelector(sel); if (x) head.appendChild(x); });
+    text.parentNode.insertBefore(head, text);
+  }
+})();
+(function () {
+  var comment = document.querySelector(".qh-comment");
+  if (!comment) return;
+  var pr = comment.closest(".qh-section"), split = pr.querySelector(".qh-split");
+  var list = pr.querySelector(".qh-list"), fig = pr.querySelector(".qh-figure");
+  pr.classList.add("qh-pr");
+  var stage = document.createElement("div");
+  stage.className = "qh-pr__stage";
+  stage.appendChild(fig.querySelector("a"));
+  stage.appendChild(comment);
+  fig.insertBefore(stage, fig.firstChild);
+  split.replaceWith(list, fig);
+  var io = new IntersectionObserver(function (es) {
+    if (es[0].isIntersecting) { io.disconnect(); stage.classList.add("in"); }
+  }, { rootMargin: "0px 0px -25% 0px" });
+  io.observe(stage);
+})();
+</script>

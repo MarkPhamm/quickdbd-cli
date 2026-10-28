@@ -5,13 +5,19 @@
 
 {% block site_nav %}{% endblock %}
 
+{% block extrahead %}
+  {{ super() }}
+  {#- the mini diagram's text is measured in Inter, like every qdbd page -#}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+{% endblock %}
+
 {% block container %}
 {% set demos = config.extra.demos %}
 <div class="qh">
 
   <!-- ------------------------------------------------------------------ hero -->
   <section class="qh-hero qh-wrap">
-    <div class="qh-hero__text">
+    <div class="qh-hero__head">
       <a class="qh-author" href="https://github.com/MarkPhamm">
         <img src="https://github.com/MarkPhamm.png?size=64" alt="" width="28" height="28">
         <span>Made by <b>Minh (Mark) Pham</b></span>
@@ -19,6 +25,8 @@
       </a>
       <p class="qh-eyebrow">Open source · Apache 2.0 · <a href="{{ config.repo_url }}/releases/tag/v{{ config.extra.version }}">v{{ config.extra.version }}</a> · <code>pip install</code></p>
       <h1>Database diagrams that live in git, <span>readable at 200+&nbsp;tables</span></h1>
+    </div>
+    <div class="qh-hero__text">
       <p class="qh-lead">Write your schema in QuickDBD's plain-text syntax or DBML, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
       <div class="qh-cta">
         <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start
@@ -52,6 +60,34 @@
         <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
       </div>
     </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- live demo
+       docs/javascripts/home-tour.js drives the real viewer in an iframe (built into the site by hooks/home.py).
+       Without it, on phones and on touch screens, the still screenshot links to the demo. -->
+  <section class="qh-section qh-wrap qh-tour">
+    <p class="qh-tour__eyebrow">Live demo</p>
+    <h2>The real page, driven by a script</h2>
+    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks, 68 tables.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks.html' | url }}">
+      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span><b class="qh-tour__state">Playing</b></div>
+      <div class="qh-tour__stage">
+        <a class="qh-tour__still" href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">
+          <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks sample database in qdbd" loading="lazy" width="1440" height="860">
+          <span>Open the live demo</span>
+        </a>
+        <div class="qh-tour__overlay" aria-hidden="true">
+          <svg class="qh-cursor" width="22" height="22" viewBox="0 0 24 24"><path d="M4 2l15 11-7 1.2 4 7.3-2.8 1.5-4-7.4L4 20z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="qh-tour__toast"></div>
+        </div>
+      </div>
+    </div>
+    <ol class="qh-tour__chapters">
+      <li><b>Search</b><span>Find a table among 68</span><i></i></li>
+      <li><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
+      <li><b>Selectors</b><span>dbt-style filters</span><i></i></li>
+      <li><b>Join paths</b><span>From one table to another</span><i></i></li>
+    </ol>
   </section>
 
   <!-- -------------------------------------------------------- problem framing -->
@@ -149,8 +185,14 @@ qdbd export erd/ -o erd.png    <span class="c"># or .svg .drawio</span>
 qdbd path erd/ --from Invoice --to Campaign</pre>
       </div>
       <figure class="qh-figure">
-        <img src="{{ 'assets/img/path.png' | url }}" alt="qdbd highlighting the join path from Invoice to Campaign, with the SQL JOIN" loading="lazy">
-        <figcaption>Click a table, type another one's name: qdbd highlights the join path and writes the SQL <code>JOIN</code>.</figcaption>
+        {#- drawn by qdbd from the text on the left (hooks/home.py); home-mini.js builds it as the text types -#}
+        <div class="qh-mini">
+          <div class="qh-frame__bar"><i></i><i></i><i></i><span>schema.txt · live</span><button type="button">Replay</button></div>
+          {{ config.extra.home_mini.svg | safe }}
+          <div class="qh-mini__card"></div>
+        </div>
+        <script type="application/json" id="qh-mini-data">{{ {"steps": config.extra.home_mini.steps, "rels": config.extra.home_mini.rels} | tojson }}</script>
+        <figcaption>Every line you type lands in the diagram. In the page qdbd builds, click a relationship for its cardinality and the SQL <code>JOIN</code>.</figcaption>
       </figure>
     </div>
   </section>
@@ -181,16 +223,18 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <p class="qh-more"><a href="{{ 'demo/' | url }}">View all {{ demos.count }} demos →</a></p>
   </section>
 
-  <!-- ---------------------------------------------------------------- PR review -->
-  <section class="qh-section qh-wrap">
+  <!-- ---------------------------------------------------------------- PR review
+       The three points in a row, then one wide screenshot with the PR comment floating on its corner. -->
+  <section class="qh-section qh-wrap qh-pr">
     <h2>See what a branch changes before you merge it</h2>
-    <div class="qh-split">
-      <div>
-        <ul class="qh-list">
-          <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
-          <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
-          <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
-        </ul>
+    <ul class="qh-list">
+      <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
+      <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
+      <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
+    </ul>
+    <figure class="qh-figure">
+      <div class="qh-pr__stage">
+        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
         <div class="qh-comment">
           <div class="qh-comment__head"><b>github-actions</b> commented</div>
           <div class="qh-comment__body">
@@ -205,11 +249,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
           </div>
         </div>
       </div>
-      <figure class="qh-figure">
-        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
-        <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
-      </figure>
-    </div>
+      <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
+    </figure>
   </section>
 
   <!-- ---------------------------------------------------------------------- FAQ -->

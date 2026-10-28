@@ -90,6 +90,7 @@ BODY = """
       <svg id="mini" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="tip" id="tip" role="tooltip"></div>
+    <div class="rcard" id="rcard" role="dialog" aria-label="Relationship"></div>
     <div class="toast" id="toast" role="status"></div>
     <div class="diffbar" id="diffbar"></div>
     <div class="hint">{hint}</div>

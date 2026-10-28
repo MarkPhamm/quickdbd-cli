@@ -1,0 +1,155 @@
+<style>
+:root { --lit: #4361ee; --lit-deep: #2a3fb8; }
+:root[data-theme="dark"] { --lit: #8aa0ff; --lit-deep: #c3ceff; }
+.e.lit .ep, .e.lit path { stroke: var(--lit) !important; }
+.e.lit .mc { stroke: var(--lit) !important; }
+.e.lit .ep { stroke-width: 2.2; }
+.focus .e.dim { opacity: .07; }
+.focus .t.dim { opacity: .18; }
+.efocus .t:not(.on) { opacity: .18; }
+.efocus .e:not(.lit) { opacity: .07; }
+.r.lit .rb { fill: var(--row-hl); fill-opacity: 1; }
+.t .tb { transition: filter .18s; }
+.t:hover .tb { filter: drop-shadow(0 6px 14px rgba(16, 24, 40, .16)); }
+.fx { pointer-events: none; }
+.fx .lbl { font: 600 11px Inter, sans-serif; fill: var(--lit); paint-order: stroke; stroke: var(--bg); stroke-width: 4px;
+  stroke-linejoin: round; animation: lblin .2s ease-out; }
+@keyframes lblin { from { opacity: 0; } to { opacity: 1; } }
+.fx .flow { fill: none; stroke: var(--lit-deep); stroke-width: 4; stroke-dasharray: 4 18; animation: flow 1.1s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: 22; } }
+@media (prefers-reduced-motion: reduce) { .fx .flow { animation: none; } }
+.hit path { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; }
+
+#rcard { position: absolute; z-index: 6; display: none; min-width: 240px; padding: 10px 12px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); font: 12px Inter, sans-serif; color: var(--ink);
+  transform-origin: top left; animation: cardin .16s ease-out; }
+#rcard.open { display: block; }
+@keyframes cardin { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: none; } }
+#rcard .rt { font-weight: 600; margin-bottom: 2px; }
+#rcard .rt b { color: var(--lit); font-weight: 600; padding: 0 4px; }
+#rcard .rk { color: var(--muted); margin-bottom: 8px; }
+#rcard pre { margin: 0 0 8px; padding: 7px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 7px;
+  font: 11px ui-monospace, Menlo, monospace; white-space: pre; }
+#rcard a { color: var(--blue); cursor: pointer; margin-right: 12px; }
+
+#vpick { position: fixed; top: 66px; left: 50%; transform: translateX(-50%); z-index: 10; padding: 7px 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+  font: 500 13px Inter, sans-serif; color: var(--muted); }
+</style>
+<div id="vpick">Click a line or a table. Hover to preview.</div>
+<div id="rcard"></div>
+<script>
+(function () {
+  // Throwaway prototype: decorates the real viewer's DOM from outside.
+  var NS = "http://www.w3.org/2000/svg";
+  var vp = document.getElementById("vp"), svg = document.getElementById("canvas"), stage = document.getElementById("stage");
+  var card = document.getElementById("rcard");
+  var model = JSON.parse(document.getElementById("qdbd-data").textContent).model;
+  var rels = {};
+  model.rels.forEach(function (r) { rels[[r.a.t, r.a.c, r.b.t, r.b.c].join("|")] = r; });
+  var LABEL = { one: "1", zeroOne: "0..1", many: "*", zeroMany: "0..*" };
+  var WORD = { one: "one", zeroOne: "zero or one", many: "many", zeroMany: "zero or many" };
+  var hoverT = null, hoverE = null, selE = null;
+
+  function keyOf(e) { return ["data-a", "data-ac", "data-b", "data-bc"].map(function (k) { return e.getAttribute(k); }).join("|"); }
+  function el(tag, attrs) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  vp.addEventListener("mouseover", function (ev) {
+    var h = ev.target.closest && ev.target.closest(".hit path");
+    var t = ev.target.closest && ev.target.closest(".t");
+    var he = h ? h.getAttribute("data-k") : null, ht = t ? t.getAttribute("data-id") : null;
+    if (he !== hoverE || ht !== hoverT) { hoverE = he; hoverT = ht; schedule(); }
+  });
+  vp.addEventListener("mouseleave", function () { hoverT = hoverE = null; schedule(); });
+
+  var down = null;
+  svg.addEventListener("pointerdown", function (ev) {
+    var h = ev.target.closest && ev.target.closest(".hit path");
+    down = { x: ev.clientX, y: ev.clientY, k: h ? h.getAttribute("data-k") : null };
+  }, true);
+  // Registered after viewer.js's handler, so its select(null) has already run.
+  svg.addEventListener("pointerup", function (ev) {
+    if (!down || Math.abs(ev.clientX - down.x) + Math.abs(ev.clientY - down.y) > 3) { down = null; return; }
+    selE = down.k && down.k !== selE ? down.k : null;
+    down = null;
+    if (selE) openCard(selE, ev.clientX, ev.clientY); else card.classList.remove("open");
+    schedule();
+  });
+
+  function openCard(k, cx, cy) {
+    var r = rels[k], a = r.a, b = r.b;
+    var sql = "FROM " + a.t + "\nJOIN " + b.t + " ON " + b.t + "." + b.c + " = " + a.t + "." + a.c;
+    card.innerHTML = '<div class="rt">' + a.t + "." + a.c + "<b>" + LABEL[a.card] + " — " + LABEL[b.card] + "</b>" + b.t + "." + b.c + "</div>" +
+      '<div class="rk">Each ' + b.t + " row has " + WORD[a.card] + " " + a.t + " rows</div>" +
+      "<pre>" + sql + "</pre><a>Copy JOIN</a><a>Show both tables</a>";
+    var s = stage.getBoundingClientRect();
+    card.style.left = Math.min(cx - s.left + 12, s.width - 280) + "px";
+    card.style.top = (cy - s.top + 12) + "px";
+    card.classList.remove("open"); void card.offsetWidth; card.classList.add("open");
+  }
+
+  function decorate() {
+    obs.disconnect();
+    vp.querySelectorAll(".fx, .hit").forEach(function (x) { x.remove(); });
+    vp.querySelectorAll(".lit, .t.on").forEach(function (x) { x.classList.remove("lit", "on"); });
+    var focus = svg.classList.contains("focus");
+    if (focus && selE) { selE = null; card.classList.remove("open"); } // a table click replaces the line selection
+    svg.classList.toggle("efocus", !!selE);
+    var fx = el("g", { "class": "fx" }), hit = el("g", { "class": "hit" }), tables = vp.querySelector(".tables");
+    vp.querySelectorAll(".e").forEach(function (e) {
+      var d = e.querySelector(".ep").getAttribute("d"), k = keyOf(e);
+      hit.appendChild(el("path", { d: d, "data-k": k }));
+      if (e.classList.contains("ph")) return;
+      var a = e.getAttribute("data-a"), b = e.getAttribute("data-b");
+      var on = k === selE || k === hoverE || (focus && !e.classList.contains("dim")) || e.classList.contains("hl") ||
+        (hoverT && (a === hoverT || b === hoverT));
+      if (!on) return;
+      e.classList.add("lit");
+      var r = rels[k];
+      [[r.a.t, r.a.c], [r.b.t, r.b.c]].forEach(function (p) {
+        var t = vp.querySelector('.t[data-id="' + CSS.escape(p[0]) + '"]');
+        if (!t) return;
+        if (k === selE) t.classList.add("on");
+        var row = t.querySelector('.r[data-c="' + CSS.escape(p[1]) + '"]');
+        if (row) row.classList.add("lit");
+      });
+      var nums = d.match(/-?\d+(\.\d+)?/g).map(Number); // M xa ya C c1x c1y c2x c2y xb yb
+      var xa = nums[0], ya = nums[1], xb = nums[6], yb = nums[7];
+      var da = nums[2] >= xa ? 1 : -1, db = nums[4] >= xb ? 1 : -1;
+      [[xa, ya, da, r.a.card], [xb, yb, db, r.b.card]].forEach(function (q) {
+        var t = el("text", { x: q[0] + q[2] * 8, y: q[1] - 9, "class": "lbl", "text-anchor": q[2] > 0 ? "start" : "end" });
+        t.textContent = LABEL[q[3]] || "";
+        fx.appendChild(t);
+      });
+      fx.appendChild(el("path", { d: d, "class": "flow" }));
+    });
+    if (tables) { vp.insertBefore(fx, tables); vp.insertBefore(hit, tables); }
+    obs.observe(vp, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+  }
+  var pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; decorate(); });
+  }
+  var obs = new MutationObserver(function (list) {
+    if (list.some(function (m) { return !(m.target.closest && m.target.closest(".fx, .hit")); })) schedule();
+  });
+  new MutationObserver(schedule).observe(svg, { attributes: true, attributeFilter: ["class"] });
+  decorate();
+
+  // Start with one relationship selected so the card is visible.
+  setTimeout(function () {
+    var k = "Orders|CustomerID|Customers|CustomerID", p = vp.querySelector('.hit path[data-k="' + k + '"]');
+    if (!p) return;
+    selE = k;
+    var m = p.getPointAtLength(p.getTotalLength() / 2), ctm = p.getScreenCTM();
+    openCard(k, m.x * ctm.a + ctm.e, m.y * ctm.d + ctm.f);
+    schedule();
+  }, 300);
+})();
+</script>

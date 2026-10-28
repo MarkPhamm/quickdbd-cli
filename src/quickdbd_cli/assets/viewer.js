@@ -16,6 +16,8 @@
     shown: {},
     regions: !!data.model.regions,
     path: null, // {to: id, steps: [...]} from the selected table
+    edge: null, // the clicked (locked) relationship line: "a|ac|b|bc", like the .e data attributes
+    hover: null, // {t: table id} or {e: line key} under the mouse: lights lines without dimming anything
   };
   var svg = document.getElementById("canvas");
   var vp = document.getElementById("vp");
@@ -29,7 +31,12 @@
 
   /* ------------------------------------------------------------- render */
   function render() {
-    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true, regions: S.regions });
+    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true, regions: S.regions }) +
+      '<g class="fx"></g><g class="hit"></g>';
+    vp.appendChild(vp.querySelector(".tables")); // lit overlay and line hit targets sit under the tables
+    relByKey = {};
+    S.vm.rels.forEach(function (r, i) { relByKey[[r.a.t, r.a.c, r.b.t, r.b.c].join("|")] = i; });
+    buildHits();
     applyFocus();
     drawMinimap();
   }
@@ -37,7 +44,112 @@
   function renderEdges() {
     var g = vp.querySelector(".edges");
     if (g) g.innerHTML = Q.renderEdges(S.vm, S.pos, S.mode);
+    buildHits();
     applyFocus();
+  }
+
+  /* ------------------------------------------------------------- lit relationships
+   * A lit line gets the --lit colour, flowing dashes and cardinality labels (drawn in .fx), and its rows are
+   * highlighted. Lines light up under a hovered table or line, for the selected table, and for the clicked line. */
+  var relByKey = {};
+  function edgeKey(e) {
+    return [e.getAttribute("data-a"), e.getAttribute("data-ac"), e.getAttribute("data-b"), e.getAttribute("data-bc")].join("|");
+  }
+  /* Wide transparent copies of every line, so a 1px curve can be hovered and clicked. */
+  function buildHits() {
+    var hit = vp.querySelector(".hit");
+    if (!hit) return;
+    hit.innerHTML = [].map.call(vp.querySelectorAll(".e"), function (e) {
+      return '<path data-k="' + Q.esc(edgeKey(e)) + '" d="' + e.querySelector(".ep").getAttribute("d") + '"/>';
+    }).join("");
+  }
+  function light() {
+    var fx = vp.querySelector(".fx");
+    if (!fx) return;
+    if (S.edge && relByKey[S.edge] === undefined) S.edge = null; // the clicked line was filtered away or edited out
+    if (!S.edge) closeCard();
+    vp.querySelectorAll(".lit, .t.on").forEach(function (el) { el.classList.remove("lit", "on"); });
+    svg.classList.toggle("efocus", !!S.edge);
+    var focused = svg.classList.contains("focus"), h = S.hover || {}, geo = null, parts = [];
+    vp.querySelectorAll(".e").forEach(function (e) {
+      var k = edgeKey(e), a = e.getAttribute("data-a"), b = e.getAttribute("data-b"), d = e.querySelector(".ep").getAttribute("d");
+      var dk = ' data-k="' + Q.esc(k) + '"';
+      if (e.classList.contains("ph")) { parts.push('<path class="flow amber"' + dk + ' d="' + d + '"/>'); return; }
+      if (!(k === S.edge || h.e === k || h.t === a || h.t === b || e.classList.contains("hl") ||
+          (focused && !S.path && !e.classList.contains("dim")))) return;
+      var r = S.vm.rels[relByKey[k]];
+      if (!r) return;
+      e.classList.add("lit");
+      [[r.a.t, r.a.c], [r.b.t, r.b.c]].forEach(function (end) {
+        var t = vp.querySelector('.t[data-id="' + cssEsc(end[0]) + '"]');
+        if (!t) return;
+        if (k === S.edge) t.classList.add("on");
+        var row = t.querySelector('.r[data-c="' + cssEsc(end[1]) + '"]');
+        if (row) row.classList.add("lit");
+      });
+      parts.push('<path class="flow"' + dk + ' d="' + d + '"/>');
+      (Q.edgeLabels(S.vm, S.pos, S.mode, r, geo = geo || Q.geometry(S.vm, S.mode)) || []).forEach(function (l) {
+        parts.push('<text class="lbl"' + dk + ' x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.anchor + '">' + Q.esc(l.text) + "</text>");
+      });
+    });
+    fx.innerHTML = parts.join("");
+  }
+  var lightRaf = null;
+  function scheduleLight() {
+    if (!lightRaf) lightRaf = requestAnimationFrame(function () { lightRaf = null; light(); });
+  }
+  vp.addEventListener("mouseover", function (ev) {
+    var hp = ev.target.closest && ev.target.closest(".hit path"), t = ev.target.closest && ev.target.closest(".t");
+    var next = hp ? { e: hp.getAttribute("data-k") } : t ? { t: t.getAttribute("data-id") } : null;
+    if (JSON.stringify(next) !== JSON.stringify(S.hover)) { S.hover = next; scheduleLight(); }
+  });
+  /* A click on a line locks it: everything else dims. A second click on it, Esc or a click elsewhere clears it. */
+  function lockEdge(k, x, y) {
+    select(null);
+    S.edge = k;
+    light();
+    openCard(k, x, y);
+  }
+
+  /* The relationship card: both ends with their cardinality, a plain-English sentence and the JOIN. */
+  var rcard = document.getElementById("rcard"), cardInfo = null;
+  function openCard(k, x, y) {
+    var r = S.vm.rels[relByKey[k]], c = Q.relCard(S.vm, relByKey[k]);
+    cardInfo = { sql: c.sql, tables: [r.a.t, r.b.t] };
+    rcard.innerHTML = '<div class="rt">' + Q.esc(c.from) + "<b>" + Q.esc(c.cardFrom) + " &mdash; " + Q.esc(c.cardTo) + "</b>" + Q.esc(c.to) +
+      '</div><div class="rk">' + Q.esc(c.sentence) + "</div><pre>" + Q.esc(c.sql) +
+      '</pre><div class="acts"><a id="rcopy">Copy JOIN</a><a id="rboth">Show both tables</a></div>';
+    rcard.classList.remove("open");
+    void rcard.offsetWidth; // restart the open animation
+    rcard.classList.add("open");
+    var st = document.getElementById("stage").getBoundingClientRect();
+    rcard.style.left = Math.max(8, Math.min(x - st.left + 12, st.width - rcard.offsetWidth - 8)) + "px";
+    rcard.style.top = Math.max(8, Math.min(y - st.top + 12, st.height - rcard.offsetHeight - 8)) + "px";
+  }
+  function closeCard() { rcard.classList.remove("open"); }
+  rcard.addEventListener("click", function (ev) {
+    if (ev.target.id === "rcopy" && cardInfo) copyText(cardInfo.sql, "JOIN copied", rcard.querySelector("pre"));
+    else if (ev.target.id === "rboth" && cardInfo) {
+      var names = cardInfo.tables.filter(function (t, i, all) { return all.indexOf(t) === i; }).map(function (t) { return byId[t].name; });
+      closeCard();
+      applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
+    }
+  });
+  document.addEventListener("pointerdown", function (ev) {
+    if (!rcard.contains(ev.target) && !(ev.target.closest && ev.target.closest(".hit path"))) closeCard();
+  });
+
+  /* The clipboard is blocked in some frames (the VS Code preview): select the text instead and say how to copy it. */
+  function copyText(text, done, pre) {
+    function fallback() {
+      var sel = window.getSelection(), range = document.createRange();
+      range.selectNodeContents(pre);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      showToast("Press Ctrl/Cmd+C");
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { showToast(done); }, fallback);
+    else fallback();
   }
 
   // Zoomed out on a big diagram, table text is unreadable but repainting it made every zoom step take ~150 ms
@@ -57,7 +169,28 @@
     return [r.width || 800, r.height || 600];
   }
 
-  function fit(only) {
+  /* Zoom, fit and jump glide instead of snapping. The next pointer press or wheel stops a glide. Instant with
+   * prefers-reduced-motion, on load and while a shared link is applied. */
+  var glide = null, glideTarget = null, reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function glideTo(v, ms) {
+    cancelGlide();
+    if (!ms || reduceMotion.matches || applyingHash) { S.view = v; applyView(); return; }
+    var from = { x: S.view.x, y: S.view.y, k: S.view.k }, t0 = performance.now();
+    glideTarget = v;
+    (function step(now) {
+      var f = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - f, 3);
+      S.view = { x: from.x + (v.x - from.x) * e, y: from.y + (v.y - from.y) * e, k: from.k + (v.k - from.k) * e };
+      applyView();
+      glide = f < 1 ? requestAnimationFrame(step) : null;
+      if (!glide) glideTarget = null;
+    })(t0);
+  }
+  function cancelGlide() {
+    if (glide) cancelAnimationFrame(glide);
+    glide = glideTarget = null;
+  }
+
+  function fit(only, animate) {
     var b = Q.bounds(only ? Q.subset(S.vm, only) : S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
     if (S.regions && !only) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
     if (only) sz = [sz[0] - (details.classList.contains("open") ? 400 : 0), sz[1]]; // keep clear of the details panel
@@ -65,24 +198,21 @@
     var top = 70, bottom = sz[0] < 900 ? 70 : pad, availH = sz[1] - top - bottom;
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), availH / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.03); // same floor as manual zoom, so wide diagrams still fit a phone screen
-    S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k };
-    applyView();
+    glideTo({ k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k }, animate ? 350 : 0);
   }
 
-  function zoomAt(factor, cx, cy) {
-    var v = S.view, k = Math.min(4, Math.max(0.03, v.k * factor));
-    S.view = { k: k, x: cx - (cx - v.x) * (k / v.k), y: cy - (cy - v.y) * (k / v.k) };
-    applyView();
+  function zoomAt(factor, cx, cy, ms) {
+    var v = glideTarget || S.view, k = Math.min(4, Math.max(0.03, v.k * factor)); // quick clicks compound
+    glideTo({ k: k, x: cx - (cx - v.x) * (k / v.k), y: cy - (cy - v.y) * (k / v.k) }, ms);
   }
 
-  function centerOn(id) {
+  function centerOn(id, animate) {
     var t = byId[id], p = S.pos[id];
     if (!t || !p) return;
     var g = Q.geometry(S.vm, S.mode)[id], sz = stageSize();
     if (!g) return;
     var k = Math.max(S.view.k, 0.9);
-    S.view = { k: k, x: sz[0] / 2 - (p[0] + g.w / 2) * k, y: sz[1] / 2 - (p[1] + g.h / 2) * k };
-    applyView();
+    glideTo({ k: k, x: sz[0] / 2 - (p[0] + g.w / 2) * k, y: sz[1] / 2 - (p[1] + g.h / 2) * k }, animate ? 350 : 0);
     var el = vp.querySelector('.t[data-id="' + cssEsc(id) + '"]');
     if (el) {
       el.classList.add("flash");
@@ -104,6 +234,10 @@
   }
 
   function applyFocus() {
+    applyFocusClasses();
+    light();
+  }
+  function applyFocusClasses() {
     vp.querySelectorAll(".ph").forEach(function (el) { el.classList.remove("ph"); });
     if (S.path && S.focus && S.path.steps) {
       var on = {}, edges = [];
@@ -161,7 +295,7 @@
       if (t) t.classList.add("hl");
     });
   });
-  vp.addEventListener("mouseleave", function () { clearHover(); hideTip(); });
+  vp.addEventListener("mouseleave", function () { clearHover(); hideTip(); S.hover = null; scheduleLight(); });
 
   /* ------------------------------------------------------------- doc-comment tooltips */
   var tip = document.getElementById("tip");
@@ -209,17 +343,21 @@
   /* ------------------------------------------------------------- pointer: pan, click, drag */
   var drag = null;
   svg.addEventListener("pointerdown", function (ev) {
+    cancelGlide();
     if (ev.button !== 0) return;
     var tEl = ev.target.closest && ev.target.closest(".t");
-    drag = { sx: ev.clientX, sy: ev.clientY, moved: false, table: tEl ? tEl.getAttribute("data-id") : null, el: tEl };
+    var hp = !tEl && ev.target.closest && ev.target.closest(".hit path");
+    drag = { sx: ev.clientX, sy: ev.clientY, moved: false, table: tEl ? tEl.getAttribute("data-id") : null, el: tEl,
+      edge: hp ? hp.getAttribute("data-k") : null };
     if (drag.table) { // tables are draggable everywhere; only `qdbd serve` saves the new position
       drag.start = S.pos[drag.table].slice();
+      dragPrep(drag);
       tEl.parentNode.appendChild(tEl); // bring the grabbed table to the front
     } else {
       drag.view = { x: S.view.x, y: S.view.y };
     }
     svg.classList.add("panning");
-    svg.setPointerCapture(ev.pointerId);
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* synthetic events (the qdbd.dev tour) have no pointer to capture */ }
   });
   var raf = null;
   svg.addEventListener("pointermove", function (ev) {
@@ -231,19 +369,20 @@
       var p = [Math.round(drag.start[0] + dx / S.view.k), Math.round(drag.start[1] + dy / S.view.k)];
       S.pos[drag.table] = p;
       drag.el.setAttribute("transform", "translate(" + p[0] + "," + p[1] + ")");
-      if (!raf) raf = requestAnimationFrame(function () { raf = null; renderEdges(); });
+      if (!raf) raf = requestAnimationFrame(function () { raf = null; if (drag) dragEdges(drag); });
     } else if (drag.view) {
       S.view.x = drag.view.x + dx;
       S.view.y = drag.view.y + dy;
       applyView();
     }
   });
-  svg.addEventListener("pointerup", function () {
+  svg.addEventListener("pointerup", function (ev) {
     if (!drag) return;
     svg.classList.remove("panning");
     var d = drag;
     drag = null;
     if (!d.moved) {
+      if (d.edge) { if (d.edge === S.edge) select(null); else lockEdge(d.edge, ev.clientX, ev.clientY); return; }
       // Clicking the selected table toggles it off, unless it was selected quietly: then show its details.
       if (d.table && d.table === S.focus && !details.classList.contains("open")) showDetails(d.table);
       else select(d.table && S.focus !== d.table ? d.table : null);
@@ -251,14 +390,45 @@
     }
     if (d.start) {
       if (S.regions) render(); // regions are sized from table positions
+      else renderEdges();
       drawMinimap();
       var name = byId[d.table].name, body = {};
       body[name] = S.pos[d.table];
       if (window.qdbdServe) window.qdbdServe.saveLayout(body);
     }
   });
+  /* While a table is dragged only its own lines are redrawn (a full redraw per frame was slow at 200+ tables). */
+  function dragPrep(d) {
+    var on = function (k) { var p = k.split("|"); return p[0] === d.table || p[2] === d.table; };
+    d.geo = Q.geometry(S.vm, S.mode);
+    d.rels = S.vm.rels.filter(function (r) { return r.a.t === d.table || r.b.t === d.table; });
+    d.els = {};
+    d.hits = {};
+    vp.querySelectorAll(".edges .e").forEach(function (e) { var k = edgeKey(e); if (on(k)) d.els[k] = e; });
+    vp.querySelectorAll(".hit path").forEach(function (h) { var k = h.getAttribute("data-k"); if (on(k)) d.hits[k] = h; });
+  }
+  function dragEdges(d) {
+    var tmp = document.createElementNS("http://www.w3.org/2000/svg", "g"), fx = vp.querySelector(".fx");
+    tmp.innerHTML = Q.renderEdges({ style: S.vm.style, tables: S.vm.tables, rels: d.rels }, S.pos, S.mode, d.geo);
+    [].slice.call(tmp.children).forEach(function (e) {
+      var k = edgeKey(e), old = d.els[k], path = e.querySelector(".ep").getAttribute("d");
+      if (!old) return;
+      e.setAttribute("class", old.getAttribute("class")); // keep dim / lit / ph
+      old.replaceWith(e);
+      d.els[k] = e;
+      if (d.hits[k]) d.hits[k].setAttribute("d", path);
+      var items = fx ? fx.querySelectorAll('[data-k="' + cssEsc(k) + '"]') : [], labels = null, li = 0;
+      [].forEach.call(items, function (it) {
+        if (it.tagName === "path") { it.setAttribute("d", path); return; }
+        labels = labels || Q.edgeLabels(S.vm, S.pos, S.mode, S.vm.rels[relByKey[k]], d.geo) || [];
+        var l = labels[li++];
+        if (l) { it.setAttribute("x", l.x); it.setAttribute("y", l.y); it.setAttribute("text-anchor", l.anchor); }
+      });
+    });
+  }
   svg.addEventListener("wheel", function (ev) {
     ev.preventDefault();
+    cancelGlide();
     var r = svg.getBoundingClientRect();
     var factor = Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.01 : 0.0015));
     zoomAt(factor, ev.clientX - r.left, ev.clientY - r.top);
@@ -269,9 +439,9 @@
 
   /* ------------------------------------------------------------- toolbar */
   function center() { var s = stageSize(); return [s[0] / 2, s[1] / 2]; }
-  document.getElementById("zin").onclick = function () { var c = center(); zoomAt(1.25, c[0], c[1]); };
-  document.getElementById("zout").onclick = function () { var c = center(); zoomAt(0.8, c[0], c[1]); };
-  document.getElementById("zfit").onclick = function () { fit(); };
+  document.getElementById("zin").onclick = function () { var c = center(); zoomAt(1.25, c[0], c[1], 200); };
+  document.getElementById("zout").onclick = function () { var c = center(); zoomAt(0.8, c[0], c[1], 200); };
+  document.getElementById("zfit").onclick = function () { fit(null, true); };
   document.querySelectorAll("#modes button").forEach(function (b) {
     b.onclick = function () {
       setMode(b.getAttribute("data-mode"));
@@ -325,13 +495,14 @@
   /* opts.center: pan to it. opts.quiet: don't open the details panel (only refresh it if it's already open). */
   function select(id, opts) {
     if ((id || null) !== S.focus) S.path = null;
+    S.edge = null; // a table (or nothing) replaces the clicked line
     S.focus = id && byId[id] ? id : null;
     scheduleHash();
     applyFocus();
     if (S.focus && (!(opts && opts.quiet) || details.classList.contains("open"))) showDetails(S.focus);
     else closeDetails();
     markTree();
-    if (S.focus && opts && opts.center) centerOn(S.focus);
+    if (S.focus && opts && opts.center) centerOn(S.focus, true);
   }
 
   /* ------------------------------------------------------------- explorer: search + table tree */
@@ -465,7 +636,7 @@
     drawTree();
     if (S.focus) showDetails(S.focus);
     else closeDetails();
-    if (!keepView) fit();
+    if (!keepView) fit(null, true);
     scheduleHash();
   }
   finput.addEventListener("input", function () {
@@ -590,7 +761,7 @@
     S.path = { to: target, steps: Q.findPath(S.vm, S.focus, target) };
     showDetails(S.focus);
     applyFocus();
-    if (S.path.steps && !applyingHash) fit([S.focus].concat(S.path.steps.map(function (st) { return st.to.t; })));
+    if (S.path.steps && !applyingHash) fit([S.focus].concat(S.path.steps.map(function (st) { return st.to.t; })), true);
     scheduleHash();
     return true;
   }
@@ -606,9 +777,7 @@
       // Selector syntax treats spaces, commas, + and a leading ! specially; match those characters with "?".
       applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
     } else if (ev.target.id === "pathsql" && S.path && S.path.steps) {
-      var sql = Q.pathSql(S.vm, S.focus, S.path.steps);
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(sql).then(function () { showToast("SQL copied"); });
-      else window.prompt("Copy SQL:", sql);
+      copyText(Q.pathSql(S.vm, S.focus, S.path.steps), "SQL copied", dbody.querySelector("#pathres pre"));
     }
   });
 
@@ -649,6 +818,7 @@
     r.setAttribute("height", sz[1] / v.k);
   }
   function miniPan(ev) {
+    cancelGlide();
     var pt = mini.createSVGPoint();
     pt.x = ev.clientX;
     pt.y = ev.clientY;
@@ -658,7 +828,11 @@
     applyView();
   }
   var miniDrag = false;
-  mini.addEventListener("pointerdown", function (ev) { miniDrag = true; mini.setPointerCapture(ev.pointerId); miniPan(ev); });
+  mini.addEventListener("pointerdown", function (ev) {
+    miniDrag = true;
+    try { mini.setPointerCapture(ev.pointerId); } catch (e) { /* synthetic event */ }
+    miniPan(ev);
+  });
   mini.addEventListener("pointermove", function (ev) { if (miniDrag) miniPan(ev); });
   mini.addEventListener("pointerup", function () { miniDrag = false; });
 

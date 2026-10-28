@@ -38,9 +38,13 @@ extra_css:
 
 hooks:
   - hooks/gallery.py
+  - hooks/home.py
 
 extra_javascript:
   - javascripts/shortcuts.js
+  - javascripts/home.js
+  - javascripts/home-tour.js
+  - javascripts/home-mini.js
 
 markdown_extensions:
   - admonition
