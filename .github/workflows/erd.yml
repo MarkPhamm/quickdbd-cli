@@ -49,6 +49,10 @@ jobs:
     if: github.event_name == 'push'
     needs: erd
     runs-on: ubuntu-latest
+    # Back-to-back merges otherwise race: Pages rejects a deploy while another is in progress.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
