@@ -43,6 +43,7 @@ hooks:
 extra_javascript:
   - javascripts/shortcuts.js
   - javascripts/home.js
+  - javascripts/home-tour.js
 
 markdown_extensions:
   - admonition

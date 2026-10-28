@@ -56,6 +56,34 @@
     </div>
   </section>
 
+  <!-- --------------------------------------------------------------- live demo
+       docs/javascripts/home-tour.js drives the real viewer in an iframe (built into the site by hooks/home.py).
+       Without it, on phones and on touch screens, the still screenshot links to the demo. -->
+  <section class="qh-section qh-wrap qh-tour">
+    <p class="qh-tour__eyebrow">Live demo</p>
+    <h2>The real page, driven by a script</h2>
+    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks, 68 tables.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks.html' | url }}">
+      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span><b class="qh-tour__state">Playing</b></div>
+      <div class="qh-tour__stage">
+        <a class="qh-tour__still" href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">
+          <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks sample database in qdbd" loading="lazy" width="1440" height="860">
+          <span>Open the live demo</span>
+        </a>
+        <div class="qh-tour__overlay" aria-hidden="true">
+          <svg class="qh-cursor" width="22" height="22" viewBox="0 0 24 24"><path d="M4 2l15 11-7 1.2 4 7.3-2.8 1.5-4-7.4L4 20z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="qh-tour__toast"></div>
+        </div>
+      </div>
+    </div>
+    <ol class="qh-tour__chapters">
+      <li><b>Search</b><span>Find a table among 68</span><i></i></li>
+      <li><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
+      <li><b>Selectors</b><span>dbt-style filters</span><i></i></li>
+      <li><b>Join paths</b><span>From one table to another</span><i></i></li>
+    </ol>
+  </section>
+
   <!-- -------------------------------------------------------- problem framing -->
   <section class="qh-section qh-wrap">
     <h2>Hand-drawn diagrams go stale. Generated ones get unreadable.</h2>
