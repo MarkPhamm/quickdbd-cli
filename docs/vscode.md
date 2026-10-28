@@ -2,12 +2,12 @@
 
 The **QuickDBD (qdbd)** extension brings `qdbd` into VS Code, Cursor, Windsurf and VSCodium:
 
-- syntax highlighting for QuickDBD files
+- syntax highlighting for QuickDBD and DBML files
 - errors and warnings as you type, before you save
 - an outline of tables and columns, and **F12** from a foreign key to the table it points at, across files
-- the interactive diagram beside the editor, following your cursor
+- the interactive diagram beside the editor, following your cursor, or in your browser with **Open in Browser**
 - a sidebar listing every schema in the workspace, down to its columns, with each action one click away
-- export, share as a link, compare with a git branch, and import a dbt project
+- export, share as a link, compare with a git branch, **Convert to DBML** / **Convert to QuickDBD Syntax**, and import a dbt project
 - your schema as tools for Copilot's agent mode ([3.7 AI Agents](mcp.md))
 
 You never need a terminal: the extension installs the `qdbd` CLI it runs on.
@@ -105,7 +105,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 ## Troubleshooting
 
 - **Nothing happens:** check the status bar says **QuickDBD**. If it says Plain Text, click it and pick QuickDBD, or add a `files.associations` entry.
-- **"qdbd isn't installed":** click **Install qdbd**, or run **QuickDBD: Install or Update qdbd**. If you installed it yourself and VS Code doesn't find it, set `quickdbd.qdbdPath` to the full path (`which qdbd`).
+- **"qdbd isn't installed":** click **Install qdbd**, or run **QuickDBD: Install or Update qdbd**. If you installed it yourself and VS Code doesn't find it, set `quickdbd.qdbdPath` to the full path (`which qdbd`; Windows: `where qdbd`).
 - **"Installing qdbd needs Python 3.11 or later":** install Python from [python.org](https://www.python.org/downloads/), then run **QuickDBD: Install or Update qdbd**.
 - **Compare says it can't read the ref:** the schema must be in a git repository, and the ref must exist locally (fetch first for `origin/main`).
 - **Logs:** **View → Output**, then pick **QuickDBD** from the list.

@@ -41,7 +41,7 @@ Errors print as `schema.txt:12: error: …`, using QuickDBD's own messages, and 
 qdbd serve schema.txt
 ```
 
-A browser tab opens with the diagram and an editor pane.
+A browser tab opens with the diagram and an editor pane. The editor pane loads CodeMirror from a CDN, so it needs internet; the diagram itself works offline.
 
 - **Edit** in the pane (it autosaves 1 s after you stop typing) or in your own editor. The diagram reloads on save.
 - **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.4 Table Positions](layout.md)).
@@ -53,7 +53,7 @@ A browser tab opens with the diagram and an editor pane.
 qdbd build schema.txt -o schema.html
 ```
 
-`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)). To send a **link** instead, run `qdbd share schema.txt` ([4.4 Sharing a Link](sharing.md)).
+`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)). To send a **link** instead, run `qdbd share schema.txt` ([4.4 Sharing a Link](sharing.md)). It needs the GitHub CLI, `gh`, installed and logged in (`gh auth login`).
 
 In the page, click a table to see its details, type `+Order` in the filter, or press **Link** to copy a URL to exactly what you're looking at. The tour is in [4.1 Reading the Diagram](reading-the-diagram.md).
 

@@ -5,7 +5,7 @@
   </picture>
 </p>
 
-<p align="center"><b>Interactive ER diagrams from QuickDBD text or a dbt project, readable at 200+ tables</b></p>
+<p align="center"><b>Interactive ER diagrams from QuickDBD text, DBML or a dbt project, readable at 200+ tables</b></p>
 
 <p align="center">
   <a href="https://pypi.org/project/quickdbd-cli/"><img src="https://img.shields.io/pypi/v/quickdbd-cli?label=PyPI" alt="PyPI version"></a>
@@ -51,7 +51,7 @@ qdbd is not affiliated with QuickDBD or dbdiagram.io. It reads the same text syn
 - **QuickDBD-compatible**: the parser mirrors QuickDBD's own, error messages included. A file that passes `qdbd check --strict` pastes into QuickDBD unchanged.
 - **dbt import**: `qdbd import dbt` reads `manifest.json`. Primary keys come from `unique` + `not_null` tests or constraints, relationships from `relationships` tests, and `--infer-fks` fills the gaps from column names.
 - **Readable at 200+ tables**: automatic layout, search, dbt-style selectors (`+orders+1`, `group:marts`, `tag:fact`), shaded regions per file, collapsed views and a minimap.
-- **Review changes in pull requests**: `qdbd diff` reports what a branch changed, the GitHub Action posts it as a PR comment, and `--diff-base` colours the changes in the diagram.
+- **Review changes in pull requests**: `qdbd diff` reports what a branch changed, the GitHub Action posts it as a PR comment, and `--diff-base` colours the changes in the diagram. To propose a column change, tag the column `# @tag: added` or `# @tag: removed` and it's drawn green or red ([column tags](https://qdbd.dev/tags/#columns)).
 - **VS Code extension**: highlighting, errors as you type, outline, F12 across files, and the diagram beside the editor, following your cursor, or in your browser on localhost. Export, share, compare with git, convert to and from DBML, and dbt import from the sidebar or the Command Palette, with no terminal: it installs the CLI itself. Get it from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd) or, for Cursor, Windsurf and VSCodium, [Open VSX](https://open-vsx.org/extension/MarkPhamm/quickdbd) ([docs](https://qdbd.dev/vscode/)).
 - **AI agents**: `qdbd mcp` gives Claude, Copilot and Cursor your schema as tools: tables and columns, join paths as SQL (composite keys included), checks for their edits and diffs against `main` ([docs](https://qdbd.dev/mcp/)).
 - **One schema, many outputs**: an HTML page, PNG, SVG, editable draw.io, or a shareable link. Installs with pip: no Node, Graphviz or browser needed.
@@ -148,7 +148,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.1.11
+      - uses: MarkPhamm/quickdbd-cli@v0.3.3
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -160,7 +160,7 @@ dbt projects, GitHub Pages, pre-commit and GitLab CI are covered in [CI and Auto
 
 ```text
 dbt project ──qdbd import dbt──┐
-                               ├──▶ schema/*.txt   (QuickDBD syntax, in git)
+                               ├──▶ schema/*.txt, *.dbml   (QuickDBD syntax or DBML, in git)
 hand-written / pasted ─────────┘           │
                                            ├──▶ qdbd check   validation, QuickDBD's error messages  ──▶ CI gate
                                            ├──▶ qdbd serve   live editor, drag to arrange           ──▶ schema.layout.json
@@ -202,7 +202,7 @@ qdbd build schema/ -o erd.html
 
 | | qdbd | QuickDBD |
 |---|---|---|
-| Text syntax | QuickDBD's | QuickDBD's |
+| Text syntax | QuickDBD's or DBML | QuickDBD's |
 | Tables per diagram | no limit | 10 on the free plan |
 | Where it runs | your terminal and CI; the result is a static HTML file | the QuickDBD web app |
 | Where the schema lives | `.txt` / `.dbml` files in your git repo | the web app |

@@ -62,7 +62,7 @@ The value must be a `#rgb` or `#rrggbb` hex colour; anything else is a warning. 
 
 ## Column tags { #columns }
 
-A `# @tag:` comment on a column line, or on the line above it, tags that **column**. The row gets a tint, a bar and a name in the tag's colour. It's made for proposing column changes in a review: mark what you're adding and removing, and reviewers see both at a glance.
+A `# @tag:` comment on a column line, or on the line above it, tags that **column**. The row gets a tint, a bar and a name in the tag's colour. It's made for proposing column changes in a review: mark what you're adding and removing, and reviewers see both at a glance. Column tags need qdbd 0.3.1 or later ([1.4 Upgrade](install.md#upgrade)).
 
 ```text
 orders

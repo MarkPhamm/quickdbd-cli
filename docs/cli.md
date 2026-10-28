@@ -1,6 +1,6 @@
 # 8. CLI Reference
 
-Every command except [`mcp`](#mcp) takes one or more `PATH`s: a `.txt` or `.dbml` file, or a folder (every `*.txt` and `*.dbml` under it, recursively). QuickDBD and [DBML](dbml.md) files can be mixed. `qdbd <command> --help` shows all options.
+Every command except [`import dbt`](#import-dbt) (which takes a dbt manifest) and [`mcp`](#mcp) takes one or more `PATH`s: a `.txt` or `.dbml` file, or a folder (every `*.txt` and `*.dbml` under it, recursively). QuickDBD and [DBML](dbml.md) files can be mixed. `qdbd <command> --help` shows all options.
 
 ## 8.1 check { #check }
 
@@ -36,10 +36,10 @@ Two options are there for editors, and the [VS Code extension](vscode.md) uses b
 ## 8.2 build { #build }
 
 ```bash
-qdbd build PATH... -o diagram.html [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
+qdbd build PATH... [-o FILE] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
 ```
 
-Writes one self-contained HTML page. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
+Writes one self-contained HTML page, `diagram.html` unless `-o` names another. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
 
 ## 8.3 serve { #serve }
 
@@ -60,7 +60,7 @@ The default port is 8765. If it's busy (for example, a second `qdbd serve` is ru
 ## 8.4 export { #export }
 
 ```bash
-qdbd export PATH... -o out.png|out.svg|out.drawio [-s …] [--focus TABLE --depth N] [--mode full|keys|header] [--regions] [--by-group] [--scale 2]
+qdbd export PATH... -o out.png|out.svg|out.drawio [-s …] [--exclude …] [--focus TABLE --depth N] [--mode full|keys|header] [--regions] [--by-group] [--layout FILE] [--scale 2] [--strict]
 ```
 
 See [4.3 Exports](exports.md).
@@ -95,15 +95,15 @@ See [6. Reviewing Changes](diffs.md).
 ## 8.8 import dbt { #import-dbt }
 
 ```bash
-qdbd import dbt target/manifest.json -o erd/ [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources] [--infer-fks] [--check]
+qdbd import dbt target/manifest.json [-o FILE_OR_DIR] [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources] [--infer-fks] [--check]
 ```
 
-See [5.1 dbt Import](dbt.md).
+Writes `schema.txt` unless `-o` names another `.txt` file, or a folder for one file per dbt folder. See [5.1 dbt Import](dbt.md).
 
 ## 8.9 share { #share }
 
 ```bash
-qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--public] [--new]
+qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict] [--public] [--new]
 ```
 
 Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. See [4.4 Sharing a Link](sharing.md).
@@ -122,7 +122,7 @@ Converts between QuickDBD text and DBML. With one file and no `-o`, prints the r
 qdbd mcp [PATH...] [--root DIR] [--infer-fks]
 ```
 
-Runs an [MCP](https://modelcontextprotocol.io) server on stdin/stdout, so AI agents (Claude, Copilot, Cursor) can query the schema: tables, join paths with SQL, checks, diffs and diagrams. With no `PATH` it serves every schema project under `--root` (default: the project folder, else the current folder); with paths, just that schema or dbt `manifest.json`. It runs until the client closes it. See [3.7 AI Agents (MCP)](mcp.md).
+Runs an [MCP](https://modelcontextprotocol.io) server on stdin/stdout, so AI agents (Claude, Copilot, Cursor) can query the schema: tables, join paths with SQL, checks, diffs and diagrams. With no `PATH` it serves every schema project under `--root` (default: `$CLAUDE_PROJECT_DIR`, else the current folder); with paths, just that schema or dbt `manifest.json`. It runs until the client closes it. See [3.7 AI Agents (MCP)](mcp.md).
 
 ## 8.12 Exit codes { #exit-codes }
 

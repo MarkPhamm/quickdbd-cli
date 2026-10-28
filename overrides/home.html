@@ -19,7 +19,7 @@
       </a>
       <p class="qh-eyebrow">Open source · Apache 2.0 · <a href="{{ config.repo_url }}/releases/tag/v{{ config.extra.version }}">v{{ config.extra.version }}</a> · <code>pip install</code></p>
       <h1>Database diagrams that live in git, <span>readable at 200+&nbsp;tables</span></h1>
-      <p class="qh-lead">Write your schema in QuickDBD's plain-text syntax, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
+      <p class="qh-lead">Write your schema in QuickDBD's plain-text syntax or DBML, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
       <div class="qh-cta">
         <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg></a>
@@ -89,9 +89,10 @@
   <!-- ------------------------------------------------------------ how it works -->
   <section class="qh-section qh-wrap">
     <h2>One text file in, every format out</h2>
-    <div class="qh-flow" aria-label="schema text or dbt manifest, then qdbd, then HTML, images and PR comments">
+    <div class="qh-flow" aria-label="schema text, DBML or dbt manifest, then qdbd, then HTML, images, PR comments and AI agents">
       <div class="qh-flow__col">
         <div class="qh-box"><code>schema/*.txt</code><small>QuickDBD syntax</small></div>
+        <div class="qh-box"><code>schema.dbml</code><small>DBML</small></div>
         <div class="qh-box"><code>manifest.json</code><small>dbt project</small></div>
       </div>
       <div class="qh-flow__arrow" aria-hidden="true">→</div>
@@ -103,6 +104,7 @@
         <div class="qh-box"><b>HTML page</b><small>search, filter, share</small></div>
         <div class="qh-box"><b>PNG · SVG · draw.io</b><small>docs, slides, wikis</small></div>
         <div class="qh-box"><b>PR comment</b><small>what changed vs main</small></div>
+        <a class="qh-box" href="{{ 'mcp/' | url }}"><b>AI agents</b><small>the schema over MCP</small></a>
       </div>
     </div>
     <ol class="qh-steps3">
@@ -214,7 +216,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
   <section class="qh-section qh-wrap qh-faq">
     <h2>Frequently asked questions</h2>
     <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD's text syntax, and it isn't affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
-    <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
+    <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> or <code>.dbml</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
     <details><summary>Does my schema leave my machine?</summary><p>Only if you run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default), or connect an AI agent through <code>qdbd mcp</code>, whose answers go to your AI provider. Built pages load nothing from the network.</p></details>
     <details><summary>How big can a diagram get?</summary><p>The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable, and <code>--select</code> builds a page with just the part you need.</p></details>
     <details><summary>What do I need to install?</summary><p>Python 3.11 or newer. No Node, Graphviz or browser: the layout engine runs inside Python.</p></details>
