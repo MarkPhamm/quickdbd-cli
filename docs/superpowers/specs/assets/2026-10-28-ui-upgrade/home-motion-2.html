@@ -1,0 +1,360 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+<style>
+/* Throwaway mockup, second pass: more motion everywhere. */
+
+/* ---- headings: words rise out of a blur, one after another */
+.qw { display: inline-block; opacity: 0; transform: translateY(.45em); filter: blur(8px);
+  transition: opacity .6s var(--qe), transform .7s var(--qe), filter .6s var(--qe); transition-delay: calc(var(--i) * 45ms); }
+.qh-words.in .qw { opacity: 1; transform: none; filter: none; }
+.qh-hero .qh-hero__text > :not(h1) { opacity: 0; transform: translateY(14px); transition: opacity .7s var(--qe), transform .7s var(--qe); transition-delay: var(--d, 0s); }
+.qh-hero.in .qh-hero__text > :not(h1) { opacity: 1; transform: none; }
+
+/* ---- cursor light on card borders */
+.qh-glow { position: relative; }
+.qh-glow::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3;
+  background: radial-gradient(260px circle at var(--mx, -500px) var(--my, -500px), rgba(110, 231, 183, .85), rgba(110, 231, 183, .15) 40%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .3s; }
+.qh-glow:hover::before { opacity: 1; }
+
+/* ---- tabs: sliding underline, panels fade, code types itself */
+.qh-tabs__bar { position: relative; }
+.qh-tabs__bar button[aria-selected="true"] { border-bottom-color: transparent; }
+.qh-tabs__bar button { transition: color .2s; }
+.qh-tabs__ind { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--qd-accent);
+  box-shadow: 0 0 12px var(--qd-accent); transition: transform .4s var(--qe), width .4s var(--qe); }
+.qh-code:not([hidden]) { animation: qhpanel .35s var(--qe); }
+@keyframes qhpanel { from { opacity: 0; transform: translateY(6px); } }
+.qh-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px; vertical-align: -.2em; background: var(--qd-mint);
+  animation: qhblink 1s steps(1) infinite; }
+@keyframes qhblink { 50% { opacity: 0; } }
+
+/* ---- live mini diagram that builds as the text types */
+.qh-mini { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--qh-line); background: #f4f5f4;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.qh-mini .qh-frame__bar button { margin-left: auto; border: 0; background: none; color: var(--qd-mint); font: 600 12px Inter, sans-serif; cursor: pointer; }
+.qh-mini svg { display: block; width: 100%; height: auto; }
+.qh-mini text { font-family: Inter, sans-serif !important; }
+.qh-mini .ti { opacity: 0; transform: translateY(10px); transition: opacity .45s var(--qe), transform .45s var(--qe); }
+.qh-mini .t.on .ti { opacity: 1; transform: none; }
+.qh-mini .tb { transition: height .3s var(--qe); }
+.qh-mini .r { opacity: 0; transform: translateX(-8px); transition: opacity .3s var(--qe), transform .3s var(--qe); }
+.qh-mini .r.on { opacity: 1; transform: none; }
+.qh-mini .r .rb { transition: fill .3s, fill-opacity .3s; }
+.qh-mini .r.lit .rb { fill: #dbe6f6; fill-opacity: 1; }
+.qh-mini .e { opacity: 0; }
+.qh-mini .e.on { opacity: 1; }
+.qh-mini .e path { transition: stroke .3s; }
+.qh-mini .e.lit path { stroke: #4361ee; }
+.qh-mini .e.lit .ep { stroke-width: 2.2; }
+.qh-mini .flow { fill: none; stroke: #2a3fb8; stroke-width: 4; stroke-dasharray: 4 18; animation: qhminiflow 1.1s linear infinite; }
+@keyframes qhminiflow { to { stroke-dashoffset: -22; } }
+.qh-mini .lbl { font: 600 11px Inter, sans-serif; fill: #4361ee; paint-order: stroke; stroke: #f4f5f4; stroke-width: 4px; animation: qhfadein .3s; }
+@keyframes qhfadein { from { opacity: 0; } }
+.qh-mini__card { position: absolute; z-index: 2; min-width: 230px; padding: 10px 12px; background: #fff; color: #1f2937;
+  border: 1px solid #dfe3e8; border-radius: 10px; box-shadow: 0 10px 30px rgba(16, 24, 40, .18); font: 12px Inter, sans-serif;
+  opacity: 0; transform: translateY(-4px) scale(.96); transform-origin: top left; transition: opacity .25s var(--qe), transform .25s var(--qe); pointer-events: none; }
+.qh-mini__card.open { opacity: 1; transform: none; }
+.qh-mini__card b { color: #4361ee; padding: 0 4px; }
+.qh-mini__card .k { color: #6b7280; margin: 2px 0 7px; }
+.qh-mini__card { max-width: calc(100% - 24px); }
+.qh-mini__card pre { white-space: pre-wrap; margin: 0; padding: 6px 8px; background: #f4f5f4; border: 1px solid #e5e7eb; border-radius: 6px; font: 11px ui-monospace, Menlo, monospace; }
+
+/* ---- quick start: a track fills 1 to 4, badges pop, commands type */
+.qh-steps4 { position: relative; }
+.qh-steps4__track { position: absolute; height: 2px; background: #22385c; z-index: 1; pointer-events: none; }
+.qh-steps4__track i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--qd-accent), var(--qd-mint));
+  transform-origin: left; transform: scaleX(0); transition: transform 1.8s cubic-bezier(.45, 0, .55, 1); box-shadow: 0 0 10px var(--qd-mint); }
+.qh-steps4.go .qh-steps4__track i { transform: scaleX(1); }
+.qh-steps4 > li > span { position: relative; z-index: 2; transform: scale(.3); opacity: 0; transition: transform .5s var(--qpop), opacity .25s; }
+.qh-steps4 > li > span.on { transform: none; opacity: 1; }
+.qh-steps4 > li > span.on::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--qd-mint);
+  animation: qhring .9s ease-out forwards; }
+@keyframes qhring { from { transform: scale(1); opacity: .9; } to { transform: scale(2.1); opacity: 0; } }
+.qh-steps4 > li > code { min-height: 2.2em; }
+
+/* ---- figures tilt up into place as they scroll in */
+@supports (animation-timeline: view()) {
+  .qh-figure > img, .qh-figure > a > img, .qh-mini { animation: qhtiltin linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+  @keyframes qhtiltin { from { transform: perspective(1200px) rotateX(16deg) translateY(40px) scale(.95); opacity: .2; } }
+}
+
+/* ---- PR comment rows and list items arrive in order */
+.qh-list li, .qh-comment tr + tr { opacity: 0; transform: translateX(-10px); transition: opacity .45s var(--qe), transform .45s var(--qe); transition-delay: var(--d, 0s); }
+.qh-list.in li, .qh-comment.in tr + tr { opacity: 1; transform: none; }
+.qh-comment.in tr + tr td { animation: qhrowflash 1.4s var(--d, 0s) ease-out; }
+@keyframes qhrowflash { 0%, 30% { background: rgba(110, 231, 183, .14); } 100% { background: transparent; } }
+
+/* ---- gallery: image eases in on hover */
+.qh-card img { transition: transform .7s var(--qe); }
+.qh-card:hover img { transform: scale(1.05); }
+
+/* ---- FAQ opens smoothly, plus turns into a cross */
+.qh-faq { interpolate-size: allow-keywords; }
+.qh-faq details::details-content { height: 0; overflow: clip; transition: height .35s var(--qe), content-visibility .35s allow-discrete; }
+.qh-faq details[open]::details-content { height: auto; }
+.qh-faq summary::after, .qh-faq details[open] summary::after { content: "+"; transition: transform .3s var(--qe); }
+.qh-faq details[open] summary::after { transform: rotate(45deg); }
+.qh-faq summary { transition: color .2s; }
+.qh-faq summary:hover { color: var(--qd-mint); }
+
+/* ---- buttons shimmer, closing section glows */
+.qh-btn--primary { position: relative; overflow: hidden; }
+.qh-btn--primary::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .35) 50%, transparent 70%); animation: qhshine 4.5s 1.5s ease-in-out infinite; }
+@keyframes qhshine { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
+.qh-final { position: relative; isolation: isolate; overflow-x: clip; }
+.qh-final::before { content: ""; position: absolute; left: 50%; top: 40%; width: 760px; height: 380px; margin-left: -380px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(59, 130, 246, .22), transparent); filter: blur(20px); animation: qhdrift 9s ease-in-out infinite alternate; }
+@keyframes qhdrift { from { transform: translate(-80px, -20px) scale(.9); } to { transform: translate(80px, 20px) scale(1.1); } }
+
+@media (max-width: 960px) { .qh-steps4__track { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .qw, .qh-hero .qh-hero__text > *, .qh-mini .ti, .qh-mini .r, .qh-mini .e, .qh-list li, .qh-comment tr + tr, .qh-steps4 > li > span {
+    opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  .qh-mini .flow, .qh-btn--primary::after, .qh-final::before, .qh-caret, .qh-mini, .qh-figure img { animation: none !important; }
+}
+</style>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function el(tag, a) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function onView(node, fn, margin) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); fn(e.target); } });
+    }, { rootMargin: margin || "0px 0px -12% 0px" });
+    io.observe(node);
+  }
+
+  // ---- headings: split into words (only on real spaces, so &nbsp; stays glued)
+  function splitWords(h) {
+    var i = 0;
+    (function walk(n) {
+      [].slice.call(n.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          c.textContent.split(/( +|\n+)/).forEach(function (w) {
+            if (!w) return;
+            if (!w.trim()) { frag.appendChild(document.createTextNode(w)); return; }
+            var s = document.createElement("q-w");
+            s.className = "qw"; s.style.setProperty("--i", i++); s.textContent = w;
+            frag.appendChild(s);
+          });
+          c.replaceWith(frag);
+        } else if (c.nodeType === 1 && c.tagName !== "CODE") walk(c);
+      });
+    })(h);
+    h.classList.remove("qh-rv");
+    h.classList.add("qh-words");
+    return i;
+  }
+  document.querySelectorAll(".qh-section > h2, .qh-final > h2").forEach(function (h) {
+    splitWords(h); onView(h, function (n) { n.classList.add("in"); });
+  });
+  var hero = document.querySelector(".qh-hero"), h1 = hero && hero.querySelector("h1");
+  if (h1) {
+    var n = splitWords(h1);
+    hero.querySelectorAll(".qh-hero__text > :not(h1)").forEach(function (x, k) {
+      x.style.setProperty("--d", (k < 2 ? k * 0.08 : 0.2 + n * 0.045 + (k - 2) * 0.09) + "s");
+    });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { h1.classList.add("in"); hero.classList.add("in"); }); });
+  }
+
+  // ---- cursor light on card borders
+  document.querySelectorAll(".qh-col, .qh-box, .qh-card, .qh-steps4 > li, .qh-tabs, .qh-comment, .qh-tour__chapters li").forEach(function (c) {
+    c.classList.add("qh-glow");
+    c.addEventListener("pointermove", function (e) {
+      var r = c.getBoundingClientRect();
+      c.style.setProperty("--mx", e.clientX - r.left + "px");
+      c.style.setProperty("--my", e.clientY - r.top + "px");
+    });
+  });
+
+  // ---- typing: re-types an element's text, keeping its <b>/<i>/<span> colouring
+  function typer(node) {
+    var segs = [].map.call(node.childNodes, function (c) {
+      return c.nodeType === 3 ? { text: c.textContent } : { tag: c.tagName, cls: c.className, text: c.textContent };
+    });
+    var full = node.innerHTML, token = 0;
+    return {
+      show: function () { token++; node.innerHTML = full; },
+      clear: function () { if (reduce) return; node.innerHTML = full; node.style.minHeight = node.offsetHeight + "px"; node.innerHTML = ""; },
+      play: async function (onLine, speed) {
+        var my = ++token, line = 0;
+        node.innerHTML = full;
+        node.style.minHeight = node.offsetHeight + "px";
+        if (reduce) { if (onLine) for (var L = 0; L <= full.split("\n").length; L++) onLine(L); return; }
+        node.innerHTML = "";
+        var caret = document.createElement("q-caret");
+        caret.className = "qh-caret";
+        node.appendChild(caret);
+        for (var s = 0; s < segs.length; s++) {
+          var box = segs[s].tag ? document.createElement(segs[s].tag) : document.createTextNode("");
+          if (segs[s].tag && segs[s].cls) box.className = segs[s].cls;
+          node.insertBefore(box, caret);
+          var t = segs[s].text;
+          for (var k = 0; k < t.length; k++) {
+            if (my !== token) return false;
+            box.textContent += t[k];
+            if (t[k] === "\n") { if (onLine) onLine(line); line++; await wait(110); }
+            else await wait(speed || 17);
+          }
+        }
+        if (onLine) onLine(line);
+        setTimeout(function () { if (my === token) caret.remove(); }, 1600);
+        return true;
+      },
+    };
+  }
+
+  // ---- tabs + live diagram
+  var tabs = document.querySelector(".qh-tabs");
+  if (tabs) {
+    var bar = tabs.querySelector(".qh-tabs__bar"), ind = document.createElement("i");
+    ind.className = "qh-tabs__ind";
+    bar.appendChild(ind);
+    function moveInd() {
+      var b = bar.querySelector('[aria-selected="true"]');
+      ind.style.width = b.offsetWidth + "px";
+      ind.style.transform = "translateX(" + b.offsetLeft + "px)";
+    }
+    moveInd();
+    addEventListener("resize", moveInd);
+    var typers = {};
+    tabs.querySelectorAll(".qh-code").forEach(function (p) { typers[p.id] = typer(p); });
+
+    // swap the static screenshot for a diagram of the exact text on the left
+    var fig = tabs.parentNode.querySelector(".qh-figure");
+    fig.innerHTML = '<div class="qh-mini"><div class="qh-frame__bar"><i></i><i></i><i></i><span>schema.txt · live</span><button type="button">Replay</button></div>' +
+      __MINI_SVG__ + '<div class="qh-mini__card"></div></div>' +
+      "<figcaption>Every line you type lands in the diagram. Click a relationship for its cardinality and the SQL <code>JOIN</code>.</figcaption>";
+    var mini = fig.querySelector(".qh-mini"), svg = mini.querySelector("svg"), card = mini.querySelector(".qh-mini__card");
+    svg.setAttribute("viewBox", "-30 -30 524 252");
+    svg.removeAttribute("width"); svg.removeAttribute("height");
+    svg.querySelector(".bgr").remove();
+    var T = {};
+    svg.querySelectorAll(".t").forEach(function (t) {
+      var inner = el("g", { "class": "ti" });
+      while (t.firstChild) inner.appendChild(t.firstChild);
+      t.appendChild(inner);
+      var tb = inner.querySelector(".tb");
+      T[t.getAttribute("data-id")] = { g: t, tb: tb, rows: 0 };
+    });
+    var edge = svg.querySelector(".e"), ep = edge.querySelector(".ep"), fx = el("g", { "class": "fx" });
+    svg.insertBefore(fx, svg.querySelector(".tables"));
+
+    function reset() {
+      card.classList.remove("open");
+      fx.innerHTML = "";
+      edge.classList.remove("on", "lit");
+      svg.querySelectorAll(".on, .lit").forEach(function (x) { x.classList.remove("on", "lit"); });
+      for (var id in T) { T[id].rows = 0; T[id].tb.style.height = "32px"; }
+    }
+    function showTable(id) { T[id].g.classList.add("on"); }
+    function showRow(id, c) {
+      var t = T[id];
+      t.g.querySelector('.r[data-c="' + c + '"]').classList.add("on");
+      t.rows++;
+      t.tb.style.height = 32 + t.rows * 24 + 4 + "px";
+    }
+    function drawEdge() {
+      edge.classList.add("on");
+      var len = ep.getTotalLength();
+      ep.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 600, easing: "cubic-bezier(.6,0,.3,1)" });
+      [].slice.call(edge.querySelectorAll("path:not(.ep)")).forEach(function (m) {
+        m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, delay: 500, fill: "backwards" });
+      });
+    }
+    function lightEdge() {
+      edge.classList.add("lit");
+      T.Order.g.querySelector('.r[data-c="CustomerId"]').classList.add("lit");
+      T.Customer.g.querySelector('.r[data-c="CustomerId"]').classList.add("lit");
+      var d = ep.getAttribute("d"), n = d.match(/-?\d+(\.\d+)?/g).map(Number);
+      fx.appendChild(el("path", { d: d, "class": "flow" }));
+      [[n[0], n[1], n[2] >= n[0] ? 1 : -1, "*"], [n[6], n[7], n[4] >= n[6] ? 1 : -1, "1"]].forEach(function (q) {
+        var t = el("text", { x: q[0] + q[2] * 8, y: q[1] - 9, "class": "lbl", "text-anchor": q[2] > 0 ? "start" : "end" });
+        t.textContent = q[3];
+        fx.appendChild(t);
+      });
+      // the relationship card, as in the viewer
+      var m = ep.getPointAtLength(ep.getTotalLength() / 2), ctm = ep.getScreenCTM(), r = mini.getBoundingClientRect();
+      card.innerHTML = "<div>Order.CustomerId<b>* — 1</b>Customer.CustomerId</div><div class=\"k\">Each Customer row has many Order rows</div>" +
+        "<pre>FROM Order\nJOIN Customer ON Customer.CustomerId = Order.CustomerId</pre>";
+      card.style.left = Math.max(12, Math.min(m.x * ctm.a + ctm.e - r.left - 150, r.width - card.offsetWidth - 12)) + "px";
+      card.style.top = 128 * ctm.d + ctm.f - r.top + "px";
+      card.classList.add("open");
+    }
+    // line index of the text on the left -> what appears in the diagram
+    var STEPS = { 1: [showTable, "Order"], 3: [showRow, "Order", "OrderId"], 4: [showRow, "Order", "CustomerId"], 5: [showRow, "Order", "Status"],
+      7: [showTable, "Customer"], 9: [showRow, "Customer", "CustomerId"], 10: [showRow, "Customer", "Email"] };
+    async function build() {
+      reset();
+      var done = await typers["t-text"].play(function (line) {
+        var s = STEPS[line];
+        if (s) s[0](s[1], s[2]);
+        if (line === 9) setTimeout(drawEdge, 250);
+      });
+      if (done === false) return;
+      await wait(reduce ? 0 : 700);
+      lightEdge();
+    }
+    reset();
+    typers["t-text"].clear();
+    var started = false;
+    onView(tabs, function () { started = true; build(); }, "0px 0px -25% 0px");
+    mini.querySelector(".qh-frame__bar button").onclick = function () {
+      bar.querySelector('[data-tab="t-text"]').click();
+    };
+    bar.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        setTimeout(function () {
+          moveInd();
+          var id = b.getAttribute("data-tab");
+          for (var k in typers) if (k !== id) typers[k].show();
+          if (id === "t-text") build(); else if (started) typers[id].play(null, 12);
+        }, 0);
+      });
+    });
+  }
+
+  // ---- quick start
+  var steps = document.querySelector(".qh-steps4");
+  if (steps) {
+    var lis = [].slice.call(steps.children), track = document.createElement("div");
+    track.className = "qh-steps4__track";
+    track.innerHTML = "<i></i>";
+    steps.appendChild(track);
+    var codeTypers = lis.map(function (li) { var c = li.querySelector(":scope > code"); return c && typer(c); });
+    function place() {
+      var a = lis[0].querySelector("span"), b = lis[lis.length - 1].querySelector("span");
+      var ax = lis[0].offsetLeft + a.offsetLeft + a.offsetWidth / 2, bx = lis[lis.length - 1].offsetLeft + b.offsetLeft + b.offsetWidth / 2;
+      track.style.left = ax + "px"; track.style.width = bx - ax + "px";
+      track.style.top = lis[0].offsetTop + a.offsetTop + a.offsetHeight / 2 - 1 + "px";
+    }
+    place();
+    addEventListener("resize", place);
+    codeTypers.forEach(function (t) { if (t) t.clear(); });
+    onView(steps, async function () {
+      await wait(450);
+      steps.classList.add("go");
+      for (var k = 0; k < lis.length; k++) {
+        lis[k].querySelector("span").classList.add("on");
+        if (codeTypers[k]) codeTypers[k].play(null, 28);
+        await wait(reduce ? 0 : 600);
+      }
+    }, "0px 0px -20% 0px");
+  }
+
+  // ---- PR review: list and comment rows in order
+  document.querySelectorAll(".qh-list, .qh-comment").forEach(function (g) {
+    g.querySelectorAll(g.classList.contains("qh-list") ? "li" : "tr + tr").forEach(function (x, k) { x.style.setProperty("--d", 0.25 + k * 0.15 + "s"); });
+    onView(g, function () { g.classList.add("in"); });
+  });
+
+  // ---- closing install command types itself
+  var fin = document.querySelector(".qh-final .qh-install code");
+  if (fin) { var ft = typer(fin); ft.clear(); onView(fin, function () { setTimeout(function () { ft.play(null, 45); }, 500); }); }
+})();
+</script>

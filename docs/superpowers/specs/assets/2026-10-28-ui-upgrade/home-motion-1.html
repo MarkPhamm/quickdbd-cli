@@ -1,0 +1,213 @@
+<style>
+/* Throwaway mockup: motion for the compare cards, the flow diagram and every section. */
+:root { --qe: cubic-bezier(.2, .7, .2, 1); --qpop: cubic-bezier(.34, 1.56, .64, 1); }
+
+/* ---- scroll reveal (generic) */
+.qh-rv { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--qe), transform .7s var(--qe); transition-delay: var(--d, 0s); }
+.qh-rv.in { opacity: 1; transform: none; }
+
+/* ---- compare: cards rise, rows and marks pop in, then the side cards step back */
+.qh-compare .qh-col { opacity: 0; transform: translateY(26px);
+  transition: opacity .6s var(--qe), transform .6s var(--qe), filter .4s; transition-delay: var(--d, 0s); }
+.qh-compare.in .qh-col { opacity: 1; transform: none; }
+.qh-compare li { opacity: 0; transform: translateX(-8px); transition: opacity .45s var(--qe), transform .45s var(--qe); transition-delay: var(--d, 0s); }
+.qh-compare li::before { display: inline-block; transform: scale(0); transition: transform .45s var(--qpop); transition-delay: calc(var(--d, 0s) + .12s); }
+.qh-compare.in li { opacity: 1; transform: none; }
+.qh-compare.in li::before { transform: scale(1); }
+.qh-compare.settled .qh-col:not(.qh-col--us) { opacity: .62; transform: scale(.98); transition-delay: 0s; }
+.qh-compare.settled .qh-col:not(.qh-col--us):hover { opacity: 1; transform: none; }
+.qh-compare.settled .qh-col--us { transform: translateY(-6px); transition-delay: 0s;
+  box-shadow: 0 0 0 1px var(--qd-accent) inset, 0 24px 60px rgba(59, 130, 246, .28); }
+
+/* a light that runs around the qdbd card's border, like a lit relationship */
+@property --qa { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.qh-col--us { position: relative; }
+.qh-col--us::after { content: ""; position: absolute; inset: -1px; border-radius: 12px; padding: 2px; pointer-events: none;
+  background: conic-gradient(from var(--qa), transparent 0 62%, rgba(110, 231, 183, .0) 66%, var(--qd-mint) 82%, transparent 90%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .8s; animation: qhspin 5s linear infinite; }
+.qh-compare.settled .qh-col--us::after { opacity: 1; }
+@keyframes qhspin { to { --qa: 360deg; } }
+
+/* ---- flow: curved connectors instead of arrows, drawn in order, then data pulses through */
+.qh-flow { position: relative; }
+.qh-flow__wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.qh-flow__col { position: relative; z-index: 1; }
+.qh-flow__wires .base { fill: none; stroke: #2e4c7a; stroke-width: 1.6; transition: stroke .25s; }
+.qh-flow__wires .dot { fill: #2e4c7a; transition: fill .25s; }
+.qh-flow__wires .flow { fill: none; stroke: var(--qd-mint); stroke-width: 2; stroke-dasharray: 3 11; opacity: 0;
+  animation: qhdash .9s linear infinite; transition: opacity .25s; }
+.qh-flow__wires .comet { fill: none; stroke: #b7f5dc; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--qd-mint)); }
+.qh-flow__wires .lit .base { stroke: var(--qd-mint); }
+.qh-flow__wires .lit .dot { fill: var(--qd-mint); }
+.qh-flow__wires .lit .flow { opacity: 1; }
+@keyframes qhdash { to { stroke-dashoffset: -14; } }
+
+.qh-flow.wired .qh-flow__arrow { visibility: hidden; }
+.qh-flow.wired:not(.in) .qh-flow__wires { opacity: 0; }
+.qh-flow.wired { grid-template-columns: 1fr 96px 1fr 96px 1fr; }
+.qh-flow .qh-box { transition: opacity .55s var(--qe), transform .55s var(--qe), border-color .25s, box-shadow .25s; transition-delay: var(--d, 0s); }
+.qh-flow.wired:not(.in) .qh-flow__ins .qh-box { opacity: 0; transform: translateX(-18px); }
+.qh-flow.wired:not(.in) .qh-flow__outs .qh-box { opacity: 0; transform: translateX(-12px); }
+.qh-flow.wired:not(.in) .qh-box--core { opacity: 0; transform: scale(.94); }
+.qh-flow .qh-box:hover { border-color: var(--qd-mint); transform: translateY(-2px); transition-delay: 0s; }
+.qh-flow .qh-box.ping { border-color: var(--qd-mint); box-shadow: 0 0 0 1px var(--qd-mint) inset, 0 0 24px rgba(110, 231, 183, .22); transition-delay: 0s; }
+.qh-box--core.ping { box-shadow: 0 0 0 1px var(--qd-mint) inset, 0 0 46px rgba(110, 231, 183, .3); }
+.qh-box--core small span { transition: color .2s; }
+.qh-box--core small span.on { color: var(--qd-mint); }
+
+@media (max-width: 960px) {
+  .qh-flow.wired { grid-template-columns: minmax(0, 1fr); }
+  .qh-flow.wired .qh-flow__arrow { visibility: visible; }
+  .qh-flow__wires { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qh-rv, .qh-compare .qh-col, .qh-compare li, .qh-flow .qh-box { opacity: 1 !important; transform: none !important; transition: none; }
+  .qh-compare li::before { transform: none; }
+  .qh-col--us::after, .qh-flow__wires .flow { animation: none; }
+}
+</style>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function el(tag, a) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function onView(node, fn, margin) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); fn(e.target); } });
+    }, { rootMargin: margin || "0px 0px -15% 0px" });
+    io.observe(node);
+  }
+
+  // ---- generic reveal: headings, subs, step lists, gallery cards (staggered inside grids)
+  document.querySelectorAll(".qh-section > h2, .qh-section > .qh-sub, .qh-section > p, .qh-final > *").forEach(function (x) {
+    x.classList.add("qh-rv"); onView(x, function (n) { n.classList.add("in"); });
+  });
+  // hide first, then set delays, so the hiding itself isn't delayed
+  var staggered = [];
+  document.querySelectorAll(".qh-steps3, .qh-steps4, .qh-gallery, .qh-faq").forEach(function (g) {
+    [].forEach.call(g.children, function (c, k) { c.classList.add("qh-rv"); staggered.push([c, k * 0.08]); });
+  });
+  void document.body.offsetWidth;
+  staggered.forEach(function (x) { x[0].style.setProperty("--d", x[1] + "s"); onView(x[0], function (n) { n.classList.add("in"); }); });
+
+  // ---- compare
+  var cmp = document.querySelector(".qh-compare");
+  if (cmp) {
+    [].forEach.call(cmp.children, function (col, i) {
+      col.style.setProperty("--d", i * 0.12 + "s");
+      col.querySelectorAll("li").forEach(function (li, j) { li.style.setProperty("--d", 0.3 + i * 0.12 + j * 0.1 + "s"); });
+    });
+    onView(cmp, function () {
+      cmp.classList.add("in");
+      setTimeout(function () { cmp.classList.add("settled"); }, reduce ? 0 : 1700);
+    });
+  }
+
+  // ---- flow
+  var flow = document.querySelector(".qh-flow");
+  if (!flow) return;
+  var cols = flow.querySelectorAll(".qh-flow__col");
+  cols[0].classList.add("qh-flow__ins"); cols[2].classList.add("qh-flow__outs");
+  var ins = [].slice.call(cols[0].children), core = cols[1].querySelector(".qh-box"), outs = [].slice.call(cols[2].children);
+  var small = core.querySelector("small");
+  small.innerHTML = small.textContent.split(" · ").map(function (w) { return "<span>" + w + "</span>"; }).join(" · ");
+  var words = [].slice.call(small.querySelectorAll("span"));
+  flow.classList.add("wired");
+  void flow.offsetWidth;
+  ins.forEach(function (b, i) { b.style.setProperty("--d", i * 0.1 + "s"); });
+  outs.forEach(function (b, i) { b.style.setProperty("--d", 1.5 + i * 0.1 + "s"); });
+  core.style.setProperty("--d", ".7s");
+
+  var svg = el("svg", { "class": "qh-flow__wires", "aria-hidden": "true" });
+  flow.insertBefore(svg, flow.firstChild);
+  var wires = { in: [], out: [] };
+
+  function curve(x1, y1, x2, y2) {
+    var dx = (x2 - x1) * 0.55;
+    return "M" + x1 + " " + y1 + " C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + x2 + " " + y2;
+  }
+  function draw() {
+    svg.innerHTML = "";
+    wires = { in: [], out: [] };
+    if (getComputedStyle(svg).display === "none") return;
+    // layout boxes, ignoring the reveal transforms
+    function box(b) {
+      var x = b.offsetLeft + b.offsetParent.offsetLeft, y = b.offsetTop + b.offsetParent.offsetTop;
+      return { left: x, right: x + b.offsetWidth, top: y, height: b.offsetHeight };
+    }
+    var f = { left: 0, top: 0 }, c = box(core);
+    function wire(kind, x1, y1, x2, y2) {
+      var g = el("g", {}), d = curve(x1, y1, x2, y2);
+      var base = el("path", { d: d, "class": "base" });
+      g.appendChild(base);
+      g.appendChild(el("path", { d: d, "class": "flow" }));
+      g.appendChild(el("circle", { cx: x1, cy: y1, r: 3, "class": "dot" }));
+      g.appendChild(el("circle", { cx: x2, cy: y2, r: 3, "class": "dot" }));
+      svg.appendChild(g);
+      wires[kind].push({ g: g, base: base, d: d, len: base.getTotalLength() });
+    }
+    ins.forEach(function (b, i) {
+      var r = box(b), spread = (i - (ins.length - 1) / 2) * 14;
+      wire("in", r.right - f.left, r.top + r.height / 2 - f.top, c.left - f.left, c.top + c.height / 2 - f.top + spread);
+    });
+    outs.forEach(function (b, i) {
+      var r = box(b), spread = (i - (outs.length - 1) / 2) * 12;
+      wire("out", c.right - f.left, c.top + c.height / 2 - f.top + spread, r.left - f.left, r.top + r.height / 2 - f.top);
+    });
+  }
+  draw();
+  new ResizeObserver(function () { draw(); }).observe(flow);
+
+  // draw-in: each wire's stroke grows from its start
+  function drawIn(list, delay) {
+    list.forEach(function (w, i) {
+      w.base.animate([{ strokeDasharray: w.len, strokeDashoffset: w.len }, { strokeDasharray: w.len, strokeDashoffset: 0 }],
+        { duration: 520, delay: delay + i * 90, easing: "cubic-bezier(.6,0,.3,1)", fill: "backwards" });
+      w.g.querySelectorAll(".dot").forEach(function (d) {
+        d.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: delay + i * 90 + 380, fill: "backwards" });
+      });
+    });
+  }
+  function comet(w, dur) {
+    var p = el("path", { d: w.d, "class": "comet", "stroke-dasharray": "22 " + (w.len + 44) });
+    svg.appendChild(p);
+    var a = p.animate([{ strokeDashoffset: 22 }, { strokeDashoffset: -w.len }], { duration: dur, easing: "cubic-bezier(.45,0,.55,1)" });
+    a.onfinish = function () { p.remove(); };
+  }
+  function ping(box) { box.classList.add("ping"); setTimeout(function () { box.classList.remove("ping"); }, 650); }
+
+  // one input at a time: its pulse reaches qdbd, qdbd runs check, layout, render, then every output lights
+  var turn = 0, hovering = false;
+  async function pulse() {
+    if (hovering || !wires.in.length) return;
+    var i = turn++ % ins.length;
+    ping(ins[i]);
+    comet(wires.in[i], 700);
+    await wait(650);
+    ping(core);
+    for (var k = 0; k < words.length; k++) { words[k].classList.add("on"); await wait(160); words[k].classList.remove("on"); }
+    wires.out.forEach(function (w, j) { setTimeout(function () { comet(w, 650); }, j * 70); });
+    await wait(560);
+    outs.forEach(function (b, j) { setTimeout(function () { ping(b); }, j * 70); });
+  }
+
+  // hover: light the path through the box, like hovering a table in the viewer
+  function light(ws) { wires.in.concat(wires.out).forEach(function (w) { w.g.classList.toggle("lit", ws.indexOf(w) >= 0); }); }
+  ins.forEach(function (b, i) { b.addEventListener("mouseenter", function () { hovering = true; light([wires.in[i]].concat(wires.out)); }); });
+  outs.forEach(function (b, i) { b.addEventListener("mouseenter", function () { hovering = true; light(wires.in.concat([wires.out[i]])); }); });
+  core.addEventListener("mouseenter", function () { hovering = true; light(wires.in.concat(wires.out)); });
+  ins.concat(outs, [core]).forEach(function (b) { b.addEventListener("mouseleave", function () { hovering = false; light([]); }); });
+
+  onView(flow, async function () {
+    flow.classList.add("in");
+    if (reduce) return;
+    drawIn(wires.in, 350);
+    drawIn(wires.out, 1250);
+    await wait(2600);
+    pulse();
+    setInterval(pulse, 3800);
+  });
+})();
+</script>

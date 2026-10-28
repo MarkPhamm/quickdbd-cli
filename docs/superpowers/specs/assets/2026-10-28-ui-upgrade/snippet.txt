@@ -1,0 +1,11 @@
+# Every order belongs to one customer.
+Order as o
+----
+OrderId PK int IDENTITY
+CustomerId int FK >- Customer.CustomerId
+Status string="pending" # fulfilment state
+
+Customer
+-
+CustomerId PK int
+Email varchar(255) UNIQUE

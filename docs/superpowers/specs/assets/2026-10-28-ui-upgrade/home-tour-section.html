@@ -1,0 +1,22 @@
+  <!-- ------------------------------------------------------------ live tour (mockup) -->
+  <section class="qh-section qh-wrap qh-tour">
+    <p class="qh-tour__eyebrow">Live demo</p>
+    <h2>The real page, driven by a script</h2>
+    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks, 68 tables. Move your mouse over it to take control.</p>
+    <div class="qh-tour__frame" id="tourFrame">
+      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span><b class="qh-tour__state" id="tourState">Playing</b></div>
+      <div class="qh-tour__stage" id="tourStage">
+        <iframe id="tourIframe" src="tour/aw.html" title="qdbd viewer demo" loading="lazy" tabindex="-1"></iframe>
+        <div class="qh-tour__overlay">
+          <svg class="qh-cursor" id="tourCursor" width="22" height="22" viewBox="0 0 24 24"><path d="M4 2l15 11-7 1.2 4 7.3-2.8 1.5-4-7.4L4 20z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div class="qh-tour__toast" id="tourToast"></div>
+        </div>
+      </div>
+    </div>
+    <ol class="qh-tour__chapters" id="tourChapters">
+      <li data-i="0"><b>Search</b><span>Find a table among 68</span><i></i></li>
+      <li data-i="1"><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
+      <li data-i="2"><b>Selectors</b><span>dbt-style filters</span><i></i></li>
+      <li data-i="3"><b>Join paths</b><span>From one table to another</span><i></i></li>
+    </ol>
+  </section>
