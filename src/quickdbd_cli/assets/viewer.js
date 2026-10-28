@@ -73,7 +73,8 @@
     var focused = svg.classList.contains("focus"), h = S.hover || {}, geo = null, parts = [];
     vp.querySelectorAll(".e").forEach(function (e) {
       var k = edgeKey(e), a = e.getAttribute("data-a"), b = e.getAttribute("data-b"), d = e.querySelector(".ep").getAttribute("d");
-      if (e.classList.contains("ph")) { parts.push('<path class="flow amber" d="' + d + '"/>'); return; }
+      var dk = ' data-k="' + Q.esc(k) + '"';
+      if (e.classList.contains("ph")) { parts.push('<path class="flow amber"' + dk + ' d="' + d + '"/>'); return; }
       if (!(k === S.edge || h.e === k || h.t === a || h.t === b || e.classList.contains("hl") ||
           (focused && !S.path && !e.classList.contains("dim")))) return;
       var r = S.vm.rels[relByKey[k]];
@@ -86,9 +87,9 @@
         var row = t.querySelector('.r[data-c="' + cssEsc(end[1]) + '"]');
         if (row) row.classList.add("lit");
       });
-      parts.push('<path class="flow" d="' + d + '"/>');
+      parts.push('<path class="flow"' + dk + ' d="' + d + '"/>');
       (Q.edgeLabels(S.vm, S.pos, S.mode, r, geo = geo || Q.geometry(S.vm, S.mode)) || []).forEach(function (l) {
-        parts.push('<text class="lbl" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.anchor + '">' + Q.esc(l.text) + "</text>");
+        parts.push('<text class="lbl"' + dk + ' x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.anchor + '">' + Q.esc(l.text) + "</text>");
       });
     });
     fx.innerHTML = parts.join("");
@@ -331,6 +332,7 @@
       edge: hp ? hp.getAttribute("data-k") : null };
     if (drag.table) { // tables are draggable everywhere; only `qdbd serve` saves the new position
       drag.start = S.pos[drag.table].slice();
+      dragPrep(drag);
       tEl.parentNode.appendChild(tEl); // bring the grabbed table to the front
     } else {
       drag.view = { x: S.view.x, y: S.view.y };
@@ -348,7 +350,7 @@
       var p = [Math.round(drag.start[0] + dx / S.view.k), Math.round(drag.start[1] + dy / S.view.k)];
       S.pos[drag.table] = p;
       drag.el.setAttribute("transform", "translate(" + p[0] + "," + p[1] + ")");
-      if (!raf) raf = requestAnimationFrame(function () { raf = null; renderEdges(); });
+      if (!raf) raf = requestAnimationFrame(function () { raf = null; if (drag) dragEdges(drag); });
     } else if (drag.view) {
       S.view.x = drag.view.x + dx;
       S.view.y = drag.view.y + dy;
@@ -369,12 +371,42 @@
     }
     if (d.start) {
       if (S.regions) render(); // regions are sized from table positions
+      else renderEdges();
       drawMinimap();
       var name = byId[d.table].name, body = {};
       body[name] = S.pos[d.table];
       if (window.qdbdServe) window.qdbdServe.saveLayout(body);
     }
   });
+  /* While a table is dragged only its own lines are redrawn (a full redraw per frame was slow at 200+ tables). */
+  function dragPrep(d) {
+    var on = function (k) { var p = k.split("|"); return p[0] === d.table || p[2] === d.table; };
+    d.geo = Q.geometry(S.vm, S.mode);
+    d.rels = S.vm.rels.filter(function (r) { return r.a.t === d.table || r.b.t === d.table; });
+    d.els = {};
+    d.hits = {};
+    vp.querySelectorAll(".edges .e").forEach(function (e) { var k = edgeKey(e); if (on(k)) d.els[k] = e; });
+    vp.querySelectorAll(".hit path").forEach(function (h) { var k = h.getAttribute("data-k"); if (on(k)) d.hits[k] = h; });
+  }
+  function dragEdges(d) {
+    var tmp = document.createElementNS("http://www.w3.org/2000/svg", "g"), fx = vp.querySelector(".fx");
+    tmp.innerHTML = Q.renderEdges({ style: S.vm.style, tables: S.vm.tables, rels: d.rels }, S.pos, S.mode, d.geo);
+    [].slice.call(tmp.children).forEach(function (e) {
+      var k = edgeKey(e), old = d.els[k], path = e.querySelector(".ep").getAttribute("d");
+      if (!old) return;
+      e.setAttribute("class", old.getAttribute("class")); // keep dim / lit / ph
+      old.replaceWith(e);
+      d.els[k] = e;
+      if (d.hits[k]) d.hits[k].setAttribute("d", path);
+      var items = fx ? fx.querySelectorAll('[data-k="' + cssEsc(k) + '"]') : [], labels = null, li = 0;
+      [].forEach.call(items, function (it) {
+        if (it.tagName === "path") { it.setAttribute("d", path); return; }
+        labels = labels || Q.edgeLabels(S.vm, S.pos, S.mode, S.vm.rels[relByKey[k]], d.geo) || [];
+        var l = labels[li++];
+        if (l) { it.setAttribute("x", l.x); it.setAttribute("y", l.y); it.setAttribute("text-anchor", l.anchor); }
+      });
+    });
+  }
   svg.addEventListener("wheel", function (ev) {
     ev.preventDefault();
     var r = svg.getBoundingClientRect();
