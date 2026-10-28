@@ -67,6 +67,7 @@
     var fx = vp.querySelector(".fx");
     if (!fx) return;
     if (S.edge && relByKey[S.edge] === undefined) S.edge = null; // the clicked line was filtered away or edited out
+    if (!S.edge) closeCard();
     vp.querySelectorAll(".lit, .t.on").forEach(function (el) { el.classList.remove("lit", "on"); });
     svg.classList.toggle("efocus", !!S.edge);
     var focused = svg.classList.contains("focus"), h = S.hover || {}, geo = null, parts = [];
@@ -102,10 +103,52 @@
     if (JSON.stringify(next) !== JSON.stringify(S.hover)) { S.hover = next; scheduleLight(); }
   });
   /* A click on a line locks it: everything else dims. A second click on it, Esc or a click elsewhere clears it. */
-  function lockEdge(k) {
+  function lockEdge(k, x, y) {
     select(null);
     S.edge = k;
     light();
+    openCard(k, x, y);
+  }
+
+  /* The relationship card: both ends with their cardinality, a plain-English sentence and the JOIN. */
+  var rcard = document.getElementById("rcard"), cardInfo = null;
+  function openCard(k, x, y) {
+    var r = S.vm.rels[relByKey[k]], c = Q.relCard(S.vm, relByKey[k]);
+    cardInfo = { sql: c.sql, tables: [r.a.t, r.b.t] };
+    rcard.innerHTML = '<div class="rt">' + Q.esc(c.from) + "<b>" + Q.esc(c.cardFrom) + " &mdash; " + Q.esc(c.cardTo) + "</b>" + Q.esc(c.to) +
+      '</div><div class="rk">' + Q.esc(c.sentence) + "</div><pre>" + Q.esc(c.sql) +
+      '</pre><div class="acts"><a id="rcopy">Copy JOIN</a><a id="rboth">Show both tables</a></div>';
+    rcard.classList.remove("open");
+    void rcard.offsetWidth; // restart the open animation
+    rcard.classList.add("open");
+    var st = document.getElementById("stage").getBoundingClientRect();
+    rcard.style.left = Math.max(8, Math.min(x - st.left + 12, st.width - rcard.offsetWidth - 8)) + "px";
+    rcard.style.top = Math.max(8, Math.min(y - st.top + 12, st.height - rcard.offsetHeight - 8)) + "px";
+  }
+  function closeCard() { rcard.classList.remove("open"); }
+  rcard.addEventListener("click", function (ev) {
+    if (ev.target.id === "rcopy" && cardInfo) copyText(cardInfo.sql, "JOIN copied", rcard.querySelector("pre"));
+    else if (ev.target.id === "rboth" && cardInfo) {
+      var names = cardInfo.tables.filter(function (t, i, all) { return all.indexOf(t) === i; }).map(function (t) { return byId[t].name; });
+      closeCard();
+      applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
+    }
+  });
+  document.addEventListener("pointerdown", function (ev) {
+    if (!rcard.contains(ev.target) && !(ev.target.closest && ev.target.closest(".hit path"))) closeCard();
+  });
+
+  /* The clipboard is blocked in some frames (the VS Code preview): select the text instead and say how to copy it. */
+  function copyText(text, done, pre) {
+    function fallback() {
+      var sel = window.getSelection(), range = document.createRange();
+      range.selectNodeContents(pre);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      showToast("Press Ctrl/Cmd+C");
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { showToast(done); }, fallback);
+    else fallback();
   }
 
   // Zoomed out on a big diagram, table text is unreadable but repainting it made every zoom step take ~150 ms
@@ -312,13 +355,13 @@
       applyView();
     }
   });
-  svg.addEventListener("pointerup", function () {
+  svg.addEventListener("pointerup", function (ev) {
     if (!drag) return;
     svg.classList.remove("panning");
     var d = drag;
     drag = null;
     if (!d.moved) {
-      if (d.edge) { if (d.edge === S.edge) select(null); else lockEdge(d.edge); return; }
+      if (d.edge) { if (d.edge === S.edge) select(null); else lockEdge(d.edge, ev.clientX, ev.clientY); return; }
       // Clicking the selected table toggles it off, unless it was selected quietly: then show its details.
       if (d.table && d.table === S.focus && !details.classList.contains("open")) showDetails(d.table);
       else select(d.table && S.focus !== d.table ? d.table : null);
@@ -682,9 +725,7 @@
       // Selector syntax treats spaces, commas, + and a leading ! specially; match those characters with "?".
       applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
     } else if (ev.target.id === "pathsql" && S.path && S.path.steps) {
-      var sql = Q.pathSql(S.vm, S.focus, S.path.steps);
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(sql).then(function () { showToast("SQL copied"); });
-      else window.prompt("Copy SQL:", sql);
+      copyText(Q.pathSql(S.vm, S.focus, S.path.steps), "SQL copied", dbody.querySelector("#pathres pre"));
     }
   });
 
