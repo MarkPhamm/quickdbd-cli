@@ -16,6 +16,8 @@
     shown: {},
     regions: !!data.model.regions,
     path: null, // {to: id, steps: [...]} from the selected table
+    edge: null, // the clicked (locked) relationship line: "a|ac|b|bc", like the .e data attributes
+    hover: null, // {t: table id} or {e: line key} under the mouse: lights lines without dimming anything
   };
   var svg = document.getElementById("canvas");
   var vp = document.getElementById("vp");
@@ -29,7 +31,12 @@
 
   /* ------------------------------------------------------------- render */
   function render() {
-    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true, regions: S.regions });
+    vp.innerHTML = Q.renderInner(S.vm, S.pos, S.mode, { docMarks: true, regions: S.regions }) +
+      '<g class="fx"></g><g class="hit"></g>';
+    vp.appendChild(vp.querySelector(".tables")); // lit overlay and line hit targets sit under the tables
+    relByKey = {};
+    S.vm.rels.forEach(function (r, i) { relByKey[[r.a.t, r.a.c, r.b.t, r.b.c].join("|")] = i; });
+    buildHits();
     applyFocus();
     drawMinimap();
   }
@@ -37,7 +44,68 @@
   function renderEdges() {
     var g = vp.querySelector(".edges");
     if (g) g.innerHTML = Q.renderEdges(S.vm, S.pos, S.mode);
+    buildHits();
     applyFocus();
+  }
+
+  /* ------------------------------------------------------------- lit relationships
+   * A lit line gets the --lit colour, flowing dashes and cardinality labels (drawn in .fx), and its rows are
+   * highlighted. Lines light up under a hovered table or line, for the selected table, and for the clicked line. */
+  var relByKey = {};
+  function edgeKey(e) {
+    return [e.getAttribute("data-a"), e.getAttribute("data-ac"), e.getAttribute("data-b"), e.getAttribute("data-bc")].join("|");
+  }
+  /* Wide transparent copies of every line, so a 1px curve can be hovered and clicked. */
+  function buildHits() {
+    var hit = vp.querySelector(".hit");
+    if (!hit) return;
+    hit.innerHTML = [].map.call(vp.querySelectorAll(".e"), function (e) {
+      return '<path data-k="' + Q.esc(edgeKey(e)) + '" d="' + e.querySelector(".ep").getAttribute("d") + '"/>';
+    }).join("");
+  }
+  function light() {
+    var fx = vp.querySelector(".fx");
+    if (!fx) return;
+    if (S.edge && relByKey[S.edge] === undefined) S.edge = null; // the clicked line was filtered away or edited out
+    vp.querySelectorAll(".lit, .t.on").forEach(function (el) { el.classList.remove("lit", "on"); });
+    svg.classList.toggle("efocus", !!S.edge);
+    var focused = svg.classList.contains("focus"), h = S.hover || {}, geo = null, parts = [];
+    vp.querySelectorAll(".e").forEach(function (e) {
+      var k = edgeKey(e), a = e.getAttribute("data-a"), b = e.getAttribute("data-b"), d = e.querySelector(".ep").getAttribute("d");
+      if (e.classList.contains("ph")) { parts.push('<path class="flow amber" d="' + d + '"/>'); return; }
+      if (!(k === S.edge || h.e === k || h.t === a || h.t === b || e.classList.contains("hl") ||
+          (focused && !S.path && !e.classList.contains("dim")))) return;
+      var r = S.vm.rels[relByKey[k]];
+      if (!r) return;
+      e.classList.add("lit");
+      [[r.a.t, r.a.c], [r.b.t, r.b.c]].forEach(function (end) {
+        var t = vp.querySelector('.t[data-id="' + cssEsc(end[0]) + '"]');
+        if (!t) return;
+        if (k === S.edge) t.classList.add("on");
+        var row = t.querySelector('.r[data-c="' + cssEsc(end[1]) + '"]');
+        if (row) row.classList.add("lit");
+      });
+      parts.push('<path class="flow" d="' + d + '"/>');
+      (Q.edgeLabels(S.vm, S.pos, S.mode, r, geo = geo || Q.geometry(S.vm, S.mode)) || []).forEach(function (l) {
+        parts.push('<text class="lbl" x="' + l.x + '" y="' + l.y + '" text-anchor="' + l.anchor + '">' + Q.esc(l.text) + "</text>");
+      });
+    });
+    fx.innerHTML = parts.join("");
+  }
+  var lightRaf = null;
+  function scheduleLight() {
+    if (!lightRaf) lightRaf = requestAnimationFrame(function () { lightRaf = null; light(); });
+  }
+  vp.addEventListener("mouseover", function (ev) {
+    var hp = ev.target.closest && ev.target.closest(".hit path"), t = ev.target.closest && ev.target.closest(".t");
+    var next = hp ? { e: hp.getAttribute("data-k") } : t ? { t: t.getAttribute("data-id") } : null;
+    if (JSON.stringify(next) !== JSON.stringify(S.hover)) { S.hover = next; scheduleLight(); }
+  });
+  /* A click on a line locks it: everything else dims. A second click on it, Esc or a click elsewhere clears it. */
+  function lockEdge(k) {
+    select(null);
+    S.edge = k;
+    light();
   }
 
   // Zoomed out on a big diagram, table text is unreadable but repainting it made every zoom step take ~150 ms
@@ -104,6 +172,10 @@
   }
 
   function applyFocus() {
+    applyFocusClasses();
+    light();
+  }
+  function applyFocusClasses() {
     vp.querySelectorAll(".ph").forEach(function (el) { el.classList.remove("ph"); });
     if (S.path && S.focus && S.path.steps) {
       var on = {}, edges = [];
@@ -161,7 +233,7 @@
       if (t) t.classList.add("hl");
     });
   });
-  vp.addEventListener("mouseleave", function () { clearHover(); hideTip(); });
+  vp.addEventListener("mouseleave", function () { clearHover(); hideTip(); S.hover = null; scheduleLight(); });
 
   /* ------------------------------------------------------------- doc-comment tooltips */
   var tip = document.getElementById("tip");
@@ -211,7 +283,9 @@
   svg.addEventListener("pointerdown", function (ev) {
     if (ev.button !== 0) return;
     var tEl = ev.target.closest && ev.target.closest(".t");
-    drag = { sx: ev.clientX, sy: ev.clientY, moved: false, table: tEl ? tEl.getAttribute("data-id") : null, el: tEl };
+    var hp = !tEl && ev.target.closest && ev.target.closest(".hit path");
+    drag = { sx: ev.clientX, sy: ev.clientY, moved: false, table: tEl ? tEl.getAttribute("data-id") : null, el: tEl,
+      edge: hp ? hp.getAttribute("data-k") : null };
     if (drag.table) { // tables are draggable everywhere; only `qdbd serve` saves the new position
       drag.start = S.pos[drag.table].slice();
       tEl.parentNode.appendChild(tEl); // bring the grabbed table to the front
@@ -219,7 +293,7 @@
       drag.view = { x: S.view.x, y: S.view.y };
     }
     svg.classList.add("panning");
-    svg.setPointerCapture(ev.pointerId);
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* synthetic events (the qdbd.dev tour) have no pointer to capture */ }
   });
   var raf = null;
   svg.addEventListener("pointermove", function (ev) {
@@ -244,6 +318,7 @@
     var d = drag;
     drag = null;
     if (!d.moved) {
+      if (d.edge) { if (d.edge === S.edge) select(null); else lockEdge(d.edge); return; }
       // Clicking the selected table toggles it off, unless it was selected quietly: then show its details.
       if (d.table && d.table === S.focus && !details.classList.contains("open")) showDetails(d.table);
       else select(d.table && S.focus !== d.table ? d.table : null);
@@ -325,6 +400,7 @@
   /* opts.center: pan to it. opts.quiet: don't open the details panel (only refresh it if it's already open). */
   function select(id, opts) {
     if ((id || null) !== S.focus) S.path = null;
+    S.edge = null; // a table (or nothing) replaces the clicked line
     S.focus = id && byId[id] ? id : null;
     scheduleHash();
     applyFocus();
@@ -658,7 +734,11 @@
     applyView();
   }
   var miniDrag = false;
-  mini.addEventListener("pointerdown", function (ev) { miniDrag = true; mini.setPointerCapture(ev.pointerId); miniPan(ev); });
+  mini.addEventListener("pointerdown", function (ev) {
+    miniDrag = true;
+    try { mini.setPointerCapture(ev.pointerId); } catch (e) { /* synthetic event */ }
+    miniPan(ev);
+  });
   mini.addEventListener("pointermove", function (ev) { if (miniDrag) miniPan(ev); });
   mini.addEventListener("pointerup", function () { miniDrag = false; });
 
