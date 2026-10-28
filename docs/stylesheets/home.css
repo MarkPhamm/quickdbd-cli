@@ -14,14 +14,16 @@
 .qh h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 700; max-width: 30ch; }
 
 /* ------------------------------------------------------------------------ hero */
-.qh-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 56px; align-items: center;
+/* The headline spans the page; text and screenshot sit side by side below it, both inside the page margins. */
+.qh-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 36px 40px; align-items: center;
   padding-top: 64px; padding-bottom: 48px; }
+.qh-hero__head { grid-column: 1 / -1; }
 .qh-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--qd-label); margin: 0 0 18px; }
 .qh-eyebrow code { background: none; padding: 0; font-size: 1em; color: inherit; }
 .qh-eyebrow a { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
-.qh h1 { font-size: clamp(36px, 4.6vw, 58px); line-height: 1.06; font-weight: 800; }
-.qh h1 span { color: var(--qd-mint); }
-.qh-lead { font-size: 18px; color: var(--qd-muted); margin: 22px 0 28px; max-width: 34em; }
+.qh h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.06; font-weight: 800; }
+.qh h1 span { display: block; color: var(--qd-mint); }
+.qh-lead { font-size: 18px; color: var(--qd-muted); margin: 0 0 28px; max-width: 34em; }
 .qh-cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .qh-cta--center { justify-content: center; }
 .qh-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 8px;
@@ -54,7 +56,7 @@
 .qh-frame__bar i { width: 9px; height: 9px; border-radius: 50%; background: #34476a; }
 .qh-frame__bar span { margin-left: 8px; }
 .qh-frame img { display: block; width: 100%; height: auto; }
-.qh-callout { position: absolute; right: -18px; bottom: -26px; width: 270px; padding: 12px 14px; border-radius: 10px;
+.qh-callout { position: absolute; left: -32px; bottom: -30px; width: 270px; padding: 12px 14px; border-radius: 10px;
   background: #fff; color: #0f1b2d; box-shadow: 0 14px 40px rgba(0, 0, 0, .35); font-size: 13px; line-height: 1.45; }
 .qh-callout__head { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; margin-bottom: 6px; }
 .qh-callout__head a { color: #2563eb !important; font-weight: 500; font-size: 12px; }
@@ -156,7 +158,7 @@
 @media (max-width: 960px) {
   .qh-hero, .qh-split { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .qh-hero { padding-top: 40px; }
-  .qh-callout { right: 8px; bottom: -22px; }
+  .qh-callout { left: auto; right: 8px; bottom: -22px; }
   .qh-compare, .qh-steps3 { grid-template-columns: minmax(0, 1fr); }
   .qh-steps4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .qh-flow { grid-template-columns: minmax(0, 1fr); }
@@ -179,3 +181,41 @@
 .qh-author b { color: var(--qd-text); font-weight: 600; }
 .qh-author svg { color: var(--qd-mint); }
 @media (max-width: 960px) { .qh-author { margin-top: 20px; } }
+
+/* ----------------------------------------------------------------------- motion
+ * docs/javascripts/home.js adds the classes; without it everything shows as before. Reduced motion: no movement. */
+@keyframes qh-rise { from { opacity: 0; transform: translateY(16px); } }
+.qh-hero__head > :not(h1), .qh-hero__text > * { animation: qh-rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+.qh-hero__head > :nth-child(2) { animation-delay: .08s; }
+.qh-hero__text > :nth-child(1) { animation-delay: .45s; }
+.qh-hero__text > :nth-child(2) { animation-delay: .53s; }
+.qh-hero__text > :nth-child(3) { animation-delay: .61s; }
+.qh-hero__text > :nth-child(4) { animation-delay: .69s; }
+.qh-hero__text > :nth-child(5) { animation-delay: .77s; }
+.qh-hero__shot { animation: qh-rise .9s .25s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes qh-word { from { opacity: 0; transform: translateY(.45em); filter: blur(8px); } }
+q-w { display: inline-block; }
+.qh-hero h1 q-w { animation: qh-word .7s calc(var(--i) * 45ms) cubic-bezier(.2, .7, .2, 1) both; }
+.qh-section .qh-words q-w, .qh-final .qh-words q-w { opacity: 0; transform: translateY(.45em); filter: blur(8px); transition: opacity .6s, transform .7s, filter .6s;
+  transition-timing-function: cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i) * 45ms); }
+.qh .qh-words.qh-in q-w { opacity: 1; transform: none; filter: none; }
+.qh-rv { opacity: 0; transform: translateY(22px); transition: opacity .7s, transform .7s; transition-timing-function: cubic-bezier(.2, .7, .2, 1);
+  transition-delay: var(--d, 0s); }
+.qh-rv.qh-in { opacity: 1; transform: none; }
+
+q-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px; vertical-align: -.2em; background: var(--qd-mint);
+  animation: qh-blink 1s steps(1) infinite; }
+@keyframes qh-blink { 50% { opacity: 0; } }
+
+/* a soft light follows the cursor along card borders */
+.qh-glow { position: relative; }
+.qh-glow::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 3;
+  background: radial-gradient(260px circle at var(--mx, -500px) var(--my, -500px), rgba(110, 231, 183, .85), rgba(110, 231, 183, .15) 40%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .3s; }
+.qh-glow:hover::before { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qh *, .qh *::before, .qh *::after { animation: none !important; transition: none !important; }
+  .qh-words q-w, .qh-rv { opacity: 1 !important; transform: none !important; filter: none !important; }
+}

@@ -42,6 +42,7 @@ hooks:
 
 extra_javascript:
   - javascripts/shortcuts.js
+  - javascripts/home.js
 
 markdown_extensions:
   - admonition
