@@ -547,6 +547,46 @@
     return lines.join("\n");
   }
 
+  /* ------------------------------------------------------------------ lit relationships (viewer only, never exported) */
+  var CARD_LABEL = { one: "1", zeroOne: "0..1", many: "*", zeroMany: "0..*" };
+  var CARD_WORD = { one: "one", zeroOne: "zero or one", many: "many", zeroMany: "zero or many" };
+
+  /* Cardinality labels for a lit line: one just past each end, on the side the line leaves from. a end first. */
+  function edgeLabels(model, pos, mode, rel, geo) {
+    var e = edgeGeom(model, geo || geometry(model, mode), pos, rel);
+    if (!e) return null;
+    function spot(x, y, dir, card) {
+      return { x: n(x + dir * 8), y: n(y - 9), anchor: dir > 0 ? "start" : "end", text: CARD_LABEL[card] || "" };
+    }
+    return [spot(e.xa, e.ya, e.da, rel.a.card), spot(e.xb, e.yb, e.db, rel.b.card)];
+  }
+
+  /* Text of the relationship card for model.rels[i]: the child (FK / many) side first, a plain-English sentence and
+   * the JOIN, built like `qdbd path` so quoting and composite keys match. */
+  function relCard(model, i) {
+    var r = model.rels[i], byId = {};
+    model.tables.forEach(function (t) { byId[t.id] = t; });
+    var aMany = r.a.card === "many" || r.a.card === "zeroMany", bMany = r.b.card === "many" || r.b.card === "zeroMany";
+    var aIsChild = aMany || !bMany, child = aIsChild ? r.a : r.b, parent = aIsChild ? r.b : r.a;
+    var pairs = stepPairs(model, i, child.t);
+    function side(end, k) {
+      var t = byId[end.t], cols = pairs.map(function (p) {
+        var c = t.cols.filter(function (x) { return x.id === p[k]; })[0];
+        return c ? c.name : p[k];
+      });
+      return t.name + (cols.length > 1 ? ".(" + cols.join(", ") + ")" : cols.length ? "." + cols[0] : "");
+    }
+    var plural = child.card === "many" || child.card === "zeroMany";
+    return {
+      from: side(child, 0),
+      to: side(parent, 1),
+      cardFrom: CARD_LABEL[child.card] || "",
+      cardTo: CARD_LABEL[parent.card] || "",
+      sentence: "Each " + byId[parent.t].name + " row has " + CARD_WORD[child.card] + " " + byId[child.t].name + (plural ? " rows" : " row"),
+      sql: pathSql(model, child.t, [{ from: child, to: parent, pairs: pairs }]),
+    };
+  }
+
   root.qdbd = {
     findPath: findPath,
     stepPairs: stepPairs,
@@ -563,8 +603,12 @@
     renderSvg: renderSvg,
     bounds: bounds,
     neighbourhood: neighbourhood,
+    edgeLabels: edgeLabels,
+    relCard: relCard,
     esc: esc,
   };
+  root.qdbdEdgeLabels = edgeLabels;
+  root.qdbdRelCard = relCard;
   root.qdbdRenderSvg = renderSvg;
   root.qdbdSelect = select;
   root.qdbdRenderDrawio = renderDrawio;
