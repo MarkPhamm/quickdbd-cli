@@ -82,6 +82,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 #stage { position: relative; flex: 1; overflow: hidden; }
 #canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
 #canvas.panning { cursor: grabbing; }
+#canvas.lod .t text { display: none; } /* big diagram, zoomed out: see LOD_TABLES in viewer.js */
 
 /* diagram colours: CSS beats the SVG presentation attributes, so the page can theme them */
 .tb { fill: var(--t-body); stroke: var(--t-border); }
