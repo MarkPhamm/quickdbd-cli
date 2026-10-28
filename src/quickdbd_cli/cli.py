@@ -536,7 +536,7 @@ def build_parser() -> argparse.ArgumentParser:
             action="append",
             metavar="SELECTOR",
             help="dbt-style: name glob, +name (and what it references), name+ (and what references it), "
-            "N+name+N (hops), group:/file:/col: methods, a,b intersects (repeatable)",
+            "N+name+N (hops), group:/file:/col:/tag: methods, a,b intersects (repeatable)",
         )
         sp.add_argument("--exclude", action="append", metavar="SELECTOR", help="drop tables matching (repeatable)")
 

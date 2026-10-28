@@ -1,6 +1,6 @@
 # 4.2 Selecting Tables
 
-qdbd's selectors are modelled on dbt's `--select`, but they follow **relationships** instead of lineage. The same syntax works in the page's filter box and as `-s/--select` and `--exclude` on `build` and `export`.
+qdbd's selectors are modelled on dbt's `--select`, but they follow **relationships** instead of lineage. The same syntax works in the page's filter box, as `-s/--select` and `--exclude` on `build`, `export` and `share`, and as `select` in the [MCP tools](mcp.md#the-tools) `list_tables`, `describe_tables` and `render_diagram`.
 
 ## Syntax
 

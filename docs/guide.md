@@ -1,6 +1,6 @@
 # Guide
 
-qdbd turns **database schemas into interactive ER diagrams** that stay readable at hundreds of tables. Write the schema in [QuickDBD](https://www.quickdatabasediagrams.com)'s plain-text syntax, or generate it from a **dbt project**. qdbd checks it, lays it out, and builds a single HTML page you can explore, share and review in pull requests.
+qdbd turns **database schemas into interactive ER diagrams** that stay readable at hundreds of tables. Write the schema in [QuickDBD](https://www.quickdatabasediagrams.com)'s plain-text syntax or [DBML](dbml.md), or generate it from a **dbt project**. qdbd checks it, lays it out, and builds a single HTML page you can explore, share and review in pull requests.
 
 The schema is a text file, so it lives in git next to your code. Diagrams are generated from it and never edited by hand. Table positions are the only thing you arrange yourself, and they're saved in a small layout file so the diagram stays put.
 
@@ -14,7 +14,7 @@ The schema is a text file, so it lives in git next to your code. Diagrams are ge
 
 ```text
 dbt project ──qdbd import dbt──┐
-                               ├──▶ schema/*.txt  ──▶  canonical source (QuickDBD syntax, in git)
+                               ├──▶ schema/*.txt, *.dbml  ──▶  canonical source (QuickDBD syntax or DBML, in git)
 hand-written / pasted ─────────┘           │
                                            ├──▶ qdbd check   : QuickDBD-compatible validation    ──▶ CI gate
                                            ├──▶ qdbd serve   : live editor, drag to arrange      ──▶ schema.layout.json
@@ -26,7 +26,7 @@ hand-written / pasted ─────────┘           │
 
 </div>
 
-Every command reads the same `.txt` files, so the page, the images and the PR comment always agree. The [GitHub Action](github-action.md#github-action) runs `check`, `build` and `diff` on every pull request.
+Every command reads the same schema files, so the page, the images and the PR comment always agree. The [GitHub Action](github-action.md#github-action) runs `check`, `build` and `diff` on every pull request.
 
 ## The guide
 
@@ -73,11 +73,14 @@ Read it in order the first time; each step builds on the one before.
 | [Schema syntax](syntax.md) | QuickDBD's text format, accepted unchanged. Error messages match QuickDBD's |
 | [`qdbd check`](cli.md#check) | Validates every file; `file:line: error: …`, exit 1 on errors |
 | [`qdbd serve`](cli.md#serve) | Local editor: reloads on save, browser editor pane, drag tables to arrange |
+| [`qdbd layout`](cli.md#layout) | Writes table positions to the layout file: places new tables, or lays out everything again |
 | [`qdbd build`](cli.md#build) | One self-contained HTML page: search, filters, path finder, regions, shareable links |
+| [`qdbd share`](cli.md#share) | Publishes the page as a secret GitHub gist and prints the link |
 | [`qdbd export`](exports.md) | PNG, SVG and editable draw.io files, for a whole schema or a selection |
 | [`qdbd diff`](diffs.md) | Tables, columns and relationships changed against a git ref |
 | [`qdbd path`](cli.md#path) | Shortest join path between two tables, as a SQL `JOIN` |
 | [`qdbd import dbt`](dbt.md) | Schema files from a dbt `manifest.json` (+ `catalog.json`) |
+| [`qdbd convert`](cli.md#convert) | QuickDBD text to DBML and back |
 | [`qdbd mcp`](mcp.md) | The schema as tools for AI agents: tables, joins as SQL, checks, diffs |
 | [GitHub Action](github-action.md) | Check, build and comment on pull requests |
 

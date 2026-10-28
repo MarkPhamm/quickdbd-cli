@@ -82,7 +82,7 @@ You need qdbd 0.3.0 or later ([1. Install](install.md)).
 
     The first start downloads qdbd, which can be slow enough to hit a client's startup timeout. `uv tool install quickdbd-cli` (or `pipx install quickdbd-cli`) avoids that.
 
-If `qdbd` isn't on the client's `PATH`, give the full path to it as the `command`: `which qdbd` prints it.
+If `qdbd` isn't on the client's `PATH`, give the full path to it as the `command`: `which qdbd` (Windows: `where qdbd`) prints it.
 
 ## Which schema it reads
 
@@ -137,7 +137,7 @@ The schema stays on your machine, but what a tool returns goes to your AI provid
 
 ## Troubleshooting
 
-- **The client says the server failed to start.** Run `qdbd mcp` in a terminal: it should print one line on stderr and wait. `qdbd: error: argument cmd: invalid choice: 'mcp'` means an older qdbd: upgrade it ([1.4 Upgrading](install.md)).
+- **The client says the server failed to start.** Run `qdbd mcp` in a terminal: it should print one line on stderr and wait. `qdbd: error: argument cmd: invalid choice: 'mcp'` means an older qdbd: upgrade it ([1.4 Upgrade](install.md#upgrade)).
 - **"no schema files found"**: the server started in the wrong folder. Pass `--root /path/to/project`.
 - **Errors look odd:** qdbd's messages show a name's non-alphanumeric characters as character codes, so `dbo46Order32Line` is `dbo.Order Line`.
 - **To see what the agent sees,** try the [MCP Inspector](https://github.com/modelcontextprotocol/inspector): `npx @modelcontextprotocol/inspector qdbd mcp`.
