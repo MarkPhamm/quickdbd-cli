@@ -80,7 +80,8 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `t.doc` / `c.doc`: tooltips
 - `t.diff` and `model.diff`: from `diff.annotate_model`, for `build --diff-base`
 - `model.regions`: set by `--by-group`
-- `t.tags` / `t.color` and `model.tags` (legend): from `tags.py`. Tags come from `# @tag:` comments, else the name prefix (`dim_`, `fct_`, …), else `# @dbt-tags:`; `# @color TAG #hex` overrides colours. All are comments, so files stay valid QuickDBD. Diff colours win over tag colours
+- `t.tags` / `t.color` and `model.tags` (legend): from `tags.py`. Tags come from `# @tag:` comments, else the name prefix (`dim_`, `fct_`, …), else `# @dbt-tags:`; `# @color TAG #hex` overrides colours. All are comments, so files stay valid QuickDBD. Diff colours win over tag colours.
+- `c.color`: column tags (`# @tag:` on or above a column line) colour the row with the first tag's colour; `added`/`removed` default to green/red (removed is struck through).
 
 **Other modules:**
 
@@ -89,7 +90,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - `diff.py`: schema diff by name. `--base` reads files with `git show REF:path`, with no checkout. Refs starting with `-` are refused (they'd be git options); `merge_base()` gives a branch's fork point.
 - `mcp.py` + `agent.py` + `targets.py`: `qdbd mcp`, a stdlib-only MCP stdio server.
   - `mcp.py` speaks both protocol eras: modern 2026-07-28 (stateless; a request is modern iff `params._meta` has `io.modelcontextprotocol/protocolVersion`; list/discover results need `ttlMs`/`cacheScope`) and legacy `initialize` (2024-11-05 to 2025-11-25; batches only for 2025-03-26). Stdout carries only protocol messages: `isolate_stdio` moves fd 1 to stderr and fd 0 to devnull before anything else runs, so never print to the wire. Requests run one at a time (jsrt/ELK aren't thread-safe).
-  - `agent.py` holds the tools: plain functions over a `Workspace`, returning compact text under a 40k-character budget; failures are `ToolError` (an `isError` result the agent can act on). Tests call them directly; `tests/test_mcp.py` also drives the official `mcp` SDK client (a dev dependency only) in all three modes.
+  - `agent.py` holds the tools: plain functions over a `Workspace`, returning compact text under a 40k-character budget; failures are `ToolError` (an `isError` result the agent can act on). The `syntax_reference` tool serves `assets/syntax-reference.md`; update it when either syntax gains a feature. Tests call them directly; `tests/test_mcp.py` also drives the official `mcp` SDK client (a dev dependency only) in all three modes.
   - `targets.py` finds schema projects in a folder with the VS Code extension's rules (`target.ts`, `schema.ts`, the sidebar scan); keep them in step. `tests/fixtures/targets/cases.json` runs against both.
 
 **VS Code extension** (`vscode/`, id `MarkPhamm.quickdbd`): TypeScript bundled by esbuild, no runtime npm deps. Published on the VS Code Marketplace and Open VSX (Cursor, Windsurf and VSCodium search Open VSX), with the `.vsix` also attached to each GitHub release.
