@@ -113,7 +113,137 @@
     window.qhome.sections.forEach(function (fn) { fn(root); });
   }
 
-  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [] };
+  /* Compare cards: rise, rows and marks pop in, then the side cards step back and the qdbd card lifts. */
+  function compare(root) {
+    var cmp = root.querySelector(".qh-compare");
+    if (!cmp || reduce.matches) return;
+    cmp.classList.add("qh-anim");
+    void cmp.offsetWidth;
+    [].forEach.call(cmp.children, function (col, i) {
+      col.style.setProperty("--d", i * 0.12 + "s");
+      col.querySelectorAll("li").forEach(function (li, j) { li.style.setProperty("--d", 0.3 + i * 0.12 + j * 0.1 + "s"); });
+    });
+    onView(cmp, function () {
+      cmp.classList.add("qh-in");
+      setTimeout(function () { cmp.classList.add("qh-settled"); }, 1700);
+    });
+  }
+
+  /* Flow diagram: curved wires from each input to qdbd and on to each output, drawn in order; then a pulse runs from
+   * one input through qdbd ("check · layout · render") to every output. Hovering a box lights its path. */
+  var NS = "http://www.w3.org/2000/svg";
+  function svgEl(tag, a) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in a) e.setAttribute(k, a[k]);
+    return e;
+  }
+  function flow(root) {
+    var f = root.querySelector(".qh-flow");
+    if (!f) return;
+    var cols = f.querySelectorAll(".qh-flow__col");
+    cols[0].classList.add("qh-flow__ins");
+    cols[2].classList.add("qh-flow__outs");
+    var ins = [].slice.call(cols[0].children), core = cols[1].querySelector(".qh-box"), outs = [].slice.call(cols[2].children);
+    var small = core.querySelector("small"), words = small.textContent.split(" · ");
+    small.textContent = "";
+    words = words.map(function (w, i) {
+      if (i) small.appendChild(document.createTextNode(" · "));
+      var s = document.createElement("span");
+      s.textContent = w;
+      return small.appendChild(s);
+    });
+    f.classList.add("wired");
+    if (!reduce.matches) f.classList.add("qh-anim");
+    void f.offsetWidth;
+    ins.forEach(function (b, i) { b.style.setProperty("--d", i * 0.1 + "s"); });
+    outs.forEach(function (b, i) { b.style.setProperty("--d", 1.5 + i * 0.1 + "s"); });
+    core.style.setProperty("--d", ".7s");
+
+    var svg = svgEl("svg", { "class": "qh-flow__wires", "aria-hidden": "true" }), wires = { in: [], out: [] };
+    f.insertBefore(svg, f.firstChild);
+    /* Layout boxes from offsets, which ignore the build-in transforms. */
+    function box(b) {
+      var x = b.offsetLeft + b.offsetParent.offsetLeft, y = b.offsetTop + b.offsetParent.offsetTop;
+      return { left: x, right: x + b.offsetWidth, mid: y + b.offsetHeight / 2 };
+    }
+    function draw() {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      wires = { in: [], out: [] };
+      if (getComputedStyle(svg).display === "none") return;
+      var c = box(core);
+      function wire(kind, x1, y1, x2, y2) {
+        var dx = (x2 - x1) * 0.55, d = "M" + x1 + " " + y1 + " C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + x2 + " " + y2;
+        var g = svgEl("g", {}), base = svgEl("path", { d: d, "class": "base" });
+        g.appendChild(base);
+        g.appendChild(svgEl("path", { d: d, "class": "flow" }));
+        g.appendChild(svgEl("circle", { cx: x1, cy: y1, r: 3, "class": "dot" }));
+        g.appendChild(svgEl("circle", { cx: x2, cy: y2, r: 3, "class": "dot" }));
+        svg.appendChild(g);
+        wires[kind].push({ g: g, base: base, d: d, len: base.getTotalLength() });
+      }
+      ins.forEach(function (b, i) { var r = box(b); wire("in", r.right, r.mid, c.left, c.mid + (i - (ins.length - 1) / 2) * 14); });
+      outs.forEach(function (b, i) { var r = box(b); wire("out", c.right, c.mid + (i - (outs.length - 1) / 2) * 12, r.left, r.mid); });
+    }
+    draw();
+    new ResizeObserver(function () { if (f.isConnected) draw(); }).observe(f);
+
+    function drawIn(list, delay) {
+      list.forEach(function (w, i) {
+        w.base.animate([{ strokeDasharray: w.len, strokeDashoffset: w.len }, { strokeDasharray: w.len, strokeDashoffset: 0 }],
+          { duration: 520, delay: delay + i * 90, easing: "cubic-bezier(.6,0,.3,1)", fill: "backwards" });
+        w.g.querySelectorAll(".dot").forEach(function (dot) {
+          dot.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: delay + i * 90 + 380, fill: "backwards" });
+        });
+      });
+    }
+    function comet(w, ms) {
+      var p = svgEl("path", { d: w.d, "class": "comet", "stroke-dasharray": "22 " + (w.len + 44) });
+      svg.appendChild(p);
+      p.animate([{ strokeDashoffset: 22 }, { strokeDashoffset: -w.len }], { duration: ms, easing: "cubic-bezier(.45,0,.55,1)" })
+        .onfinish = function () { p.remove(); };
+    }
+    function ping(b) {
+      b.classList.add("ping");
+      setTimeout(function () { b.classList.remove("ping"); }, 650);
+    }
+    var turn = 0, hovering = false;
+    async function pulse() {
+      if (hovering || !wires.in.length) return;
+      var i = turn++ % ins.length;
+      ping(ins[i]);
+      comet(wires.in[i], 700);
+      await wait(650);
+      ping(core);
+      for (var k = 0; k < words.length; k++) {
+        words[k].classList.add("on");
+        await wait(160);
+        words[k].classList.remove("on");
+      }
+      wires.out.forEach(function (w, j) { setTimeout(function () { comet(w, 650); }, j * 70); });
+      await wait(560);
+      outs.forEach(function (b, j) { setTimeout(function () { ping(b); }, j * 70); });
+    }
+    function light(on) { wires.in.concat(wires.out).forEach(function (w) { w.g.classList.toggle("lit", on.indexOf(w) >= 0); }); }
+    function hover(b, which) {
+      b.addEventListener("mouseenter", function () { hovering = true; light(which()); });
+      b.addEventListener("mouseleave", function () { hovering = false; light([]); });
+    }
+    ins.forEach(function (b, i) { hover(b, function () { return [wires.in[i]].concat(wires.out); }); });
+    outs.forEach(function (b, i) { hover(b, function () { return wires.in.concat([wires.out[i]]); }); });
+    hover(core, function () { return wires.in.concat(wires.out); });
+
+    onView(f, async function () {
+      f.classList.add("qh-in");
+      if (reduce.matches) return;
+      drawIn(wires.in, 350);
+      drawIn(wires.out, 1250);
+      await wait(2600);
+      pulse();
+      every(root, 3800, pulse);
+    });
+  }
+
+  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow] };
   /* Section scripts register here; run after this file's helpers exist. */
   window.qhome.add = function (fn) { window.qhome.sections.push(fn); };
   function start() {
