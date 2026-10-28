@@ -38,6 +38,7 @@ extra_css:
 
 hooks:
   - hooks/gallery.py
+  - hooks/home.py
 
 extra_javascript:
   - javascripts/shortcuts.js
