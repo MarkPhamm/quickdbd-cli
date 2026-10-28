@@ -40,9 +40,13 @@
     applyFocus();
   }
 
+  // Zoomed out on a big diagram, table text is unreadable but repainting it made every zoom step take ~150 ms
+  // at 1000 tables, so it is hidden there. Smaller diagrams always show it.
+  var LOD_TABLES = 300, LOD_ZOOM = 0.3;
   function applyView() {
     var v = S.view;
     vp.setAttribute("transform", "translate(" + v.x + "," + v.y + ") scale(" + v.k + ")");
+    svg.classList.toggle("lod", v.k < LOD_ZOOM && S.vm.tables.length > LOD_TABLES);
     zoomval.textContent = Math.round(v.k * 100) + "%";
     drawViewportRect();
     scheduleHash();
@@ -806,7 +810,7 @@
     try {
       if (p.has("m")) setMode(p.get("m"));
       if (p.has("r")) setRegions(p.get("r") === "1");
-      applyFilter(p.get("f") || "", true);
+      if ((p.get("f") || "") !== S.filter) applyFilter(p.get("f") || "", true); // else already rendered
       var name = p.get("t"), id = null;
       if (name) S.model.tables.forEach(function (t) { if (t.name === name) id = t.id; });
       select(id && S.shown[id] ? id : null);
