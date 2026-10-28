@@ -57,6 +57,16 @@ def test_elk_layout_deterministic_and_non_overlapping():
     assert not any(_overlap(r1, r2) for i, r1 in enumerate(rects) for r2 in rects[i + 1 :])
 
 
+def test_big_layout_caps_overlap_removal_and_still_separates(monkeypatch):
+    monkeypatch.setattr(layout, "BIG_LAYOUT", 100)  # take the >BIG_LAYOUT path on the 200-table schema
+    m = model_json(Project.open([SYNTH]).compile())
+    a = layout.elk_layout(m["tables"], m["rels"])
+    assert a == layout.elk_layout(m["tables"], m["rels"]) and len(a) == 200
+    by = {t["id"]: t for t in m["tables"]}
+    rects = [(x, y, by[k]["w"], by[k]["h"]) for k, (x, y) in a.items()]
+    assert not any(_overlap(r1, r2) for i, r1 in enumerate(rects) for r2 in rects[i + 1 :])
+
+
 def test_place_missing_keeps_existing_and_avoids_overlap():
     m = model_json(compile_text(SMALL + "\nLine\n-\nId PK int\nOrderId int FK >- Order.OrderId\n"))
     fixed = {"Customer": (0, 0), "Order": (400, 0)}
@@ -112,6 +122,16 @@ def test_png_export(tmp_path):
     out = tmp_path / "c.png"
     assert main(["export", str(SAMPLE), "--focus", "Customer", "-o", str(out)]) == 0
     assert out.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_png_export_caps_size(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(export, "MAX_PNG_SIDE", 300)
+    out = tmp_path / "c.png"
+    assert main(["export", str(SAMPLE), "-o", str(out)]) == 0
+    head = out.read_bytes()
+    w, h = int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
+    assert max(w, h) <= 300
+    assert "--scale lowered" in capsys.readouterr().err
 
 
 # ------------------------------------------------------------------ CLI

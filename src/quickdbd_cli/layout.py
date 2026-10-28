@@ -32,6 +32,10 @@ OVERLAP_OPTIONS = {
     "elk.spacing.nodeNode": "40",
     "elk.randomSeed": "1",
 }
+# Overlap removal takes most of a big layout (25 of 37 s at 1000 tables). Above BIG_LAYOUT tables its
+# iterations are capped, and the few tables it leaves overlapping are moved by `_separate`.
+BIG_LAYOUT = 300
+BIG_OVERLAP_OPTIONS = {**OVERLAP_OPTIONS, "org.eclipse.elk.overlapRemoval.maxIterations": "8"}
 
 MARGIN = 30
 Positions = dict[str, tuple[int, int]]
@@ -64,9 +68,10 @@ def elk_layout(tables: list[dict], rels: list[dict], timeout_sec: float | None =
     }
     first = rt.call_async("qdbdElkLayout", graph, timeout_sec=timeout_sec)
     first = _landscape(tables, {k: (v[0], v[1]) for k, v in first.items()})
+    big = len(tables) > BIG_LAYOUT
     graph = {
         "id": "root",
-        "layoutOptions": OVERLAP_OPTIONS,
+        "layoutOptions": BIG_OVERLAP_OPTIONS if big else OVERLAP_OPTIONS,
         "children": [
             {"id": t["id"], "width": t["w"], "height": t["h"], "x": first[t["id"]][0], "y": first[t["id"]][1]}
             for t in tables
@@ -74,6 +79,8 @@ def elk_layout(tables: list[dict], rels: list[dict], timeout_sec: float | None =
         "edges": [],
     }
     raw = rt.call_async("qdbdElkLayout", graph, timeout_sec=timeout_sec)
+    if big:
+        raw = _separate(tables, raw)
     min_x = min(v[0] for v in raw.values())
     min_y = min(v[1] for v in raw.values())
     return {k: (int(v[0] - min_x), int(v[1] - min_y)) for k, v in raw.items()}
@@ -153,6 +160,18 @@ def _free_spot(cx: float, cy: float, w: float, h: float, rects, step: int = 30) 
             if not _overlaps(x, y, w, h, rects):
                 return int(round(x)), int(round(y))
     return int(round(x0)), int(round(y0))
+
+
+def _separate(tables: list[dict], pos: dict) -> dict:
+    """Move each table that overlaps an earlier one to the nearest free spot."""
+    out, rects = {}, []
+    for t in tables:
+        x, y = pos[t["id"]]
+        if _overlaps(x, y, t["w"], t["h"], rects):
+            x, y = _free_spot(x + t["w"] / 2, y + t["h"] / 2, t["w"], t["h"], rects)
+        out[t["id"]] = (x, y)
+        rects.append((x, y, t["w"], t["h"]))
+    return out
 
 
 def place_missing(tables: list[dict], rels: list[dict], positions: Positions) -> Positions:

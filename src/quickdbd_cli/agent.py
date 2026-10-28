@@ -638,12 +638,6 @@ def diff_schema(ws: Workspace, args: dict) -> Result:
     return Result("\n".join(clip(_header(c) + text.splitlines(), "lines")))
 
 
-def _svg_size(svg: str) -> tuple[float, float]:
-    w = re.search(r'\bwidth="([\d.]+)', svg)
-    h = re.search(r'\bheight="([\d.]+)', svg)
-    return (float(w.group(1)) if w else 1000.0, float(h.group(1)) if h else 1000.0)
-
-
 def render_diagram(ws: Workspace, args: dict) -> Result:
     c = ws.compile(ws.target(args.get("project")))
     tables = selected(c, args.get("select"))
@@ -679,7 +673,7 @@ def render_diagram(ws: Workspace, args: dict) -> Result:
             raise ToolError("the layout took too long; narrow with `select` or `focus`") from None
         pos = {k: [v[0], v[1]] for k, v in laid.items()}
         svg = export.render_svg(c.model, pos, only=ids, mode=mode, embed_font=False)
-        scale = min(2.0, IMAGE_SIDE / max(_svg_size(svg)))
+        scale = min(2.0, IMAGE_SIDE / max(export.svg_size(svg)))
         if scale >= MIN_SCALE[mode]:
             png = export.svg_to_png(svg, scale)
             names = ", ".join(t["name"] for t in tables[:40]) + (", …" if n > 40 else "")
