@@ -243,7 +243,39 @@
     });
   }
 
-  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow] };
+  /* Quick start: a track fills from step 1 to 4; each number pops as it arrives, then its command types itself. */
+  function quick(root) {
+    var steps = root.querySelector(".qh-steps4");
+    if (!steps) return;
+    var lis = [].slice.call(steps.children), track = document.createElement("div");
+    track.className = "qh-steps4__track";
+    track.appendChild(document.createElement("i"));
+    steps.appendChild(track);
+    function place() {
+      var a = lis[0].querySelector("span"), z = lis[lis.length - 1].querySelector("span");
+      var ax = lis[0].offsetLeft + a.offsetLeft + a.offsetWidth / 2, zx = lis[lis.length - 1].offsetLeft + z.offsetLeft + z.offsetWidth / 2;
+      track.style.left = ax + "px";
+      track.style.width = zx - ax + "px";
+      track.style.top = lis[0].offsetTop + a.offsetTop + a.offsetHeight / 2 - 1 + "px";
+    }
+    place();
+    window.addEventListener("resize", function () { if (steps.isConnected) place(); });
+    if (reduce.matches) return;
+    var codes = lis.map(function (li) { var c = li.querySelector(":scope > code"); return c && typer(c); });
+    steps.classList.add("qh-anim");
+    codes.forEach(function (t) { if (t) t.clear(); });
+    onView(steps, async function () {
+      await wait(450);
+      steps.classList.add("go");
+      for (var k = 0; k < lis.length; k++) {
+        lis[k].querySelector("span").classList.add("on");
+        if (codes[k]) codes[k].play(null, 28);
+        await wait(600);
+      }
+    }, "0px 0px -20% 0px");
+  }
+
+  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick] };
   /* Section scripts register here; run after this file's helpers exist. */
   window.qhome.add = function (fn) { window.qhome.sections.push(fn); };
   function start() {

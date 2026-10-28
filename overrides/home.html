@@ -5,6 +5,12 @@
 
 {% block site_nav %}{% endblock %}
 
+{% block extrahead %}
+  {{ super() }}
+  {#- the mini diagram's text is measured in Inter, like every qdbd page -#}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+{% endblock %}
+
 {% block container %}
 {% set demos = config.extra.demos %}
 <div class="qh">
@@ -179,8 +185,14 @@ qdbd export erd/ -o erd.png    <span class="c"># or .svg .drawio</span>
 qdbd path erd/ --from Invoice --to Campaign</pre>
       </div>
       <figure class="qh-figure">
-        <img src="{{ 'assets/img/path.png' | url }}" alt="qdbd highlighting the join path from Invoice to Campaign, with the SQL JOIN" loading="lazy">
-        <figcaption>Click a table, type another one's name: qdbd highlights the join path and writes the SQL <code>JOIN</code>.</figcaption>
+        {#- drawn by qdbd from the text on the left (hooks/home.py); home-mini.js builds it as the text types -#}
+        <div class="qh-mini">
+          <div class="qh-frame__bar"><i></i><i></i><i></i><span>schema.txt · live</span><button type="button">Replay</button></div>
+          {{ config.extra.home_mini.svg | safe }}
+          <div class="qh-mini__card"></div>
+        </div>
+        <script type="application/json" id="qh-mini-data">{{ {"steps": config.extra.home_mini.steps, "rels": config.extra.home_mini.rels} | tojson }}</script>
+        <figcaption>Every line you type lands in the diagram. In the page qdbd builds, click a relationship for its cardinality and the SQL <code>JOIN</code>.</figcaption>
       </figure>
     </div>
   </section>

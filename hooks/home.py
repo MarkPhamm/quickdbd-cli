@@ -13,6 +13,7 @@ from pathlib import Path
 
 from quickdbd_cli.export import render_svg
 from quickdbd_cli.html import render_page
+from quickdbd_cli.jsrt import runtime
 from quickdbd_cli.measure import model_json
 from quickdbd_cli.parser import compile_sources, compile_text
 from quickdbd_cli.project import Project
@@ -28,7 +29,10 @@ _tour_html: str | None = None  # `mkdocs serve` rebuilds on every change; the to
 
 
 def mini_diagram(home_html: str) -> dict:
-    """{"svg": the diagram, "steps": {0-based line of the snippet: ["t", table id] | ["r", table id, column id]}}"""
+    """{"svg": the diagram, "steps": {0-based line of the snippet: ["t", table id] | ["r", table id, column id]},
+    "rels": [{"key": "a|ac|b|bc", "labels": cardinality labels, "card": relationship card text}]}
+
+    The docs page has no render.js, so the labels and card text come from it here, as in the viewer."""
     m = re.search(r'<pre[^>]*\bid="t-text"[^>]*>(.*?)</pre>', home_html, re.S)
     if not m:
         raise ValueError('overrides/home.html has no <pre id="t-text">')
@@ -51,7 +55,17 @@ def mini_diagram(home_html: str) -> dict:
         for cname, col in table.columns.items():
             if not col.virtual and cname in cols:
                 steps[col.line - 1] = ["r", tj["id"], cols[cname]]
-    return {"svg": render_svg(model, pos, embed_font=False), "steps": dict(sorted(steps.items()))}
+    rt = runtime()
+    rt.load("render.js")
+    rels = [
+        {
+            "key": "|".join([r["a"]["t"], r["a"]["c"], r["b"]["t"], r["b"]["c"]]),
+            "labels": rt.call("qdbdEdgeLabels", model, pos, "full", r),
+            "card": rt.call("qdbdRelCard", model, i),
+        }
+        for i, r in enumerate(model["rels"])
+    ]
+    return {"svg": render_svg(model, pos, embed_font=False), "steps": dict(sorted(steps.items())), "rels": rels}
 
 
 def build_tour(site_dir: Path) -> Path:

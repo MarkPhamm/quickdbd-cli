@@ -37,6 +37,13 @@ def test_mini_diagram_svg():
     assert "@font-face" not in svg
 
 
+def test_mini_diagram_relationship_text():
+    (rel,) = home.mini_diagram(HOME_HTML)["rels"]
+    assert rel["key"] == "Order|CustomerId|Customer|CustomerId"
+    assert [label["text"] for label in rel["labels"]] == ["*", "1"]
+    assert rel["card"]["sentence"] == "Each Customer row has many Order rows"
+
+
 def test_build_tour(tmp_path):
     page = home.build_tour(tmp_path)
     assert page.exists()

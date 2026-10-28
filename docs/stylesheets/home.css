@@ -309,6 +309,58 @@ q-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px;
   .qh-flow .qh-box:hover { border-color: var(--qd-mint); transform: translateY(-2px); transition-delay: 0s; }
 }
 
+/* text to diagram: sliding tab underline, typed code, and a diagram that builds as the text types */
+.qh-tabs__bar { position: relative; }
+.qh-tabs__bar button { transition: color .2s; }
+.qh-tabs__bar.qh-ind button[aria-selected="true"] { border-bottom-color: transparent; }
+.qh-tabs__ind { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--qd-accent);
+  box-shadow: 0 0 12px var(--qd-accent); transition: transform .4s cubic-bezier(.2, .7, .2, 1), width .4s cubic-bezier(.2, .7, .2, 1); }
+.qh-code:not([hidden]) { animation: qh-panel .35s cubic-bezier(.2, .7, .2, 1); }
+@keyframes qh-panel { from { opacity: 0; transform: translateY(6px); } }
+.qh-mini { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--qh-line); background: #f4f5f4;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.qh-mini .qh-frame__bar button { margin-left: auto; border: 0; background: none; color: var(--qd-mint); font: 600 12px Inter, sans-serif; cursor: pointer; }
+.qh-mini svg { display: block; width: 100%; height: auto; }
+.qh-mini text { font-family: Inter, sans-serif !important; }
+.qh-mini.qh-anim .ti { opacity: 0; transform: translateY(10px); transition: opacity .45s, transform .45s; }
+.qh-mini.qh-anim .t.on .ti { opacity: 1; transform: none; }
+.qh-mini.qh-anim .tb { transition: height .3s; }
+.qh-mini.qh-anim .r { opacity: 0; transform: translateX(-8px); transition: opacity .3s, transform .3s; }
+.qh-mini.qh-anim .r.on { opacity: 1; transform: none; }
+.qh-mini.qh-anim .e { opacity: 0; }
+.qh-mini.qh-anim .e.on { opacity: 1; }
+.qh-mini .r .rb { transition: fill .3s, fill-opacity .3s; }
+.qh-mini .r.lit .rb { fill: #dbe6f6; fill-opacity: 1; }
+.qh-mini .e path { transition: stroke .3s; }
+.qh-mini .e.lit path { stroke: #4361ee; }
+.qh-mini .e.lit .ep { stroke-width: 2.2; }
+.qh-mini .flow { fill: none; stroke: #2a3fb8; stroke-width: 4; stroke-dasharray: 4 18; animation: qh-miniflow 1.1s linear infinite; }
+@keyframes qh-miniflow { to { stroke-dashoffset: -22; } }
+.qh-mini .lbl { font: 600 11px Inter, sans-serif; fill: #4361ee; paint-order: stroke; stroke: #f4f5f4; stroke-width: 4px; }
+.qh-mini__card { position: absolute; z-index: 2; min-width: 230px; max-width: calc(100% - 24px); padding: 10px 12px; background: #fff;
+  color: #1f2937; border: 1px solid #dfe3e8; border-radius: 10px; box-shadow: 0 10px 30px rgba(16, 24, 40, .18); font: 12px Inter, sans-serif;
+  opacity: 0; transform: translateY(-4px) scale(.96); transform-origin: top left; transition: opacity .25s, transform .25s; pointer-events: none; }
+.qh-mini__card.open { opacity: 1; transform: none; }
+.qh-mini__card b { color: #4361ee; padding: 0 4px; }
+.qh-mini__card .k { color: #6b7280; margin: 2px 0 7px; }
+.qh-mini__card pre { margin: 0; padding: 6px 8px; background: #f4f5f4; border: 1px solid #e5e7eb; border-radius: 6px;
+  font: 11px ui-monospace, Menlo, monospace; white-space: pre-wrap; color: #1f2937; }
+
+/* quick start: a track fills from 1 to 4, numbers pop, commands type */
+.qh-steps4 { position: relative; }
+.qh-steps4__track { position: absolute; height: 2px; background: #22385c; z-index: 1; pointer-events: none; }
+.qh-steps4__track i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--qd-accent), var(--qd-mint));
+  transform-origin: left; transform: scaleX(0); transition: transform 1.8s cubic-bezier(.45, 0, .55, 1); box-shadow: 0 0 10px var(--qd-mint); }
+.qh-steps4.go .qh-steps4__track i { transform: scaleX(1); }
+.qh-steps4 > li > span { position: relative; z-index: 2; }
+.qh-steps4.qh-anim > li > span { transform: scale(.3); opacity: 0; transition: transform .5s cubic-bezier(.34, 1.56, .64, 1), opacity .25s; }
+.qh-steps4.qh-anim > li > span.on { transform: none; opacity: 1; }
+.qh-steps4 > li > span.on::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--qd-mint);
+  animation: qh-ring .9s ease-out forwards; }
+@keyframes qh-ring { from { transform: scale(1); opacity: .9; } to { transform: scale(2.1); opacity: 0; } }
+.qh-steps4 > li > code { min-height: 2.2em; }
+@media (max-width: 960px) { .qh-steps4__track { display: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .qh *, .qh *::before, .qh *::after { animation: none !important; transition: none !important; }
   .qh-words q-w, .qh-rv { opacity: 1 !important; transform: none !important; filter: none !important; }
