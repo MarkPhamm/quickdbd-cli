@@ -211,8 +211,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 /* details drawer (right) */
 .details { position: absolute; top: 64px; right: 16px; bottom: 16px; width: 380px; background: var(--panel);
   border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: auto;
-  display: none; z-index: 3; padding: 16px 18px; }
-.details.open { display: block; }
+  z-index: 3; padding: 16px 18px; visibility: hidden; opacity: 0; transform: translateX(16px); pointer-events: none;
+  transition: opacity .2s, transform .2s, visibility 0s .2s; }
+.details.open { visibility: visible; opacity: 1; transform: none; pointer-events: auto; transition: opacity .2s, transform .2s; }
+@media (prefers-reduced-motion: reduce) { .details, .details.open { transition: none; } }
 .has-details .minimap { right: 412px; }
 .details .close { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border: 0; border-radius: 6px;
   background: transparent; display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; }

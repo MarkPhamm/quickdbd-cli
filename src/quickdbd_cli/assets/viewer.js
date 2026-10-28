@@ -169,7 +169,28 @@
     return [r.width || 800, r.height || 600];
   }
 
-  function fit(only) {
+  /* Zoom, fit and jump glide instead of snapping. The next pointer press or wheel stops a glide. Instant with
+   * prefers-reduced-motion, on load and while a shared link is applied. */
+  var glide = null, glideTarget = null, reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function glideTo(v, ms) {
+    cancelGlide();
+    if (!ms || reduceMotion.matches || applyingHash) { S.view = v; applyView(); return; }
+    var from = { x: S.view.x, y: S.view.y, k: S.view.k }, t0 = performance.now();
+    glideTarget = v;
+    (function step(now) {
+      var f = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - f, 3);
+      S.view = { x: from.x + (v.x - from.x) * e, y: from.y + (v.y - from.y) * e, k: from.k + (v.k - from.k) * e };
+      applyView();
+      glide = f < 1 ? requestAnimationFrame(step) : null;
+      if (!glide) glideTarget = null;
+    })(t0);
+  }
+  function cancelGlide() {
+    if (glide) cancelAnimationFrame(glide);
+    glide = glideTarget = null;
+  }
+
+  function fit(only, animate) {
     var b = Q.bounds(only ? Q.subset(S.vm, only) : S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
     if (S.regions && !only) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
     if (only) sz = [sz[0] - (details.classList.contains("open") ? 400 : 0), sz[1]]; // keep clear of the details panel
@@ -177,24 +198,21 @@
     var top = 70, bottom = sz[0] < 900 ? 70 : pad, availH = sz[1] - top - bottom;
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), availH / (b[3] - b[1]), 1.5);
     k = Math.max(k, 0.03); // same floor as manual zoom, so wide diagrams still fit a phone screen
-    S.view = { k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k };
-    applyView();
+    glideTo({ k: k, x: (sz[0] - (b[2] - b[0]) * k) / 2 - b[0] * k, y: top + (availH - (b[3] - b[1]) * k) / 2 - b[1] * k }, animate ? 350 : 0);
   }
 
-  function zoomAt(factor, cx, cy) {
-    var v = S.view, k = Math.min(4, Math.max(0.03, v.k * factor));
-    S.view = { k: k, x: cx - (cx - v.x) * (k / v.k), y: cy - (cy - v.y) * (k / v.k) };
-    applyView();
+  function zoomAt(factor, cx, cy, ms) {
+    var v = glideTarget || S.view, k = Math.min(4, Math.max(0.03, v.k * factor)); // quick clicks compound
+    glideTo({ k: k, x: cx - (cx - v.x) * (k / v.k), y: cy - (cy - v.y) * (k / v.k) }, ms);
   }
 
-  function centerOn(id) {
+  function centerOn(id, animate) {
     var t = byId[id], p = S.pos[id];
     if (!t || !p) return;
     var g = Q.geometry(S.vm, S.mode)[id], sz = stageSize();
     if (!g) return;
     var k = Math.max(S.view.k, 0.9);
-    S.view = { k: k, x: sz[0] / 2 - (p[0] + g.w / 2) * k, y: sz[1] / 2 - (p[1] + g.h / 2) * k };
-    applyView();
+    glideTo({ k: k, x: sz[0] / 2 - (p[0] + g.w / 2) * k, y: sz[1] / 2 - (p[1] + g.h / 2) * k }, animate ? 350 : 0);
     var el = vp.querySelector('.t[data-id="' + cssEsc(id) + '"]');
     if (el) {
       el.classList.add("flash");
@@ -325,6 +343,7 @@
   /* ------------------------------------------------------------- pointer: pan, click, drag */
   var drag = null;
   svg.addEventListener("pointerdown", function (ev) {
+    cancelGlide();
     if (ev.button !== 0) return;
     var tEl = ev.target.closest && ev.target.closest(".t");
     var hp = !tEl && ev.target.closest && ev.target.closest(".hit path");
@@ -409,6 +428,7 @@
   }
   svg.addEventListener("wheel", function (ev) {
     ev.preventDefault();
+    cancelGlide();
     var r = svg.getBoundingClientRect();
     var factor = Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.01 : 0.0015));
     zoomAt(factor, ev.clientX - r.left, ev.clientY - r.top);
@@ -419,9 +439,9 @@
 
   /* ------------------------------------------------------------- toolbar */
   function center() { var s = stageSize(); return [s[0] / 2, s[1] / 2]; }
-  document.getElementById("zin").onclick = function () { var c = center(); zoomAt(1.25, c[0], c[1]); };
-  document.getElementById("zout").onclick = function () { var c = center(); zoomAt(0.8, c[0], c[1]); };
-  document.getElementById("zfit").onclick = function () { fit(); };
+  document.getElementById("zin").onclick = function () { var c = center(); zoomAt(1.25, c[0], c[1], 200); };
+  document.getElementById("zout").onclick = function () { var c = center(); zoomAt(0.8, c[0], c[1], 200); };
+  document.getElementById("zfit").onclick = function () { fit(null, true); };
   document.querySelectorAll("#modes button").forEach(function (b) {
     b.onclick = function () {
       setMode(b.getAttribute("data-mode"));
@@ -482,7 +502,7 @@
     if (S.focus && (!(opts && opts.quiet) || details.classList.contains("open"))) showDetails(S.focus);
     else closeDetails();
     markTree();
-    if (S.focus && opts && opts.center) centerOn(S.focus);
+    if (S.focus && opts && opts.center) centerOn(S.focus, true);
   }
 
   /* ------------------------------------------------------------- explorer: search + table tree */
@@ -616,7 +636,7 @@
     drawTree();
     if (S.focus) showDetails(S.focus);
     else closeDetails();
-    if (!keepView) fit();
+    if (!keepView) fit(null, true);
     scheduleHash();
   }
   finput.addEventListener("input", function () {
@@ -741,7 +761,7 @@
     S.path = { to: target, steps: Q.findPath(S.vm, S.focus, target) };
     showDetails(S.focus);
     applyFocus();
-    if (S.path.steps && !applyingHash) fit([S.focus].concat(S.path.steps.map(function (st) { return st.to.t; })));
+    if (S.path.steps && !applyingHash) fit([S.focus].concat(S.path.steps.map(function (st) { return st.to.t; })), true);
     scheduleHash();
     return true;
   }
@@ -798,6 +818,7 @@
     r.setAttribute("height", sz[1] / v.k);
   }
   function miniPan(ev) {
+    cancelGlide();
     var pt = mini.createSVGPoint();
     pt.x = ev.clientX;
     pt.y = ev.clientY;
