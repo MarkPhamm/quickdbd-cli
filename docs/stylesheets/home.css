@@ -189,6 +189,7 @@
 .qh-tour__still span { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); padding: 8px 16px; border-radius: 8px;
   background: var(--qd-accent); color: #fff; font-weight: 600; font-size: 14px; white-space: nowrap; }
 .qh-tour.live .qh-tour__still { display: none; }
+.qh-tour:not(.live) .qh-tour__stage iframe { visibility: hidden; } /* keep the still on show while the page loads */
 .qh-tour__overlay { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .qh-cursor { position: absolute; left: 0; top: 0; opacity: 0; transform: translate(60%, 40%); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35));
   transition: transform .8s cubic-bezier(.65, 0, .35, 1), opacity .3s; }

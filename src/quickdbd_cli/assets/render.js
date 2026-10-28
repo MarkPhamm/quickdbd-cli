@@ -583,8 +583,16 @@
       cardFrom: CARD_LABEL[child.card] || "",
       cardTo: CARD_LABEL[parent.card] || "",
       sentence: "Each " + byId[parent.t].name + " row has " + CARD_WORD[child.card] + " " + byId[child.t].name + (plural ? " rows" : " row"),
-      sql: pathSql(model, child.t, [{ from: child, to: parent, pairs: pairs }]),
+      sql: child.t === parent.t ? selfJoin(byId[child.t], pairs) : pathSql(model, child.t, [{ from: child, to: parent, pairs: pairs }]),
     };
+  }
+  /* A table joined to itself needs an alias, or every column is ambiguous. */
+  function selfJoin(t, pairs) {
+    var name = sqlIdent(t.name), alias = sqlPart(t.name.split(".").pop() + "_2");
+    function col(c) { var x = t.cols.filter(function (k) { return k.id === c; })[0]; return sqlPart(x ? x.name : c); }
+    var on = pairs.map(function (p) { return alias + "." + col(p[1]) + " = " + name + "." + col(p[0]); });
+    return "FROM " + name + "\nJOIN " + name + " AS " + alias + " ON " +
+      (on.length ? on.join(" AND ") : "...  -- table-level relationship: join columns not specified");
   }
 
   root.qdbd = {

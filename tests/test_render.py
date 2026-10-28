@@ -102,3 +102,8 @@ def test_edge_labels_self_ref():
 
 def test_edge_labels_missing_position():
     assert edge_labels(ORDERS, {"Customer": [0, 0]}) is None
+
+
+def test_rel_card_self_ref_aliases_the_parent():
+    card = rel_card("Emp\n-\nId PK int\nBossId int FK >- Emp.Id\n")
+    assert card["sql"] == "FROM Emp\nJOIN Emp AS Emp_2 ON Emp_2.Id = Emp.BossId"
