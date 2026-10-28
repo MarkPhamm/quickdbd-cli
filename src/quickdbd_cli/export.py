@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import base64
+import re
 from functools import cache
 from importlib import resources
 
 from . import layout
 from .jsrt import runtime
+
+# A 200-table diagram at scale 2 is 17506x15274 px: 15 s to encode, and too big for many image viewers.
+MAX_PNG_SIDE = 16384
 
 
 def _asset_bytes(name: str) -> bytes:
@@ -83,6 +87,17 @@ def focus_positions(model: dict, positions: dict, ids: list[str]) -> dict:
     rels = [r for r in model["rels"] if r["a"]["t"] in keep and r["b"]["t"] in keep]
     pos = layout.elk_layout(tables, rels)
     return {k: [v[0], v[1]] for k, v in pos.items()}
+
+
+def svg_size(svg: str) -> tuple[float, float]:
+    w = re.search(r'\bwidth="([\d.]+)', svg)
+    h = re.search(r'\bheight="([\d.]+)', svg)
+    return (float(w.group(1)) if w else 1000.0, float(h.group(1)) if h else 1000.0)
+
+
+def png_scale(svg: str, scale: float) -> float:
+    """``scale``, lowered so the PNG's longest side stays within MAX_PNG_SIDE pixels."""
+    return min(scale, MAX_PNG_SIDE / max(svg_size(svg)))
 
 
 def svg_to_png(svg: str, scale: float = 2.0) -> bytes:

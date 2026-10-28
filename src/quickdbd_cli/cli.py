@@ -216,7 +216,11 @@ def cmd_export(args) -> int:
     if fmt == "svg":
         out.write_text(svg, encoding="utf-8")
     else:
-        out.write_bytes(export.svg_to_png(svg, args.scale))
+        scale = export.png_scale(svg, args.scale)
+        if scale < args.scale:
+            note = f"--scale lowered to {scale:.2f} to keep the PNG within {export.MAX_PNG_SIDE} px"
+            print(f"note: {note}", file=sys.stderr)
+        out.write_bytes(export.svg_to_png(svg, scale))
     print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
     return 0
 
