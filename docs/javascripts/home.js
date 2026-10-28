@@ -7,10 +7,10 @@
 
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
-  /* fn(el) once el scrolls into view. */
+  /* fn(el) once el scrolls into view, or at once when it is already above the viewport (a restored scroll position). */
   function onView(el, fn, margin) {
     var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); fn(e.target); } });
+      es.forEach(function (e) { if (e.isIntersecting || e.boundingClientRect.bottom < 0) { io.unobserve(e.target); fn(e.target); } });
     }, { rootMargin: margin || "0px 0px -12% 0px" });
     io.observe(el);
   }
