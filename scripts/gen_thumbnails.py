@@ -30,25 +30,32 @@ PATH_SHOT = ("sakila", "t=payment&p=country")
 # Hidden in the screenshot: the table list, toolbar, minimap and hint. The details panel and diff bar stay.
 CLEAN = ".explorer, .bar, .minimap, .hint { display: none !important; }"
 
-CARD = """<!doctype html><html><head><meta charset="utf-8"><style>{font}
+CARD = """<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600&family=Geist+Mono&display=swap">
+<style>{font}
 * {{ box-sizing: border-box; margin: 0; }}
-body {{ width: {w}px; height: {h}px; overflow: hidden; font-family: Inter, sans-serif; color: #0f1b2d;
-  background: #eef3fb; background-image: linear-gradient(#dfe7f3 1px, transparent 1px),
-  linear-gradient(90deg, #dfe7f3 1px, transparent 1px); background-size: 28px 28px; position: relative; }}
-.text {{ position: absolute; left: 56px; top: 64px; width: 360px; }}
-.brand {{ display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 26px; margin-bottom: 44px; }}
-.brand svg {{ color: #2563eb; }}
-h1 {{ display: inline; font-size: 46px; line-height: 1.32; font-weight: 700; color: #fff; background: #2563eb;
-  padding: 2px 10px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }}
-p {{ margin-top: 26px; font-size: 21px; line-height: 1.5; color: #42526b; }}
-.shot {{ position: absolute; left: 460px; top: 56px; width: {sw}px; border-radius: 14px; overflow: hidden;
-  border: 1px solid #cfd8e6; box-shadow: 0 18px 50px rgba(15, 27, 45, .18); background: #fff; }}
+body {{ width: {w}px; height: {h}px; overflow: hidden; font-family: Geist, Inter, sans-serif; color: #15181e;
+  position: relative; --a: rgba(21, 24, 30, .07); --b: rgba(21, 24, 30, .04); background: #f2f2ee;
+  background-image: linear-gradient(var(--a) 1px, #0000 1px), linear-gradient(90deg, var(--a) 1px, #0000 1px),
+    linear-gradient(var(--b) 1px, #0000 1px), linear-gradient(90deg, var(--b) 1px, #0000 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: -1px -1px; }}
+.text {{ position: absolute; left: 56px; top: 60px; width: 360px; }}
+.brand {{ display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 26px; letter-spacing: -.02em;
+  margin-bottom: 40px; }}
+.brand svg {{ color: #2f5bea; }}
+.brand span {{ font: 16px "Geist Mono", monospace; color: #646a75; border: 1px solid rgba(21, 24, 30, .24);
+  border-radius: 6px; padding: 3px 8px; margin-left: 4px; letter-spacing: 0; }}
+h1 {{ font-size: 48px; line-height: 1.04; font-weight: 600; letter-spacing: -.04em; }}
+p {{ margin-top: 22px; font-size: 21px; line-height: 1.5; color: #4a505b; }}
+.shot {{ position: absolute; left: 460px; top: 56px; width: {sw}px; border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(21, 24, 30, .24); box-shadow: 0 18px 40px -18px rgba(21, 24, 30, .28); background: #fff; }}
 .shot img {{ display: block; width: 100%; }}
 </style></head><body>
 <div class="text">
   <div class="brand"><svg width="30" height="30" viewBox="0 0 24 24"><rect x="2" y="2.5" width="10" height="8" rx="2"
     fill="currentColor"/><rect x="12" y="13.5" width="10" height="8" rx="2" fill="currentColor" opacity=".55"/><path
-    d="M7 10.5v3.5a3.5 3.5 0 0 0 3.5 3.5H12" stroke="currentColor" stroke-width="2" fill="none"/></svg>qdbd</div>
+    d="M7 10.5v3.5a3.5 3.5 0 0 0 3.5 3.5H12" stroke="currentColor" stroke-width="2" fill="none"/></svg>qdbd
+    <span>demo</span></div>
   <h1>{title}</h1>
   <p>{description}</p>
 </div>
@@ -88,7 +95,7 @@ def main(argv: list[str]) -> int:
                     img=img,
                 )
             )
-            card.wait_for_timeout(100)
+            card.evaluate("document.fonts.ready.then(() => true)")  # Geist comes from Google Fonts
             dst = THUMBS / f"{d.id}.png"
             card.screenshot(path=str(dst))
             print(f"Wrote {dst.relative_to(THUMBS.parents[3])}")

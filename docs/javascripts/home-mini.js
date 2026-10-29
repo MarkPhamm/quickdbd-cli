@@ -99,7 +99,7 @@
         e.classList.add("on");
         if (reduce) return;
         var ep = e.querySelector(".ep"), len = ep.getTotalLength();
-        ep.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 600, easing: "cubic-bezier(.6,0,.3,1)" });
+        ep.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 600, easing: "cubic-bezier(.65,0,.35,1)" });
         [].forEach.call(e.querySelectorAll("path:not(.ep)"), function (m) {
           m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, delay: 500, fill: "backwards" });
         });
