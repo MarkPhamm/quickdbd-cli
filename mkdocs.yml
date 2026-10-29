@@ -12,11 +12,9 @@ exclude_docs: |
 theme:
   name: material
   custom_dir: overrides
-  font:
-    text: Figtree
-    code: JetBrains Mono
+  font: false  # Geist and Geist Mono come from docs/stylesheets/extra.css
   palette:
-    scheme: slate
+    scheme: default
     primary: custom
     accent: custom
   favicon: assets/img/icon.svg

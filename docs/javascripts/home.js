@@ -192,7 +192,7 @@
     function drawIn(list, delay) {
       list.forEach(function (w, i) {
         w.base.animate([{ strokeDasharray: w.len, strokeDashoffset: w.len }, { strokeDasharray: w.len, strokeDashoffset: 0 }],
-          { duration: 520, delay: delay + i * 90, easing: "cubic-bezier(.6,0,.3,1)", fill: "backwards" });
+          { duration: 520, delay: delay + i * 90, easing: "cubic-bezier(.65,0,.35,1)", fill: "backwards" });
         w.g.querySelectorAll(".dot").forEach(function (dot) {
           dot.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: delay + i * 90 + 380, fill: "backwards" });
         });
@@ -201,7 +201,7 @@
     function comet(w, ms) {
       var p = svgEl("path", { d: w.d, "class": "comet", "stroke-dasharray": "22 " + (w.len + 44) });
       svg.appendChild(p);
-      p.animate([{ strokeDashoffset: 22 }, { strokeDashoffset: -w.len }], { duration: ms, easing: "cubic-bezier(.45,0,.55,1)" })
+      p.animate([{ strokeDashoffset: 22 }, { strokeDashoffset: -w.len }], { duration: ms, easing: "cubic-bezier(.65,0,.35,1)" })
         .onfinish = function () { p.remove(); };
     }
     function ping(b) {
