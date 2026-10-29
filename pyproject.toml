@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "quickdbd-cli"
-version = "0.3.4"
+version = "0.3.5"
 description = "Compile QuickDBD-syntax schema files into interactive HTML ER diagrams, with no table limit."
 readme = "README.md"
 license = "Apache-2.0"

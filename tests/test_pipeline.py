@@ -248,6 +248,8 @@ def test_build_is_deterministic_and_does_not_write_sidecar(tmp_path):
     assert not (work / "qdbd.layout.json").exists()
     html = a.read_text()
     assert "<title>s</title>" in html and '"serve":false' in html
+    # the VS Code icon, inline so the page stays one file
+    assert '<link rel="icon" href="data:image/svg+xml,%3Csvg ' in html
 
 
 def test_layout_command_writes_sidecar_and_reset(tmp_path):

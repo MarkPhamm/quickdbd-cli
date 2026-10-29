@@ -399,6 +399,48 @@ q-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px;
   .qh-pr__stage .qh-comment { position: relative; left: auto; bottom: auto; width: auto; margin-top: 16px; }
 }
 
+/* path to SQL: the join chain, the lit path, the SQL qdbd writes */
+.qh-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 0; list-style: none; margin: 28px 0 0; padding: 0; }
+.qh-chain li { position: relative; font: 600 13px "JetBrains Mono", monospace; color: #f3f6fb; padding: 6px 12px;
+  border: 1px solid var(--qh-line); border-radius: 999px; background: var(--qh-card); }
+.qh-chain li:first-child, .qh-chain li:last-child { border-color: #f59e0b; color: #fcd34d; }
+.qh-chain li + li { margin-left: 24px; }
+.qh-chain li + li::before { content: ""; position: absolute; right: 100%; top: 50%; width: 24px; height: 2px; background: #f59e0b; }
+.qh-split--path { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); margin-top: 24px; }
+.qh-tabs__bar--file { align-items: center; justify-content: space-between; padding: 6px 8px 6px 16px;
+  font: 12px "JetBrains Mono", monospace; color: var(--qd-label); }
+.qh-code--sql { font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qh-path .qh-install, .qh-agents .qh-install { max-width: none; }
+.qh-path .qh-install code { overflow-wrap: anywhere; }
+
+/* AI agents: a chat where the agent calls qdbd's tools */
+.qh-split--agents { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; }
+.qh-chat { border: 1px solid var(--qh-line); border-radius: 12px; overflow: hidden; background: #0f1b2e; box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.qh-chat__body { display: flex; flex-direction: column; gap: 12px; padding: 18px; }
+.qh-chat__user { align-self: flex-end; max-width: 85%; margin: 0; padding: 10px 14px; border-radius: 14px 14px 4px 14px;
+  background: var(--qd-accent); color: #fff; font-size: 15px; }
+.qh-chat__tool { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 8px 12px; border: 1px solid var(--qh-line);
+  border-radius: 8px; background: var(--qh-card); font-size: 13px; color: var(--qd-label); }
+.qh-chat__tool b { color: var(--qd-mint); font: 600 12px "JetBrains Mono", monospace; }
+.qh-chat__tool span { flex-basis: 100%; }
+.qh-chat__reply { margin: 0; padding: 12px 14px; border-radius: 4px 14px 14px 14px; background: var(--qd-code); color: #dde6f3;
+  font: 12.5px/1.65 "JetBrains Mono", ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; font-variant-ligatures: none; }
+.qh-clients { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.qh-clients li { padding: 6px 12px; border: 1px solid var(--qh-line); border-radius: 999px; font-size: 14px; color: var(--qd-text); }
+.qh-clients li:last-child { color: var(--qd-label); border-style: dashed; }
+.qh-agents .qh-list { list-style: none; padding: 0; margin: 22px 0 0; }
+.qh-agents .qh-list li { padding-left: 14px; border-left: 2px solid var(--qd-accent); }
+.qh-agents .qh-list b { color: var(--qd-text); }
+@media (max-width: 960px) {
+  .qh-split--path, .qh-split--agents { grid-template-columns: minmax(0, 1fr); }
+}
+/* the chain wraps on phones, where a connector would dangle at the start of a row */
+@media (max-width: 600px) {
+  .qh-chain { gap: 8px; }
+  .qh-chain li + li { margin-left: 0; }
+  .qh-chain li + li::before { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .qh *, .qh *::before, .qh *::after { animation: none !important; transition: none !important; }
   .qh-words q-w, .qh-rv { opacity: 1 !important; transform: none !important; filter: none !important; }

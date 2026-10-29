@@ -3,14 +3,20 @@
 - The "From text to diagram" mini diagram is rendered by qdbd from the schema shown next to it (the
   <pre id="t-text"> in overrides/home.html), so the picture can't drift from the text. The page builds it as the text
   types, so it also gets which line of the text adds which table or row.
+- The icon (favicon, header, footer) is the VS Code extension's, from the package's assets/icon.svg; it is copied into
+  the site rather than kept twice in git.
+- The path and AI-agent sections show what qdbd's MCP tools (agent.py) answer about Sakila and AdventureWorks, run at
+  build time.
 - The live demo drives the real viewer in an iframe, which must be same-origin: the AdventureWorks page is built into
   the site at assets/tour/adventureworks.html, for `mkdocs serve` as well as the Pages build.
 """
 
 import html
 import re
+import shutil
 from pathlib import Path
 
+from quickdbd_cli.agent import Workspace, join_path, search_schema
 from quickdbd_cli.export import render_svg
 from quickdbd_cli.html import render_page
 from quickdbd_cli.jsrt import runtime
@@ -20,7 +26,9 @@ from quickdbd_cli.project import Project
 
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "overrides" / "home.html"
+ICON = ROOT / "src" / "quickdbd_cli" / "assets" / "icon.svg"
 TOUR_SOURCE = ROOT / "gallery" / "adventureworks"
+PATH_SOURCE = ROOT / "gallery" / "sakila"  # the path section; scripts/gen_thumbnails.py PATH_SHOT shows the same join
 TOUR_PAGE = Path("assets") / "tour" / "adventureworks.html"
 # The snippet's two tables side by side; any other table goes further right.
 MINI_POSITIONS = {"Customer": (0, 10), "Order": (300, 0)}
@@ -68,6 +76,19 @@ def mini_diagram(home_html: str) -> dict:
     return {"svg": render_svg(model, pos, embed_font=False), "steps": dict(sorted(steps.items())), "rels": rels}
 
 
+def agent_answers() -> dict:
+    """{"search": first line of search_schema, "join": a join_path answer (AdventureWorks), "path_sql": the SQL of
+    the path section's join (Sakila), "path_tables": that path's tables in order}."""
+    ws = Workspace(TOUR_SOURCE)
+    sql = join_path(Workspace(PATH_SOURCE), {"from": "payment", "to": "country"}).text.split("\n\n", 1)[1]
+    return {
+        "search": search_schema(ws, {"query": "country"}).text.splitlines()[0],
+        "join": join_path(ws, {"from": "SalesOrderHeader", "to": "CountryRegion"}).text,
+        "path_sql": sql,
+        "path_tables": [line.split()[1] for line in sql.splitlines()],
+    }
+
+
 def build_tour(site_dir: Path) -> Path:
     """Write the AdventureWorks page the live demo drives; returns its path."""
     global _tour_html
@@ -86,8 +107,11 @@ def build_tour(site_dir: Path) -> Path:
 
 def on_config(config, **kwargs):
     config.extra["home_mini"] = mini_diagram(HOME.read_text(encoding="utf-8"))
+    config.extra["agent"] = agent_answers()
+    config.extra["icon_svg"] = ICON.read_text(encoding="utf-8").strip().replace("<svg ", '<svg aria-hidden="true" ', 1)
     return config
 
 
 def on_post_build(config, **kwargs):
     build_tour(Path(config["site_dir"]))
+    shutil.copyfile(ICON, Path(config["site_dir"]) / "assets" / "img" / "icon.svg")

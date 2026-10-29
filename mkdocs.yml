@@ -19,8 +19,9 @@ theme:
     scheme: slate
     primary: custom
     accent: custom
+  favicon: assets/img/icon.svg
+  logo: assets/img/icon.svg
   icon:
-    logo: material/database-outline
     repo: fontawesome/brands/github
   features:
     - navigation.instant

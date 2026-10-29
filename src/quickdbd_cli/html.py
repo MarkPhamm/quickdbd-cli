@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from importlib import resources
+from urllib.parse import quote
 
 from .export import font_css
 
@@ -12,6 +13,11 @@ CODEMIRROR = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16"
 
 def _asset(name: str) -> str:
     return resources.files("quickdbd_cli").joinpath(f"assets/{name}").read_text(encoding="utf-8")
+
+
+def favicon() -> str:
+    """The VS Code extension's icon as an inline SVG data URL, so pages stay single-file."""
+    return f'<link rel="icon" href="data:image/svg+xml,{quote(_asset("icon.svg").strip(), safe=" /=:")}">'
 
 
 def _json_for_script(obj) -> str:
@@ -171,6 +177,7 @@ def render_page(
         '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<meta name="generator" content="qdbd">'
+        f"{favicon()}"
         f"<title>{_escape(title)}</title>"
         f"<script>{THEME_JS}</script>"
         # The font CSS lives in its own <style> so the viewer can reuse it for SVG/PNG export

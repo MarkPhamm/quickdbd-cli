@@ -37,7 +37,9 @@
 /* ---------------------------------------------------------------- header */
 .qd-header { background: var(--qd-header); box-shadow: none; border-bottom: 1px solid #22324d; height: 3.2rem; }
 .qd-header__inner { max-width: none; padding: 0 1rem; height: 3.2rem; display: flex; align-items: center; gap: .4rem; }
-.qd-brand { font-weight: 700; font-size: .95rem; color: #fff !important; margin-right: .5rem; }
+.qd-brand { display: inline-flex; align-items: center; gap: .45rem; font-weight: 700; font-size: .95rem; color: #fff !important;
+  margin-right: .5rem; }
+.qd-brand svg { width: 1.3rem; height: 1.3rem; }
 .qd-version { font: 500 .68rem/1 "JetBrains Mono", monospace; color: #c9c9c9 !important; border: 1px solid #3a4459;
   border-radius: 999px; padding: .2rem .5rem; margin-right: 1rem; }
 .qd-version:hover { color: #fff !important; border-color: #5a6680; }
@@ -46,6 +48,9 @@
 .qd-header__title { flex: 1; visibility: hidden; }
 .qd-github { display: inline-flex; align-items: center; gap: .3rem; color: #c9c9c9 !important; margin-right: .8rem; }
 .qd-github svg { opacity: .8; }
+.qd-navbtn { color: #fff !important; background: var(--qd-accent); font-size: .8rem; font-weight: 600; padding: .45rem .9rem;
+  border-radius: 999px; margin-right: .6rem; white-space: nowrap; }
+.qd-navbtn:hover { background: var(--qd-accent-hover); }
 
 @media screen and (min-width: 60em) {
   .md-search { padding: 0; }
@@ -140,11 +145,26 @@ iframe.demo { width: 100%; height: 620px; border: 1px solid var(--qd-rule); bord
   .md-nav--primary .md-nav__list { padding-right: .6rem; }
 }
 @media screen and (max-width: 59.984em) {
-  .qd-navlink { display: none; }
+  .qd-navlink, .qd-navbtn { display: none; }
   .qd-brand { margin-right: 0; }
 }
 .md-nav--primary .md-nav__source { background: var(--qd-header); color: #e6e6e6; }
 @media screen and (max-width: 76.234em) { .md-sidebar--primary { background: var(--qd-side); } }
+
+/* ---------------------------------------------------------------- footer: brand + link columns (partials/copyright.html) */
+.md-footer-meta__inner { display: block; padding: 2.4rem 1.2rem 1rem; }
+.qd-foot { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 1.6rem; max-width: 59rem;
+  margin: 0 auto 2rem; }
+.qd-foot__brand p { color: var(--qd-muted); font-size: .7rem; margin: .5rem 0 0; max-width: 16rem; }
+.qd-foot__col { display: flex; flex-direction: column; gap: .45rem; font-size: .7rem; }
+.qd-foot__col b { color: #fff; font-size: .7rem; margin-bottom: .2rem; }
+.md-typeset .qd-foot__col a { color: var(--qd-muted); }
+.md-typeset .qd-foot__col a:hover { color: #fff; }
+.md-footer-meta .md-copyright { max-width: 59rem; margin: 0 auto; width: auto; padding: .8rem 0 0; border-top: 1px solid #1a2a44; }
+@media screen and (max-width: 44.984em) {
+  .qd-foot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qd-foot__brand { grid-column: 1 / -1; }
+}
 
 /* code blocks: keep text clear of the copy button (wrap on phones, solid button ground) */
 .md-typeset .md-clipboard { background: var(--md-code-bg-color); border-radius: 6px; }

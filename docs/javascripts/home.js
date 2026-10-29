@@ -99,10 +99,12 @@
       onView(h, function () { h.classList.add("qh-in"); });
     });
     reveal([].slice.call(root.querySelectorAll(".qh-section > .qh-sub, .qh-section > .qh-more, .qh-final > :not(h2)")));
-    root.querySelectorAll(".qh-steps3, .qh-steps4, .qh-gallery, .qh-faq").forEach(function (g) {
+    root.querySelectorAll(".qh-steps3, .qh-steps4, .qh-gallery, .qh-faq, .qh-chain, .qh-clients").forEach(function (g) {
       reveal([].slice.call(g.children).filter(function (c) { return c.tagName !== "H2"; }), 0.08);
     });
-    root.querySelectorAll(".qh-col, .qh-box, .qh-card, .qh-steps4 > li, .qh-tabs, .qh-comment, .qh-tour__chapters li").forEach(function (c) {
+    /* the agent's turn plays out: question, tool calls, answer */
+    root.querySelectorAll(".qh-chat__body").forEach(function (c) { reveal([].slice.call(c.children), 0.45); });
+    root.querySelectorAll(".qh-col, .qh-box, .qh-card, .qh-steps4 > li, .qh-tabs, .qh-comment, .qh-tour__chapters li, .qh-chat").forEach(function (c) {
       c.classList.add("qh-glow");
       c.addEventListener("pointermove", function (e) {
         var r = c.getBoundingClientRect();
