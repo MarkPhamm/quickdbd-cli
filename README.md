@@ -27,10 +27,10 @@
 </p>
 
 <p align="center">
-  <a href="https://qdbd.dev/demo/adventureworks/#t=SalesOrderHeader"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/hero.png" alt="The AdventureWorks sample database as a qdbd diagram, with the SalesOrderHeader table selected" width="760"></a>
+  <a href="https://qdbd.dev/demo/adventureworks-dw/#t=FactInternetSales"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/hero.png" alt="The AdventureWorks DW star schema as a qdbd diagram, with the FactInternetSales table selected" width="760"></a>
 </p>
 <p align="center">
-  <em>AdventureWorks (68 tables) with its column descriptions, built by qdbd. <a href="https://qdbd.dev/demo/adventureworks/#t=SalesOrderHeader">Try it live →</a></em>
+  <em>AdventureWorks DW (28 tables), a star schema in five regions, built by qdbd. <a href="https://qdbd.dev/demo/adventureworks-dw/#t=FactInternetSales">Try it live →</a></em>
 </p>
 
 ## What is qdbd?

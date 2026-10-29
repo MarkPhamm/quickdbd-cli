@@ -7,8 +7,8 @@
   the site rather than kept twice in git.
 - The path and AI-agent sections show what qdbd's MCP tools (agent.py) answer about Sakila and AdventureWorks, run at
   build time.
-- The live demo drives the real viewer in an iframe, which must be same-origin: the AdventureWorks page is built into
-  the site at assets/tour/adventureworks.html, for `mkdocs serve` as well as the Pages build.
+- The live demo drives the real viewer in an iframe, which must be same-origin: the AdventureWorks DW page is built
+  into the site at assets/tour/adventureworks-dw.html, for `mkdocs serve` as well as the Pages build.
 """
 
 import html
@@ -27,9 +27,10 @@ from quickdbd_cli.project import Project
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "overrides" / "home.html"
 ICON = ROOT / "src" / "quickdbd_cli" / "assets" / "icon.svg"
-TOUR_SOURCE = ROOT / "gallery" / "adventureworks"
+TOUR_SOURCE = ROOT / "gallery" / "adventureworks-dw"
+AGENT_SOURCE = ROOT / "gallery" / "adventureworks"  # the AI-agent section's answers
 PATH_SOURCE = ROOT / "gallery" / "sakila"  # the path section; scripts/gen_thumbnails.py PATH_SHOT shows the same join
-TOUR_PAGE = Path("assets") / "tour" / "adventureworks.html"
+TOUR_PAGE = Path("assets") / "tour" / "adventureworks-dw.html"
 # The snippet's two tables side by side; any other table goes further right.
 MINI_POSITIONS = {"Customer": (0, 10), "Order": (300, 0)}
 
@@ -79,7 +80,7 @@ def mini_diagram(home_html: str) -> dict:
 def agent_answers() -> dict:
     """{"search": first line of search_schema, "join": a join_path answer (AdventureWorks), "path_sql": the SQL of
     the path section's join (Sakila), "path_tables": that path's tables in order}."""
-    ws = Workspace(TOUR_SOURCE)
+    ws = Workspace(AGENT_SOURCE)
     sql = join_path(Workspace(PATH_SOURCE), {"from": "payment", "to": "country"}).text.split("\n\n", 1)[1]
     return {
         "search": search_schema(ws, {"query": "country"}).text.splitlines()[0],
@@ -90,7 +91,7 @@ def agent_answers() -> dict:
 
 
 def build_tour(site_dir: Path) -> Path:
-    """Write the AdventureWorks page the live demo drives; returns its path."""
+    """Write the AdventureWorks DW page the live demo drives; returns its path."""
     global _tour_html
     if _tour_html is None:
         project = Project.open([TOUR_SOURCE])
@@ -98,7 +99,7 @@ def build_tour(site_dir: Path) -> Path:
         if schema.errors:
             raise ValueError(f"the tour schema doesn't compile: {schema.errors[0]}")
         model, pos = project.build(schema, by_group=True)
-        _tour_html = render_page(model, pos, "AdventureWorks")
+        _tour_html = render_page(model, pos, "AdventureWorks DW")
     out = Path(site_dir) / TOUR_PAGE
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_tour_html, encoding="utf-8")

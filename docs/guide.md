@@ -6,7 +6,7 @@ The schema is a text file, so it lives in git next to your code. Diagrams are ge
 
 [Live demos](../demo/){ .md-button .md-button--primary } [200-table demo](../demo/synthetic/){ .md-button } [Quick start](getting-started.md){ .md-button }
 
-[![The AdventureWorks demo, with a table selected](assets/img/hero.png){ .shot }](../demo/adventureworks/#t=SalesOrderHeader)
+[![The AdventureWorks DW demo, with a table selected](assets/img/hero.png){ .shot }](../demo/adventureworks-dw/#t=FactInternetSales)
 
 ## The workflow
 

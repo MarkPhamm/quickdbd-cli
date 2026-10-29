@@ -1,0 +1,74 @@
+# AdventureWorks DW, Microsoft's data-warehouse sample. Product: the product hierarchy (category, subcategory, product), inventory and translated descriptions.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/data-warehouse-install-script/instawdbdw.sql (MIT, see LICENSE).
+
+FactProductInventory
+-
+ProductKey PK int FK >- DimProduct.ProductKey
+DateKey PK int FK >- DimDate.DateKey
+MovementDate date
+UnitCost money
+UnitsIn int
+UnitsOut int
+UnitsBalance int
+
+FactAdditionalInternationalProductDescription
+-
+ProductKey PK int
+CultureName PK nvarchar(50)
+ProductDescription nvarchar(max)
+
+DimProduct
+-
+ProductKey PK int IDENTITY
+ProductAlternateKey nvarchar(25) NULL
+ProductSubcategoryKey int NULL FK >- DimProductSubcategory.ProductSubcategoryKey
+WeightUnitMeasureCode nchar(3) NULL
+SizeUnitMeasureCode nchar(3) NULL
+EnglishProductName nvarchar(50)
+SpanishProductName nvarchar(50)
+FrenchProductName nvarchar(50)
+StandardCost money NULL
+FinishedGoodsFlag bit
+Color nvarchar(15)
+SafetyStockLevel smallint NULL
+ReorderPoint smallint NULL
+ListPrice money NULL
+Size nvarchar(50) NULL
+SizeRange nvarchar(50) NULL
+Weight float NULL
+DaysToManufacture int NULL
+ProductLine nchar(2) NULL
+DealerPrice money NULL
+Class nchar(2) NULL
+Style nchar(2) NULL
+ModelName nvarchar(50) NULL
+LargePhoto varbinary(max) NULL
+EnglishDescription nvarchar(400) NULL
+FrenchDescription nvarchar(400) NULL
+ChineseDescription nvarchar(400) NULL
+ArabicDescription nvarchar(400) NULL
+HebrewDescription nvarchar(400) NULL
+ThaiDescription nvarchar(400) NULL
+GermanDescription nvarchar(400) NULL
+JapaneseDescription nvarchar(400) NULL
+TurkishDescription nvarchar(400) NULL
+StartDate datetime NULL
+EndDate datetime NULL
+Status nvarchar(7) NULL
+
+DimProductSubcategory
+-
+ProductSubcategoryKey PK int IDENTITY
+ProductSubcategoryAlternateKey int NULL
+EnglishProductSubcategoryName nvarchar(50)
+SpanishProductSubcategoryName nvarchar(50)
+FrenchProductSubcategoryName nvarchar(50)
+ProductCategoryKey int NULL FK >- DimProductCategory.ProductCategoryKey
+
+DimProductCategory
+-
+ProductCategoryKey PK int IDENTITY
+ProductCategoryAlternateKey int NULL
+EnglishProductCategoryName nvarchar(50)
+SpanishProductCategoryName nvarchar(50)
+FrenchProductCategoryName nvarchar(50)

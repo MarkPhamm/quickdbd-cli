@@ -37,7 +37,7 @@ are standalone pages.
   with crosshairs (`::after`, z-index -1, so `.qh` is its own stacking context). `.qh-plate` puts the masked grid
   behind a figure (hero sheet, tour, flow, PR stage).
 - **The one bold element** is the hero screenshot as a drawing sheet: zone ticks (1–6, A–D), a dimension line along
-  SalesOrderHeader with a "26 cols" label, and a title block. The page load drafts it in one sequence (zones, frame,
+  the selected table (FactInternetSales in AdventureWorks DW) with a "26 cols" label, and a title block. The page load drafts it in one sequence (zones, frame,
   dimension line, notes) instead of separate blur-in reveals.
   - The dimension line is in `hero.png`'s pixel space (`viewBox 0 0 1440 860`); regenerating `hero.png` means
     re-measuring it.
