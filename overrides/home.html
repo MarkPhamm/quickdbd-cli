@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {#- Landing page (docs/index.md sets `template: home.html`). Sections follow anfra.ai's order; the demo grid
-    comes from gallery/demos.toml via hooks/gallery.py. -#}
+    comes from gallery/demos.toml via hooks/gallery.py, the path and agent answers from hooks/home.py. -#}
 
 {% block site_nav %}{% endblock %}
 
@@ -197,6 +197,33 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     </div>
   </section>
 
+  <!-- ------------------------------------------------------------- path to SQL
+       The SQL and the table chain come from qdbd's join_path tool at build time (hooks/home.py); the screenshot is
+       scripts/gen_thumbnails.py path-sql. -->
+  {% set path_link = 'demo/sakila/' | url ~ '#t=payment&p=country' %}
+  <section class="qh-section qh-wrap qh-path">
+    <h2>Every relationship is a JOIN</h2>
+    <p class="qh-sub">Pick two tables. qdbd finds the shortest path through the relationships, lights it in the diagram and writes the SQL, composite keys included. The page, <code>qdbd path</code> and AI agents all get the same answer.</p>
+    <ol class="qh-chain" aria-label="Join path">
+      {%- for t in config.extra.agent.path_tables %}<li>{{ t | e }}</li>{% endfor -%}
+    </ol>
+    <div class="qh-split qh-split--path">
+      <figure class="qh-figure">
+        <a href="{{ path_link }}"><img src="{{ 'assets/img/path-sql.png' | url }}" alt="The Sakila database in qdbd with the path from payment to country lit" loading="lazy" width="1440" height="860"></a>
+      </figure>
+      <div>
+        <div class="qh-tabs">
+          <div class="qh-tabs__bar qh-tabs__bar--file"><span>join.sql</span>
+            <button class="qh-copy" type="button" data-copy="{{ config.extra.agent.path_sql | e }}" title="Copy" aria-label="Copy the SQL"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg></button>
+          </div>
+<pre class="qh-code qh-code--sql">{{ config.extra.agent.path_sql | e }}</pre>
+        </div>
+        <div class="qh-install"><span class="qh-install__prompt">$</span><code>qdbd path erd/ --from payment --to country</code></div>
+        <p class="qh-more"><a href="{{ path_link }}">Try it in the Sakila demo →</a></p>
+      </div>
+    </div>
+  </section>
+
   <!-- -------------------------------------------------------------- quick start -->
   <section class="qh-section qh-wrap">
     <h2>Your first diagram in two minutes</h2>
@@ -251,6 +278,40 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
       </div>
       <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
     </figure>
+  </section>
+
+  <!-- --------------------------------------------------------------- AI agents
+       The tool results are qdbd mcp's real answers about AdventureWorks, run at build time (hooks/home.py). -->
+  <section class="qh-section qh-wrap qh-agents">
+    <h2>Your AI agent reads the schema, not the raw files</h2>
+    <p class="qh-sub"><code>qdbd mcp</code> serves the schema to Claude Code, Cursor, VS Code's Copilot and any other MCP client. Agents ask for tables, keys and join paths, and get short, exact answers instead of guessing.</p>
+    <div class="qh-split qh-split--agents">
+      <div class="qh-chat">
+        <div class="qh-frame__bar"><i></i><i></i><i></i><span>Prompt · Claude Code</span></div>
+        <div class="qh-chat__body">
+          <p class="qh-chat__user">Which tables do I join to get sales by country?</p>
+          <div class="qh-chat__tool"><b>qdbd · search_schema</b> <code>country</code><span>{{ config.extra.agent.search | e }}</span></div>
+          <div class="qh-chat__tool"><b>qdbd · join_path</b> <code>SalesOrderHeader → CountryRegion</code></div>
+<pre class="qh-chat__reply">{{ config.extra.agent.join | e }}</pre>
+        </div>
+      </div>
+      <div class="qh-agents__side">
+        <ul class="qh-clients" aria-label="Works with">
+          <li>Claude Code</li><li>Claude Desktop</li><li>Cursor</li><li>VS Code Copilot</li><li>any MCP client</li>
+        </ul>
+        <div class="qh-install">
+          <span class="qh-install__prompt">$</span>
+          <code>claude mcp add qdbd -- qdbd mcp</code>
+          <button class="qh-copy" type="button" data-copy="claude mcp add qdbd -- qdbd mcp" title="Copy" aria-label="Copy the setup command"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg></button>
+        </div>
+        <ul class="qh-list">
+          <li><b>No database connection.</b> Answers come from the schema files in your repo.</li>
+          <li><b>Small answers.</b> Every reply has a size budget, so a 200-table schema doesn't flood the context.</li>
+          <li><b>dbt too.</b> Point it at a dbt project: keys and relationships come from your tests.</li>
+        </ul>
+        <p class="qh-more"><a href="{{ 'mcp/' | url }}">Set up your agent →</a></p>
+      </div>
+    </div>
   </section>
 
   <!-- ---------------------------------------------------------------------- FAQ -->

@@ -19,7 +19,7 @@ from pathlib import Path
 from quickdbd_cli import __version__, diff
 from quickdbd_cli.dbt import import_dbt
 from quickdbd_cli.export import font_css
-from quickdbd_cli.html import _escape, _json_for_script, render_page
+from quickdbd_cli.html import _escape, _json_for_script, favicon, render_page
 from quickdbd_cli.parser import compile_sources
 from quickdbd_cli.project import Project
 
@@ -175,6 +175,7 @@ def gallery_page(catalog: Catalog, stats: dict[str, dict]) -> str:
     html = TEMPLATE.read_text(encoding="utf-8")
     return (
         html.replace("/*FONT_CSS*/", font_css())
+        .replace("<!--FAVICON-->", favicon())
         .replace("__VERSION__", _escape(__version__))
         .replace("__DATA__", _json_for_script(data))
     )

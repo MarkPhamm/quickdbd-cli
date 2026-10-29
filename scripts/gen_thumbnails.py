@@ -3,6 +3,7 @@
     python scripts/gen_thumbnails.py            # every demo
     python scripts/gen_thumbnails.py diff tags  # just these
     python scripts/gen_thumbnails.py hero       # the README hero (docs/assets/img/hero.png)
+    python scripts/gen_thumbnails.py path-sql   # the home page's path-to-SQL shot (docs/assets/img/path-sql.png)
 
 Dev-only: needs Playwright (`uv pip install -p .venv playwright`) and drives the system Chrome, so no
 browser download. Each demo is opened at its `view` + `shot` URL hash; the screenshot is framed in a card
@@ -24,6 +25,8 @@ from quickdbd_cli.html import _escape
 
 W, H = 1200, 630
 SHOT_W, SHOT_H = 1280, 820
+# The home page's "Every relationship is a JOIN" section; hooks/home.py asks join_path for the same two tables.
+PATH_SHOT = ("sakila", "t=payment&p=country")
 # Hidden in the screenshot: the table list, toolbar, minimap and hint. The details panel and diff bar stay.
 CLEAN = ".explorer, .bar, .minimap, .hint { display: none !important; }"
 
@@ -96,6 +99,20 @@ def main(argv: list[str]) -> int:
             page.goto((out / hero["demo"] / "index.html").as_uri() + f"#{frag}")
             page.wait_for_timeout(800)
             dst = ROOT / "docs" / "assets" / "img" / "hero.png"
+            page.screenshot(path=str(dst))
+            print(f"Wrote {dst.relative_to(ROOT)}")
+        if "path-sql" in (set(argv) or {"path-sql"}):
+            page.set_viewport_size({"width": 1440, "height": 860})
+            page.goto((out / PATH_SHOT[0] / "index.html").as_uri() + f"#{PATH_SHOT[1]}")
+            page.wait_for_timeout(800)
+            page.get_by_text("Show only this path").click()
+            # the home page shows the SQL beside the shot, so the panel goes and the whole path shows
+            page.add_style_tag(content=".details, .hint { display: none !important; }")
+            page.click("#zfit")
+            page.click("#zout")  # fit counts tables only; the payment edge loops out to the right
+            page.mouse.move(700, 820)
+            page.wait_for_timeout(800)
+            dst = ROOT / "docs" / "assets" / "img" / "path-sql.png"
             page.screenshot(path=str(dst))
             print(f"Wrote {dst.relative_to(ROOT)}")
         browser.close()

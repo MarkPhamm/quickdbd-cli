@@ -1,0 +1,36 @@
+{#- Footer: brand and link columns (after anfra.ai's footer), then the copyright line from mkdocs.yml -#}
+<div class="qd-foot">
+  <div class="qd-foot__brand">
+    <a class="qd-brand" href="{{ nav.homepage.url | url }}">{{ config.extra.icon_svg | safe }}{{ config.site_name }}</a>
+    <p>Database diagrams that live in git, readable at 200+ tables.</p>
+  </div>
+  <nav class="qd-foot__col" aria-label="Product">
+    <b>Product</b>
+    <a href="{{ 'install/' | url }}">Install</a>
+    <a href="{{ 'getting-started/' | url }}">Quick start</a>
+    <a href="{{ 'demo/' | url }}">Demos</a>
+    <a href="{{ 'vscode/' | url }}">VS Code extension</a>
+    <a href="{{ 'mcp/' | url }}">AI agents (MCP)</a>
+  </nav>
+  <nav class="qd-foot__col" aria-label="Docs">
+    <b>Docs</b>
+    <a href="{{ 'guide/' | url }}">Guide</a>
+    <a href="{{ 'syntax/' | url }}">Schema syntax</a>
+    <a href="{{ 'dbt/' | url }}">dbt import</a>
+    <a href="{{ 'github-action/' | url }}">CI and automation</a>
+    <a href="{{ 'cli/' | url }}">CLI reference</a>
+  </nav>
+  <nav class="qd-foot__col" aria-label="Community">
+    <b>Community</b>
+    <a href="{{ config.repo_url }}">GitHub</a>
+    <a href="{{ config.repo_url }}/releases">Release notes</a>
+    <a href="https://pypi.org/project/quickdbd-cli/">PyPI</a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a>
+    <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a>
+  </nav>
+</div>
+<div class="md-copyright">
+  {% if config.copyright %}
+    <div class="md-copyright__highlight">{{ config.copyright }}</div>
+  {% endif %}
+</div>
