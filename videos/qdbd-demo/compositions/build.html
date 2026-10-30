@@ -71,7 +71,7 @@
         <div data-hf-id="hf-wf5l" id="build-r3" class="row" style="opacity: 0"><span data-hf-id="hf-jvzh" class="p">$ </span><span data-hf-id="hf-vwrv" id="build-c2" class="typed" style="--n: 0">open <span data-hf-id="hf-8j24" id="build-file">shop.html</span></span></div>
       </div>
     </div>
-    <h1 data-hf-id="hf-zg3t" id="build-t1" class="clip ttl" data-start="0.55" data-duration="3.45" data-track-index="1"><span data-hf-id="hf-iogc" class="w">One</span> <span data-hf-id="hf-y0w7" class="w">command,</span> <span data-hf-id="hf-rpws" class="w">one</span> <span data-hf-id="hf-8a7y" class="w acc">HTML</span> <span data-hf-id="hf-lpam" class="w">file</span></h1>
+    <h1 data-hf-id="hf-zg3t" id="build-t1" class="clip ttl" data-start="0.55" data-duration="2.95" data-track-index="1"><span data-hf-id="hf-iogc" class="w">One</span> <span data-hf-id="hf-y0w7" class="w">command,</span> <span data-hf-id="hf-rpws" class="w">one</span> <span data-hf-id="hf-8a7y" class="w acc">HTML</span> <span data-hf-id="hf-lpam" class="w">file</span></h1>
   </div>
   <script>
     (function () {
@@ -82,7 +82,7 @@
       const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
       // The editor becomes the terminal: the text leaves, the window shortens, the shell arrives.
       tl.to("#build-code", { opacity: 0, filter: "blur(8px)", duration: 0.15, ease: "power3.in" }, 0.05);
-      tl.fromTo("#build-win", { height: 950 }, { height: 440, duration: 0.42, ease: "power3.out" }, 0.12);
+      tl.fromTo("#build-win", { height: 950 }, { height: 440, duration: 0.32, ease: "power3.out" }, 0.1);
       tl.fromTo("#build-tab1", { opacity: 1 }, { opacity: 0, duration: 0.1 }, 0.2);
       tl.fromTo("#build-tab2", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.25);
       tl.fromTo("#build-sh", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.45);
@@ -90,10 +90,10 @@
       tl.fromTo("#build-o1", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.85);
       tl.fromTo("#build-r3", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 2.2);
       tl.fromTo("#build-c2", { "--n": 0 }, { "--n": 14, duration: 0.5, ease: "steps(14)" }, 2.45);
-      say("#build-t1", 0.6, 3.75);
+      say("#build-t1", 0.6, 3.3);
       // Zoom through shop.html: the next shot opens out of the file name.
       tl.to("#build-win", { scale: 9, x: 960 - 96 - 9 * 292, y: 540 - 190 - 9 * 251, filter: "blur(10px)", opacity: 0,
-        transformOrigin: "0 0", duration: 0.5, ease: "power3.in" }, 4.45);
+        transformOrigin: "0 0", duration: 0.38, ease: "power3.in" }, 3.55);
       window.__timelines["build"] = tl;
     })();
   </script>

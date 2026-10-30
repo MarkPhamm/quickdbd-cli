@@ -18,12 +18,12 @@
   <div data-hf-id="hf-ktv8" id="root" data-composition-id="hook" data-width="1920" data-height="1080">
     <div data-hf-id="hf-i3f6" id="hook-plate" data-layout-allow-overflow>
       <div data-hf-id="hf-gw9g" id="hook-in">
-      <img data-hf-id="hf-yr7a" id="hook-still" class="clip" src="assets/footage/hook.png" alt="" data-start="0" data-duration="7" data-track-index="0" />
-      <video data-hf-id="hf-cntr" id="hook-v" class="clip" src="assets/footage/hook.mp4" data-start="0" data-duration="4" data-playback-rate="2" data-track-index="1" muted playsinline></video>
+      <img data-hf-id="hf-yr7a" id="hook-still" class="clip" src="assets/footage/hook.png" alt="" data-start="0" data-duration="6.2" data-track-index="0" />
+      <video data-hf-id="hf-cntr" id="hook-v" class="clip" src="assets/footage/hook.mp4" data-start="0" data-duration="2.6" data-track-index="1" muted playsinline></video>
       </div>
     </div>
-    <h1 data-hf-id="hf-5gwt" id="hook-t1" class="clip ttl" data-start="3.55" data-duration="1.8" data-track-index="2"><span data-hf-id="hf-j3k5" class="w">Database</span> <span data-hf-id="hf-vn2y" class="w">diagrams</span> <span data-hf-id="hf-33w1" class="w">that</span> <span data-hf-id="hf-v62i" class="w">live</span> <span data-hf-id="hf-gpzr" class="w">in</span> <span data-hf-id="hf-f5qg" class="w">git</span></h1>
-    <h1 data-hf-id="hf-859z" id="hook-t2" class="clip ttl" data-start="5.4" data-duration="1.6" data-track-index="3"><span data-hf-id="hf-ahys" class="w">Readable</span> <span data-hf-id="hf-xtml" class="w">at</span> <span data-hf-id="hf-hzhc" class="w acc">200+</span> <span data-hf-id="hf-276l" class="w">tables</span></h1>
+    <h1 data-hf-id="hf-5gwt" id="hook-t1" class="clip ttl" data-start="2.6" data-duration="1.85" data-track-index="2"><span data-hf-id="hf-j3k5" class="w">Database</span> <span data-hf-id="hf-vn2y" class="w">diagrams</span> <span data-hf-id="hf-33w1" class="w">that</span> <span data-hf-id="hf-v62i" class="w">live</span> <span data-hf-id="hf-gpzr" class="w">in</span> <span data-hf-id="hf-f5qg" class="w">git</span></h1>
+    <h1 data-hf-id="hf-859z" id="hook-t2" class="clip ttl" data-start="4.5" data-duration="1.7" data-track-index="3"><span data-hf-id="hf-ahys" class="w">Readable</span> <span data-hf-id="hf-xtml" class="w">at</span> <span data-hf-id="hf-hzhc" class="w acc">200+</span> <span data-hf-id="hf-276l" class="w">tables</span></h1>
   </div>
   <script>
     (function () {
@@ -32,13 +32,12 @@
       const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
       // The real zoom-out plays full-bleed, then the plate settles under the title as a framed sheet.
       tl.fromTo("#hook-plate", { x: 0, y: 0, scale: 1, borderRadius: 0, boxShadow: "0 0 0 rgba(21,24,30,0)" },
-        { x: 96, y: 236, scale: 0.74, borderRadius: 19, boxShadow: "0 24px 54px -24px rgba(21,24,30,0.28)", duration: 0.75, ease: "power2.inOut" }, 3.3);
-      tl.fromTo("#hook-in", { scale: 1 }, { scale: 1.32, transformOrigin: "50% 44%", duration: 0.75, ease: "power2.inOut" }, 3.3);
-      tl.fromTo("#hook-t1 .w", IN, { ...ON }, 3.6);
-      tl.to("#hook-t1 .w", { ...OUT }, 5.15);
-      tl.fromTo("#hook-t2 .w", IN, { ...ON }, 5.42);
-      tl.to("#hook-t2 .w", { ...OUT }, 6.78);
-      tl.to("#hook-plate", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 6.78);
+        { x: 96, y: 236, scale: 0.74, borderRadius: 19, boxShadow: "0 24px 54px -24px rgba(21,24,30,0.28)", duration: 0.5, ease: "power3.inOut" }, 2.45);
+      tl.fromTo("#hook-t1 .w", IN, { ...ON }, 2.63);
+      tl.to("#hook-t1 .w", { ...OUT }, 4.25);
+      tl.fromTo("#hook-t2 .w", IN, { ...ON }, 4.52);
+      tl.to("#hook-t2 .w", { ...OUT }, 5.98);
+      tl.to("#hook-plate", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 5.98);
       window.__timelines["hook"] = tl;
     })();
   </script>
