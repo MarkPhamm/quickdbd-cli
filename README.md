@@ -34,7 +34,10 @@
 </p>
 
 <p align="center">
-  <a href="https://qdbd.dev/#demo"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo-poster.jpg" alt="Watch the 60-second qdbd demo video" width="760"></a>
+  <a href="https://qdbd.dev/#demo"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo.gif" alt="Searching, focusing and opening a table in a qdbd diagram" width="760"></a>
+</p>
+<p align="center">
+  <em><a href="https://qdbd.dev/#demo">Watch the full 60-second demo →</a></em>
 </p>
 
 ## What is qdbd?
@@ -152,7 +155,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.4.1
+      - uses: MarkPhamm/quickdbd-cli@v0.4.2
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
