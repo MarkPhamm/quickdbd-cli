@@ -227,6 +227,13 @@
 .qh-final h2 { margin: 0 auto; }
 .qh-final__note { color: var(--qd-label); font: 13px var(--bp-mono); margin: 12px 0 22px; }
 
+/* ------------------------------------------------------------------- demo video */
+.qh-video { text-align: center; }
+.qh-video h2, .qh-video .qh-sub { margin-left: auto; margin-right: auto; }
+.qh-video__frame { border-radius: 12px; overflow: hidden; border: 1px solid var(--bp-rule-strong); box-shadow: var(--bp-e2);
+  background: var(--bp-paper); }
+.qh-video__frame video { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------------- live demo */
 .qh-tour { text-align: center; }
 .qh-tour h2, .qh-tour .qh-sub { margin-left: auto; margin-right: auto; }
