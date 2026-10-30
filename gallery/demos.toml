@@ -19,10 +19,10 @@
 # [hero] picks the screenshot at the top of the README (docs/assets/img/hero.png, from gen_thumbnails.py).
 
 [hero]
-demo = "adventureworks"
-view = "t=SalesOrderHeader"
-shot = "z=0.7&c=814,900"
-caption = "AdventureWorks (68 tables) with its column descriptions, built by qdbd."
+demo = "adventureworks-dw"
+view = "t=FactInternetSales"
+shot = "z=0.6&c=900,1000"
+caption = "AdventureWorks DW (28 tables), a star schema in five regions, built by qdbd."
 
 [[group]]
 id = "features"
@@ -119,9 +119,10 @@ tags = ["sql server", "t-sql", "regions", "docs"]
 id = "adventureworks-dw"
 group = "samples"
 title = "AdventureWorks DW"
-description = "Microsoft's data-warehouse sample: a star schema of Dim dimensions around Fact tables, coloured by tag."
+description = "Microsoft's data-warehouse sample: Dim dimensions around Fact tables, one region per business process, coloured by tag."
 source = "gallery/adventureworks-dw"
-tags = ["sql server", "warehouse", "star schema", "tags"]
+build_args = ["--by-group"]
+tags = ["sql server", "warehouse", "star schema", "tags", "regions"]
 
 [[demo]]
 id = "northwind"

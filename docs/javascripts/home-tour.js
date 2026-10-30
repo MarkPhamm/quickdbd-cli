@@ -1,4 +1,4 @@
-/* Home page live demo: a scripted cursor drives the real viewer (assets/tour/adventureworks.html, same origin) with
+/* Home page live demo: a scripted cursor drives the real viewer (assets/tour/adventureworks-dw.html, same origin) with
  * real events. Four chapters loop; hovering the frame hands control to the visitor. Phones and touch screens keep the
  * still screenshot; with reduced motion the page loads ready to use and a chapter card jumps to its end state.
  * The elements it drives are pinned by tests/test_viewer_contract.py. */
@@ -98,25 +98,25 @@
         await moveToEl(qi, my, 40);
         ripple();
         await sleep(250, my);
-        await type(qi, "SalesOrderH", my);
+        await type(qi, "FactInternetS", my);
         await sleep(350, my);
-        var ti = q('.ti[data-id="SalesOrderHeader"]');
+        var ti = q('.ti[data-id="FactInternetSales"]');
         await moveToEl(ti, my, 60);
         ripple();
         ti.click();
         await sleep(2600, my);
       },
       async function (my) { // a line, its card, Copy JOIN
-        if (W.qdbdViewer.state.focus !== "SalesOrderHeader") {
+        if (W.qdbdViewer.state.focus !== "FactInternetSales") {
           reset();
           var qi = q("#q");
-          qi.value = "SalesOrderHeader";
+          qi.value = "FactInternetSales";
           qi.dispatchEvent(new W.Event("input", { bubbles: true }));
-          q('.ti[data-id="SalesOrderHeader"]').click();
+          q('.ti[data-id="FactInternetSales"]').click();
           await sleep(900, my);
         }
         await sleep(300, my);
-        var h = linePoint("SalesOrderHeader|CustomerID|Customer|CustomerID");
+        var h = linePoint("FactInternetSales|CustomerKey|DimCustomer|CustomerKey");
         await moveTo(h.x, h.y, my);
         ripple();
         pointer(h.el, "pointerdown", h.x, h.y);
@@ -136,19 +136,19 @@
         await moveToEl(f, my, 60);
         ripple();
         await sleep(200, my);
-        await type(f, "+SalesOrderDetail", my);
+        await type(f, "+FactResellerSales", my);
         key(f, "Enter");
         await sleep(2800, my);
       },
       async function (my) { // join path
         reset();
         await sleep(600, my);
-        await pick("SalesOrderDetail", my);
+        await pick("FactInternetSales", my);
         await sleep(900, my);
         var pin = q("#pathto");
         await moveToEl(pin, my, 50);
         ripple();
-        await type(pin, "Person", my);
+        await type(pin, "DimProductCategory", my);
         key(pin, "Enter");
         await sleep(1600, my);
         var sql = q("#pathsql");

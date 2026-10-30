@@ -49,30 +49,30 @@
         <span><b>In VS Code or Cursor?</b> The diagram beside your editor, no terminal needed. <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> · <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a></span>
       </div>
     </div>
-    {#- The screenshot as a drawing sheet. The dimension line is in hero.png's pixels (1440x860): SalesOrderHeader's
-        left edge runs from y=214 to y=675 at x=575; regenerate hero.png and these numbers move. -#}
+    {#- The screenshot as a drawing sheet. The dimension line is in hero.png's pixels (1440x860): FactInternetSales's
+        right edge runs from y=183 to y=579 at x=751; regenerate hero.png and these numbers move. -#}
     <div class="qh-hero__shot qh-plate">
       <div class="qh-sheet">
         <ol class="qh-sheet__zones qh-sheet__zones--cols" aria-hidden="true"><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ol>
         <ol class="qh-sheet__zones qh-sheet__zones--rows" aria-hidden="true"><li>A</li><li>B</li><li>C</li><li>D</li></ol>
         <div class="qh-sheet__body">
-          <a class="qh-frame" href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">
-            <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span></div>
-            <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks sample database in qdbd, with the SalesOrderHeader table selected" width="1440" height="860">
+          <a class="qh-frame" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
+            <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks DW · 28 tables</span></div>
+            <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd, with the FactInternetSales table selected" width="1440" height="860">
           </a>
           <div class="qh-sheet__marks" aria-hidden="true">
-            <svg viewBox="0 0 1440 860" preserveAspectRatio="none"><path pathLength="1" d="M553 214h14M560 214V675M553 675h14M548 222l24-16M548 683l24-16"/></svg>
-            <span style="left: 37.8%; top: 51.2%">26 cols</span>
+            <svg viewBox="0 0 1440 860" preserveAspectRatio="none"><path pathLength="1" d="M756 183h14M763 183V579M756 579h14M751 191l24-16M751 587l24-16"/></svg>
+            <span style="left: 53.6%; top: 46%">26 cols</span>
           </div>
           <dl class="qh-sheet__title" aria-hidden="true">
-            <dt>drawing</dt><dd>adventureworks</dd>
-            <dt>tables</dt><dd>68</dd>
+            <dt>drawing</dt><dd>adventureworks-dw</dd>
+            <dt>tables</dt><dd>28</dd>
             <dt>rev</dt><dd>v{{ config.extra.version }}</dd>
           </dl>
         </div>
       </div>
       <div class="qh-callout">
-        <div class="qh-callout__head"><span>SalesOrderHeader</span><a href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">Try it live ↗</a></div>
+        <div class="qh-callout__head"><span>FactInternetSales</span><a href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">Try it live ↗</a></div>
         <div class="qh-callout__row"><b>26</b> columns · <b>8</b> foreign keys</div>
         <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
       </div>
@@ -85,13 +85,13 @@
   <section class="qh-section qh-wrap qh-tour">
     <p class="qh-tour__eyebrow">Live demo</p>
     <h2>The real page, driven by a script</h2>
-    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks, 68 tables.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
     <div class="qh-plate">
-    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks.html' | url }}">
-      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks · 68 tables</span><b class="qh-tour__state">Playing</b></div>
+    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}">
+      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks DW · 28 tables</span><b class="qh-tour__state">Playing</b></div>
       <div class="qh-tour__stage">
-        <a class="qh-tour__still" href="{{ 'demo/adventureworks/' | url }}#t=SalesOrderHeader">
-          <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks sample database in qdbd" loading="lazy" width="1440" height="860">
+        <a class="qh-tour__still" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
+          <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd" loading="lazy" width="1440" height="860">
           <span>Open the live demo</span>
         </a>
         <div class="qh-tour__overlay" aria-hidden="true">
@@ -102,7 +102,7 @@
     </div>
     </div>
     <ol class="qh-tour__chapters">
-      <li><b>Search</b><span>Find a table among 68</span><i></i></li>
+      <li><b>Search</b><span>Find a table among 28</span><i></i></li>
       <li><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
       <li><b>Selectors</b><span>dbt-style filters</span><i></i></li>
       <li><b>Join paths</b><span>From one table to another</span><i></i></li>

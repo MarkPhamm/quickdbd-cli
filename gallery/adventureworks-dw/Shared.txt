@@ -1,0 +1,83 @@
+# AdventureWorks DW, Microsoft's data-warehouse sample. Shared: dimensions every business process uses (date, geography, territory, promotion), and the call center.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/data-warehouse-install-script/instawdbdw.sql (MIT, see LICENSE).
+
+DimDate
+-
+DateKey PK int
+FullDateAlternateKey date UNIQUE
+DayNumberOfWeek tinyint
+EnglishDayNameOfWeek nvarchar(10)
+SpanishDayNameOfWeek nvarchar(10)
+FrenchDayNameOfWeek nvarchar(10)
+DayNumberOfMonth tinyint
+DayNumberOfYear smallint
+WeekNumberOfYear tinyint
+EnglishMonthName nvarchar(10)
+SpanishMonthName nvarchar(10)
+FrenchMonthName nvarchar(10)
+MonthNumberOfYear tinyint
+CalendarQuarter tinyint
+CalendarYear smallint
+CalendarSemester tinyint
+FiscalQuarter tinyint
+FiscalYear smallint
+FiscalSemester tinyint
+
+DimGeography
+-
+GeographyKey PK int IDENTITY
+City nvarchar(30) NULL
+StateProvinceCode nvarchar(3) NULL
+StateProvinceName nvarchar(50) NULL
+CountryRegionCode nvarchar(3) NULL
+EnglishCountryRegionName nvarchar(50) NULL
+SpanishCountryRegionName nvarchar(50) NULL
+FrenchCountryRegionName nvarchar(50) NULL
+PostalCode nvarchar(15) NULL
+SalesTerritoryKey int NULL FK >- DimSalesTerritory.SalesTerritoryKey
+IpAddressLocator nvarchar(15) NULL
+
+DimSalesTerritory
+-
+SalesTerritoryKey PK int IDENTITY
+SalesTerritoryAlternateKey int NULL
+SalesTerritoryRegion nvarchar(50)
+SalesTerritoryCountry nvarchar(50)
+SalesTerritoryGroup nvarchar(50) NULL
+SalesTerritoryImage varbinary(max) NULL
+
+DimPromotion
+-
+PromotionKey PK int IDENTITY
+PromotionAlternateKey int NULL
+EnglishPromotionName nvarchar(255) NULL
+SpanishPromotionName nvarchar(255) NULL
+FrenchPromotionName nvarchar(255) NULL
+DiscountPct float NULL
+EnglishPromotionType nvarchar(50) NULL
+SpanishPromotionType nvarchar(50) NULL
+FrenchPromotionType nvarchar(50) NULL
+EnglishPromotionCategory nvarchar(50) NULL
+SpanishPromotionCategory nvarchar(50) NULL
+FrenchPromotionCategory nvarchar(50) NULL
+StartDate datetime
+EndDate datetime NULL
+MinQty int NULL
+MaxQty int NULL
+
+FactCallCenter
+-
+FactCallCenterID PK int IDENTITY
+DateKey int FK >- DimDate.DateKey
+WageType nvarchar(15)
+Shift nvarchar(20)
+LevelOneOperators smallint
+LevelTwoOperators smallint
+TotalOperators smallint
+Calls int
+AutomaticResponses int
+Orders int
+IssuesRaised smallint
+AverageTimePerIssue smallint
+ServiceGrade float
+Date datetime NULL

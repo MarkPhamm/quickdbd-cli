@@ -1,0 +1,68 @@
+# AdventureWorks DW, Microsoft's data-warehouse sample. Finance: the general ledger by account, organization, department and scenario, plus currency rates.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/data-warehouse-install-script/instawdbdw.sql (MIT, see LICENSE).
+
+FactFinance
+-
+FinanceKey int IDENTITY
+DateKey int FK >- DimDate.DateKey
+OrganizationKey int FK >- DimOrganization.OrganizationKey
+DepartmentGroupKey int FK >- DimDepartmentGroup.DepartmentGroupKey
+ScenarioKey int FK >- DimScenario.ScenarioKey
+AccountKey int FK >- DimAccount.AccountKey
+Amount float
+Date datetime NULL
+
+FactCurrencyRate
+-
+CurrencyKey PK int FK >- DimCurrency.CurrencyKey
+DateKey PK int FK >- DimDate.DateKey
+AverageRate float
+EndOfDayRate float
+Date datetime NULL
+
+NewFactCurrencyRate
+-
+AverageRate real NULL
+CurrencyID nvarchar(3) NULL
+CurrencyDate date NULL
+EndOfDayRate real NULL
+CurrencyKey int NULL
+DateKey int NULL
+
+DimAccount
+-
+AccountKey PK int IDENTITY
+ParentAccountKey int NULL FK >- DimAccount.AccountKey
+AccountCodeAlternateKey int NULL
+ParentAccountCodeAlternateKey int NULL
+AccountDescription nvarchar(50) NULL
+AccountType nvarchar(50) NULL
+Operator nvarchar(50) NULL
+CustomMembers nvarchar(300) NULL
+ValueType nvarchar(50) NULL
+CustomMemberOptions nvarchar(200) NULL
+
+DimOrganization
+-
+OrganizationKey PK int IDENTITY
+ParentOrganizationKey int NULL FK >- DimOrganization.OrganizationKey
+PercentageOfOwnership nvarchar(16) NULL
+OrganizationName nvarchar(50) NULL
+CurrencyKey int NULL FK >- DimCurrency.CurrencyKey
+
+DimDepartmentGroup
+-
+DepartmentGroupKey PK int IDENTITY
+ParentDepartmentGroupKey int NULL FK >- DimDepartmentGroup.DepartmentGroupKey
+DepartmentGroupName nvarchar(50) NULL
+
+DimScenario
+-
+ScenarioKey PK int IDENTITY
+ScenarioName nvarchar(50) NULL
+
+DimCurrency
+-
+CurrencyKey PK int IDENTITY
+CurrencyAlternateKey nchar(3) UNIQUE
+CurrencyName nvarchar(50)

@@ -49,4 +49,7 @@ def test_build_tour(tmp_path):
     assert page.exists()
     text = page.read_text(encoding="utf-8")
     model = json.loads(re.search(r'id="qdbd-data">(.*?)</script>', text, re.S).group(1))["model"]
-    assert len(model["tables"]) == 68
+    assert len(model["tables"]) == 28 and model["regions"]
+    # the tables docs/javascripts/home-tour.js types, clicks and paths between
+    driven = {"FactInternetSales", "DimCustomer", "FactResellerSales", "DimProductCategory"}
+    assert driven <= {t["id"] for t in model["tables"]}

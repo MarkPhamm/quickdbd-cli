@@ -96,6 +96,7 @@ def test_sample_databases_and_dbt_projects(built):
         assert len(m["tables"]) == n and m["rels"], d
     dw = _model(built / "adventureworks-dw" / "index.html")
     assert {"dim", "fact"} <= {t["name"] for t in dw["tags"]}  # coloured by the Dim/Fact name prefixes
+    assert dw["regions"] and len({t["group"] for t in dw["tables"]}) == 5  # one region per business process
     aw = _model(built / "adventureworks" / "index.html")
     assert aw["regions"] and any(t.get("doc") for t in aw["tables"])  # MS_Description -> tooltips
 

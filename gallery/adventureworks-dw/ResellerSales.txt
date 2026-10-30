@@ -1,0 +1,99 @@
+# AdventureWorks DW, Microsoft's data-warehouse sample. Reseller sales: orders from resellers, the sales reps who take them and their quotas.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/data-warehouse-install-script/instawdbdw.sql (MIT, see LICENSE).
+
+FactResellerSales
+-
+ProductKey int FK >- DimProduct.ProductKey
+OrderDateKey int FK >- DimDate.DateKey
+DueDateKey int FK >- DimDate.DateKey
+ShipDateKey int FK >- DimDate.DateKey
+ResellerKey int FK >- DimReseller.ResellerKey
+EmployeeKey int FK >- DimEmployee.EmployeeKey
+PromotionKey int FK >- DimPromotion.PromotionKey
+CurrencyKey int FK >- DimCurrency.CurrencyKey
+SalesTerritoryKey int FK >- DimSalesTerritory.SalesTerritoryKey
+SalesOrderNumber PK nvarchar(20)
+SalesOrderLineNumber PK tinyint
+RevisionNumber tinyint NULL
+OrderQuantity smallint NULL
+UnitPrice money NULL
+ExtendedAmount money NULL
+UnitPriceDiscountPct float NULL
+DiscountAmount float NULL
+ProductStandardCost money NULL
+TotalProductCost money NULL
+SalesAmount money NULL
+TaxAmt money NULL
+Freight money NULL
+CarrierTrackingNumber nvarchar(25) NULL
+CustomerPONumber nvarchar(25) NULL
+OrderDate datetime NULL
+DueDate datetime NULL
+ShipDate datetime NULL
+
+FactSalesQuota
+-
+SalesQuotaKey PK int IDENTITY
+EmployeeKey int FK >- DimEmployee.EmployeeKey
+DateKey int FK >- DimDate.DateKey
+CalendarYear smallint
+CalendarQuarter tinyint
+SalesAmountQuota money
+Date datetime NULL
+
+DimReseller
+-
+ResellerKey PK int IDENTITY
+GeographyKey int NULL FK >- DimGeography.GeographyKey
+ResellerAlternateKey nvarchar(15) NULL
+Phone nvarchar(25) NULL
+BusinessType varchar(20)
+ResellerName nvarchar(50)
+NumberEmployees int NULL
+OrderFrequency char(1) NULL
+OrderMonth tinyint NULL
+FirstOrderYear int NULL
+LastOrderYear int NULL
+ProductLine nvarchar(50) NULL
+AddressLine1 nvarchar(60) NULL
+AddressLine2 nvarchar(60) NULL
+AnnualSales money NULL
+BankName nvarchar(50) NULL
+MinPaymentType tinyint NULL
+MinPaymentAmount money NULL
+AnnualRevenue money NULL
+YearOpened int NULL
+
+DimEmployee
+-
+EmployeeKey PK int IDENTITY
+ParentEmployeeKey int NULL FK >- DimEmployee.EmployeeKey
+EmployeeNationalIDAlternateKey nvarchar(15) NULL
+ParentEmployeeNationalIDAlternateKey nvarchar(15) NULL
+SalesTerritoryKey int NULL FK >- DimSalesTerritory.SalesTerritoryKey
+FirstName nvarchar(50)
+LastName nvarchar(50)
+MiddleName nvarchar(50) NULL
+NameStyle bit
+Title nvarchar(50) NULL
+HireDate date NULL
+BirthDate date NULL
+LoginID nvarchar(256) NULL
+EmailAddress nvarchar(50) NULL
+Phone nvarchar(25) NULL
+MaritalStatus nchar(1) NULL
+EmergencyContactName nvarchar(50) NULL
+EmergencyContactPhone nvarchar(25) NULL
+SalariedFlag bit NULL
+Gender nchar(1) NULL
+PayFrequency tinyint NULL
+BaseRate money NULL
+VacationHours smallint NULL
+SickLeaveHours smallint NULL
+CurrentFlag bit
+SalesPersonFlag bit
+DepartmentName nvarchar(50) NULL
+StartDate date NULL
+EndDate date NULL
+Status nvarchar(50) NULL
+EmployeePhoto varbinary(max) NULL

@@ -1,0 +1,114 @@
+# AdventureWorks DW, Microsoft's data-warehouse sample. Internet sales: orders placed online, their sales reasons, the customers and their survey answers.
+# Converted to QuickDBD syntax from microsoft/sql-server-samples adventure-works/data-warehouse-install-script/instawdbdw.sql (MIT, see LICENSE).
+
+FactInternetSales
+-
+ProductKey int FK >- DimProduct.ProductKey
+OrderDateKey int FK >- DimDate.DateKey
+DueDateKey int FK >- DimDate.DateKey
+ShipDateKey int FK >- DimDate.DateKey
+CustomerKey int FK >- DimCustomer.CustomerKey
+PromotionKey int FK >- DimPromotion.PromotionKey
+CurrencyKey int FK >- DimCurrency.CurrencyKey
+SalesTerritoryKey int FK >- DimSalesTerritory.SalesTerritoryKey
+SalesOrderNumber PK nvarchar(20)
+SalesOrderLineNumber PK tinyint
+RevisionNumber tinyint
+OrderQuantity smallint
+UnitPrice money
+ExtendedAmount money
+UnitPriceDiscountPct float
+DiscountAmount float
+ProductStandardCost money
+TotalProductCost money
+SalesAmount money
+TaxAmt money
+Freight money
+CarrierTrackingNumber nvarchar(25) NULL
+CustomerPONumber nvarchar(25) NULL
+OrderDate datetime NULL
+DueDate datetime NULL
+ShipDate datetime NULL
+
+FactInternetSalesReason
+-
+SalesOrderNumber PK nvarchar(20) FK >- FactInternetSales.SalesOrderNumber
+SalesOrderLineNumber PK tinyint FK >- FactInternetSales.SalesOrderLineNumber
+SalesReasonKey PK int FK >- DimSalesReason.SalesReasonKey
+
+DimSalesReason
+-
+SalesReasonKey PK int IDENTITY
+SalesReasonAlternateKey int
+SalesReasonName nvarchar(50)
+SalesReasonReasonType nvarchar(50)
+
+DimCustomer
+-
+CustomerKey PK int IDENTITY
+GeographyKey int NULL FK >- DimGeography.GeographyKey
+CustomerAlternateKey nvarchar(15) UNIQUE
+Title nvarchar(8) NULL
+FirstName nvarchar(50) NULL
+MiddleName nvarchar(50) NULL
+LastName nvarchar(50) NULL
+NameStyle bit NULL
+BirthDate date NULL
+MaritalStatus nchar(1) NULL
+Suffix nvarchar(10) NULL
+Gender nvarchar(1) NULL
+EmailAddress nvarchar(50) NULL
+YearlyIncome money NULL
+TotalChildren tinyint NULL
+NumberChildrenAtHome tinyint NULL
+EnglishEducation nvarchar(40) NULL
+SpanishEducation nvarchar(40) NULL
+FrenchEducation nvarchar(40) NULL
+EnglishOccupation nvarchar(100) NULL
+SpanishOccupation nvarchar(100) NULL
+FrenchOccupation nvarchar(100) NULL
+HouseOwnerFlag nchar(1) NULL
+NumberCarsOwned tinyint NULL
+AddressLine1 nvarchar(120) NULL
+AddressLine2 nvarchar(120) NULL
+Phone nvarchar(20) NULL
+DateFirstPurchase date NULL
+CommuteDistance nvarchar(15) NULL
+
+FactSurveyResponse
+-
+SurveyResponseKey PK int IDENTITY
+DateKey int FK >- DimDate.DateKey
+CustomerKey int FK >- DimCustomer.CustomerKey
+ProductCategoryKey int
+EnglishProductCategoryName nvarchar(50)
+ProductSubcategoryKey int
+EnglishProductSubcategoryName nvarchar(50)
+Date datetime NULL
+
+ProspectiveBuyer
+-
+ProspectiveBuyerKey PK int IDENTITY
+ProspectAlternateKey nvarchar(15) NULL
+FirstName nvarchar(50) NULL
+MiddleName nvarchar(50) NULL
+LastName nvarchar(50) NULL
+BirthDate datetime NULL
+MaritalStatus nchar(1) NULL
+Gender nvarchar(1) NULL
+EmailAddress nvarchar(50) NULL
+YearlyIncome money NULL
+TotalChildren tinyint NULL
+NumberChildrenAtHome tinyint NULL
+Education nvarchar(40) NULL
+Occupation nvarchar(100) NULL
+HouseOwnerFlag nchar(1) NULL
+NumberCarsOwned tinyint NULL
+AddressLine1 nvarchar(120) NULL
+AddressLine2 nvarchar(120) NULL
+City nvarchar(30) NULL
+StateProvinceCode nvarchar(3) NULL
+PostalCode nvarchar(15) NULL
+Phone nvarchar(20) NULL
+Salutation nvarchar(8) NULL
+Unknown int NULL
