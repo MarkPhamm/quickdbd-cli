@@ -2,8 +2,8 @@
 # Build and upload the current version to PyPI using credentials from .env,
 # then tag and create the GitHub release, with the VS Code extension (.vsix) attached.
 # With OVSX_PAT in .env, the extension also goes to Open VSX (Cursor, Windsurf, VSCodium) when its version is new.
-# The VS Code Marketplace takes a manual upload (an automation token needs an Azure subscription); the script
-# says when one is due.
+# The VS Code Marketplace is published by .github/workflows/publish-vscode.yml (Trusted Publishing); the script
+# says when a run is due.
 # Usage: bump `version` in pyproject.toml and src/quickdbd_cli/__init__.py, commit, then run
 #   PATH="$PWD/.venv/bin:$PATH" scripts/release.sh
 set -euo pipefail
@@ -52,5 +52,5 @@ on_marketplace=$(curl -s -X POST https://marketplace.visualstudio.com/_apis/publ
   python3 -c 'import json,sys; e=json.load(sys.stdin)["results"][0]["extensions"]; print(e[0]["versions"][0]["version"] if e else "")' ||
   true)
 if [ "$on_marketplace" != "$ext_version" ]; then
-  echo "action: upload $vsix (extension $ext_version) at https://marketplace.visualstudio.com/manage/publishers/markphamm"
+  echo "action: publish extension $ext_version to the VS Code Marketplace: gh workflow run publish-vscode.yml"
 fi
