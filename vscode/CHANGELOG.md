@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1
+
+- The description links the [60-second demo video](https://qdbd.dev/#demo).
+
 ## 0.6.0
 
 - **Share as a Gist Link** is off by default, and hidden until you turn on the user setting **QuickDBD: Allow Sharing** (`quickdbd.allowSharing`). Sharing uploads the whole diagram to GitHub, which a client's data agreements may not allow; turning it on means you accept the [disclaimer](https://qdbd.dev/sharing/#disclaimer). A workspace can't turn it on.
