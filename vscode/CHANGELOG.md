@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0
+
+- **Share as a Gist Link** is off by default, and hidden until you turn on the user setting **QuickDBD: Allow Sharing** (`quickdbd.allowSharing`). Sharing uploads the whole diagram to GitHub, which a client's data agreements may not allow; turning it on means you accept the [disclaimer](https://qdbd.dev/sharing/#disclaimer). A workspace can't turn it on.
+- Each share then opens a dialog with a short disclaimer, and uploads nothing until you press **Share**.
+
 ## 0.5.0
 
 - New: **AI agent tools**. In VS Code 1.101 or later, Copilot's agent mode (and any chat that uses MCP servers) gets QuickDBD's schema tools with no setup: list and describe tables, search, join paths with SQL, check edits, diff against git, render a diagram. The extension offers `qdbd mcp` for each workspace folder with a schema or a dbt project. See [AI Agents (MCP)](https://qdbd.dev/mcp/).

@@ -6,6 +6,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import { isSchemaLanguage, type Checker } from "./checker.ts";
 import type { Found, Qdbd, Source } from "./cli.ts";
+import { sharingAllowed } from "./export.ts";
 import { columnDetail, tablesByFile, targetKey, type Column, type Table, type Target } from "./schema.ts";
 import { findTarget, isSchemaFile, targetTitle } from "./target.ts";
 
@@ -221,10 +222,15 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
 
   constructor(qdbd: Qdbd) {
     this.qdbd = qdbd;
-    this.sub = qdbd.onDidResolve((f) => {
-      this.cli = f;
-      this.changed.fire(undefined);
-    });
+    this.sub = vscode.Disposable.from(
+      qdbd.onDidResolve((f) => {
+        this.cli = f;
+        this.changed.fire(undefined);
+      }),
+      vscode.workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("quickdbd.allowSharing")) this.changed.fire(undefined);
+      }),
+    );
   }
 
   async getChildren(): Promise<vscode.TreeItem[]> {
@@ -249,7 +255,7 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
       row("Open in Browser", "globe", "quickdbd.openInBrowser", "The diagram and an editor on localhost, in your browser"),
       row("Compare with Git Ref…", "git-compare", "quickdbd.compare", "The diagram coloured by what changed since a branch, tag or commit"),
       row("Export…", "desktop-download", "quickdbd.export", "PNG, SVG, draw.io or an HTML page"),
-      row("Share as a Gist Link", "link-external", "quickdbd.share", "A secret gist; the link is copied"),
+      ...(sharingAllowed() ? [row("Share as a Gist Link", "link-external", "quickdbd.share", "A secret gist; the link is copied")] : []),
       row("Convert to DBML", "arrow-swap", "quickdbd.convertToDbml", "The schema in dbdiagram.io's syntax; what DBML can't express is listed"),
       row("Convert to QuickDBD Syntax", "arrow-swap", "quickdbd.convertToQuickdbd", "The schema in QuickDBD's syntax; what QuickDBD can't express is listed"),
       row("Import dbt Project…", "database", "quickdbd.importDbt", "Schema files from target/manifest.json"),

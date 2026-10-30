@@ -1,6 +1,6 @@
 /* End-to-end checks inside VS Code (see run.mjs): detection, outline, go-to-definition across files,
- * diagnostics on unsaved edits, the preview panel, HTML export, comparing with a git ref, dbt import, and (with
- * QDBD_TEST_INSTALL) installing qdbd. */
+ * diagnostics on unsaved edits, the preview panel, HTML export, comparing with a git ref, dbt import, sharing (off by
+ * default, disclaimer first), and (with QDBD_TEST_INSTALL) installing qdbd. */
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
@@ -182,6 +182,10 @@ export async function run(): Promise<void> {
   assert.deepEqual(hidden.map((x) => x.file), [], "nothing from hidden folders (.history, .vscode-test, …)");
   step(`sidebar: ${listed.map((x) => `${x.title} (${x.tables} tables)`).join(", ")}`);
 
+  // run.mjs allows sharing in the workspace's settings.json; only a user setting may turn it on.
+  assert.equal(vscode.workspace.getConfiguration("quickdbd").get("allowSharing"), false, "a workspace can't allow sharing");
+  step("sharing is off, and a workspace setting can't turn it on");
+
   // A .dbml file created on disk (a git pull, another tool) shows up without a manual refresh.
   fs.writeFileSync(path.join(ws, "fresh", "new.dbml"), "Table a {\n  id int [pk]\n}\n"); // fresh/ made by run.mjs
   await until("new .dbml file in the sidebar", async () => (await api.schemas()).some((x) => x.title === "fresh" && x.tables === 1));
@@ -192,6 +196,8 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand("quickdbd.openPreview", { kind: "schema", target: sampleRow.target, file: sampleRow.file });
   await until("sample diagram from its sidebar row", webviewTab("ERD: quickdbd-sample"));
   step("open diagram from a sidebar row");
+
+  await testShareDisclaimer({ kind: "schema", target: sampleRow.target, file: sampleRow.file });
 
   // Open in Browser: plain `qdbd serve` (with the editor pane), reused when opened again.
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(sampleRow.file));
@@ -222,6 +228,45 @@ export async function run(): Promise<void> {
     vscode.window.activeTextEditor!.selection = new vscode.Selection(line, line);
     await new Promise((r) => setTimeout(r, hold));
   }
+}
+
+/** Share asks before anything else: off, a warning pointing at the setting; on, the disclaimer dialog, and
+ * dismissing it signs in to nothing and uploads nothing. The dialogs are answered by replacing showWarningMessage:
+ * this suite shares the extension's `vscode` API object. */
+async function testShareDisclaimer(row: unknown): Promise<void> {
+  const asked: { message: string; modal: boolean; detail: string }[] = [];
+  const win = vscode.window as { showWarningMessage: unknown };
+  const auth = vscode.authentication as { getSession: unknown };
+  const realWarning = win.showWarningMessage;
+  const realSession = auth.getSession;
+  let signIns = 0;
+  win.showWarningMessage = async (message: string, ...rest: unknown[]) => {
+    const opts = typeof rest[0] === "object" ? (rest[0] as vscode.MessageOptions) : {};
+    asked.push({ message, modal: !!opts.modal, detail: opts.detail ?? "" });
+    return undefined; // dismissed
+  };
+  auth.getSession = async () => {
+    signIns++;
+    throw new Error("no sign-in in tests");
+  };
+  const config = vscode.workspace.getConfiguration("quickdbd");
+  try {
+    await vscode.commands.executeCommand("quickdbd.share", row);
+    assert.equal(asked.length, 1);
+    assert.match(asked[0].message, /^Sharing is off/);
+    await config.update("allowSharing", true, vscode.ConfigurationTarget.Global);
+    await vscode.commands.executeCommand("quickdbd.share", row);
+    assert.equal(asked.length, 2);
+    assert.ok(asked[1].modal, "the disclaimer is a modal dialog");
+    assert.match(asked[1].message, /^Share quickdbd-sample as a secret gist\?/);
+    assert.match(asked[1].detail, /not liable/);
+    assert.equal(signIns, 0, "nothing happens until Share is pressed");
+  } finally {
+    win.showWarningMessage = realWarning;
+    auth.getSession = realSession;
+    await config.update("allowSharing", undefined, vscode.ConfigurationTarget.Global);
+  }
+  step("share: off shows a warning; on, the disclaimer dialog comes first and dismissing it uploads nothing");
 }
 
 /** The MCP server offered to AI chat, then `qdbd mcp` itself: discover, and a tool call that sees the projects. */

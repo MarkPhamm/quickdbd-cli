@@ -32,3 +32,15 @@ test("every file package.json points at ships in the .vsix", () => {
     assert.ok(shipped(f), `${f} is listed in .vscodeignore`);
   }
 });
+
+test("sharing is off by default, user-level only, and hidden from every menu until allowed", () => {
+  const c = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).contributes;
+  const setting = c.configuration.properties["quickdbd.allowSharing"];
+  assert.equal(setting.default, false);
+  assert.equal(setting.scope, "application", "a workspace's settings.json can't turn it on");
+  const entries = Object.values(c.menus as Record<string, { command: string; when?: string }[]>)
+    .flat()
+    .filter((m) => m.command === "quickdbd.share");
+  assert.ok(entries.length >= 2, "the Command Palette and the schema row menu");
+  for (const m of entries) assert.match(m.when ?? "", /^config\.quickdbd\.allowSharing && /);
+});

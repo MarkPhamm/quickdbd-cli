@@ -53,7 +53,7 @@ A browser tab opens with the diagram and an editor pane. The editor pane loads C
 qdbd build schema.txt -o schema.html
 ```
 
-`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)). To send a **link** instead, run `qdbd share schema.txt` ([4.4 Sharing a Link](sharing.md)). It needs the GitHub CLI, `gh`, installed and logged in (`gh auth login`).
+`schema.html` is one self-contained file. Open it locally, email it, attach it to a ticket, or, where your data policy allows, publish it on GitHub Pages ([7.4](github-action.md#publishing-to-github-pages)). To send a **link** instead, turn sharing on and run `qdbd share schema.txt` ([4.4 Sharing a Link](sharing.md): it's off by default). It needs the GitHub CLI, `gh`, installed and logged in (`gh auth login`).
 
 In the page, click a table to see its details, type `+Order` in the filter, or press **Link** to copy a URL to exactly what you're looking at. The tour is in [4.1 Reading the Diagram](reading-the-diagram.md).
 

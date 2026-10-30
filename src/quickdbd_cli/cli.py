@@ -158,10 +158,28 @@ def cmd_build(args) -> int:
 def cmd_share(args) -> int:
     from . import share
 
+    if not share.allowed():
+        print(
+            "error: sharing is off. qdbd share uploads the diagram (every table and column name) to a GitHub gist"
+            f" that anyone with the link can open. If your data policy allows that, set {share.ALLOW_ENV}=1"
+            " (doing so accepts https://qdbd.dev/sharing/#disclaimer).",
+            file=sys.stderr,
+        )
+        return 2
     res = _built_page(args)
     if isinstance(res, int):
         return res
     page, model = res
+    print(share.DISCLAIMER, file=sys.stderr)
+    if not args.yes:
+        if not sys.stdin.isatty():
+            print("error: no terminal to confirm in: add --yes to accept the disclaimer and share", file=sys.stderr)
+            return 2
+        kind = "public" if args.public else "secret"
+        print(f"Share {len(model['tables'])} tables as a {kind} gist? [y/N] ", end="", file=sys.stderr, flush=True)
+        if sys.stdin.readline().strip().lower() not in ("y", "yes"):
+            print("Not shared.", file=sys.stderr)
+            return 2
     key = share.share_key(args.paths, selector_expr(args.select, args.exclude))
     try:
         r = share.publish(page, _title(_open(args)), key, public=args.public, new=args.new)
@@ -571,7 +589,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--strict", action="store_true")
     sp.set_defaults(func=cmd_build)
 
-    sp = sub.add_parser("share", help="publish the diagram as a GitHub gist and print a link (needs the gh CLI)")
+    sp = sub.add_parser(
+        "share",
+        help="publish the diagram as a GitHub gist and print a link (off unless QDBD_ALLOW_SHARE=1; needs the gh CLI)",
+    )
     paths(sp)
     selectors(sp)
     sp.add_argument(
@@ -582,6 +603,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--strict", action="store_true")
     sp.add_argument("--public", action="store_true", help="list the gist publicly (default: secret, link-only)")
     sp.add_argument("--new", action="store_true", help="make a new gist instead of updating the last one")
+    sp.add_argument("-y", "--yes", action="store_true", help="accept the disclaimer without asking (for scripts)")
     sp.set_defaults(func=cmd_share)
 
     sp = sub.add_parser("export", help="write a PNG, SVG or draw.io file")
@@ -665,7 +687,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--read-only",
         action="store_true",
-        help="live view only: no editor, nothing saved; safe to share through a tunnel",
+        help="live view only: no editor, nothing saved; viewers can't change anything",
     )
     sp.add_argument(
         "--embed",
