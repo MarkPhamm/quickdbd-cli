@@ -33,9 +33,12 @@ are standalone pages.
 - **Fonts:** `theme.font: false`, Geist and Geist Mono loaded by `@import` in `extra.css`, because Material's font
   loader asks for 300/400/700 only and the headings use 600. The home page keeps the Inter `<link>`: the mini diagram is
   measured in Inter. Demos keep their embedded Inter.
-- **Frame primitives** (`home.css`): `.qh-section`/`.qh-final` draw a full-width rule (`::before`) and masked rails
-  with crosshairs (`::after`, z-index -1, so `.qh` is its own stacking context). `.qh-plate` puts the masked grid
-  behind a figure (hero sheet, tour, flow, PR stage).
+- **Frames** (`home.css` `.qh-fig`): each figure sits in its own frame, as anfra does. Full-width rules run along the
+  frame's top and bottom, and rails run down its two edges, past the rules, fading out. A 25px crosshair marks each
+  corner and a drafting grid fills the box. Split sections alternate the frame's side (diagram right, screenshot left,
+  chat right), so the lines move from section to section; text-only sections have no lines. An earlier version put
+  the same two rails at the page edges on every section, which read as one static grid. `.qh-plate` (a masked grid,
+  no frame) is left for the hero.
 - **The one bold element** is the hero screenshot as a drawing sheet: zone ticks (1–6, A–D), a dimension line along
   the selected table (FactInternetSales in AdventureWorks DW) with a "26 cols" label, and a title block. The page load drafts it in one sequence (zones, frame,
   dimension line, notes) instead of separate blur-in reveals.

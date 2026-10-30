@@ -86,7 +86,7 @@
     <p class="qh-tour__eyebrow">Live demo</p>
     <h2>The real page, driven by a script</h2>
     <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
-    <div class="qh-plate">
+    <div class="qh-fig qh-fig--tour">
     <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}">
       <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks DW · 28 tables</span><b class="qh-tour__state">Playing</b></div>
       <div class="qh-tour__stage">
@@ -144,7 +144,8 @@
   <!-- ------------------------------------------------------------ how it works -->
   <section class="qh-section qh-wrap">
     <h2>One text file in, every format out</h2>
-    <div class="qh-flow qh-plate" aria-label="schema text, DBML or dbt manifest, then qdbd, then HTML, images, PR comments and AI agents">
+    <div class="qh-fig">
+    <div class="qh-flow" aria-label="schema text, DBML or dbt manifest, then qdbd, then HTML, images, PR comments and AI agents">
       <div class="qh-flow__col">
         <div class="qh-box"><code>schema/*.txt</code><small>QuickDBD syntax</small></div>
         <div class="qh-box"><code>schema.dbml</code><small>DBML</small></div>
@@ -161,6 +162,7 @@
         <div class="qh-box"><b>PR comment</b><small>what changed vs main</small></div>
         <a class="qh-box" href="{{ 'mcp/' | url }}"><b>AI agents</b><small>the schema over MCP</small></a>
       </div>
+    </div>
     </div>
     <ol class="qh-steps3">
       <li><b>The parser</b> follows QuickDBD's own parser step by step: same tables, same error messages. <code>qdbd check --strict</code> guarantees a file pastes back into QuickDBD.</li>
@@ -205,10 +207,12 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
       </div>
       <figure class="qh-figure">
         {#- drawn by qdbd from the text on the left (hooks/home.py); home-mini.js builds it as the text types -#}
+        <div class="qh-fig">
         <div class="qh-mini">
           <div class="qh-frame__bar"><i></i><i></i><i></i><span>schema.txt · live</span><button type="button">Replay</button></div>
           {{ config.extra.home_mini.svg | safe }}
           <div class="qh-mini__card"></div>
+        </div>
         </div>
         <script type="application/json" id="qh-mini-data">{{ {"steps": config.extra.home_mini.steps, "rels": config.extra.home_mini.rels} | tojson }}</script>
         <figcaption>Every line you type lands in the diagram. In the page qdbd builds, click a relationship for its cardinality and the SQL <code>JOIN</code>.</figcaption>
@@ -228,7 +232,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     </ol>
     <div class="qh-split qh-split--path">
       <figure class="qh-figure">
-        <a href="{{ path_link }}"><img src="{{ 'assets/img/path-sql.png' | url }}" alt="The Sakila database in qdbd with the path from payment to country lit" loading="lazy" width="1440" height="860"></a>
+        <div class="qh-fig"><a href="{{ path_link }}"><img src="{{ 'assets/img/path-sql.png' | url }}" alt="The Sakila database in qdbd with the path from payment to country lit" loading="lazy" width="1440" height="860"></a></div>
       </figure>
       <div>
         <div class="qh-tabs">
@@ -279,7 +283,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
       <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
     </ul>
     <figure class="qh-figure">
-      <div class="qh-pr__stage qh-plate">
+      <div class="qh-fig">
+      <div class="qh-pr__stage">
         <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
         <div class="qh-comment">
           <div class="qh-comment__head"><b>github-actions</b> commented</div>
@@ -295,6 +300,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
           </div>
         </div>
       </div>
+      </div>
       <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
     </figure>
   </section>
@@ -305,15 +311,6 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <h2>Your AI agent reads the schema, not the raw files</h2>
     <p class="qh-sub"><code>qdbd mcp</code> serves the schema to Claude Code, Cursor, VS Code's Copilot and any other MCP client. Agents ask for tables, keys and join paths, and get short, exact answers instead of guessing.</p>
     <div class="qh-split qh-split--agents">
-      <div class="qh-chat">
-        <div class="qh-frame__bar"><i></i><i></i><i></i><span>Prompt · Claude Code</span></div>
-        <div class="qh-chat__body">
-          <p class="qh-chat__user">Which tables do I join to get sales by country?</p>
-          <div class="qh-chat__tool"><b>qdbd · search_schema</b> <code>country</code><span>{{ config.extra.agent.search | e }}</span></div>
-          <div class="qh-chat__tool"><b>qdbd · join_path</b> <code>SalesOrderHeader → CountryRegion</code></div>
-<pre class="qh-chat__reply">{{ config.extra.agent.join | e }}</pre>
-        </div>
-      </div>
       <div class="qh-agents__side">
         <ul class="qh-clients" aria-label="Works with">
           <li>Claude Code</li><li>Claude Desktop</li><li>Cursor</li><li>VS Code Copilot</li><li>any MCP client</li>
@@ -329,6 +326,17 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
           <li><b>dbt too.</b> Point it at a dbt project: keys and relationships come from your tests.</li>
         </ul>
         <p class="qh-more"><a href="{{ 'mcp/' | url }}">Set up your agent →</a></p>
+      </div>
+      <div class="qh-fig">
+      <div class="qh-chat">
+        <div class="qh-frame__bar"><i></i><i></i><i></i><span>Prompt · Claude Code</span></div>
+        <div class="qh-chat__body">
+          <p class="qh-chat__user">Which tables do I join to get sales by country?</p>
+          <div class="qh-chat__tool"><b>qdbd · search_schema</b> <code>country</code><span>{{ config.extra.agent.search | e }}</span></div>
+          <div class="qh-chat__tool"><b>qdbd · join_path</b> <code>SalesOrderHeader → CountryRegion</code></div>
+<pre class="qh-chat__reply">{{ config.extra.agent.join | e }}</pre>
+        </div>
+      </div>
       </div>
     </div>
   </section>
