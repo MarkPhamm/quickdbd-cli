@@ -100,7 +100,7 @@
       const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
       const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
       // The window arrives on the same stage the plate left.
-      tl.fromTo("#write-win", { opacity: 0, scale: 0.97, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0);
+      tl.fromTo("#write-win", { opacity: 0, scale: 0.97, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, 0);
       // QuickDBD text arrives a line at a time; the editor scrolls once the window is full.
       const VIS = 20;
       tl.fromTo("#write-txt .lt", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.07 }, 0.35);

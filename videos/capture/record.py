@@ -13,6 +13,7 @@ Never point `qdbd serve` at examples/synthetic: dragging rewrites its committed 
 import asyncio
 import base64
 import json
+import math
 import os
 import re
 import shutil
@@ -241,37 +242,51 @@ async def shop_view(page):
 
 
 async def hook(browser):
-    """All 200 tables, from one readable table out to the whole schema: recorded zooming in, played backwards."""
+    """All 200 tables, from one readable table out to the whole schema.
+
+    A wheel recording zooms in 6% steps and stalls while Chrome repaints 200 tables at 4K, so instead the viewer is
+    moved frame by frame through its own #z=&c= hash, one screenshot a frame: the real page on an eased curve at
+    exactly 30 fps. The last frame doubles as hook.png, the still the scene settles on."""
+    fps, hold, zoom = 30, 0.5, 2.1
     page, _ = await new_page(browser, {"width": 1920, "height": 1080})
     await page.goto((OUT / "synthetic.html").as_uri())
     await page.click("#zfit")
     await page.add_style_tag(content=".explorer, .bar, .minimap, .hint, .qv-cursor { display: none !important; }")
     await page.wait_for_timeout(800)
-    c = await page.evaluate(
-        """() => { let best = null, d = 1e9;
+    # The fit view (zoom and centre, in diagram units) and the centre of the table nearest the middle.
+    v = await page.evaluate(
+        """() => { const s = window.qdbdViewer.state, w = innerWidth, h = innerHeight;
+            let best = null, d = 1e9;
             for (const t of document.querySelectorAll(".t")) {
               const r = t.getBoundingClientRect(), x = r.x + r.width / 2, y = r.y + r.height / 2;
-              const k = Math.hypot(x - innerWidth / 2, y - innerHeight / 2);
-              if (k < d) { d = k; best = {x, y}; } }
-            return best; }"""
+              const k = Math.hypot(x - w / 2, y - h / 2);
+              if (k < d) { d = k; best = [(x - s.view.x) / s.view.k, (y - s.view.y) / s.view.k]; } }
+            return { k: s.view.k, c: [(w / 2 - s.view.x) / s.view.k, (h / 2 - s.view.y) / s.view.k], t: best }; }"""
     )
-    await page.mouse.move(c["x"], c["y"])
-    async with Recorder(page, "hook-in"):
-        await asyncio.sleep(0.5)
-        for _ in range(70):
-            await page.mouse.wheel(0, -40)
-            await asyncio.sleep(0.04)
-        await asyncio.sleep(0.6)
+    k0, k1 = 1.6, v["k"] * 1.2  # readable; then a little inside fit, so the settled plate is full
+    frames = OUT / "frames" / "hook"
+    shutil.rmtree(frames, ignore_errors=True)
+    frames.mkdir(parents=True)
+    n = round((hold + zoom) * fps)
+    for i in range(n):
+        u = min(1.0, max(0.0, (i / fps - hold) / zoom))
+        e = u * u * (3 - 2 * u)
+        k = math.exp(math.log(k0) + (math.log(k1) - math.log(k0)) * e)  # even speed in log zoom
+        cx, cy = (v["t"][j] + (v["c"][j] - v["t"][j]) * e for j in (0, 1))
+        await page.evaluate("(h) => { location.hash = h; }", f"z={k:.5f}&c={cx:.1f},{cy:.1f}")
+        await page.evaluate("() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))")
+        await page.screenshot(path=str(frames / f"{i:05d}.jpg"), type="jpeg", quality=92)
+    shutil.copy(frames / f"{n - 1:05d}.jpg", OUT / "hook-end.jpg")
     subprocess.run(
         [
             "ffmpeg",
             "-y",
             "-loglevel",
             "error",
+            "-framerate",
+            str(fps),
             "-i",
-            str(OUT / "hook-in.mp4"),
-            "-vf",
-            "reverse",
+            str(frames / "%05d.jpg"),
             "-pix_fmt",
             "yuv420p",
             "-c:v",
@@ -286,7 +301,11 @@ async def hook(browser):
         ],
         check=True,
     )
-    print("wrote videos/capture/out/hook.mp4 (reversed)")
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(OUT / "hook-end.jpg"), str(OUT / "hook.png")], check=True
+    )
+    shutil.rmtree(frames)
+    print(f"wrote videos/capture/out/hook.mp4 ({n} frames, {n / fps:.1f}s) and hook.png")
 
 
 async def opened(browser):

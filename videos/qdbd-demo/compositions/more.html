@@ -63,11 +63,11 @@
           y = Math.min(0, Math.max(890 - s * 1124, 445 - s * qy));
         }
         if (t === 0) tl.fromTo(sel, { x: 0, y: 0, scale: 1 }, { x, y, scale: s, duration: 0.01 }, 0);
-        else tl.to(sel, { x, y, scale: s, duration: d || 0.55, ease: "power2.inOut" }, t);
+        else tl.to(sel, { x, y, scale: s, duration: d || 0.42, ease: "power3.inOut" }, t);
       };
       const whipIn = (sel, t) => tl.fromTo(sel, { x: 360, opacity: 0, filter: "blur(14px)" },
-        { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, t);
-      const whipOut = (sel, t) => tl.to(sel, { x: -360, opacity: 0, filter: "blur(14px)", duration: 0.2, ease: "power3.in" }, t);
+        { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.26, ease: "expo.out" }, t);
+      const whipOut = (sel, t) => tl.to(sel, { x: -360, opacity: 0, filter: "blur(14px)", duration: 0.16, ease: "power3.in" }, t);
       whipIn("#more-enter", 0);
       cam("#more-cam", 0, 2.3, 1145, 34);
       whipOut("#more-enter", 2.05);

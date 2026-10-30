@@ -25,3 +25,14 @@
 - `line_unread` on the editor and terminal lines: code is texture there; the titles carry the read.
 - `nested_media_start_basis_ambiguous` on the VS Code trims: their `data-start` is local, as intended.
 - `film_silent`: see above.
+
+## Second pass
+
+- The first hook zoom was a wheel recording. Each wheel tick jumped the zoom 6%, and Chrome stalled repainting 200
+  tables at 4K, so half the zoom played at about 15 fps. The hook is now captured frame by frame through the viewer's own
+  `#z=&c=` hash: an eased zoom with every frame unique at 30 fps. The plate settles after the zoom lands, with no
+  counter-zoom.
+- Moves are faster: camera 0.42 s on power3.inOut, whips 0.26 s in and 0.16 s out, windows land in 0.3 s. The build
+  scene loses its dead second before the zoom-through.
+- The film is now 58.2 s: the hook is 6.2 s and the build 4.0 s. Scenes from build on start earlier than the times in
+  SPEC.md and STORYBOARD.md (0.8 s for build, 1.8 s for every scene after it).
