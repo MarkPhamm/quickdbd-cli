@@ -171,8 +171,8 @@ export class Qdbd {
     return true;
   }
 
-  run(args: string[], cwd: string, stdin?: string): Promise<RunResult | undefined> {
-    return this.exe().then((exe) => (exe ? exec(exe, args, { cwd, stdin }) : undefined));
+  run(args: string[], cwd: string, stdin?: string, env?: NodeJS.ProcessEnv): Promise<RunResult | undefined> {
+    return this.exe().then((exe) => (exe ? exec(exe, args, { cwd, stdin, env }) : undefined));
   }
 
   /** A long-running qdbd (serve). */
@@ -190,10 +190,10 @@ export class Qdbd {
 function exec(
   cmd: string,
   args: string[],
-  opts: { cwd?: string; stdin?: string; log?: vscode.OutputChannel } = {},
+  opts: { cwd?: string; stdin?: string; env?: NodeJS.ProcessEnv; log?: vscode.OutputChannel } = {},
 ): Promise<RunResult> {
   return new Promise((resolve) => {
-    const child = spawn(cmd, args, { cwd: opts.cwd });
+    const child = spawn(cmd, args, { cwd: opts.cwd, env: opts.env && { ...process.env, ...opts.env } });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (b: Buffer) => {

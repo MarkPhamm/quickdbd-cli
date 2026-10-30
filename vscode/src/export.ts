@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import type { Checker } from "./checker.ts";
 import type { Qdbd } from "./cli.ts";
 import { githubApi, publish, shareKey } from "./gist.ts";
-import { firstUrl, tableAt, type Target } from "./schema.ts";
+import { atLeast, firstUrl, tableAt, type Target } from "./schema.ts";
 import { targetTitle } from "./target.ts";
 
 const FORMATS = { png: "PNG image", svg: "SVG image", drawio: "draw.io diagram", html: "HTML page" } as const;
@@ -64,8 +64,35 @@ export async function exportDiagram(
   else if (open) void vscode.env.openExternal(out);
 }
 
+/** Off by default: a gist puts the schema outside the organisation's control. User settings only (`scope: application`). */
+export const sharingAllowed = () => vscode.workspace.getConfiguration("quickdbd").get<boolean>("allowSharing", false);
+
+const DISCLAIMER_URL = "https://qdbd.dev/sharing/#disclaimer";
+// Shown before every share; keep in step with DISCLAIMER in share.py.
+const DISCLAIMER =
+  "This uploads the diagram (every table and column name, type, key, relationship and comment) to a GitHub gist. Anyone with the link can open it, and copies can outlive the gist.\n\n" +
+  "By sharing, you confirm that you have the right to publish this schema, that your organisation's policies and any client agreements allow it, and that qdbd's authors are not liable for any disclosure.";
+
 export async function share(qdbd: Qdbd, checker: Checker, doc: vscode.TextDocument) {
+  if (!sharingAllowed()) {
+    const open = await vscode.window.showWarningMessage(
+      "Sharing is off. It uploads the diagram to a GitHub gist that anyone with the link can open. Turn on QuickDBD: Allow Sharing only if your data policy allows that.",
+      "Open Settings",
+      "Read the Disclaimer",
+    );
+    if (open === "Open Settings") void vscode.commands.executeCommand("workbench.action.openSettings", "quickdbd.allowSharing");
+    else if (open) void vscode.env.openExternal(vscode.Uri.parse(DISCLAIMER_URL));
+    return;
+  }
   const target = checker.targetFor(doc);
+  const pick = await vscode.window.showWarningMessage(
+    `Share ${targetTitle(target)} as a secret gist?`,
+    { modal: true, detail: DISCLAIMER },
+    "Share",
+    "Read the Disclaimer",
+  );
+  if (pick === "Read the Disclaimer") void vscode.env.openExternal(vscode.Uri.parse(DISCLAIMER_URL));
+  if (pick !== "Share") return;
   let token: string;
   try {
     token = (await vscode.authentication.getSession("github", ["gist"], { createIfNone: true })).accessToken;
@@ -97,7 +124,12 @@ export async function share(qdbd: Qdbd, checker: Checker, doc: vscode.TextDocume
 async function shareWithGh(qdbd: Qdbd, target: Target) {
   const res = await vscode.window.withProgress(
     { location: vscode.ProgressLocation.Notification, title: "Publishing the diagram as a secret gist…" },
-    () => qdbd.run(["share", ...target.paths], target.cwd),
+    // The setting is the opt-in, and the dialog the confirmation; qdbd 0.4.0+ wants both said again.
+    async () => {
+      const found = await qdbd.found();
+      const yes = found && atLeast(found.version, [0, 4, 0]) ? ["--yes"] : [];
+      return qdbd.run(["share", ...yes, ...target.paths], target.cwd, undefined, { QDBD_ALLOW_SHARE: "1" });
+    },
   );
   if (!res) return;
   // "Link: <viewer url>" is the one to share; the first URL printed is the gist itself.

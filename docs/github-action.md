@@ -15,7 +15,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }   # write: for the PR comment
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.3.5
+      - uses: MarkPhamm/quickdbd-cli@v0.4.0
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -61,6 +61,9 @@ On pull requests it also:
 
 ## 7.4 Publishing to GitHub Pages { #publishing-to-github-pages }
 
+!!! warning "A Pages site is public unless you restrict it"
+    Anyone can open a GitHub Pages site, unless it's published from a private or internal repository of an organisation on GitHub Enterprise Cloud with [access control](https://docs.github.com/en/enterprise-cloud@latest/pages/getting-started-with-github-pages/changing-the-visibility-of-your-github-pages-site) turned on. Publish a client's schema only where their agreement allows it. Publishing means you accept the [disclaimer](sharing.md#disclaimer).
+
 Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with `actions/deploy-pages` on pushes to your main branch. [5.6 Step 4: Automate in CI](example/ci.md#publish-the-diagram) has the full workflow.
 
 ## 7.5 With dbt { #with-dbt }
@@ -68,7 +71,7 @@ Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with
 Run your dbt build first, then point the action at the manifest:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.3.5
+- uses: MarkPhamm/quickdbd-cli@v0.4.0
   with:
     dbt-manifest: target/
     dbt-args: --infer-fks
@@ -99,7 +102,7 @@ To check schema files before every commit, add the [pre-commit](https://pre-comm
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.3.5
+    rev: v0.4.0
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.(txt|dbml)$

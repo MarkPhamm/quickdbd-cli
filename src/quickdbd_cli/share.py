@@ -4,6 +4,10 @@ Uses the GitHub CLI (``gh api``), so it inherits the user's login. Gists are sec
 ``public``. The gist made for each input/selection is remembered in the user's cache directory, so
 sharing again updates the same gist and the link stays the same. The VS Code extension does the same
 without gh (vscode/src/gist.ts) and shares the cache: keep the two in step.
+
+Off unless ``QDBD_ALLOW_SHARE`` is set: a gist puts the schema outside the organisation's control, which a
+client's data agreements may not allow. The extension's own switch is the ``quickdbd.allowSharing`` setting.
+Even then, every share shows ``DISCLAIMER`` and asks first; the extension's dialog (export.ts) says the same.
 """
 
 from __future__ import annotations
@@ -15,9 +19,21 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+ALLOW_ENV = "QDBD_ALLOW_SHARE"
+DISCLAIMER = """\
+Before you share: this uploads the diagram (every table and column name, type, key, relationship
+and comment) to a GitHub gist. Anyone with the link can open it, and copies can outlive the gist.
+By sharing, you confirm that you have the right to publish this schema, that your organisation's
+policies and any client agreements allow it, and that qdbd's authors are not liable for any
+disclosure. Full disclaimer: https://qdbd.dev/sharing/#disclaimer"""
+
 
 class ShareError(Exception):
     pass
+
+
+def allowed() -> bool:
+    return os.environ.get(ALLOW_ENV, "").strip().lower() in ("1", "true", "yes", "on")
 
 
 @dataclass

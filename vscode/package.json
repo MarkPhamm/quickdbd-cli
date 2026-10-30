@@ -2,7 +2,7 @@
   "name": "quickdbd",
   "displayName": "QuickDBD (qdbd)",
   "description": "QuickDBD and DBML schema files in VS Code: a sidebar with every schema, highlighting, live errors, outline, go to definition, the interactive ER diagram beside your editor, git diffs, dbt import, export and sharing. No terminal needed.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "publisher": "MarkPhamm",
   "author": "Minh (Mark) Pham",
   "license": "Apache-2.0",
@@ -221,7 +221,7 @@
         },
         {
           "command": "quickdbd.share",
-          "when": "editorLangId =~ /^(quickdbd|dbml)$/"
+          "when": "config.quickdbd.allowSharing && editorLangId =~ /^(quickdbd|dbml)$/"
         },
         {
           "command": "quickdbd.compare",
@@ -314,7 +314,7 @@
         },
         {
           "command": "quickdbd.share",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "config.quickdbd.allowSharing && view == quickdbd.schemas && viewItem == schema",
           "group": "3_share"
         },
         {
@@ -355,6 +355,12 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Report QuickDBD-compatibility warnings as errors, like `qdbd check --strict`."
+        },
+        "quickdbd.allowSharing": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "markdownDescription": "Allow **Share as a Gist Link**. Sharing uploads the whole diagram (every table and column name) to a GitHub gist in your account, and anyone with the link can open it. Turn it on only if the schema's owner and your data agreements allow that; turning it on means you accept the [disclaimer](https://qdbd.dev/sharing/#disclaimer). A user setting only, so a workspace can't turn it on. For `qdbd share`, the switch is `QDBD_ALLOW_SHARE=1`."
         }
       }
     },

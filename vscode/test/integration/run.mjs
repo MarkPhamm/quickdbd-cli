@@ -31,7 +31,8 @@ fs.copyFileSync(path.join(repo, "examples", "synthetic", "finance.txt"), path.jo
 const bin = process.platform === "win32" ? path.join("Scripts", "qdbd.exe") : path.join("bin", "qdbd");
 const qdbd = process.env.QDBD_PATH || path.join(repo, ".venv", bin);
 fs.mkdirSync(path.join(ws, ".vscode"));
-fs.writeFileSync(path.join(ws, ".vscode", "settings.json"), JSON.stringify({ "quickdbd.qdbdPath": qdbd }));
+// allowSharing is application-scoped, so VS Code must ignore it here: the suite checks sharing stays off.
+fs.writeFileSync(path.join(ws, ".vscode", "settings.json"), JSON.stringify({ "quickdbd.qdbdPath": qdbd, "quickdbd.allowSharing": true }));
 for (const args of [["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "base"]]) {
   execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", ...args], { cwd: ws });
 }

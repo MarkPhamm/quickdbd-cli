@@ -75,7 +75,7 @@ Read it in order the first time; each step builds on the one before.
 | [`qdbd serve`](cli.md#serve) | Local editor: reloads on save, browser editor pane, drag tables to arrange |
 | [`qdbd layout`](cli.md#layout) | Writes table positions to the layout file: places new tables, or lays out everything again |
 | [`qdbd build`](cli.md#build) | One self-contained HTML page: search, filters, path finder, regions, shareable links |
-| [`qdbd share`](cli.md#share) | Publishes the page as a secret GitHub gist and prints the link |
+| [`qdbd share`](cli.md#share) | Publishes the page as a secret GitHub gist and prints the link (off by default) |
 | [`qdbd export`](exports.md) | PNG, SVG and editable draw.io files, for a whole schema or a selection |
 | [`qdbd diff`](diffs.md) | Tables, columns and relationships changed against a git ref |
 | [`qdbd path`](cli.md#path) | Shortest join path between two tables, as a SQL `JOIN` |

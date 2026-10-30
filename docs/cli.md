@@ -51,7 +51,7 @@ Local live editor on `127.0.0.1`: reloads when files change, browser editor pane
 
 The default port is 8765. If it's busy (for example, a second `qdbd serve` is running), the next free port is used and printed. An explicit `--port` that's busy is an error.
 
-`--read-only` serves a live view with no editor that never writes to disk, safe to put behind a tunnel ([4.4 Sharing a Link](sharing.md#live-read-only-link)).
+`--read-only` serves a live view with no editor that never writes to disk, so viewers can't change anything. Before you put it behind a tunnel, see [4.4 Sharing a Link](sharing.md#live-read-only-link).
 
 `--embed` is the page behind the [VS Code extension](vscode.md)'s preview: a live view with no editor pane, where dragging still saves positions but files can't be written. It talks to the editor through `postMessage`. `--port 0` picks any free port.
 
@@ -103,10 +103,10 @@ Writes `schema.txt` unless `-o` names another `.txt` file, or a folder for one f
 ## 8.9 share { #share }
 
 ```bash
-qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict] [--public] [--new]
+qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict] [--public] [--new] [-y/--yes]
 ```
 
-Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. See [4.4 Sharing a Link](sharing.md).
+Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. Off unless the `QDBD_ALLOW_SHARE` environment variable is `1`: the gist is outside your organisation's control. Even then, it shows a disclaimer and asks before uploading; `--yes` accepts it without asking, for scripts. See [4.4 Sharing a Link](sharing.md).
 
 ## 8.10 convert { #convert }
 
@@ -130,4 +130,4 @@ Runs an [MCP](https://modelcontextprotocol.io) server on stdin/stdout, so AI age
 |---|---|
 | 0 | success |
 | 1 | schema errors, no matching tables, no path, or (`diff --exit-code`) changes found |
-| 2 | bad arguments, missing files, git errors, or `share` upload errors |
+| 2 | bad arguments, missing files, git errors, or `share` turned off, not confirmed or failing to upload |

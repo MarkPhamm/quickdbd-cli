@@ -131,7 +131,7 @@ In VS Code (or Cursor), the [extension](https://qdbd.dev/vscode/) does the same 
 ```sh
 qdbd build schema.txt -o schema.html      # one self-contained page
 qdbd export schema.txt -o schema.png      # or .svg, .drawio
-qdbd share schema.txt                     # a link to the page, via a GitHub gist
+QDBD_ALLOW_SHARE=1 qdbd share schema.txt  # a link via a GitHub gist: off by default, see the disclaimer
 ```
 
 ## Run in CI
@@ -148,7 +148,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.3.5
+      - uses: MarkPhamm/quickdbd-cli@v0.4.0
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -219,7 +219,7 @@ No. qdbd only borrows the text syntax.
 No. It reads `.txt` / `.dbml` schema files or a dbt `manifest.json`. Nothing connects to a warehouse.
 
 **Does my schema leave my machine?**
-Only if you run `qdbd share`, which uploads the page to a GitHub gist in your account (secret by default), or connect an AI agent through `qdbd mcp`, whose answers go to your AI provider. `qdbd serve` loads its code editor from a CDN; the built pages load nothing.
+Only if you turn sharing on (`QDBD_ALLOW_SHARE=1`, or `quickdbd.allowSharing` in VS Code) and run `qdbd share`, which uploads the page to a GitHub gist in your account (secret by default), publish it yourself (a tunnel, GitHub Pages), or connect an AI agent through `qdbd mcp`, whose answers go to your AI provider. `qdbd serve` loads its code editor from a CDN; the built pages load nothing.
 
 **How big can a diagram get?**
 The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable; `--select` builds a page with just the part you need.
