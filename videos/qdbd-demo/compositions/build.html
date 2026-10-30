@@ -1,0 +1,100 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    .term { position: absolute; left: 96px; top: 190px; width: 1728px; height: 950px; border-radius: 16px; overflow: hidden;
+      background: #15181e; box-shadow: 0 24px 54px -24px rgba(21, 24, 30, 0.38); transform-origin: 0 0; }
+    .tabs { position: absolute; left: 0; top: 0; right: 0; height: 52px; display: flex; align-items: flex-end; gap: 2px;
+      padding-left: 22px; background: #0e1014; }
+    .tabs .dot { width: 14px; height: 14px; border-radius: 50%; background: #3a3f48; margin: 0 8px 19px 0; }
+    .tab { height: 44px; line-height: 44px; padding: 0 26px; font: 500 28px "Geist Mono", monospace; color: #8b93a1;
+      border-radius: 10px 10px 0 0; }
+    .tab.on { background: #15181e; color: #f2f2ee; }
+    .code { position: absolute; left: 0; top: 52px; right: 0; bottom: 0; overflow: hidden; padding: 30px 0 0 0; }
+    .blk { position: absolute; left: 0; top: 30px; width: 100%; }
+    .ln { height: 40px; line-height: 40px; font: 400 29px "Geist Mono", monospace; color: #e8e8e3; white-space: pre; }
+    .ln b { display: inline-block; width: 84px; padding-right: 26px; text-align: right; font-weight: 400; color: #5b6270; }
+    .t { color: #ffffff; font-weight: 600; } .c { color: #e8e8e3; } .k { color: #8fb0ff; } .y { color: #9aa3b2; }
+    .r { color: #f0c987; } .m { color: #5b6270; }
+    .sh { position: absolute; left: 44px; top: 96px; font: 400 36px "Geist Mono", monospace; color: #e8e8e3; }
+    .row { height: 62px; line-height: 62px; white-space: pre; }
+    .p { color: #8fb0ff; }
+    .typed { display: inline-block; overflow: hidden; vertical-align: top; white-space: pre; width: calc(var(--n) * 1ch); }
+    .ok { color: #9aa3b2; } .ok em { font-style: normal; color: #f2f2ee; }
+    #build-file { color: #f0c987; }
+  </style>
+  <div data-hf-id="hf-jvg5" id="root" data-composition-id="build" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-zkp6" id="build-win" class="term" data-layout-allow-overflow>
+      <div data-hf-id="hf-5rmk" class="tabs"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i><div data-hf-id="hf-10ao" class="tab on" style="display: grid"><span data-hf-id="hf-exq5" id="build-tab1" style="grid-area: 1 / 1">shop.dbml</span><span data-hf-id="hf-dihs" id="build-tab2" style="grid-area: 1 / 1; opacity: 0">zsh</span></div></div>
+      <div data-hf-id="hf-96kj" id="build-code" class="code">
+        <div data-hf-id="hf-yczk" class="blk" style="transform: translateY(-400px)">
+          <div data-hf-id="hf-gmyq" class="ln"><b data-hf-id="hf-t4n0">1</b><span data-hf-id="hf-ovfs" class="k">Table</span> <span data-hf-id="hf-fttz" class="t">Customer</span> <span data-hf-id="hf-k89v" class="m">{</span></div>
+          <div data-hf-id="hf-ru7a" class="ln"><b data-hf-id="hf-rxpx">2</b>&nbsp;&nbsp;<span data-hf-id="hf-bhgx" class="c">CustomerId</span> <span data-hf-id="hf-ds3z" class="y">int</span> <span data-hf-id="hf-e1hk" class="k">[pk, increment]</span></div>
+          <div data-hf-id="hf-s8ib" class="ln"><b data-hf-id="hf-sc0y">3</b>&nbsp;&nbsp;<span data-hf-id="hf-kmxw" class="c">Email</span> <span data-hf-id="hf-lqta" class="y">varchar(255)</span> <span data-hf-id="hf-my6x" class="k">[unique]</span></div>
+          <div data-hf-id="hf-smtc" class="ln"><b data-hf-id="hf-ubk3">4</b>&nbsp;&nbsp;<span data-hf-id="hf-cidj" class="c">Name</span> <span data-hf-id="hf-5k8f" class="y">string</span></div>
+          <div data-hf-id="hf-puo5" class="ln"><b data-hf-id="hf-upv4">5</b><span data-hf-id="hf-hufp" class="m">}</span></div>
+          <div data-hf-id="hf-q8z6" class="ln"><b data-hf-id="hf-tiy1">6</b></div>
+          <div data-hf-id="hf-qna7" class="ln"><b data-hf-id="hf-tx92">7</b><span data-hf-id="hf-kxsw" class="k">Table</span> <span data-hf-id="hf-j4md" class="t">Order</span> <span data-hf-id="hf-8y5f" class="m">{</span></div>
+          <div data-hf-id="hf-r1l8" class="ln"><b data-hf-id="hf-pjvr">8</b>&nbsp;&nbsp;<span data-hf-id="hf-cqnd" class="c">OrderId</span> <span data-hf-id="hf-82pb" class="y">int</span> <span data-hf-id="hf-n4w0" class="k">[pk, increment]</span></div>
+          <div data-hf-id="hf-o9g1" class="ln"><b data-hf-id="hf-py6s">9</b>&nbsp;&nbsp;<span data-hf-id="hf-trfp" class="c">CustomerId</span> <span data-hf-id="hf-7oea" class="y">int</span></div>
+          <div data-hf-id="hf-onr2" class="ln"><b data-hf-id="hf-jyhw">10</b>&nbsp;&nbsp;<span data-hf-id="hf-s8ba" class="c">Status</span> <span data-hf-id="hf-980f" class="y">string</span></div>
+          <div data-hf-id="hf-9fs2" class="ln"><b data-hf-id="hf-jk6v">11</b>&nbsp;&nbsp;<span data-hf-id="hf-rkfy" class="c">Total</span> <span data-hf-id="hf-gq32" class="y">money</span></div>
+          <div data-hf-id="hf-91h1" class="ln"><b data-hf-id="hf-j5vu">12</b><span data-hf-id="hf-95e1" class="m">}</span></div>
+          <div data-hf-id="hf-a8e4" class="ln"><b data-hf-id="hf-irkt">13</b></div>
+          <div data-hf-id="hf-9u33" class="ln"><b data-hf-id="hf-ljq0">14</b><span data-hf-id="hf-jqvt" class="k">Table</span> <span data-hf-id="hf-8g2v" class="t">OrderLine</span> <span data-hf-id="hf-8jue" class="m">{</span></div>
+          <div data-hf-id="hf-b106" class="ln"><b data-hf-id="hf-l5ez">15</b>&nbsp;&nbsp;<span data-hf-id="hf-y50d" class="c">OrderId</span> <span data-hf-id="hf-7a39" class="y">int</span> <span data-hf-id="hf-lk4r" class="k">[pk]</span></div>
+          <div data-hf-id="hf-amp5" class="ln"><b data-hf-id="hf-kr3y">16</b>&nbsp;&nbsp;<span data-hf-id="hf-z919" class="c">LineNo</span> <span data-hf-id="hf-a28g" class="y">int</span> <span data-hf-id="hf-893f" class="k">[pk]</span></div>
+          <div data-hf-id="hf-btm8" class="ln"><b data-hf-id="hf-kcsx">17</b>&nbsp;&nbsp;<span data-hf-id="hf-slce" class="c">ProductId</span> <span data-hf-id="hf-9nxf" class="y">int</span></div>
+          <div data-hf-id="hf-bfb7" class="ln"><b data-hf-id="hf-n4y4">18</b>&nbsp;&nbsp;<span data-hf-id="hf-7xld" class="c">Quantity</span> <span data-hf-id="hf-99me" class="y">int</span></div>
+          <div data-hf-id="hf-69bu" class="ln"><b data-hf-id="hf-mqn3">19</b><span data-hf-id="hf-acb4" class="m">}</span></div>
+          <div data-hf-id="hf-5v0t" class="ln"><b data-hf-id="hf-k42n">20</b></div>
+          <div data-hf-id="hf-8o49" class="ln"><b data-hf-id="hf-kido">21</b><span data-hf-id="hf-k56u" class="k">Table</span> <span data-hf-id="hf-jyuy" class="t">Product</span> <span data-hf-id="hf-85jd" class="m">{</span></div>
+          <div data-hf-id="hf-92fa" class="ln"><b data-hf-id="hf-jbgl">22</b>&nbsp;&nbsp;<span data-hf-id="hf-yosy" class="c">ProductId</span> <span data-hf-id="hf-8vbd" class="y">int</span> <span data-hf-id="hf-7use" class="k">[pk]</span></div>
+          <div data-hf-id="hf-9gqb" class="ln"><b data-hf-id="hf-jprm">23</b>&nbsp;&nbsp;<span data-hf-id="hf-9sud" class="c">Sku</span> <span data-hf-id="hf-xdpa" class="y">varchar(64)</span> <span data-hf-id="hf-fskt" class="k">[unique]</span></div>
+          <div data-hf-id="hf-9v1c" class="ln"><b data-hf-id="hf-lpar">24</b>&nbsp;&nbsp;<span data-hf-id="hf-t44n" class="c">Name</span> <span data-hf-id="hf-8tpe" class="y">string</span></div>
+          <div data-hf-id="hf-72w5" class="ln"><b data-hf-id="hf-m3ls">25</b>&nbsp;&nbsp;<span data-hf-id="hf-cwt5" class="c">Price</span> <span data-hf-id="hf-5ij6" class="y">money</span></div>
+          <div data-hf-id="hf-7h76" class="ln"><b data-hf-id="hf-kwop">26</b><span data-hf-id="hf-9y03" class="m">}</span></div>
+          <div data-hf-id="hf-7vi7" class="ln"><b data-hf-id="hf-lazq">27</b></div>
+          <div data-hf-id="hf-89t8" class="ln"><b data-hf-id="hf-gxmf">28</b><span data-hf-id="hf-8xop" class="k">Ref:</span> <span data-hf-id="hf-d0iv" class="r">Order.CustomerId &gt; Customer.CustomerId</span></div>
+          <div data-hf-id="hf-5ho1" class="ln"><b data-hf-id="hf-hbxg">29</b><span data-hf-id="hf-3o1p" class="k">Ref:</span> <span data-hf-id="hf-8uar" class="r">OrderLine.OrderId &gt; Order.OrderId</span></div>
+          <div data-hf-id="hf-5vz2" class="ln"><b data-hf-id="hf-jceu">30</b><span data-hf-id="hf-4uys" class="k">Ref:</span> <span data-hf-id="hf-svjw" class="r">OrderLine.ProductId &gt; Product.ProductId</span></div>
+        </div>
+      </div>
+      <div data-hf-id="hf-z9b6" id="build-sh" class="sh" style="opacity: 0">
+        <div data-hf-id="hf-thy4" class="row"><span data-hf-id="hf-41jt" class="p">$ </span><span data-hf-id="hf-xsbf" id="build-c1" class="typed" style="--n: 0">qdbd build shop.dbml -o shop.html</span></div>
+        <div data-hf-id="hf-m9qo" id="build-o1" class="row ok" style="opacity: 0"><em data-hf-id="hf-7zav">Wrote shop.html (4 tables, 3 relationships)</em></div>
+        <div data-hf-id="hf-wf5l" id="build-r3" class="row" style="opacity: 0"><span data-hf-id="hf-jvzh" class="p">$ </span><span data-hf-id="hf-vwrv" id="build-c2" class="typed" style="--n: 0">open <span data-hf-id="hf-8j24" id="build-file">shop.html</span></span></div>
+      </div>
+    </div>
+    <h1 data-hf-id="hf-zg3t" id="build-t1" class="clip ttl" data-start="0.55" data-duration="3.45" data-track-index="1"><span data-hf-id="hf-iogc" class="w">One</span> <span data-hf-id="hf-y0w7" class="w">command,</span> <span data-hf-id="hf-rpws" class="w">one</span> <span data-hf-id="hf-8a7y" class="w acc">HTML</span> <span data-hf-id="hf-lpam" class="w">file</span></h1>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      // The editor becomes the terminal: the text leaves, the window shortens, the shell arrives.
+      tl.to("#build-code", { opacity: 0, filter: "blur(8px)", duration: 0.15, ease: "power3.in" }, 0.05);
+      tl.fromTo("#build-win", { height: 950 }, { height: 440, duration: 0.42, ease: "power3.out" }, 0.12);
+      tl.fromTo("#build-tab1", { opacity: 1 }, { opacity: 0, duration: 0.1 }, 0.2);
+      tl.fromTo("#build-tab2", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.25);
+      tl.fromTo("#build-sh", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.45);
+      tl.fromTo("#build-c1", { "--n": 0 }, { "--n": 33, duration: 1.05, ease: "steps(33)" }, 0.55);
+      tl.fromTo("#build-o1", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 1.85);
+      tl.fromTo("#build-r3", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 2.2);
+      tl.fromTo("#build-c2", { "--n": 0 }, { "--n": 14, duration: 0.5, ease: "steps(14)" }, 2.45);
+      say("#build-t1", 0.6, 3.75);
+      // Zoom through shop.html: the next shot opens out of the file name.
+      tl.to("#build-win", { scale: 9, x: 960 - 96 - 9 * 292, y: 540 - 190 - 9 * 251, filter: "blur(10px)", opacity: 0,
+        transformOrigin: "0 0", duration: 0.5, ease: "power3.in" }, 4.45);
+      window.__timelines["build"] = tl;
+    })();
+  </script>
+</template>

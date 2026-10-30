@@ -296,7 +296,19 @@
     onView(code, function () { setTimeout(function () { t.play(null, 45); }, 400); });
   }
 
-  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick, pr, closing] };
+  /* Demo video: muted autoplay only while on screen. With reduced motion it waits for its play button. */
+  function video(root) {
+    var v = root.querySelector(".qh-video video");
+    if (!v || reduce.matches) return;
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) v.pause();
+        else { var p = v.play(); if (p) p.catch(function () {}); }
+      });
+    }, { threshold: 0.4 }).observe(v);
+  }
+
+  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick, pr, closing, video] };
   /* Section scripts register here; run after this file's helpers exist. */
   window.qhome.add = function (fn) { window.qhome.sections.push(fn); };
   function start() {

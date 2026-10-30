@@ -1,0 +1,78 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    .stage { position: absolute; left: 0; top: 190px; width: 1920px; height: 890px; overflow: hidden; }
+    .enter, .cam { position: absolute; left: 0; top: 0; width: 1920px; height: 890px; transform-origin: 0 0; }
+    .win { position: absolute; left: 96px; top: 0; width: 1728px; height: 1124px; border-radius: 16px 16px 0 0; overflow: hidden;
+      background: #fafaf7; box-shadow: 0 0 0 1px rgba(21, 24, 30, 0.12), 0 24px 54px -24px rgba(21, 24, 30, 0.28); }
+    .bar { position: absolute; left: 0; top: 0; right: 0; height: 44px; display: flex; align-items: center; gap: 9px; padding: 0 18px;
+      background: #fafaf7; border-bottom: 1px solid rgba(21, 24, 30, 0.12); font: 500 28px "Geist", sans-serif; color: #4a505b; }
+    .bar i { width: 13px; height: 13px; border-radius: 50%; background: #d6d6d0; }
+    .bar span { margin-left: 18px; }
+    .view { position: absolute; left: 0; top: 44px; width: 1728px; height: 1080px; overflow: hidden; }
+    .view video, .view img { position: absolute; left: 0; top: 0; width: 1728px; height: 1080px; }
+    #explore-dip { position: absolute; inset: 0; background: #000; opacity: 0; }
+  </style>
+  <div data-hf-id="hf-tsda" id="root" data-composition-id="explore" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-nt0f" class="stage" data-layout-allow-overflow>
+      <div data-hf-id="hf-0m4g" id="explore-enter" class="enter">
+        <div data-hf-id="hf-02ha" id="explore-cam" class="cam">
+          <div data-hf-id="hf-v0ka" class="win">
+            <div data-hf-id="hf-ufsv" class="bar"><i data-hf-id="hf-wt6k"></i><i data-hf-id="hf-zeb8"></i><i data-hf-id="hf-y7e5"></i><span data-hf-id="hf-6ty6">AdventureWorks DW · 28 tables</span></div>
+            <div data-hf-id="hf-z18r" class="view">
+              <video data-hf-id="hf-xl8z" id="explore-v" class="clip" src="assets/footage/explore.mp4" data-start="0" data-duration="12" data-media-start="0.3" data-track-index="0" muted playsinline></video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h1 data-hf-id="hf-6hbm" id="explore-t1" class="clip ttl" data-start="0.3" data-duration="3.0" data-track-index="1"><span data-hf-id="hf-62vn" class="w">Find</span> <span data-hf-id="hf-952a" class="w">any</span> <span data-hf-id="hf-a2f0" class="w">table</span></h1>
+    <h1 data-hf-id="hf-ek31" id="explore-t2" class="clip ttl" data-start="3.6" data-duration="3.1" data-track-index="2"><span data-hf-id="hf-f2u6" class="w">Click:</span> <span data-hf-id="hf-1jo2" class="w">its</span> <span data-hf-id="hf-2280" class="w">neighbours</span> <span data-hf-id="hf-gnzt" class="w">stay</span> <span data-hf-id="hf-bh7l" class="w">lit</span></h1>
+    <h1 data-hf-id="hf-udex" id="explore-t3" class="clip ttl" data-start="6.9" data-duration="3.05" data-track-index="3"><span data-hf-id="hf-b2t6" class="w">Hover</span> <span data-hf-id="hf-b7a3" class="w">a</span> <span data-hf-id="hf-ell4" class="w">line:</span> <span data-hf-id="hf-2yfi" class="w">how</span> <span data-hf-id="hf-tg9q" class="w">they</span> <span data-hf-id="hf-84dh" class="w">relate</span></h1>
+    <h1 data-hf-id="hf-80nq" id="explore-t4" class="clip ttl" data-start="10.15" data-duration="1.75" data-track-index="4"><span data-hf-id="hf-4q4b" class="w">Every</span> <span data-hf-id="hf-5jdu" class="w">column</span> <span data-hf-id="hf-difl" class="w">and</span> <span data-hf-id="hf-mehz" class="w">key</span></h1>
+    <div data-hf-id="hf-3g1z" id="explore-dip" class="clip" data-start="11.85" data-duration="0.15" data-track-index="5"></div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      // Camera: put a point of the recorded 1440 x 900 page (cx, cy) at the stage centre at scale s,
+      // never showing past the window's edges. TOP is where page y = 0 sits inside the window.
+      const cam = (sel, t, s, cx, cy, d, TOP = 44) => {
+        const qx = 96 + 1.2 * cx, qy = TOP + 1.2 * cy;
+        let x = 0, y = 0;
+        if (s > 1) {
+          x = Math.min(-s * 96, Math.max(1920 - s * 1824, 960 - s * qx));
+          y = Math.min(0, Math.max(890 - s * 1124, 445 - s * qy));
+        }
+        if (t === 0) tl.fromTo(sel, { x: 0, y: 0, scale: 1 }, { x, y, scale: s, duration: 0.01 }, 0);
+        else tl.to(sel, { x, y, scale: s, duration: d || 0.55, ease: "power2.inOut" }, t);
+      };
+      const whipIn = (sel, t) => tl.fromTo(sel, { x: 360, opacity: 0, filter: "blur(14px)" },
+        { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, t);
+      const whipOut = (sel, t) => tl.to(sel, { x: -360, opacity: 0, filter: "blur(14px)", duration: 0.2, ease: "power3.in" }, t);
+      whipIn("#explore-enter", 0);
+      cam("#explore-cam", 0, 1, 0, 0);
+      cam("#explore-cam", 0.95, 2.0, 250, 120);
+      cam("#explore-cam", 3.75, 1.3, 660, 430);
+      cam("#explore-cam", 6.95, 1.9, 540, 270);
+      cam("#explore-cam", 10.1, 1.75, 1130, 330);
+      say("#explore-t1", 0.33, 3.15);
+      say("#explore-t2", 3.63, 6.55);
+      say("#explore-t3", 6.93, 9.8);
+      say("#explore-t4", 10.18, 11.75);
+      // Dip cut: the frame darkens for three frames, then the next scene cuts in.
+      tl.fromTo("#explore-dip", { opacity: 0 }, { opacity: 0.4, duration: 0.03 }, 11.86);
+      window.__timelines["explore"] = tl;
+    })();
+  </script>
+</template>

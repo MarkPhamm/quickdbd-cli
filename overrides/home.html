@@ -79,6 +79,21 @@
     </div>
   </section>
 
+  <!-- -------------------------------------------------------------- demo video
+       Rendered by videos/qdbd-demo from real footage (videos/capture/record.py). home.js plays it only while it is on
+       screen; with reduced motion it waits for the play button. -->
+  <section class="qh-section qh-wrap qh-video" id="demo">
+    <p class="qh-tour__eyebrow">Demo video</p>
+    <h2>qdbd in 60 seconds</h2>
+    <p class="qh-sub">A text file becomes a diagram you can explore, edit live and keep beside your code in VS Code. No sound.</p>
+    <div class="qh-fig">
+      <div class="qh-video__frame">
+        <video src="{{ 'assets/video/qdbd-demo.mp4' | url }}" poster="{{ 'assets/img/demo-poster.jpg' | url }}" width="1920" height="1080"
+          muted loop playsinline controls preload="metadata" aria-label="qdbd demo: build a diagram from a text file, explore it, edit it live and use it in VS Code"></video>
+      </div>
+    </div>
+  </section>
+
   <!-- --------------------------------------------------------------- live demo
        docs/javascripts/home-tour.js drives the real viewer in an iframe (built into the site by hooks/home.py).
        Without it, on phones and on touch screens, the still screenshot links to the demo. -->

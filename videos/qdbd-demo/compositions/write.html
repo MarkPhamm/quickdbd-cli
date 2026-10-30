@@ -1,0 +1,120 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    .term { position: absolute; left: 96px; top: 190px; width: 1728px; height: 950px; border-radius: 16px; overflow: hidden;
+      background: #15181e; box-shadow: 0 24px 54px -24px rgba(21, 24, 30, 0.38); transform-origin: 0 0; }
+    .tabs { position: absolute; left: 0; top: 0; right: 0; height: 52px; display: flex; align-items: flex-end; gap: 2px;
+      padding-left: 22px; background: #0e1014; }
+    .tabs .dot { width: 14px; height: 14px; border-radius: 50%; background: #3a3f48; margin: 0 8px 19px 0; }
+    .tab { height: 44px; line-height: 44px; padding: 0 26px; font: 500 28px "Geist Mono", monospace; color: #8b93a1;
+      border-radius: 10px 10px 0 0; }
+    .tab.on { background: #15181e; color: #f2f2ee; }
+    .code { position: absolute; left: 0; top: 52px; right: 0; bottom: 0; overflow: hidden; padding: 30px 0 0 0; }
+    .blk { position: absolute; left: 0; top: 30px; width: 100%; }
+    .ln { height: 40px; line-height: 40px; font: 400 29px "Geist Mono", monospace; color: #e8e8e3; white-space: pre; }
+    .ln b { display: inline-block; width: 84px; padding-right: 26px; text-align: right; font-weight: 400; color: #5b6270; }
+    .t { color: #ffffff; font-weight: 600; } .c { color: #e8e8e3; } .k { color: #8fb0ff; } .y { color: #9aa3b2; }
+    .r { color: #f0c987; } .m { color: #5b6270; }
+  </style>
+  <div data-hf-id="hf-zpfi" id="root" data-composition-id="write" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-sr2s" id="write-win" class="term">
+      <div data-hf-id="hf-5rmk" class="tabs"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i>
+        <div data-hf-id="hf-wjxo" id="write-tab1" class="tab on">shop.txt</div><div data-hf-id="hf-z6xh" id="write-tab2" class="tab">shop.dbml</div></div>
+      <div data-hf-id="hf-qevj" class="code">
+        <div data-hf-id="hf-957v" id="write-txt" class="blk">
+          <div data-hf-id="hf-i2i6" class="ln lt"><b data-hf-id="hf-t4n0">1</b><span data-hf-id="hf-fttz" class="t">Customer</span></div>
+          <div data-hf-id="hf-a5gy" class="ln lt"><b data-hf-id="hf-rxpx">2</b><span data-hf-id="hf-dmxx" class="m">-</span></div>
+          <div data-hf-id="hf-ajrz" class="ln lt"><b data-hf-id="hf-sc0y">3</b><span data-hf-id="hf-bhgx" class="c">CustomerId</span> <span data-hf-id="hf-bt5x" class="k">PK</span> <span data-hf-id="hf-ds3z" class="y">int</span> <span data-hf-id="hf-f7m6" class="k">IDENTITY</span></div>
+          <div data-hf-id="hf-ay30" class="ln lt"><b data-hf-id="hf-ubk3">4</b><span data-hf-id="hf-kmxw" class="c">Email</span> <span data-hf-id="hf-lqta" class="y">varchar(255)</span> <span data-hf-id="hf-r8aj" class="k">UNIQUE</span></div>
+          <div data-hf-id="hf-bce1" class="ln lt"><b data-hf-id="hf-upv4">5</b><span data-hf-id="hf-cidj" class="c">Name</span> <span data-hf-id="hf-5k8f" class="y">string</span></div>
+          <div data-hf-id="hf-bqp2" class="ln lt"><b data-hf-id="hf-tiy1">6</b></div>
+          <div data-hf-id="hf-c503" class="ln lt"><b data-hf-id="hf-tx92">7</b><span data-hf-id="hf-j4md" class="t">Order</span></div>
+          <div data-hf-id="hf-cjb4" class="ln lt"><b data-hf-id="hf-pjvr">8</b><span data-hf-id="hf-n06x" class="m">-</span></div>
+          <div data-hf-id="hf-6kpp" class="ln lt"><b data-hf-id="hf-py6s">9</b><span data-hf-id="hf-cqnd" class="c">OrderId</span> <span data-hf-id="hf-xfw9" class="k">PK</span> <span data-hf-id="hf-82pb" class="y">int</span> <span data-hf-id="hf-raz6" class="k">IDENTITY</span></div>
+          <div data-hf-id="hf-6z0q" class="ln lt"><b data-hf-id="hf-jyhw">10</b><span data-hf-id="hf-trfp" class="c">CustomerId</span> <span data-hf-id="hf-7oea" class="y">int</span> <span data-hf-id="hf-bnk7" class="k">FK</span> <span data-hf-id="hf-djl5" class="k">&gt;-</span> <span data-hf-id="hf-gf70" class="r">Customer.CustomerId</span></div>
+          <div data-hf-id="hf-3mzq" class="ln lt"><b data-hf-id="hf-jk6v">11</b><span data-hf-id="hf-s8ba" class="c">Status</span> <span data-hf-id="hf-980f" class="y">string</span></div>
+          <div data-hf-id="hf-38op" class="ln lt"><b data-hf-id="hf-j5vu">12</b><span data-hf-id="hf-rkfy" class="c">Total</span> <span data-hf-id="hf-gq32" class="y">money</span></div>
+          <div data-hf-id="hf-4fls" class="ln lt"><b data-hf-id="hf-irkt">13</b></div>
+          <div data-hf-id="hf-41ar" class="ln lt"><b data-hf-id="hf-ljq0">14</b><span data-hf-id="hf-8g2v" class="t">OrderLine</span></div>
+          <div data-hf-id="hf-21rm" class="ln lt"><b data-hf-id="hf-l5ez">15</b><span data-hf-id="hf-o740" class="m">-</span></div>
+          <div data-hf-id="hf-1ngl" class="ln lt"><b data-hf-id="hf-kr3y">16</b><span data-hf-id="hf-y50d" class="c">OrderId</span> <span data-hf-id="hf-ymtc" class="k">PK</span> <span data-hf-id="hf-7a39" class="y">int</span> <span data-hf-id="hf-0w13" class="k">FK</span> <span data-hf-id="hf-3fj1" class="k">&gt;-</span> <span data-hf-id="hf-h7uw" class="r">Order.OrderId</span></div>
+          <div data-hf-id="hf-2udo" class="ln lt"><b data-hf-id="hf-kcsx">17</b><span data-hf-id="hf-z919" class="c">LineNo</span> <span data-hf-id="hf-y8ib" class="k">PK</span> <span data-hf-id="hf-a28g" class="y">int</span></div>
+          <div data-hf-id="hf-2g2n" class="ln lt"><b data-hf-id="hf-n4y4">18</b><span data-hf-id="hf-slce" class="c">ProductId</span> <span data-hf-id="hf-9nxf" class="y">int</span> <span data-hf-id="hf-0hq2" class="k">FK</span> <span data-hf-id="hf-4mg4" class="k">&gt;-</span> <span data-hf-id="hf-6eg8" class="r">Product.ProductId</span></div>
+          <div data-hf-id="hf-0gji" class="ln lt"><b data-hf-id="hf-mqn3">19</b><span data-hf-id="hf-7xld" class="c">Quantity</span> <span data-hf-id="hf-99me" class="y">int</span></div>
+          <div data-hf-id="hf-028h" class="ln lt"><b data-hf-id="hf-k42n">20</b></div>
+          <div data-hf-id="hf-q5j1" class="ln lt"><b data-hf-id="hf-kido">21</b><span data-hf-id="hf-jyuy" class="t">Product</span></div>
+          <div data-hf-id="hf-qju2" class="ln lt"><b data-hf-id="hf-jbgl">22</b><span data-hf-id="hf-nssz" class="m">-</span></div>
+          <div data-hf-id="hf-qy53" class="ln lt"><b data-hf-id="hf-jprm">23</b><span data-hf-id="hf-yosy" class="c">ProductId</span> <span data-hf-id="hf-w8z6" class="k">PK</span> <span data-hf-id="hf-8vbd" class="y">int</span></div>
+          <div data-hf-id="hf-rcg4" class="ln lt"><b data-hf-id="hf-lpar">24</b><span data-hf-id="hf-9sud" class="c">Sku</span> <span data-hf-id="hf-xdpa" class="y">varchar(64)</span> <span data-hf-id="hf-2pvf" class="k">UNIQUE</span></div>
+          <div data-hf-id="hf-rqr5" class="ln lt"><b data-hf-id="hf-m3ls">25</b><span data-hf-id="hf-t44n" class="c">Name</span> <span data-hf-id="hf-8tpe" class="y">string</span></div>
+          <div data-hf-id="hf-s526" class="ln lt"><b data-hf-id="hf-kwop">26</b><span data-hf-id="hf-cwt5" class="c">Price</span> <span data-hf-id="hf-5ij6" class="y">money</span></div>
+        </div>
+        <div data-hf-id="hf-76m7" id="write-dbml" class="blk" style="opacity: 0">
+          <div data-hf-id="hf-0xpa" class="ln ld"><b data-hf-id="hf-dmic">1</b><span data-hf-id="hf-ovfs" class="k">Table</span> <span data-hf-id="hf-mkmf" class="t">Customer</span> <span data-hf-id="hf-k89v" class="m">{</span></div>
+          <div data-hf-id="hf-5soy" class="ln ld"><b data-hf-id="hf-mt2h">2</b>&nbsp;&nbsp;<span data-hf-id="hf-uycs" class="c">CustomerId</span> <span data-hf-id="hf-5ak4" class="y">int</span> <span data-hf-id="hf-e1hk" class="k">[pk, increment]</span></div>
+          <div data-hf-id="hf-66zz" class="ln ld"><b data-hf-id="hf-nwee">3</b>&nbsp;&nbsp;<span data-hf-id="hf-np3w" class="c">Email</span> <span data-hf-id="hf-vq3m" class="y">varchar(255)</span> <span data-hf-id="hf-my6x" class="k">[unique]</span></div>
+          <div data-hf-id="hf-6lb0" class="ln ld"><b data-hf-id="hf-0683">4</b>&nbsp;&nbsp;<span data-hf-id="hf-sptm" class="c">Name</span> <span data-hf-id="hf-8fed" class="y">string</span></div>
+          <div data-hf-id="hf-6zm1" class="ln ld"><b data-hf-id="hf-zl1k">5</b><span data-hf-id="hf-hufp" class="m">}</span></div>
+          <div data-hf-id="hf-7dx2" class="ln ld"><b data-hf-id="hf-w1st">6</b></div>
+          <div data-hf-id="hf-7s83" class="ln ld"><b data-hf-id="hf-nybe">7</b><span data-hf-id="hf-kxsw" class="k">Table</span> <span data-hf-id="hf-jzi1" class="t">Order</span> <span data-hf-id="hf-8y5f" class="m">{</span></div>
+          <div data-hf-id="hf-86j4" class="ln ld"><b data-hf-id="hf-yemf">8</b>&nbsp;&nbsp;<span data-hf-id="hf-zbxg" class="c">OrderId</span> <span data-hf-id="hf-4w93" class="y">int</span> <span data-hf-id="hf-n4w0" class="k">[pk, increment]</span></div>
+          <div data-hf-id="hf-27xp" class="ln ld"><b data-hf-id="hf-o3n0">9</b>&nbsp;&nbsp;<span data-hf-id="hf-uk1r" class="c">CustomerId</span> <span data-hf-id="hf-ocb1" class="y">int</span></div>
+          <div data-hf-id="hf-2m8q" class="ln ld"><b data-hf-id="hf-1998">10</b>&nbsp;&nbsp;<span data-hf-id="hf-65mi" class="c">Status</span> <span data-hf-id="hf-b7jk" class="y">string</span></div>
+          <div data-hf-id="hf-n9rq" class="ln ld"><b data-hf-id="hf-h8mv">11</b>&nbsp;&nbsp;<span data-hf-id="hf-glr6" class="c">Total</span> <span data-hf-id="hf-5wu7" class="y">money</span></div>
+          <div data-hf-id="hf-mvgp" class="ln ld"><b data-hf-id="hf-lkjy">12</b><span data-hf-id="hf-95e1" class="m">}</span></div>
+          <div data-hf-id="hf-o2ds" class="ln ld"><b data-hf-id="hf-kh81">13</b></div>
+          <div data-hf-id="hf-no2r" class="ln ld"><b data-hf-id="hf-e0z4">14</b><span data-hf-id="hf-jqvt" class="k">Table</span> <span data-hf-id="hf-86pz" class="t">OrderLine</span> <span data-hf-id="hf-8jue" class="m">{</span></div>
+          <div data-hf-id="hf-lojm" class="ln ld"><b data-hf-id="hf-obyj">15</b>&nbsp;&nbsp;<span data-hf-id="hf-yxmf" class="c">OrderId</span> <span data-hf-id="hf-oqm2" class="y">int</span> <span data-hf-id="hf-lk4r" class="k">[pk]</span></div>
+          <div data-hf-id="hf-la8l" class="ln ld"><b data-hf-id="hf-krvm">16</b>&nbsp;&nbsp;<span data-hf-id="hf-c0pd" class="c">LineNo</span> <span data-hf-id="hf-p4x3" class="y">int</span> <span data-hf-id="hf-893f" class="k">[pk]</span></div>
+          <div data-hf-id="hf-mh5o" class="ln ld"><b data-hf-id="hf-6fr9">17</b>&nbsp;&nbsp;<span data-hf-id="hf-z33z" class="c">ProductId</span> <span data-hf-id="hf-pj84" class="y">int</span></div>
+          <div data-hf-id="hf-m2un" class="ln ld"><b data-hf-id="hf-n9pg">18</b>&nbsp;&nbsp;<span data-hf-id="hf-69mt" class="c">Quantity</span> <span data-hf-id="hf-pxj5" class="y">int</span></div>
+          <div data-hf-id="hf-k3bi" class="ln ld"><b data-hf-id="hf-x1pb">19</b><span data-hf-id="hf-acb4" class="m">}</span></div>
+          <div data-hf-id="hf-jp0h" class="ln ld"><b data-hf-id="hf-a49r">20</b></div>
+          <div data-hf-id="hf-sphp" class="ln ld"><b data-hf-id="hf-waas">21</b><span data-hf-id="hf-k56u" class="k">Table</span> <span data-hf-id="hf-vs2m" class="t">Product</span> <span data-hf-id="hf-85jd" class="m">{</span></div>
+          <div data-hf-id="hf-t3sq" class="ln ld"><b data-hf-id="hf-mjo9">22</b>&nbsp;&nbsp;<span data-hf-id="hf-zhf0" class="c">ProductId</span> <span data-hf-id="hf-qbu6" class="y">int</span> <span data-hf-id="hf-7use" class="k">[pk]</span></div>
+          <div data-hf-id="hf-ti3r" class="ln ld"><b data-hf-id="hf-0vsm">23</b>&nbsp;&nbsp;<span data-hf-id="hf-dti1" class="c">Sku</span> <span data-hf-id="hf-c4n6" class="y">varchar(64)</span> <span data-hf-id="hf-fskt" class="k">[unique]</span></div>
+          <div data-hf-id="hf-twes" class="ln ld"><b data-hf-id="hf-d5mb">24</b>&nbsp;&nbsp;<span data-hf-id="hf-sbil" class="c">Name</span> <span data-hf-id="hf-at8j" class="y">string</span></div>
+          <div data-hf-id="hf-uapt" class="ln ld"><b data-hf-id="hf-3dmg">25</b>&nbsp;&nbsp;<span data-hf-id="hf-b3sd" class="c">Price</span> <span data-hf-id="hf-6b58" class="y">money</span></div>
+          <div data-hf-id="hf-up0u" class="ln ld"><b data-hf-id="hf-9171">26</b><span data-hf-id="hf-9y03" class="m">}</span></div>
+          <div data-hf-id="hf-v3bv" class="ln ld"><b data-hf-id="hf-lazq">27</b></div>
+          <div data-hf-id="hf-vhmw" class="ln ld"><b data-hf-id="hf-gxmf">28</b><span data-hf-id="hf-8xop" class="k">Ref:</span> <span data-hf-id="hf-d0iv" class="r">Order.CustomerId &gt; Customer.CustomerId</span></div>
+          <div data-hf-id="hf-vvxx" class="ln ld"><b data-hf-id="hf-hbxg">29</b><span data-hf-id="hf-3o1p" class="k">Ref:</span> <span data-hf-id="hf-8uar" class="r">OrderLine.OrderId &gt; Order.OrderId</span></div>
+          <div data-hf-id="hf-wa8y" class="ln ld"><b data-hf-id="hf-jceu">30</b><span data-hf-id="hf-4uys" class="k">Ref:</span> <span data-hf-id="hf-svjw" class="r">OrderLine.ProductId &gt; Product.ProductId</span></div>
+        </div>
+      </div>
+    </div>
+    <h1 data-hf-id="hf-2jx6" id="write-t1" class="clip ttl" data-start="0.3" data-duration="2.45" data-track-index="1"><span data-hf-id="hf-vs13" class="w">Write</span> <span data-hf-id="hf-9o0j" class="w">the</span> <span data-hf-id="hf-8imr" class="w">schema</span> <span data-hf-id="hf-0lrs" class="w">as</span> <span data-hf-id="hf-2lnj" class="w">text</span></h1>
+    <h1 data-hf-id="hf-ddex" id="write-t2" class="clip ttl" data-start="2.95" data-duration="2.5" data-track-index="2"><span data-hf-id="hf-w01j" class="w">QuickDBD</span> <span data-hf-id="hf-uvb9" class="w">or</span> <span data-hf-id="hf-eo4s" class="w acc">DBML</span></h1>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      // The window arrives on the same stage the plate left.
+      tl.fromTo("#write-win", { opacity: 0, scale: 0.97, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0);
+      // QuickDBD text arrives a line at a time; the editor scrolls once the window is full.
+      const VIS = 20;
+      tl.fromTo("#write-txt .lt", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.07 }, 0.35);
+      tl.fromTo("#write-txt", { y: 0 }, { y: -40 * (26 - VIS), duration: 0.07 * (26 - VIS), ease: "none" }, 0.35 + 0.07 * VIS);
+      say("#write-t1", 0.33, 2.5);
+      // The same schema in DBML: real `qdbd convert` output.
+      tl.to("#write-txt", { opacity: 0, filter: "blur(8px)", duration: 0.16, ease: "power3.in" }, 2.7);
+      tl.fromTo("#write-tab1", { backgroundColor: "#15181e", color: "#f2f2ee" }, { backgroundColor: "#0e1014", color: "#8b93a1", duration: 0.12 }, 2.8);
+      tl.fromTo("#write-tab2", { backgroundColor: "#0e1014", color: "#8b93a1" }, { backgroundColor: "#15181e", color: "#f2f2ee", duration: 0.12 }, 2.8);
+      tl.fromTo("#write-dbml", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 2.9);
+      tl.fromTo("#write-dbml .ld", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.05 }, 2.9);
+      tl.fromTo("#write-dbml", { y: 0 }, { y: -40 * (30 - VIS), duration: 0.05 * (30 - VIS), ease: "none" }, 2.9 + 0.05 * VIS);
+      say("#write-t2", 2.98, 5.25);
+      window.__timelines["write"] = tl;
+    })();
+  </script>
+</template>
