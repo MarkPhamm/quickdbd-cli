@@ -238,7 +238,7 @@
 .qh-tour__frame { position: relative; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--bp-rule-strong);
   box-shadow: var(--bp-e2); text-align: left; background: var(--qd-viewer-bg); }
 .qh-tour__frame::after { content: ""; position: absolute; inset: 0; border-radius: 12px; pointer-events: none; z-index: 3;
-  box-shadow: inset 0 0 0 2px rgba(47, 91, 234, 0); transition: box-shadow .22s var(--bp-ease-out); }
+  box-shadow: inset 0 0 0 2px rgba(43, 87, 151, 0); transition: box-shadow .22s var(--bp-ease-out); }
 .qh-tour__frame.mine::after { box-shadow: inset 0 0 0 2px var(--bp-accent-a60); }
 .qh-tour__state { margin-left: auto; font: 500 11px var(--bp-mono); color: var(--qd-mint); display: flex; align-items: center; gap: 6px; }
 .qh-tour__state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: qh-pulse 1.6s ease-in-out infinite; }

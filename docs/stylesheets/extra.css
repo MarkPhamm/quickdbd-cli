@@ -11,9 +11,9 @@
   --bp-rule-strong: rgba(21, 24, 30, .24);
   --bp-grid-major: rgba(21, 24, 30, .07);
   --bp-grid-minor: rgba(21, 24, 30, .04);
-  --bp-accent: #2f5bea;
-  --bp-accent-press: #2448c4;
-  --bp-wash: #e8eefd;
+  --bp-accent: #2b5797;
+  --bp-accent-press: #22467a;
+  --bp-wash: #e6edf6;
   --bp-e1: 0 1px 0 rgba(21, 24, 30, .04), 0 1px 2px rgba(21, 24, 30, .06);
   --bp-e2: 0 1px 0 rgba(21, 24, 30, .03), 0 18px 40px -18px rgba(21, 24, 30, .28), 0 2px 6px -2px rgba(21, 24, 30, .08);
   --bp-ease-out: cubic-bezier(.22, 1, .36, 1);
@@ -56,9 +56,9 @@
   --bp-ink-a06: rgba(21, 24, 30, .06);
   --bp-ink-a28: rgba(21, 24, 30, .28);
   --bp-ink-a40: rgba(21, 24, 30, .4);
-  --bp-accent-a12: rgba(47, 91, 234, .12);
-  --bp-accent-a60: rgba(47, 91, 234, .6);
-  --bp-accent-a80: rgba(47, 91, 234, .8);
+  --bp-accent-a12: rgba(43, 87, 151, .12);
+  --bp-accent-a60: rgba(43, 87, 151, .6);
+  --bp-accent-a80: rgba(43, 87, 151, .8);
   --bp-cursor-shadow: rgba(0, 0, 0, .35);
   /* the qdbd viewer's own colours, where the home page draws a piece of it */
   --qd-viewer-bg: #f4f5f4;
