@@ -278,8 +278,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <div class="qh-gallery">
       {% for d in demos.featured %}
       <a class="qh-card" href="{{ d.href | url }}">
-        <img src="{{ ('assets/img/gallery/' ~ d.id ~ '.png') | url }}" alt="" loading="lazy" width="1200" height="630">
-        <div class="qh-card__meta"><b>{{ d.title }}</b><p>{{ d.description }}</p><span>Open demo</span></div>
+        <img src="{{ ('assets/img/gallery/' ~ d.id ~ '.png') | url }}" alt="{{ d.title }}: {{ d.description }}" loading="lazy" width="1200" height="630">
+        <div class="qh-card__meta"><span>Open demo</span></div>
       </a>
       {% endfor %}
     </div>
@@ -356,7 +356,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 
   <!-- ---------------------------------------------------------------------- FAQ -->
   <section class="qh-section qh-wrap qh-faq">
-    <h2>Frequently asked questions</h2>
+    <h2>Before you install</h2>
     <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD’s text syntax, and it isn’t affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
     <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> or <code>.dbml</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
     <details><summary>Does my schema leave my machine?</summary><p>Only if you turn sharing on (<code>QDBD_ALLOW_SHARE=1</code>) and run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default), publish it yourself (a tunnel, GitHub Pages), or connect an AI agent through <code>qdbd mcp</code>, whose answers go to your AI provider. Built pages load nothing from the network.</p></details>
