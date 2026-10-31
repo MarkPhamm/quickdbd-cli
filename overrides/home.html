@@ -23,11 +23,11 @@
         <span>Made by <b>Minh (Mark) Pham</b></span>
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M5 12h13M13 6l6 6-6 6"/></svg>
       </a>
-      <p class="qh-eyebrow">Open source · Apache 2.0 · <a href="{{ config.repo_url }}/releases/tag/v{{ config.extra.version }}">v{{ config.extra.version }}</a> · <code>pip install</code></p>
+      <p class="qh-meta">Open source under Apache 2.0, <a href="{{ config.repo_url }}/releases/tag/v{{ config.extra.version }}">version {{ config.extra.version }}</a></p>
       <h1>Database diagrams that live in git, <span>readable at 200+&nbsp;tables</span></h1>
     </div>
     <div class="qh-hero__text">
-      <p class="qh-lead">Write your schema in QuickDBD's plain-text syntax or DBML, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
+      <p class="qh-lead">Write your schema in QuickDBD’s plain-text syntax or DBML, or generate it from a dbt project. qdbd checks it, lays it out, and builds one HTML page you can search, filter and share. Every pull request shows what changed.</p>
       <div class="qh-cta">
         <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg></a>
@@ -42,11 +42,11 @@
       </div>
       <a class="qh-note" href="{{ 'dbt/' | url }}">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2 2 7l10 5 10-5-10-5Zm0 13-8.6-4.3L2 11.4 12 16.4l10-5-1.4-.7L12 15Zm0 4-8.6-4.3L2 15.4l10 5 10-5-1.4-.7L12 19Z"/></svg>
-        <span><b>Using dbt?</b> Primary keys and relationships come straight from your tests. <u>dbt import</u> →</span>
+        <span><b>Using dbt?</b> Primary keys and relationships come straight from your tests. <u>dbt import</u></span>
       </a>
       <div class="qh-note">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M17.6 2.2 9.3 9.8 4.4 6.1 2 7.3v9.4l2.4 1.2 4.9-3.7 8.3 7.6L22 20V4l-4.4-1.8ZM4.5 14.5v-5L7 12l-2.5 2.5Zm12.9 1.6L12.6 12l4.8-4.1v8.2Z"/></svg>
-        <span><b>In VS Code or Cursor?</b> The diagram beside your editor, no terminal needed. <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> · <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a></span>
+        <span><b>In VS Code or Cursor?</b> The diagram beside your editor, no terminal needed. <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> or <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a></span>
       </div>
     </div>
     {#- The screenshot as a drawing sheet. The dimension line is in hero.png's pixels (1440x860): FactInternetSales's
@@ -57,7 +57,7 @@
         <ol class="qh-sheet__zones qh-sheet__zones--rows" aria-hidden="true"><li>A</li><li>B</li><li>C</li><li>D</li></ol>
         <div class="qh-sheet__body">
           <a class="qh-frame" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
-            <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks DW · 28 tables</span></div>
+            <div class="qh-frame__bar"><span>AdventureWorks DW, 28 tables</span></div>
             <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd, with the FactInternetSales table selected" width="1440" height="860">
           </a>
           <div class="qh-sheet__marks" aria-hidden="true">
@@ -72,8 +72,8 @@
         </div>
       </div>
       <div class="qh-callout">
-        <div class="qh-callout__head"><span>FactInternetSales</span><a href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">Try it live ↗</a></div>
-        <div class="qh-callout__row"><b>26</b> columns · <b>8</b> foreign keys</div>
+        <div class="qh-callout__head"><span>FactInternetSales</span><a href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">Try it live</a></div>
+        <div class="qh-callout__row"><b>26</b> columns, <b>8</b> foreign keys</div>
         <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
       </div>
     </div>
@@ -83,7 +83,6 @@
        Rendered by videos/qdbd-demo from real footage (videos/capture/record.py). home.js plays it only while it is on
        screen; with reduced motion it waits for the play button. -->
   <section class="qh-section qh-wrap qh-video" id="demo">
-    <p class="qh-tour__eyebrow">Demo video</p>
     <h2>qdbd in 60 seconds</h2>
     <p class="qh-sub">A text file becomes a diagram you can explore, edit live and keep beside your code in VS Code. No sound.</p>
     <div class="qh-fig">
@@ -98,12 +97,11 @@
        docs/javascripts/home-tour.js drives the real viewer in an iframe (built into the site by hooks/home.py).
        Without it, on phones and on touch screens, the still screenshot links to the demo. -->
   <section class="qh-section qh-wrap qh-tour">
-    <p class="qh-tour__eyebrow">Live demo</p>
     <h2>The real page, driven by a script</h2>
     <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
     <div class="qh-fig qh-fig--tour">
     <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}">
-      <div class="qh-frame__bar"><i></i><i></i><i></i><span>AdventureWorks DW · 28 tables</span><b class="qh-tour__state">Playing</b></div>
+      <div class="qh-frame__bar"><span>AdventureWorks DW, 28 tables</span><b class="qh-tour__state">Playing</b></div>
       <div class="qh-tour__stage">
         <a class="qh-tour__still" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
           <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd" loading="lazy" width="1440" height="860">
@@ -168,19 +166,19 @@
       </div>
       <div class="qh-flow__arrow" aria-hidden="true">→</div>
       <div class="qh-flow__col">
-        <div class="qh-box qh-box--core"><b>qdbd</b><small>check · layout · render</small></div>
+        <div class="qh-box qh-box--core"><b>qdbd</b><small>check, layout, render</small></div>
       </div>
       <div class="qh-flow__arrow" aria-hidden="true">→</div>
       <div class="qh-flow__col">
         <div class="qh-box"><b>HTML page</b><small>search, filter, share</small></div>
-        <div class="qh-box"><b>PNG · SVG · draw.io</b><small>docs, slides, wikis</small></div>
+        <div class="qh-box"><b>PNG, SVG, draw.io</b><small>docs, slides, wikis</small></div>
         <div class="qh-box"><b>PR comment</b><small>what changed vs main</small></div>
         <a class="qh-box" href="{{ 'mcp/' | url }}"><b>AI agents</b><small>the schema over MCP</small></a>
       </div>
     </div>
     </div>
     <ol class="qh-steps3">
-      <li><b>The parser</b> follows QuickDBD's own parser step by step: same tables, same error messages. <code>qdbd check --strict</code> guarantees a file pastes back into QuickDBD.</li>
+      <li><b>The parser</b> follows QuickDBD’s own parser step by step: same tables, same error messages. <code>qdbd check --strict</code> guarantees a file pastes back into QuickDBD.</li>
       <li><b>The layout</b> comes from ELK. Positions you drag are saved by table name, and new tables land next to the tables they relate to, so the diagram never reshuffles.</li>
       <li><b>One renderer</b> draws the page in your browser and the PNG and SVG in the CLI, so an export always matches what you see.</li>
     </ol>
@@ -224,8 +222,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
         {#- drawn by qdbd from the text on the left (hooks/home.py); home-mini.js builds it as the text types -#}
         <div class="qh-fig">
         <div class="qh-mini">
-          <div class="qh-frame__bar"><i></i><i></i><i></i><span>schema.txt · live</span><button type="button">Replay</button></div>
-          {{ config.extra.home_mini.svg | safe }}
+          <div class="qh-frame__bar"><span>schema.txt, live</span><button type="button">Replay</button></div>
+          {{ config.extra.home_mini.svg | replace('<svg ', '<svg role="img" aria-label="The Order and Customer tables drawn from the text" ', 1) | safe }}
           <div class="qh-mini__card"></div>
         </div>
         </div>
@@ -257,7 +255,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 <pre class="qh-code qh-code--sql">{{ config.extra.agent.path_sql | e }}</pre>
         </div>
         <div class="qh-install"><span class="qh-install__prompt">$</span><code>qdbd path erd/ --from payment --to country</code></div>
-        <p class="qh-more"><a href="{{ path_link }}">Try it in the Sakila demo →</a></p>
+        <p class="qh-more"><a href="{{ path_link }}">Try it in the Sakila demo</a></p>
       </div>
     </div>
   </section>
@@ -271,7 +269,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
       <li><span>3</span><b>Edit it live</b><code>qdbd serve schema.txt</code></li>
       <li><span>4</span><b>Build and share</b><code>qdbd build schema.txt -o schema.html</code></li>
     </ol>
-    <p class="qh-more"><a href="{{ 'getting-started/' | url }}">Full quick start →</a></p>
+    <p class="qh-more"><a href="{{ 'getting-started/' | url }}">Full quick start</a></p>
   </section>
 
   <!-- ------------------------------------------------------------------ gallery -->
@@ -281,11 +279,11 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
       {% for d in demos.featured %}
       <a class="qh-card" href="{{ d.href | url }}">
         <img src="{{ ('assets/img/gallery/' ~ d.id ~ '.png') | url }}" alt="" loading="lazy" width="1200" height="630">
-        <div class="qh-card__meta"><b>{{ d.title }}</b><p>{{ d.description }}</p><span>Open demo →</span></div>
+        <div class="qh-card__meta"><b>{{ d.title }}</b><p>{{ d.description }}</p><span>Open demo</span></div>
       </a>
       {% endfor %}
     </div>
-    <p class="qh-more"><a href="{{ 'demo/' | url }}">View all {{ demos.count }} demos →</a></p>
+    <p class="qh-more"><a href="{{ 'demo/' | url }}">View all {{ demos.count }} demos</a></p>
   </section>
 
   <!-- ---------------------------------------------------------------- PR review
@@ -316,7 +314,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
         </div>
       </div>
       </div>
-      <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo →</a></figcaption>
+      <figcaption>The same change, highlighted in the diagram. <a href="{{ 'demo/diff/' | url }}">Open the demo</a></figcaption>
     </figure>
   </section>
 
@@ -337,18 +335,18 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
         </div>
         <ul class="qh-list">
           <li><b>No database connection.</b> Answers come from the schema files in your repo.</li>
-          <li><b>Small answers.</b> Every reply has a size budget, so a 200-table schema doesn't flood the context.</li>
+          <li><b>Small answers.</b> Every reply has a size budget, so a 200-table schema doesn’t flood the context.</li>
           <li><b>dbt too.</b> Point it at a dbt project: keys and relationships come from your tests.</li>
         </ul>
-        <p class="qh-more"><a href="{{ 'mcp/' | url }}">Set up your agent →</a></p>
+        <p class="qh-more"><a href="{{ 'mcp/' | url }}">Set up your agent</a></p>
       </div>
       <div class="qh-fig">
       <div class="qh-chat">
-        <div class="qh-frame__bar"><i></i><i></i><i></i><span>Prompt · Claude Code</span></div>
+        <div class="qh-frame__bar"><span>Claude Code</span></div>
         <div class="qh-chat__body">
           <p class="qh-chat__user">Which tables do I join to get sales by country?</p>
-          <div class="qh-chat__tool"><b>qdbd · search_schema</b> <code>country</code><span>{{ config.extra.agent.search | e }}</span></div>
-          <div class="qh-chat__tool"><b>qdbd · join_path</b> <code>SalesOrderHeader → CountryRegion</code></div>
+          <div class="qh-chat__tool"><b>qdbd search_schema</b> <code>country</code><span>{{ config.extra.agent.search | e }}</span></div>
+          <div class="qh-chat__tool"><b>qdbd join_path</b> <code>SalesOrderHeader → CountryRegion</code></div>
 <pre class="qh-chat__reply">{{ config.extra.agent.join | e }}</pre>
         </div>
       </div>
@@ -359,12 +357,12 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
   <!-- ---------------------------------------------------------------------- FAQ -->
   <section class="qh-section qh-wrap qh-faq">
     <h2>Frequently asked questions</h2>
-    <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD's text syntax, and it isn't affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
+    <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD’s text syntax, and it isn’t affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
     <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> or <code>.dbml</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
     <details><summary>Does my schema leave my machine?</summary><p>Only if you turn sharing on (<code>QDBD_ALLOW_SHARE=1</code>) and run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default), publish it yourself (a tunnel, GitHub Pages), or connect an AI agent through <code>qdbd mcp</code>, whose answers go to your AI provider. Built pages load nothing from the network.</p></details>
     <details><summary>How big can a diagram get?</summary><p>The demos go up to 200 tables. Search, selectors, regions and collapsed views keep large diagrams workable, and <code>--select</code> builds a page with just the part you need.</p></details>
     <details><summary>What do I need to install?</summary><p>Python 3.11 or newer. No Node, Graphviz or browser: the layout engine runs inside Python.</p></details>
-    <details><summary>Can I use it in CI?</summary><p>Yes. The GitHub Action checks the schema, builds the page and comments on pull requests; any other CI can run the same commands. <a href="{{ 'github-action/' | url }}">CI and Automation →</a></p></details>
+    <details><summary>Can I use it in CI?</summary><p>Yes. The GitHub Action checks the schema, builds the page and comments on pull requests; any other CI can run the same commands. <a href="{{ 'github-action/' | url }}">CI and Automation</a></p></details>
   </section>
 
   <!-- ------------------------------------------------------------- closing CTA -->
@@ -377,7 +375,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
       </button>
     </div>
-    <p class="qh-final__note">Python 3.11+ · no Node, Graphviz or browser to install</p>
+    <p class="qh-final__note">Python 3.11+. No Node, Graphviz or browser to install.</p>
     <div class="qh-cta qh-cta--center">
       <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start</a>
       <a class="qh-btn" href="{{ config.repo_url }}">View on GitHub</a>

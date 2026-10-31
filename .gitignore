@@ -223,3 +223,6 @@ __marimo__/
 site/
 jaffle-erd/
 graphify-out/
+
+# Hallmark design-lint records and screenshots
+.hallmark/

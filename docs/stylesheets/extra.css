@@ -43,6 +43,34 @@
   /* theme.font is off in mkdocs.yml: the @import above loads the weights the headings use */
   --md-text-font: "Geist";
   --md-code-font: "Geist Mono";
+
+  /* literals lifted out of the rules below and home.css */
+  --bp-white: #fff;
+  --bp-mask: #000;                  /* mask alpha only */
+  --bp-sans: "Geist", system-ui, sans-serif;
+  --bp-yes: #1f7a3d;
+  --bp-warn: #a14a00;
+  --bp-ink-a03: rgba(21, 24, 30, .03);
+  --bp-ink-a04: rgba(21, 24, 30, .04);
+  --bp-ink-a05: rgba(21, 24, 30, .05);
+  --bp-ink-a06: rgba(21, 24, 30, .06);
+  --bp-ink-a28: rgba(21, 24, 30, .28);
+  --bp-ink-a40: rgba(21, 24, 30, .4);
+  --bp-accent-a12: rgba(47, 91, 234, .12);
+  --bp-accent-a60: rgba(47, 91, 234, .6);
+  --bp-accent-a80: rgba(47, 91, 234, .8);
+  --bp-cursor-shadow: rgba(0, 0, 0, .35);
+  /* the qdbd viewer's own colours, where the home page draws a piece of it */
+  --qd-viewer-bg: #f4f5f4;
+  --qd-viewer-font: Inter, sans-serif;
+  --qd-viewer-accent: #4361ee;
+  --qd-viewer-flow: #2a3fb8;
+  --qd-viewer-lit: #dbe6f6;
+  --qd-viewer-ink: #1f2937;
+  --qd-viewer-muted: #6b7280;
+  --qd-viewer-rule: #dfe3e8;
+  --qd-viewer-rule-2: #e5e7eb;
+  --qd-viewer-shadow: rgba(16, 24, 40, .18);
 }
 
 [data-md-color-scheme="default"] {
@@ -82,7 +110,7 @@
 .qd-header__title { flex: 1; visibility: hidden; align-self: stretch; border-left: 1px solid var(--bp-rule); }
 .qd-github { gap: .3rem; border-right: 1px solid var(--bp-rule); }
 .qd-github svg { opacity: .7; }
-.qd-navbtn { color: #fff !important; background: var(--bp-accent); font-size: .7rem; font-weight: 500; padding: .45rem .85rem;
+.qd-navbtn { color: var(--bp-white) !important; background: var(--bp-accent); font-size: .7rem; font-weight: 500; padding: .45rem .85rem;
   border-radius: 8px; margin: 0 .8rem 0 .9rem; white-space: nowrap;
   transition: background-color var(--bp-t-hover) linear, transform var(--bp-t-press) var(--bp-ease-out); }
 .qd-navbtn:hover { background: var(--bp-accent-press); }
@@ -123,7 +151,7 @@
 .md-nav--primary .md-nav__item .md-nav__list { padding: 0; }
 .md-nav--primary .md-nav__link { font-size: .78rem; color: var(--qd-muted); padding: .38rem .6rem; margin: .05rem 0;
   border-radius: 6px; line-height: 1.35; transition: color var(--bp-t-hover) linear, background-color var(--bp-t-hover) linear; }
-.md-nav--primary .md-nav__link:hover { color: var(--bp-ink); background: rgba(21, 24, 30, .04); }
+.md-nav--primary .md-nav__link:hover { color: var(--bp-ink); background: var(--bp-ink-a04); }
 .md-nav--primary .md-nav__link--active, .md-nav--primary .md-nav__link--active:hover { color: var(--bp-accent);
   background: var(--bp-wash); font-weight: 500; }
 /* numbered sections with sub-pages: same look as a page link, plus a chevron; children indented */
@@ -147,26 +175,26 @@
 
 /* ---------------------------------------------------------------- typography */
 .md-typeset { font-size: .85rem; line-height: 1.7; }
-.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Geist", system-ui, sans-serif; font-weight: 600;
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: var(--bp-sans); font-weight: 600;
   letter-spacing: -.03em; color: var(--bp-ink); }
 .md-typeset h1 { font-size: 2.4em; letter-spacing: -.04em; margin: .2em 0 .5em; line-height: 1.08; }
 .md-typeset h2 { font-size: 1.6em; border-bottom: 1px solid var(--bp-rule); padding-bottom: .3em; margin-top: 1.6em; }
 .md-typeset h3 { font-size: 1.2em; }
-.md-typeset code { background: rgba(21, 24, 30, .05); border-radius: 4px; }
+.md-typeset code { background: var(--bp-ink-a05); border-radius: 4px; }
 .md-typeset pre > code { background: var(--bp-sheet); border: 1px solid var(--bp-rule); border-radius: 8px; }
 .md-typeset .workflow pre > code { font-size: .78rem; line-height: 1.6; }
 .md-typeset table:not([class]) { font-size: .8rem; border-color: var(--bp-rule); }
-.md-typeset table:not([class]) th { background: rgba(21, 24, 30, .03); }
+.md-typeset table:not([class]) th { background: var(--bp-ink-a03); }
 
 /* screenshots, buttons, cards, embedded demo */
 .md-typeset img.shot { border-radius: 10px; border: 1px solid var(--bp-rule-strong); box-shadow: var(--bp-e2); }
 .md-typeset .md-button { border-radius: 8px; color: var(--bp-ink); border: 1px solid var(--bp-rule-strong); background: var(--bp-sheet);
   font-weight: 500; transition: background-color var(--bp-t-hover) linear, border-color var(--bp-t-hover) linear, color var(--bp-t-hover) linear; }
-.md-typeset .md-button:hover { color: var(--bp-ink); background: #fff; border-color: var(--bp-ink-3); }
-.md-typeset .md-button--primary { background: var(--bp-accent); border-color: var(--bp-accent); color: #fff; }
-.md-typeset .md-button--primary:hover { background: var(--bp-accent-press); border-color: var(--bp-accent-press); color: #fff; }
+.md-typeset .md-button:hover { color: var(--bp-ink); background: var(--bp-white); border-color: var(--bp-ink-3); }
+.md-typeset .md-button--primary { background: var(--bp-accent); border-color: var(--bp-accent); color: var(--bp-white); }
+.md-typeset .md-button--primary:hover { background: var(--bp-accent-press); border-color: var(--bp-accent-press); color: var(--bp-white); }
 .md-typeset .grid.cards > ul > li { border-radius: 10px; border-color: var(--bp-rule); background: var(--bp-sheet); }
-iframe.demo { width: 100%; height: 620px; border: 1px solid var(--bp-rule-strong); border-radius: 10px; background: #f4f5f4; }
+iframe.demo { width: 100%; height: 620px; border: 1px solid var(--bp-rule-strong); border-radius: 10px; background: var(--qd-viewer-bg); }
 
 /* fixes: nav fills the sidebar column; the title's hidden permalink must not wrap it onto a second line */
 @media screen and (min-width: 76.25em) {
@@ -197,10 +225,10 @@ iframe.demo { width: 100%; height: 620px; border: 1px solid var(--bp-rule-strong
 .qd-foot > * + * { border-left: 1px solid var(--bp-rule-strong); }
 .qd-foot__brand p { color: var(--bp-ink-2); font-size: .7rem; margin: .5rem 0 0; max-width: 16rem; }
 .qd-foot__col { display: flex; flex-direction: column; gap: .5rem; font-size: .7rem; }
-.qd-foot__col b { font: 500 .6rem var(--bp-mono); color: var(--bp-ink-3); margin-bottom: .3rem; }
+.qd-foot__col b { font-weight: 500; font-size: .65rem; color: var(--bp-ink-3); margin-bottom: .3rem; }
 .md-typeset .qd-foot__col a { color: var(--bp-ink-2); }
 .md-typeset .qd-foot__col a:hover { color: var(--bp-ink); }
-.md-footer-meta .md-copyright { max-width: 59rem; margin: 0 auto; width: auto; padding: 0; font: .6rem var(--bp-mono);
+.md-footer-meta .md-copyright { max-width: 59rem; margin: 0 auto; width: auto; padding: 0; font-size: .65rem;
   color: var(--bp-ink-3); }
 @media screen and (max-width: 44.984em) {
   .qd-foot { grid-template-columns: minmax(0, 1fr); }
