@@ -127,7 +127,6 @@
     });
     onView(cmp, function () {
       cmp.classList.add("qh-in");
-      setTimeout(function () { cmp.classList.add("qh-settled"); }, 1700);
     });
   }
 
