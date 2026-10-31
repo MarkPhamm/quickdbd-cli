@@ -1,6 +1,6 @@
 /* Hallmark · checked: 2026-10-31 · genre: modern-minimal (inferred)
  * floor: 2 open in our files (30a: the PR mock copies diff.py's real emoji; 10a: .qh-mini .tb grows an SVG rect) · fixed: 11 (1, 2, 6, 9, 10, 11, 26a, 30a-frames, 33, 48, 63, 64) · structural: printed (58, 59, 77)
- * waive 38iii: the h1's grey second clause is a line, not one accented word
+ * waive 38iii: the owner asked for one navy phrase per heading and qdbd in navy; the h1's grey second clause is a line
  * finish-review: subagent · 5 findings · 3 resolved, 1 skipped (step badges drive a JS track), 1 for the owner (gallery text, FAQ title)
  * built: the project · redesign: polish · v2.0.0 */
 
@@ -22,6 +22,7 @@
 .qh h1, .qh h2, .qh h3 { font-family: var(--bp-sans); color: var(--bp-ink); letter-spacing: -.036em; margin: 0; }
 .qh h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.08; font-weight: 600; max-width: 30ch; text-wrap: balance; }
 .qh h3 { font-weight: 600; letter-spacing: -.02em; }
+.qh .qh-hl { color: var(--bp-accent); }
 
 /* ------------------------------------------------------------- blueprint frames
  * Each figure sits in its own frame, like a detail on a drawing sheet: rules across the page at its top and bottom,

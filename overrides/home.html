@@ -83,7 +83,7 @@
        Rendered by videos/qdbd-demo from real footage (videos/capture/record.py). home.js plays it only while it is on
        screen; with reduced motion it waits for the play button. -->
   <section class="qh-section qh-wrap qh-video" id="demo">
-    <h2>qdbd in 60 seconds</h2>
+    <h2><span class="qh-hl">qdbd</span> in 60 seconds</h2>
     <p class="qh-sub">A text file becomes a diagram you can explore, edit live and keep beside your code in VS Code. No sound.</p>
     <div class="qh-fig">
       <div class="qh-video__frame">
@@ -97,8 +97,8 @@
        docs/javascripts/home-tour.js drives the real viewer in an iframe (built into the site by hooks/home.py).
        Without it, on phones and on touch screens, the still screenshot links to the demo. -->
   <section class="qh-section qh-wrap qh-tour">
-    <h2>The real page, driven by a script</h2>
-    <p class="qh-sub">This is the actual qdbd viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <h2>The <span class="qh-hl">real page</span>, driven by a script</h2>
+    <p class="qh-sub">This is the actual <span class="qh-hl">qdbd</span> viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
     <div class="qh-fig qh-fig--tour">
     <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}">
       <div class="qh-frame__bar"><span>AdventureWorks DW, 28 tables</span><b class="qh-tour__state">Playing</b></div>
@@ -124,8 +124,8 @@
 
   <!-- -------------------------------------------------------- problem framing -->
   <section class="qh-section qh-wrap">
-    <h2>Hand-drawn diagrams go stale. Generated ones get unreadable.</h2>
-    <p class="qh-sub">qdbd keeps the schema as text in your repo and builds the diagram from it, so it is always current and still easy to read at hundreds of tables.</p>
+    <h2>Hand-drawn diagrams <span class="qh-hl">go stale</span>. Generated ones <span class="qh-hl">get unreadable</span>.</h2>
+    <p class="qh-sub"><span class="qh-hl">qdbd</span> keeps the schema as text in your repo and builds the diagram from it, so it is always current and still easy to read at hundreds of tables.</p>
     <div class="qh-compare">
       <div class="qh-col">
         <h3>Drawing tool</h3>
@@ -156,7 +156,7 @@
 
   <!-- ------------------------------------------------------------ how it works -->
   <section class="qh-section qh-wrap">
-    <h2>One text file in, every format out</h2>
+    <h2>One text file in, <span class="qh-hl">every format</span> out</h2>
     <div class="qh-fig">
     <div class="qh-flow" aria-label="schema text, DBML or dbt manifest, then qdbd, then HTML, images, PR comments and AI agents">
       <div class="qh-flow__col">
@@ -186,7 +186,7 @@
 
   <!-- ---------------------------------------------------- text to diagram (tabs) -->
   <section class="qh-section qh-wrap">
-    <h2>From text to diagram</h2>
+    <h2>From text to <span class="qh-hl">diagram</span></h2>
     <div class="qh-split">
       <div class="qh-tabs">
         <div class="qh-tabs__bar" role="tablist">
@@ -238,8 +238,8 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
        scripts/gen_thumbnails.py path-sql. -->
   {% set path_link = 'demo/sakila/' | url ~ '#t=payment&p=country' %}
   <section class="qh-section qh-wrap qh-path">
-    <h2>Every relationship is a JOIN</h2>
-    <p class="qh-sub">Pick two tables. qdbd finds the shortest path through the relationships, lights it in the diagram and writes the SQL, composite keys included. The page, <code>qdbd path</code> and AI agents all get the same answer.</p>
+    <h2>Every relationship is a <span class="qh-hl">JOIN</span></h2>
+    <p class="qh-sub">Pick two tables. <span class="qh-hl">qdbd</span> finds the shortest path through the relationships, lights it in the diagram and writes the SQL, composite keys included. The page, <code>qdbd path</code> and AI agents all get the same answer.</p>
     <ol class="qh-chain" aria-label="Join path">
       {%- for t in config.extra.agent.path_tables %}<li>{{ t | e }}</li>{% endfor -%}
     </ol>
@@ -262,7 +262,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 
   <!-- -------------------------------------------------------------- quick start -->
   <section class="qh-section qh-wrap">
-    <h2>Your first diagram in two minutes</h2>
+    <h2>Your first diagram in <span class="qh-hl">two minutes</span></h2>
     <ol class="qh-steps4">
       <li><span>1</span><b>Install</b><code>pipx install quickdbd-cli</code></li>
       <li><span>2</span><b>Write a schema</b><code>schema.txt</code><small>or <code>qdbd import dbt target/</code></small></li>
@@ -274,7 +274,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 
   <!-- ------------------------------------------------------------------ gallery -->
   <section class="qh-section qh-wrap">
-    <h2>Diagrams built with qdbd</h2>
+    <h2>Diagrams built with <span class="qh-hl">qdbd</span></h2>
     <div class="qh-gallery">
       {% for d in demos.featured %}
       <a class="qh-card" href="{{ d.href | url }}">
@@ -289,7 +289,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
   <!-- ---------------------------------------------------------------- PR review
        The three points in a row, then one wide screenshot with the PR comment floating on its corner. -->
   <section class="qh-section qh-wrap qh-pr">
-    <h2>See what a branch changes before you merge it</h2>
+    <h2>See what a branch changes <span class="qh-hl">before you merge it</span></h2>
     <ul class="qh-list">
       <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
       <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
@@ -321,7 +321,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
   <!-- --------------------------------------------------------------- AI agents
        The tool results are qdbd mcp's real answers about AdventureWorks, run at build time (hooks/home.py). -->
   <section class="qh-section qh-wrap qh-agents">
-    <h2>Your AI agent reads the schema, not the raw files</h2>
+    <h2>Your AI agent reads <span class="qh-hl">the schema</span>, not the raw files</h2>
     <p class="qh-sub"><code>qdbd mcp</code> serves the schema to Claude Code, Cursor, VS Code's Copilot and any other MCP client. Agents ask for tables, keys and join paths, and get short, exact answers instead of guessing.</p>
     <div class="qh-split qh-split--agents">
       <div class="qh-agents__side">
@@ -356,7 +356,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 
   <!-- ---------------------------------------------------------------------- FAQ -->
   <section class="qh-section qh-wrap qh-faq">
-    <h2>Before you install</h2>
+    <h2>Before you <span class="qh-hl">install</span></h2>
     <details><summary>Do I need a QuickDBD account?</summary><p>No. qdbd only uses QuickDBD’s text syntax, and it isn’t affiliated with QuickDBD. Schemas copy back and forth between the two.</p></details>
     <details><summary>Does qdbd connect to my database?</summary><p>No. It reads <code>.txt</code> or <code>.dbml</code> schema files or a dbt <code>manifest.json</code>; nothing connects to a warehouse.</p></details>
     <details><summary>Does my schema leave my machine?</summary><p>Only if you turn sharing on (<code>QDBD_ALLOW_SHARE=1</code>) and run <code>qdbd share</code>, which uploads the page to a GitHub gist in your account (secret by default), publish it yourself (a tunnel, GitHub Pages), or connect an AI agent through <code>qdbd mcp</code>, whose answers go to your AI provider. Built pages load nothing from the network.</p></details>
@@ -367,7 +367,7 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
 
   <!-- ------------------------------------------------------------- closing CTA -->
   <section class="qh-final qh-wrap">
-    <h2>Install qdbd and build your first diagram</h2>
+    <h2>Install <span class="qh-hl">qdbd</span> and build your first diagram</h2>
     <div class="qh-install qh-install--center">
       <span class="qh-install__prompt">$</span>
       <code>pipx install quickdbd-cli</code>
