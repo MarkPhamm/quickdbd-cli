@@ -63,8 +63,8 @@
   /* the qdbd viewer's own colours, where the home page draws a piece of it */
   --qd-viewer-bg: #f4f5f4;
   --qd-viewer-font: Inter, sans-serif;
-  --qd-viewer-accent: #4361ee;
-  --qd-viewer-flow: #2a3fb8;
+  --qd-viewer-accent: #2b5797;      /* the table header colour, so the diagram has one blue */
+  --qd-viewer-flow: #1c3a66;
   --qd-viewer-lit: #dbe6f6;
   --qd-viewer-ink: #1f2937;
   --qd-viewer-muted: #6b7280;

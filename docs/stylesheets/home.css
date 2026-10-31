@@ -189,9 +189,7 @@
   color: var(--qd-text) !important; transition: transform var(--bp-t-hover) var(--bp-ease-out), border-color var(--bp-t-hover) linear; }
 .qh-card:hover { transform: translateY(-2px); border-color: var(--bp-accent); }
 .qh-card img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--qh-line); }
-.qh-card__meta { padding: 16px 18px 18px; }
-.qh-card__meta b { font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
-.qh-card__meta p { color: var(--qd-muted); font-size: 14px; margin: 6px 0 10px; }
+.qh-card__meta { padding: 12px 18px 14px; }
 .qh-card__meta span { color: var(--qd-mint); font-weight: 500; font-size: 14px; }
 
 .qh-list { margin: 0 0 24px; padding-left: 20px; color: var(--qd-muted); }
