@@ -181,7 +181,7 @@
 .qh-steps4 span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px;
   background: var(--bp-accent); color: var(--bp-white); font: 500 13px var(--bp-mono); }
 .qh-steps4 b { display: block; margin: 12px 0 8px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
-.qh-steps4 code { display: block; padding: 8px 10px; overflow-wrap: anywhere; }
+.qh-steps4 code { display: block; padding: 8px 10px; font-size: 13px; white-space: nowrap; overflow-x: auto; }
 .qh-steps4 small { display: block; color: var(--qd-label); margin-top: 8px; font-size: 13px; }
 .qh-steps4 small code { display: inline; padding: .08em .35em; }
 
@@ -285,7 +285,6 @@
   .qh-hero { padding-top: 40px; }
   .qh-callout { left: auto; right: 8px; bottom: -22px; }
   .qh-compare, .qh-steps3 { grid-template-columns: minmax(0, 1fr); }
-  .qh-steps4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .qh-flow { grid-template-columns: minmax(0, 1fr); }
   .qh-flow__arrow { transform: rotate(90deg); justify-self: center; }
   .qh-section { padding-top: 88px; }
@@ -450,7 +449,9 @@ q-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px;
   animation: qh-ring .7s var(--bp-ease-out) forwards; }
 @keyframes qh-ring { from { transform: scale(1); opacity: .9; } to { transform: scale(1.9); opacity: 0; } }
 .qh-steps4 > li > code { min-height: 2.2em; }
-@media (max-width: 960px) { .qh-steps4__track { display: none; } }
+/* four commands fit side by side only from 1120px */
+@media (max-width: 1120px) { .qh-steps4__track { display: none; } }
+@media (min-width: 601px) and (max-width: 1120px) { .qh-steps4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* PR review: three points in a row, one wide screenshot, the PR comment floating on its corner */
 .qh-pr .qh-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 28px 0 0; }
