@@ -65,4 +65,4 @@ order_date DATE
 
 Commit `erd/` with your dbt project. When models change, re-run the import; the files are regenerated and stale ones removed. Table positions live in `erd/qdbd.layout.json` (next step) and survive re-imports.
 
-[Next: explore the model :octicons-arrow-right-24:](explore.md){ .md-button }
+[Next: explore the model](explore.md){ .md-button }

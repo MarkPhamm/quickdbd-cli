@@ -50,19 +50,25 @@ Read it in order the first time; each step builds on the one before.
 
     Install it and build your first diagram.
 
-    [:octicons-arrow-right-24: 1. Install](install.md)
+    [1. Install](install.md)
 
 - **Have a dbt project?**
 
     Generate the schema from `manifest.json`, with relationships from your tests.
 
-    [:octicons-arrow-right-24: 5. dbt Projects](dbt.md)
+    [5. dbt Projects](dbt.md)
 
 - **Reading a diagram someone shared?**
 
     What the markers, colours, panels and filters mean.
 
-    [:octicons-arrow-right-24: 4.1 Reading the Diagram](reading-the-diagram.md)
+    [4.1 Reading the Diagram](reading-the-diagram.md)
+
+- **Reviewing schema changes?**
+
+    A comment on every pull or merge request, and the diagram with the changes coloured, on GitHub or GitLab.
+
+    [7. CI and Automation](github-action.md)
 
 </div>
 
