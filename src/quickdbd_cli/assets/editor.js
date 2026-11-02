@@ -13,7 +13,6 @@
   var problems = document.getElementById("problems");
   var banner = document.getElementById("banner");
   var saveBtn = document.getElementById("save");
-  var stale = false; // the server kept the last valid diagram: nothing in the current text parses
 
   if (window.CodeMirror && CodeMirror.defineSimpleMode) {
     CodeMirror.defineSimpleMode("qdbd", {
@@ -226,8 +225,7 @@
     }
     if (errors.length) {
       var note = document.createElement("div");
-      note.textContent = stale ? "Showing the last valid diagram until these are fixed:"
-        : "The diagram leaves out what these break:";
+      note.textContent = "No diagram until these are fixed:";
       note.style.color = "#aaa";
       problems.appendChild(note);
     }
@@ -276,7 +274,6 @@
       });
       order = order.filter(function (p) { return seen[p]; });
       diagnostics = st.diagnostics;
-      stale = !!st.stale;
       if (first) activate(order[0]);
       drawTabs();
       showBanner();
