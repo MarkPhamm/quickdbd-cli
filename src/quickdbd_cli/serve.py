@@ -131,11 +131,12 @@ class State:
         target = next((f for f in self.files if display_path(f) == path), None)
         if target is None:
             return 404, {"error": "unknown file"}
-        current = str(target.stat().st_mtime_ns)
-        if base_mtime is not None and current != str(base_mtime):
-            return 409, {"error": "changed on disk", "text": target.read_text(encoding="utf-8"), "mtime": current}
-        target.write_text(text, encoding="utf-8", newline="")  # as sent: no CRLF on Windows
-        return 200, {"mtime": str(target.stat().st_mtime_ns)}
+        with self.lock:  # check and write as one step, so two tabs saving one revision can't both succeed
+            current = str(target.stat().st_mtime_ns)
+            if base_mtime is not None and current != str(base_mtime):
+                return 409, {"error": "changed on disk", "text": target.read_text(encoding="utf-8"), "mtime": current}
+            target.write_text(text, encoding="utf-8", newline="")  # as sent: no CRLF on Windows
+            return 200, {"mtime": str(target.stat().st_mtime_ns)}
 
 
 def _handler(state: State, title: str):
