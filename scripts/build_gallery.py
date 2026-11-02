@@ -16,7 +16,7 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from quickdbd_cli import __version__, diff
+from quickdbd_cli import __version__, diff, layout
 from quickdbd_cli.dbt import import_dbt
 from quickdbd_cli.export import font_css
 from quickdbd_cli.html import _escape, _json_for_script, favicon, render_page
@@ -147,7 +147,8 @@ def build_demo(d: Demo) -> tuple[str, dict]:
     model, pos = project.build(schema, by_group=by_group)
     if d.diff_before:
         old = _compile(Project.open([Path(d.diff_before)]).sources(), f"{d.id} diff_before")
-        diff.annotate_model(model, diff.diff_schemas(old, schema), "before")
+        diff.annotate_model(model, old, diff.diff_schemas(old, schema), "before")
+        pos = {k: list(v) for k, v in layout.place_missing(model["tables"], model["rels"], pos).items()}
     page = render_page(model, pos, d.title)
     return page.replace('<div class="bar">', '<div class="bar">' + BACK_LINK, 1), model
 

@@ -350,12 +350,12 @@ qdbd path erd/ --from Invoice --to Campaign</pre>
     <ul class="qh-list">
       <li><code>qdbd diff --base origin/main erd/</code> lists added, removed and changed tables, columns and relationships.</li>
       <li>The GitHub Action posts it as one comment per pull request, updated on every push.</li>
-      <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber.</li>
+      <li><code>qdbd build --diff-base origin/main</code> colours the changes in the diagram: new in green, changed in amber, removed in red.</li>
     </ul>
     <figure class="qh-figure">
       <div class="qh-fig">
       <div class="qh-pr__stage">
-        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green and changed tables in amber" loading="lazy"></a>
+        <a href="{{ 'demo/diff/' | url }}"><img src="{{ 'assets/img/diff.png' | url }}" alt="A qdbd diagram with new tables in green, changed tables in amber and a removed table in red" loading="lazy"></a>
         <div class="qh-comment">
           <div class="qh-comment__head"><b>github-actions</b> commented</div>
           <div class="qh-comment__body">

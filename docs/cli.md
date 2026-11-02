@@ -35,21 +35,7 @@ Two options are there for editors, and the [VS Code extension](vscode.md) uses b
 - `--symbols` (with `--format json`) adds `tables` (name, aliases, file, first and last line, columns with their lines) and `rels` (file, line and both ends) to the report.
 - `--stdin-file FILE` reads that schema file's text from stdin instead of disk, so an unsaved buffer gets checked along with the other files on disk. `FILE` has to be one of the files being checked.
 
-## 8.2 build { #build }
-
-```bash
-qdbd build PATH... [-o FILE | --site DIR] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
-```
-
-Writes one self-contained HTML page, `diagram.html` unless `-o` names another. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
-
-`--site DIR` builds one page per `PATH` instead, named after it (`docs/erd/sales/` gives `DIR/sales.html`), plus `DIR/index.html` linking them all. Each `PATH` is its own schema with its own layout file, so `--layout` can't be used. Folders with no schema files are skipped. If any schema has errors, nothing is written. Files already in `DIR` are left alone, so a diagram you remove stays there until you delete it:
-
-```bash
-qdbd build docs/erd/*/ --site public/
-```
-
-## 8.3 serve { #serve }
+## 8.2 serve { #serve }
 
 ```bash
 qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
@@ -65,7 +51,31 @@ The default port is 8765. If it's busy (for example, a second `qdbd serve` is ru
 
 `--diff-base REF` colours what changed since that ref, as [`build --diff-base`](#build) does, and keeps comparing as you edit: the ref is read once, at start.
 
-## 8.4 export { #export }
+## 8.3 build { #build }
+
+```bash
+qdbd build PATH... [-o FILE | --site DIR] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
+```
+
+Writes one self-contained HTML page, `diagram.html` unless `-o` names another. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
+
+`--site DIR` builds one page per `PATH` instead, named after it (`docs/erd/sales/` gives `DIR/sales.html`), plus `DIR/index.html` linking them all. Each `PATH` is its own schema with its own layout file, so `--layout` can't be used. Folders with no schema files are skipped. If any schema has errors, nothing is written. Files already in `DIR` are left alone, so a diagram you remove stays there until you delete it:
+
+```bash
+qdbd build docs/erd/*/ --site public/
+```
+
+With `--by-group`, the `Wrote …` line also counts the regions: `(200 tables, 211 relationships, 5 regions)`.
+
+## 8.4 share { #share }
+
+```bash
+qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict] [--public] [--new] [-y/--yes]
+```
+
+Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. Off unless the `QDBD_ALLOW_SHARE` environment variable is `1`: the gist is outside your organisation's control. Even then, it shows a disclaimer and asks before uploading; `--yes` accepts it without asking, for scripts. See [4.4 Sharing a Link](sharing.md).
+
+## 8.5 export { #export }
 
 ```bash
 qdbd export PATH... -o out.png|out.svg|out.drawio [-s …] [--exclude …] [--focus TABLE --depth N] [--mode full|keys|header] [--regions] [--by-group] [--layout FILE] [--scale 2] [--strict]
@@ -73,7 +83,7 @@ qdbd export PATH... -o out.png|out.svg|out.drawio [-s …] [--exclude …] [--fo
 
 See [4.3 Exports](exports.md).
 
-## 8.5 layout { #layout }
+## 8.6 layout { #layout }
 
 ```bash
 qdbd layout PATH... [--reset] [--by-group] [--layout FILE]
@@ -81,7 +91,7 @@ qdbd layout PATH... [--reset] [--by-group] [--layout FILE]
 
 Writes positions to the layout file: placing new tables, re-laying out everything (`--reset`), or grouping by file / folder (`--by-group`). See [3.4 Table Positions](layout.md).
 
-## 8.6 path { #path }
+## 8.7 path { #path }
 
 ```bash
 qdbd path PATH... --from TABLE --to TABLE
@@ -91,7 +101,7 @@ Prints the shortest relationship path and a SQL `FROM … JOIN … ON …` snipp
 
 A composite foreign key joins on every column: a DBML `Ref: a.(x, y) > b.(x, y)`, or QuickDBD FK lines that together point at all of a table's composite primary key. Between two tables with several relationships, one with join columns wins over a table-level `rel`. Dotted names such as `sales.orders` come out as `schema.table`.
 
-## 8.7 diff { #diff }
+## 8.8 diff { #diff }
 
 ```bash
 qdbd diff OLD NEW
@@ -100,21 +110,13 @@ qdbd diff --base GIT_REF PATH... [--format text|markdown|json] [-o FILE] [--exit
 
 See [6. Reviewing Changes](diffs.md).
 
-## 8.8 import dbt { #import-dbt }
+## 8.9 import dbt { #import-dbt }
 
 ```bash
 qdbd import dbt target/manifest.json [-o FILE_OR_DIR] [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources] [--infer-fks] [--check]
 ```
 
 Writes `schema.txt` unless `-o` names another `.txt` file, or a folder for one file per dbt folder. See [5.1 dbt Import](dbt.md).
-
-## 8.9 share { #share }
-
-```bash
-qdbd share PATH... [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict] [--public] [--new] [-y/--yes]
-```
-
-Builds the page like `build` and publishes it as a secret GitHub gist (with the `gh` CLI), then prints a link. Sharing the same files again updates the same gist. Off unless the `QDBD_ALLOW_SHARE` environment variable is `1`: the gist is outside your organisation's control. Even then, it shows a disclaimer and asks before uploading; `--yes` accepts it without asking, for scripts. See [4.4 Sharing a Link](sharing.md).
 
 ## 8.10 convert { #convert }
 

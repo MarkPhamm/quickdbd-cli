@@ -1,5 +1,6 @@
 # The online shop schema (examples/quickdbd-sample.txt) as it was before a branch:
-# no Wishlist or Address tables, no Order.Status, and Product had no Sku yet.
+# no Wishlist or Address tables, no Order.Status, and Product had no Sku yet;
+# a Coupon table that the branch drops.
 
 Customer as c
 -
@@ -34,6 +35,12 @@ Product
 ProductId PK int
 CatalogId int FK >- cat.CatalogId
 Price money
+
+Coupon
+-
+Code PK string
+OrderId NULL int FK >- o.OrderId
+Discount money
 
 [settings]
 Zoom 100

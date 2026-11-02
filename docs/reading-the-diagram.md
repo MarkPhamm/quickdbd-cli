@@ -85,10 +85,10 @@ When a schema has several files or dbt folders, **Regions** draws a labelled, co
 
 Pages built with `--diff-base origin/main` mark what changed:
 
-- **NEW** tables have a green header, **CHANGED** tables an amber header;
-- changed and added columns get a coloured bar;
+- **NEW** tables have a green header, **CHANGED** tables an amber header, **REMOVED** tables a red one;
+- added columns are named in green; removed columns stay in place, red and struck through; changed columns get an amber bar;
 - a banner summarises the changes, and **Show changes** filters to them plus their neighbours;
-- the details panel lists every change, including removed columns.
+- the details panel lists every change.
 
 See [6. Reviewing Changes](diffs.md).
 

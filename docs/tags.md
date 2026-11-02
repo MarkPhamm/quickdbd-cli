@@ -82,7 +82,7 @@ email varchar
 
 Any other tag works too, with its colour from `# @color` or the palette, as for tables. Column tags don't change the table's header colour. They show in the legend (the count is the number of tables that carry the tag), `tag:removed` selects the tables that have such a column, and the **Keys** view (`--mode keys`) keeps tagged columns visible. In DBML, use `// @tag:` at the end of the column line.
 
-Hand-tagging is for proposals. To get added and changed columns from git automatically, use [`--diff-base`](diffs.md).
+Hand-tagging is for proposals. To get added, removed and changed columns from git automatically, use [`--diff-base`](diffs.md).
 
 ## In the page
 

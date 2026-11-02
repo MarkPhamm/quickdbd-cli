@@ -480,6 +480,7 @@ def test_by_group_cli(tmp_path, capsys):
     html = tmp_path / "g.html"
     assert main(["build", str(work), "--by-group", "-o", str(html)]) == 0
     assert '"regions":true' in html.read_text()
+    assert "5 regions)" in capsys.readouterr().out
     svg = tmp_path / "g.svg"
     assert main(["export", str(work), "--by-group", "-o", str(svg)]) == 0
     assert svg.read_text().count('class="rg"') == 5
