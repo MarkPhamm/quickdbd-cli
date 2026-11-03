@@ -173,6 +173,26 @@ def test_whitespace_only_line_breaks_table():
         ("dbo.Customer\n-\nA int", [(1, "Invalid table name (use double quotes)")]),
         ("T\n-\nA int FK >- U.Id", [(3, "Invalid relationship, the table 'U' does not exist")]),
         ("T\n-\nA int FK >- T.Nope", [(3, "Invalid relationship, the field 'T.Nope' does not exist")]),
+        (
+            "Café\n-\nId PK int\n\nB\n-\nCafeId int FK >- Café.Id",
+            [
+                (
+                    7,
+                    "Invalid relationship, the table 'Café' does not exist (a table named \"Café\" is defined at "
+                    'line 1: quote it in references, "Café".Id)',
+                )
+            ],
+        ),
+        (
+            "Order-Item\n-\nId PK int\n\nB\n-\nX int FK >- Order-Item.Id",
+            [
+                (
+                    7,
+                    "Invalid relationship, the table 'Order-Item' does not exist (a table named \"Order-Item\" is "
+                    'defined at line 1: quote it in references, "Order-Item".Id)',
+                )
+            ],
+        ),
         ("T\n-\nA int FK >- T.A.B", [(3, "Multi-nested relationships are not allowed")]),
         (
             "T\n-\nA PK UNIQUE int",
