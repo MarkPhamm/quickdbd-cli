@@ -277,11 +277,14 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .details .chg { margin: 4px 0; }
 .details .chg .add { color: #2e7d32; }
 .details .chg .del { color: #c0392b; }
+.details tr.d-added .cn { color: #2e7d32; }
+.details tr.d-removed .cn { color: #c62828; text-decoration: line-through; }
 .details .chg .mod { color: #b07000; }
 .details .state { display: inline-block; font-size: 10px; font-weight: bold; color: #fff; border-radius: 3px; padding: 1px 6px;
   margin-left: 6px; vertical-align: middle; }
 .details .state.added { background: #2e7d32; }
 .details .state.changed { background: #d48806; }
+.details .state.removed { background: #c62828; }
 
 /* doc-comment tooltip */
 .tip { position: absolute; display: none; max-width: 340px; background: var(--tip-bg); color: #eef0f2; border-radius: 8px;

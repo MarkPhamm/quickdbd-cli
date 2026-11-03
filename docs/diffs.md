@@ -29,9 +29,9 @@ Tables match by name, columns by name within a table, and relationships by their
 qdbd build erd/ --diff-base origin/main -o erd.html
 ```
 
-- **NEW** tables: green header. **CHANGED** tables: amber header.
-- Added and changed columns: a coloured bar at the row's edge.
+- **NEW** tables: green header. **CHANGED** tables: amber header. **REMOVED** tables are still drawn, with a red header and struck-through columns.
+- Added columns: green name. Removed columns: still drawn, red name struck through. Changed columns: an amber bar at the row's edge.
 - A banner shows the counts; **Show changes** filters to `diff:modified` plus neighbours.
-- The details panel lists each change, including removed columns.
+- The details panel lists each change.
 
-The `diff:` [selector](selectors.md) (`diff:modified`, `diff:added`, `diff:changed`) works with `-s` and in the page.
+The `diff:` [selector](selectors.md) (`diff:modified`, `diff:added`, `diff:changed`, `diff:removed`) works with `-s` and in the page.

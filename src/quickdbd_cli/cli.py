@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__
+from . import __version__, layout
 from .layout import SidecarError
 from .model import Diagnostic, Schema, counts
 from .project import Project, SelectionError, SourceError, read_source, selector_expr
@@ -146,7 +146,9 @@ def _built_page(args) -> tuple[str, dict] | int:
 
             model, pos = project.build(schema, by_group=args.by_group)
             old = diff.schema_at_ref(args.diff_base, project.inputs)
-            diff.annotate_model(model, diff.diff_schemas(old, schema), args.diff_base)
+            diff.annotate_model(model, old, diff.diff_schemas(old, schema), args.diff_base)
+            # removed tables were not laid out: put them next to their old neighbours
+            pos = {k: list(v) for k, v in layout.place_missing(model["tables"], model["rels"], pos).items()}
             expr = selector_expr(args.select, args.exclude)
             if expr:
                 from .project import select_model
@@ -166,6 +168,15 @@ def _built_page(args) -> tuple[str, dict] | int:
             return 2
         raise
     return render_page(model, pos, _title(project)), model
+
+
+def _summary(model: dict) -> str:
+    """Table and relationship counts, plus the region count when ``--by-group`` drew regions."""
+    s = counts(len(model["tables"]), len(model["rels"]))
+    if model.get("regions"):
+        n = len({t["group"] for t in model["tables"] if t.get("group")})
+        s += f", {n} region{'s' * (n != 1)}"
+    return s
 
 
 def _build_site(args) -> int:
@@ -205,7 +216,7 @@ def _build_site(args) -> int:
     for name, page, model in pages:
         (out / f"{name}.html").write_text(page, encoding="utf-8")
         index.append((name, quote(f"{name}.html"), len(model["tables"]), len(model["rels"])))
-        print(f"Wrote {out / f'{name}.html'} ({counts(len(model['tables']), len(model['rels']))})")
+        print(f"Wrote {out / f'{name}.html'} ({_summary(model)})")
     (out / "index.html").write_text(render_index(index), encoding="utf-8")
     print(f"Wrote {out / 'index.html'} ({len(pages)} diagrams)")
     return 0
@@ -221,7 +232,7 @@ def cmd_build(args) -> int:
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page, encoding="utf-8")
-    print(f"Wrote {out} ({counts(len(model['tables']), len(model['rels']))})")
+    print(f"Wrote {out} ({_summary(model)})")
     return 0
 
 
@@ -652,6 +663,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp.set_defaults(func=cmd_check)
 
+    sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
+    paths(sp)
+    sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
+    sp.add_argument("--no-open", action="store_true", help="don't open a browser")
+    sp.add_argument(
+        "--read-only",
+        action="store_true",
+        help="live view only: no editor, nothing saved; viewers can't change anything",
+    )
+    sp.add_argument(
+        "--embed",
+        action="store_true",
+        help="for the VS Code extension's preview: no editor pane, dragging saves the layout",
+    )
+    sp.add_argument(
+        "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
+    )
+    sp.set_defaults(func=cmd_serve)
+
     sp = sub.add_parser("build", help="write an interactive HTML diagram")
     paths(sp)
     out = sp.add_mutually_exclusive_group()
@@ -759,26 +790,6 @@ def build_parser() -> argparse.ArgumentParser:
         "-o", "--output", help="output file, or a directory (keeps relative paths; DBML TableGroups become files)"
     )
     sp.set_defaults(func=cmd_convert)
-
-    sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
-    paths(sp)
-    sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
-    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
-    sp.add_argument("--no-open", action="store_true", help="don't open a browser")
-    sp.add_argument(
-        "--read-only",
-        action="store_true",
-        help="live view only: no editor, nothing saved; viewers can't change anything",
-    )
-    sp.add_argument(
-        "--embed",
-        action="store_true",
-        help="for the VS Code extension's preview: no editor pane, dragging saves the layout",
-    )
-    sp.add_argument(
-        "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
-    )
-    sp.set_defaults(func=cmd_serve)
 
     sp = sub.add_parser(
         "mcp",

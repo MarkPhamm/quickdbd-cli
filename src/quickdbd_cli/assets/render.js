@@ -20,6 +20,7 @@
     edge: "#b8bcc2",
     added: "#2e7d32",
     changed: "#d48806",
+    removed: "#c62828",
   };
   var FONT = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
@@ -90,11 +91,11 @@
     var st = model.style, w = g.w, h = g.h, out = [];
     out.push('<g class="t" data-id="' + esc(t.id) + '" transform="translate(' + n(p[0]) + "," + n(p[1]) + ')">');
     out.push('<rect class="tb" width="' + w + '" height="' + h + '" rx="2" fill="' + C.body + '" stroke="' + C.border + '"/>');
-    var state = t.diff && t.diff.state, hcol = state === "added" ? C.added : state === "changed" ? C.changed : t.color || C.header;
+    var state = t.diff && t.diff.state, hcol = state ? C[state] : t.color || C.header;
     out.push('<path class="th" d="M0 2a2 2 0 0 1 2-2h' + (w - 4) + "a2 2 0 0 1 2 2v" + (st.headerH - 2) + "h-" + w + 'z" fill="' + hcol + '"/>');
     if (state) {
       out.push('<text x="' + (w - st.padX) + '" y="' + n(st.headerH / 2 + 4) + '" text-anchor="end" fill="#fff" font-family="' + FONT +
-        '" font-size="10" font-weight="bold">' + (state === "added" ? "NEW" : "CHANGED") + "</text>");
+        '" font-size="10" font-weight="bold">' + { added: "NEW", changed: "CHANGED", removed: "REMOVED" }[state] + "</text>");
     }
     var light = isLight(hcol); // a pale DBML headercolor or tag colour: dark text on it
     out.push('<text class="tn" x="' + st.padX + '" y="' + n(st.headerH / 2 + st.headerSize * 0.36) + '" fill="' + (light ? C.text : C.headerText) +
@@ -105,7 +106,10 @@
     g.cols.forEach(function (c, i) {
       var y = st.headerH + i * st.rowH, cy = y + st.rowH / 2, base = n(cy + st.rowSize * 0.36);
       var weight = c.pk || c.fk ? ' font-weight="bold"' : "";
-      var color = c.color || (c.pk ? C.pk : c.fk ? C.fk : C.text), rn = c.pk ? "rn rpk" : c.fk ? "rn rfk" : "rn";
+      // diff: added/removed columns (and every column of a removed table) are named in green/red, removed struck through
+      var cstate = state === "removed" ? "removed" : t.diff && t.diff.cols && t.diff.cols[c.id];
+      var dcol = cstate === "added" || cstate === "removed" ? C[cstate] : null;
+      var color = dcol || c.color || (c.pk ? C.pk : c.fk ? C.fk : C.text), rn = c.pk ? "rn rpk" : c.fk ? "rn rfk" : "rn";
       out.push('<g class="r" data-c="' + esc(c.id) + '">');
       // a tagged column: tinted row and a bar in the tag colour (a diff bar, drawn next, covers the bar)
       if (c.color) {
@@ -113,12 +117,11 @@
         out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + c.color + '"/>');
       }
       out.push('<rect class="rb" y="' + y + '" width="' + w + '" height="' + st.rowH + '" fill="' + C.body + '" fill-opacity="0"/>');
-      var cstate = t.diff && t.diff.cols && t.diff.cols[c.id];
       if (cstate) out.push('<rect y="' + (y + 3) + '" width="3" height="' + (st.rowH - 6) + '" fill="' + C[cstate] + '"/>');
-      out.push('<text class="' + rn + '" x="' + st.padX + '" y="' + base + '" fill="' + color + '"' + (c.color ? ' style="fill:' + c.color + '"' : "") +
+      out.push('<text class="' + rn + '" x="' + st.padX + '" y="' + base + '" fill="' + color + '"' + (dcol || c.color ? ' style="fill:' + color + '"' : "") +
         ' font-family="' + FONT + '" font-size="' + st.rowSize + '"' + weight + ">" + esc(c.name) + "</text>");
       if (docMarks && c.doc) out.push(docMark(st.padX, cy + st.rowSize * 0.36 + 2.5, c.nameW, color));
-      if (c.tags && c.tags.indexOf("removed") >= 0) {
+      if (cstate === "removed" || (c.tags && c.tags.indexOf("removed") >= 0)) {
         out.push('<line x1="' + st.padX + '" y1="' + n(cy) + '" x2="' + n(st.padX + c.nameW) + '" y2="' + n(cy) + '" stroke="' + color + '" stroke-width="1.2"/>');
       }
       var bx = st.padX + c.nameW + 6;

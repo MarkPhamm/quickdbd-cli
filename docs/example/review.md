@@ -25,7 +25,7 @@ Schema changes origin/main -> working tree:
 qdbd build erd/ --diff-base origin/main -o erd.html
 ```
 
-New tables are green, changed tables amber, and changed columns get a bar. **Show changes** in the banner filters to the changes and their neighbours. In a filter, `diff:modified` works like dbt's `state:modified`:
+New tables are green, changed tables amber, and removed tables red. Added columns are green, removed ones red and struck through, and changed ones get an amber bar. **Show changes** in the banner filters to the changes and their neighbours. In a filter, `diff:modified` works like dbt's `state:modified`:
 
 ```bash
 qdbd build erd/ --diff-base origin/main -s 'diff:modified+1' -o changes.html
