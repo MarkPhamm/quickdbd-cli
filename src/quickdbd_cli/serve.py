@@ -4,8 +4,8 @@ Watches the schema files and the dbt project a `# @dbt:` line names (mtime polli
 change and pushes a reload event to the page over Server-Sent Events. Dragged table positions are
 saved to the layout sidecar; the browser editor pane writes the .txt/.dbml files when the user saves,
 refusing to overwrite a file changed on disk since the browser last loaded it, and recompiles before
-answering, so the file, the problems and the diagram agree. A schema with errors still draws the
-tables that parse; the last valid diagram is kept only when none do. With ``read_only`` the page is
+answering, so the file, the problems and the diagram agree. A schema with errors draws no tables,
+only the errors. With ``read_only`` the page is
 the plain viewer plus live reload, and the server never writes anything. With ``embed`` (the VS Code
 extension's preview) the page is the viewer plus live reload; dragging still saves the layout, but
 files are only edited in VS Code. With ``diff_base`` every reload is coloured by its changes since
@@ -45,7 +45,6 @@ class State:
         self.model: dict = {"style": {}, "tables": [], "rels": [], "zoom": None, "position": None}
         self.positions: dict = {}
         self.diagnostics: list[dict] = []
-        self.stale = False  # the model is the last valid one: nothing in the current text parses
         self.files: list[Path] = []
         # mtimes are strings: nanosecond integers exceed JavaScript's safe integer range.
         self.mtimes: dict[str, str] = {}
@@ -78,23 +77,23 @@ class State:
             for d in schema.diagnostics
         ]
         model = model_json(schema)
+        if schema.errors:  # no diagram until the errors are fixed
+            model["tables"], model["rels"] = [], []
         with self.lock:
             self.mtimes = mtimes
             self.diagnostics = diags
-            self.stale = bool(schema.errors) and not model["tables"]
-            if not self.stale:
-                if self.base is not None:
-                    diff.annotate_model(model, diff.diff_schemas(self.base, schema), self.diff_base)
-                base = layout.read_sidecar(self.project.sidecar)
-                current = {
-                    t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
-                }
-                base.update(current)
-                pos = layout.resolve_positions(model, base, schema.layout)
-                self.model = model
-                self.positions = {k: [v[0], v[1]] for k, v in pos.items()}
-                if not self.read_only and not schema.errors:  # keep a table that is only broken for now
-                    self.project.save_positions(model, self.positions)
+            if self.base is not None and not schema.errors:
+                diff.annotate_model(model, diff.diff_schemas(self.base, schema), self.diff_base)
+            base = layout.read_sidecar(self.project.sidecar)
+            current = {
+                t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
+            }
+            base.update(current)
+            pos = layout.resolve_positions(model, base, schema.layout)
+            self.model = model
+            self.positions = {k: [v[0], v[1]] for k, v in pos.items()}
+            if not self.read_only and not schema.errors:  # the sidecar keeps every table's place
+                self.project.save_positions(model, self.positions)
             self.version += 1
             self.lock.notify_all()
         if not initial:
@@ -124,7 +123,6 @@ class State:
                 "model": self.model,
                 "positions": self.positions,
                 "diagnostics": self.diagnostics,
-                "stale": self.stale,
                 "files": files,
             }
 
@@ -134,12 +132,7 @@ class State:
             for name, xy in body.items():
                 if name in by_name:
                     self.positions[by_name[name]] = [int(xy[0]), int(xy[1])]
-            # merged: while the schema has errors, a table missing from the model keeps its saved place
-            saved = layout.read_sidecar(self.project.sidecar)
-            saved.update(
-                {t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions}
-            )
-            layout.write_sidecar(self.project.sidecar, saved)
+            self.project.save_positions(self.model, self.positions)
 
     def write_file(self, path: str, text: str, base_mtime: str | None) -> tuple[int, dict]:
         target = next((f for f in self.files if display_path(f) == path), None)
