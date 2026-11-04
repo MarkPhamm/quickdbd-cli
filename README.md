@@ -33,6 +33,13 @@
   <em>AdventureWorks DW (28 tables), a star schema in five regions, built by qdbd. <a href="https://qdbd.dev/demo/adventureworks-dw/#t=FactInternetSales">Try it live →</a></em>
 </p>
 
+<p align="center">
+  <a href="https://qdbd.dev/#demo"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo.gif" alt="Searching, focusing and opening a table in a qdbd diagram" width="760"></a>
+</p>
+<p align="center">
+  <em><a href="https://qdbd.dev/#demo">Watch the full 60-second demo →</a></em>
+</p>
+
 ## What is qdbd?
 
 qdbd is a **command-line tool that turns a database schema written as text into an interactive ER diagram**.

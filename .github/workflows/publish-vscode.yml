@@ -1,0 +1,27 @@
+# Publishes the extension to the VS Code Marketplace with Trusted Publishing (GitHub OIDC, no token).
+# Needs a Trusted Publishing policy on the MarkPhamm publisher for this repo and this file name.
+# Run it after scripts/release.sh: gh workflow run publish-vscode.yml
+name: Publish VS Code extension
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: vscode
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: vscode/package-lock.json
+      - run: npm ci
+      # --oidc needs vsce 4.x; the pinned devDependency is older.
+      - run: npx -y @vscode/vsce@4.1.0 publish --oidc --no-dependencies

@@ -42,7 +42,7 @@ body {{ width: {w}px; height: {h}px; overflow: hidden; font-family: Geist, Inter
 .text {{ position: absolute; left: 56px; top: 60px; width: 360px; }}
 .brand {{ display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 26px; letter-spacing: -.02em;
   margin-bottom: 40px; }}
-.brand svg {{ color: #2f5bea; }}
+.brand svg {{ color: #2b5797; }}
 .brand span {{ font: 16px "Geist Mono", monospace; color: #646a75; border: 1px solid rgba(21, 24, 30, .24);
   border-radius: 6px; padding: 3px 8px; margin-left: 4px; letter-spacing: 0; }}
 h1 {{ font-size: 48px; line-height: 1.04; font-weight: 600; letter-spacing: -.04em; }}

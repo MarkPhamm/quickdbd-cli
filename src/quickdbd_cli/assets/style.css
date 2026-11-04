@@ -34,8 +34,8 @@
   --t-edge: #b8bcc2;
   --row-hl: #dbe6f6;
   --row-hover: #eef3fa;
-  --lit: #4361ee;
-  --lit-deep: #2a3fb8;
+  --lit: #2b5797;
+  --lit-deep: #1c3a66;
 }
 /* Dark theme. viewer.js sets data-theme from the toggle, or from prefers-color-scheme when it's on auto. */
 :root[data-theme="dark"] {

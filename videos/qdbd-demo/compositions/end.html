@@ -1,0 +1,71 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    .stage { position: absolute; left: 0; top: 190px; width: 1920px; height: 890px; overflow: hidden; }
+    .enter, .cam { position: absolute; left: 0; top: 0; width: 1920px; height: 890px; transform-origin: 0 0; }
+    .win { position: absolute; left: 96px; top: 0; width: 1728px; height: 1124px; border-radius: 16px 16px 0 0; overflow: hidden;
+      background: #fafaf7; box-shadow: 0 0 0 1px rgba(21, 24, 30, 0.12), 0 24px 54px -24px rgba(21, 24, 30, 0.28); }
+    .bar { position: absolute; left: 0; top: 0; right: 0; height: 44px; display: flex; align-items: center; gap: 9px; padding: 0 18px;
+      background: #fafaf7; border-bottom: 1px solid rgba(21, 24, 30, 0.12); font: 500 26px "Geist", sans-serif; color: #4a505b; }
+    .bar i { width: 13px; height: 13px; border-radius: 50%; background: #d6d6d0; }
+    .bar span { margin-left: 18px; }
+    .view { position: absolute; left: 0; top: 44px; width: 1728px; height: 1080px; overflow: hidden; }
+    .view video, .view img { position: absolute; left: 0; top: 0; width: 1728px; height: 1080px; }
+    #end-lock { position: absolute; left: 680px; top: 300px; width: 560px; height: 149px; }
+    #end-cta { position: absolute; left: 0; right: 0; top: 548px; text-align: center; }
+    #end-cmd { display: inline-block; padding: 22px 36px; border-radius: 14px; background: #15181e; color: #f2f2ee;
+      font: 400 44px "Geist Mono", monospace; }
+    #end-cmd span { color: #8fb0ff; }
+    #end-links { position: absolute; left: 0; right: 0; top: 700px; text-align: center; font-size: 36px; font-weight: 500;
+      color: #4a505b; letter-spacing: -0.01em; }
+  </style>
+  <div data-hf-id="hf-gwfo" id="root" data-composition-id="end" data-width="1920" data-height="1080">
+    <svg data-hf-id="hf-13pq" id="end-lock" viewBox="0 0 240 64" aria-label="qdbd">
+      <g data-hf-id="hf-1j1i" transform="translate(4 8) scale(2)">
+        <rect data-hf-id="hf-zjv8" id="end-a" x="2" y="2.5" width="10" height="8" rx="2" fill="#2563eb" />
+        <rect data-hf-id="hf-m9q4" id="end-b" x="12" y="13.5" width="10" height="8" rx="2" fill="#2563eb" opacity=".55" />
+        <path data-hf-id="hf-205m" id="end-line" d="M7 10.5v3.5a3.5 3.5 0 0 0 3.5 3.5H12" stroke="#2563eb" stroke-width="2" fill="none" pathLength="1" />
+      </g>
+      <text data-hf-id="hf-axcn" id="end-word" x="66" y="45" font-family="Inter, sans-serif" font-size="40" font-weight="700" letter-spacing="-0.5" fill="#0f1b2d">qdbd</text>
+    </svg>
+    <div data-hf-id="hf-cng5" id="end-cta"><div data-hf-id="hf-niyh" id="end-cmd"><span data-hf-id="hf-my1r">$</span> pipx install quickdbd-cli</div></div>
+    <div data-hf-id="hf-mvf0" id="end-links"><span data-hf-id="hf-6jbi" class="w">qdbd.dev</span> <span data-hf-id="hf-jh5p" class="w">·</span> <span data-hf-id="hf-34xf" class="w">VS Code Marketplace</span> <span data-hf-id="hf-zyk1" class="w">·</span> <span data-hf-id="hf-4w01" class="w">Open VSX</span></div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      // Camera: put a point of the recorded 1440 x 900 page (cx, cy) at the stage centre at scale s,
+      // never showing past the window's edges. TOP is where page y = 0 sits inside the window.
+      const cam = (sel, t, s, cx, cy, d, TOP = 44) => {
+        const qx = 96 + 1.2 * cx, qy = TOP + 1.2 * cy;
+        let x = 0, y = 0;
+        if (s > 1) {
+          x = Math.min(-s * 96, Math.max(1920 - s * 1824, 960 - s * qx));
+          y = Math.min(0, Math.max(890 - s * 1124, 445 - s * qy));
+        }
+        if (t === 0) tl.fromTo(sel, { x: 0, y: 0, scale: 1 }, { x, y, scale: s, duration: 0.01 }, 0);
+        else tl.to(sel, { x, y, scale: s, duration: d || 0.55, ease: "power2.inOut" }, t);
+      };
+      const whipIn = (sel, t) => tl.fromTo(sel, { x: 360, opacity: 0, filter: "blur(14px)" },
+        { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, t);
+      const whipOut = (sel, t) => tl.to(sel, { x: -360, opacity: 0, filter: "blur(14px)", duration: 0.2, ease: "power3.in" }, t);
+      tl.fromTo("#end-a", { y: -14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "expo.out" }, 0.15);
+      tl.fromTo("#end-line", { strokeDasharray: "1 1", strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.32, ease: "power2.inOut" }, 0.45);
+      tl.fromTo("#end-b", { x: 10, opacity: 0 }, { x: 0, opacity: 0.55, duration: 0.4, ease: "expo.out" }, 0.72);
+      tl.fromTo("#end-word", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "power3.out" }, 0.95);
+      tl.fromTo("#end-cmd", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 1.55);
+      tl.fromTo("#end-links .w", IN, { ...ON }, 1.95);
+      window.__timelines["end"] = tl;
+    })();
+  </script>
+</template>

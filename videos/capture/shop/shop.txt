@@ -1,0 +1,26 @@
+Customer
+-
+CustomerId PK int IDENTITY
+Email varchar(255) UNIQUE
+Name string
+
+Order
+-
+OrderId PK int IDENTITY
+CustomerId int FK >- Customer.CustomerId
+Status string
+Total money
+
+OrderLine
+-
+OrderId PK int FK >- Order.OrderId
+LineNo PK int
+ProductId int FK >- Product.ProductId
+Quantity int
+
+Product
+-
+ProductId PK int
+Sku varchar(64) UNIQUE
+Name string
+Price money

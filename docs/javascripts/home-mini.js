@@ -27,8 +27,7 @@
     bar.classList.add("qh-ind");
     function moveInd() {
       var b = bar.querySelector('[aria-selected="true"]');
-      ind.style.width = b.offsetWidth + "px";
-      ind.style.transform = "translateX(" + b.offsetLeft + "px)";
+      ind.style.transform = "translateX(" + b.offsetLeft + "px) scaleX(" + b.offsetWidth + ")";
     }
     moveInd();
     window.addEventListener("resize", function () { if (bar.isConnected) moveInd(); });

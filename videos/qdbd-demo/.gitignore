@@ -1,0 +1,8 @@
+node_modules/
+renders/
+snapshots/
+assets/footage/
+assets/music/
+.hyperframes/
+.thumbnails/
+boards/
