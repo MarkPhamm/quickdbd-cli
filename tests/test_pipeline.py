@@ -252,6 +252,55 @@ def test_build_is_deterministic_and_does_not_write_sidecar(tmp_path):
     assert '<link rel="icon" href="data:image/svg+xml,%3Csvg ' in html
 
 
+def test_build_site_writes_a_page_per_path_and_an_index(tmp_path, capsys):
+    for name in ("sales", "hr"):
+        (tmp_path / "erd" / name).mkdir(parents=True)
+        (tmp_path / "erd" / name / "s.txt").write_text(SMALL)
+    (tmp_path / "erd" / "empty").mkdir()
+    site = tmp_path / "public"
+    dirs = [str(tmp_path / "erd" / n) for n in ("hr", "empty", "sales")]
+    assert main(["build", *dirs, "--site", str(site)]) == 0
+    assert sorted(f.name for f in site.iterdir()) == ["hr.html", "index.html", "sales.html"]
+    assert "<title>hr</title>" in (site / "hr.html").read_text()
+    index = (site / "index.html").read_text()
+    assert index.index('href="hr.html"') < index.index('href="sales.html"')
+    assert "2 tables, 1 relationships" in index
+    assert "Skipped" in capsys.readouterr().err
+
+
+def test_check_each_keeps_namespaces_apart(tmp_path, capsys):
+    for name in ("sales", "hr"):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / "s.txt").write_text(SMALL)
+    (tmp_path / "empty").mkdir()
+    dirs = [str(tmp_path / n) for n in ("hr", "empty", "sales")]
+    assert main(["check", *dirs]) == 1  # one namespace: Customer and Order are duplicates
+    assert main(["check", "--each", *dirs]) == 0
+    assert main(["check", "--each", str(tmp_path / "empty")]) == 2
+    assert main(["check", "--each", "--format", "json", *dirs]) == 2
+    capsys.readouterr()
+
+
+def test_build_site_writes_nothing_when_a_schema_fails(tmp_path):
+    (tmp_path / "ok").mkdir()
+    (tmp_path / "ok" / "s.txt").write_text(SMALL)
+    (tmp_path / "bad").mkdir()
+    (tmp_path / "bad" / "s.txt").write_text("Order\n-\nId int FK >- Missing.Id\n")
+    site = tmp_path / "public"
+    assert main(["build", str(tmp_path / "ok"), str(tmp_path / "bad"), "--site", str(site)]) == 1
+    assert not site.exists()
+
+
+def test_build_site_refuses_clashing_names(tmp_path, capsys):
+    for d in ("a/sales", "b/sales"):
+        (tmp_path / d).mkdir(parents=True)
+        (tmp_path / d / "s.txt").write_text(SMALL)
+    assert main(["build", str(tmp_path / "a/sales"), str(tmp_path / "b/sales"), "--site", str(tmp_path / "o")]) == 2
+    assert "both be written to sales.html" in capsys.readouterr().err
+    with pytest.raises(SystemExit):
+        main(["build", str(tmp_path / "a/sales"), "-o", "x.html", "--site", str(tmp_path / "o")])
+
+
 def test_layout_command_writes_sidecar_and_reset(tmp_path):
     f = tmp_path / "s.txt"
     f.write_text(SMALL)
