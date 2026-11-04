@@ -95,6 +95,32 @@ def test_put_file_refuses_stale_write(srv):
     assert "# edited elsewhere" in f.read_text()  # disk untouched
 
 
+def test_overlapping_saves_from_one_revision_cannot_both_succeed(srv, monkeypatch):
+    base, _, f = srv
+    _, st = call(base, "/state")
+    path, mtime = st["files"][0]["path"], st["files"][0]["mtime"]
+    real_write = type(f).write_text
+
+    def slow_write(self, *a, **kw):  # widen the gap between the revision check and the write
+        time.sleep(0.3)
+        return real_write(self, *a, **kw)
+
+    monkeypatch.setattr(type(f), "write_text", slow_write)
+    results = {}
+
+    def save(text):
+        results[text] = call(base, "/file", "PUT", {"path": path, "text": text, "mtime": mtime})[0]
+
+    threads = [threading.Thread(target=save, args=(SCHEMA + f"\n# tab {i}\n",)) for i in (1, 2)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert sorted(results.values()) == [200, 409]
+    winner = next(text for text, code in results.items() if code == 200)
+    assert f.read_text() == winner
+
+
 def test_put_unknown_file(srv):
     base, _, _ = srv
     code, _ = call(base, "/file", "PUT", {"path": "nope.txt", "text": "x", "mtime": None})
