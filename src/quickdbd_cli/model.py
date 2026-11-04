@@ -155,3 +155,7 @@ class Schema:
             if ok:
                 out.append(rel)
         return out
+
+
+def counts(tables: int, rels: int) -> str:
+    return f"{tables} table{'s' * (tables != 1)}, {rels} relationship{'s' * (rels != 1)}"

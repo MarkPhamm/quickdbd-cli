@@ -18,7 +18,7 @@ qdbd import dbt target/ -o erd/
 ```
 
 ```text
-Wrote erd/ (3 files): 8 tables, 1 relationships
+Wrote erd/ (3 files): 8 tables, 1 relationship
 ```
 
 With a directory as `-o`, qdbd writes one file per dbt folder:
