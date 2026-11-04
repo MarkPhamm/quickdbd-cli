@@ -28,6 +28,11 @@ inputs:
   output:
     description: Where to write the HTML diagram.
     default: erd/index.html
+  site:
+    description: >-
+      Folder for one diagram per `path` entry (folders or globs like "docs/erd/*/") plus an index.html linking
+      them (`qdbd build --site`). Each entry is checked and diffed on its own. Replaces `output`; needs qdbd 0.5.0+.
+    default: ""
   qdbd-version:
     description: quickdbd-cli version from PyPI ("latest" or e.g. "0.1.4"), or "source" to install the action's own checkout.
     default: latest
@@ -55,7 +60,7 @@ inputs:
 
 outputs:
   html:
-    description: Path of the built HTML diagram.
+    description: Path of the built HTML diagram (with `site`, its index.html).
     value: ${{ steps.build.outputs.html }}
   changed:
     description: '"true" when the pull request changes the schema.'
@@ -101,9 +106,11 @@ runs:
       env:
         QDBD_PATH: ${{ inputs.path }}
         QDBD_STRICT: ${{ inputs.strict }}
+        QDBD_SITE: ${{ inputs.site }}
       run: |
         args=()
         if [ "$QDBD_STRICT" = "true" ]; then args+=(--strict); fi
+        if [ -n "$QDBD_SITE" ]; then args+=(--each); fi
         # Inline PR annotations; qdbd-version pins older than 0.1.14 lack --format.
         if qdbd check --help | grep -q -- '--format'; then args+=(--format github); fi
         # shellcheck disable=SC2086
@@ -122,16 +129,34 @@ runs:
       shell: bash
       env:
         QDBD_PATH: ${{ inputs.path }}
+        QDBD_SITE: ${{ inputs.site }}
         BASE_REF: ${{ github.base_ref }}
       run: |
         file="$RUNNER_TEMP/qdbd-diff.md"
-        # shellcheck disable=SC2086
-        if qdbd diff --base "origin/$BASE_REF" $QDBD_PATH --format markdown -o "$file" --exit-code; then
-          echo "changed=false" >> "$GITHUB_OUTPUT"
+        if [ -z "$QDBD_SITE" ]; then
+          # shellcheck disable=SC2086
+          if qdbd diff --base "origin/$BASE_REF" $QDBD_PATH --format markdown -o "$file" --exit-code; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" -ne 1 ]; then exit "$code"; fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
         else
-          code=$?
-          if [ "$code" -ne 1 ]; then exit "$code"; fi
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          # One diff per diagram, as build --site builds them; folders with no schema files are skipped.
+          changed=false
+          : > "$file"
+          for p in $QDBD_PATH; do
+            if [ -d "$p" ] && [ -z "$(find "$p" -type f \( -name '*.txt' -o -name '*.dbml' \) | head -n 1)" ]; then continue; fi
+            part="$RUNNER_TEMP/qdbd-diff-part.md"
+            if qdbd diff --base "origin/$BASE_REF" "$p" --format markdown -o "$part" --exit-code; then :; else
+              code=$?
+              if [ "$code" -ne 1 ]; then exit "$code"; fi
+              changed=true
+            fi
+            { echo "## \`$p\`"; echo; cat "$part"; echo; } >> "$file"
+          done
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
         fi
         echo "file=$file" >> "$GITHUB_OUTPUT"
 
@@ -141,23 +166,25 @@ runs:
       env:
         QDBD_PATH: ${{ inputs.path }}
         QDBD_OUTPUT: ${{ inputs.output }}
+        QDBD_SITE: ${{ inputs.site }}
         QDBD_SELECT: ${{ inputs.select }}
         BASE_REF: ${{ github.base_ref }}
         IS_PR: ${{ github.event_name == 'pull_request' }}
       run: |
-        args=(-o "$QDBD_OUTPUT")
+        if [ -n "$QDBD_SITE" ]; then args=(--site "$QDBD_SITE"); html="${QDBD_SITE%/}/index.html"
+        else args=(-o "$QDBD_OUTPUT"); html="$QDBD_OUTPUT"; fi
         if [ "$IS_PR" = "true" ]; then args+=(--diff-base "origin/$BASE_REF"); fi
         if [ -n "$QDBD_SELECT" ]; then args+=(--select "$QDBD_SELECT"); fi
         # shellcheck disable=SC2086
         qdbd build $QDBD_PATH "${args[@]}"
-        echo "html=$QDBD_OUTPUT" >> "$GITHUB_OUTPUT"
+        echo "html=$html" >> "$GITHUB_OUTPUT"
 
     - name: Upload diagram
       if: inputs.upload-artifact == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: erd
-        path: ${{ inputs.output }}
+        path: ${{ inputs.site || inputs.output }}
 
     - name: Comment on pull request
       if: github.event_name == 'pull_request' && inputs.comment == 'true'

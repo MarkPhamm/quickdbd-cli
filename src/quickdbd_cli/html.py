@@ -190,3 +190,28 @@ def render_page(
         f"<script>{_asset('viewer.js')}</script>"
         f"{scripts}</body></html>\n"
     )
+
+
+INDEX_CSS = (
+    ":root{color-scheme:light dark;--fg:#1f2328;--muted:#656d76;--bg:#fff;--line:#d0d7de}"
+    "@media (prefers-color-scheme:dark){:root{--fg:#e6edf3;--muted:#8d96a0;--bg:#0d1117;--line:#30363d}}"
+    "body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}"
+    "main{max-width:640px;margin:0 auto;padding:32px 16px}h1{font-size:20px;margin:0 0 16px}"
+    "ul{list-style:none;margin:0;padding:0}li{border-top:1px solid var(--line);padding:10px 0}"
+    "a{color:inherit;font-weight:600}span{color:var(--muted);margin-left:8px}"
+)
+
+
+def render_index(pages: list[tuple[str, str, int, int]], title: str = "Diagrams") -> str:
+    """``qdbd build --site``'s index: a link per (name, href, tables, relationships)."""
+    items = "".join(
+        f'<li><a href="{_escape(href)}">{_escape(name)}</a><span>{t} tables, {r} relationships</span></li>'
+        for name, href, t, r in pages
+    )
+    return (
+        '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<meta name="generator" content="qdbd">'
+        f"{favicon()}<title>{_escape(title)}</title><style>{INDEX_CSS}</style></head>"
+        f"<body><main><h1>{_escape(title)}</h1><ul>{items}</ul></main></body></html>\n"
+    )

@@ -5,7 +5,7 @@ Every command except [`import dbt`](#import-dbt) (which takes a dbt manifest) an
 ## 8.1 check { #check }
 
 ```bash
-qdbd check PATH... [--strict] [--format text|github|json] [--symbols] [--stdin-file FILE]
+qdbd check PATH... [--strict] [--format text|github|json] [--symbols] [--stdin-file FILE] [--each]
 ```
 
 Validates the schema. Prints `No errors found. Good job!`, or `file:line: error: message` lines and exits 1. `--strict` also fails on [QuickDBD-compatibility warnings](syntax.md#where-qdbd-is-more-forgiving).
@@ -28,6 +28,8 @@ Validates the schema. Prints `No errors found. Good job!`, or `file:line: error:
 
 Paths are relative to the current directory. The exit code is the same in every format.
 
+`--each` checks every `PATH` as its own schema, the way [`build --site`](#build) builds them, so two diagrams can both have a `customers` table. Folders with no schema files are skipped, so a glob like `docs/erd/*/` works. It can't be combined with `--format json` or `--stdin-file`.
+
 Two options are there for editors, and the [VS Code extension](vscode.md) uses both:
 
 - `--symbols` (with `--format json`) adds `tables` (name, aliases, file, first and last line, columns with their lines) and `rels` (file, line and both ends) to the report.
@@ -36,10 +38,16 @@ Two options are there for editors, and the [VS Code extension](vscode.md) uses b
 ## 8.2 build { #build }
 
 ```bash
-qdbd build PATH... [-o FILE] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
+qdbd build PATH... [-o FILE | --site DIR] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
 ```
 
 Writes one self-contained HTML page, `diagram.html` unless `-o` names another. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
+
+`--site DIR` builds one page per `PATH` instead, named after it (`docs/erd/sales/` gives `DIR/sales.html`), plus `DIR/index.html` linking them all. Each `PATH` is its own schema with its own layout file, so `--layout` can't be used. Folders with no schema files are skipped. If any schema has errors, nothing is written. Files already in `DIR` are left alone, so a diagram you remove stays there until you delete it:
+
+```bash
+qdbd build docs/erd/*/ --site public/
+```
 
 ## 8.3 serve { #serve }
 

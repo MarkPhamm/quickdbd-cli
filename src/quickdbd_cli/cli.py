@@ -32,11 +32,12 @@ def _open(args) -> Project:
     return Project.open([Path(p) for p in args.paths], Path(args.layout) if getattr(args, "layout", None) else None)
 
 
+def _name(p: Path) -> str:
+    return p.stem if p.is_file() else (p.resolve().name or "diagram")
+
+
 def _title(project: Project) -> str:
-    if len(project.inputs) == 1:
-        p = project.inputs[0]
-        return p.stem if p.is_file() else (p.resolve().name or "diagram")
-    return "diagram"
+    return _name(project.inputs[0]) if len(project.inputs) == 1 else "diagram"
 
 
 def _github_annotation(d: Diagnostic, level: str) -> str:
@@ -76,7 +77,30 @@ def _symbols(schema: Schema) -> dict:
     return {"tables": tables, "rels": rels}
 
 
+def _check_each(args) -> int:
+    """Check each PATH on its own, as ``build --site`` builds them; folders with no schema files are skipped."""
+    from .project import discover
+
+    if args.format == "json" or args.stdin_file:
+        print("error: --each can't be used with --format json or --stdin-file", file=sys.stderr)
+        return 2
+    code, checked = 0, 0
+    for p in args.paths:
+        if Path(p).is_dir() and not discover([Path(p)]):
+            print(f"Skipped {p}: no .txt or .dbml schema files", file=sys.stderr)
+            continue
+        print(f"{p}:")
+        code = max(code, cmd_check(argparse.Namespace(**{**vars(args), "paths": [p], "each": False})))
+        checked += 1
+    if not checked:
+        print("error: no schema files found in: " + ", ".join(args.paths), file=sys.stderr)
+        return 2
+    return code
+
+
 def cmd_check(args) -> int:
+    if args.each:
+        return _check_each(args)
     project = _open(args)
     overrides = None
     if args.stdin_file:
@@ -143,7 +167,52 @@ def _built_page(args) -> tuple[str, dict] | int:
     return render_page(model, pos, _title(project)), model
 
 
+def _build_site(args) -> int:
+    """One page per PATH plus an index linking them, in the folder ``args.site``."""
+    from urllib.parse import quote
+
+    from .html import render_index
+    from .project import discover
+
+    if args.layout:
+        print("error: --layout can't be used with --site: each PATH uses its own layout file", file=sys.stderr)
+        return 2
+    pages, seen, failed = [], {}, 0
+    for p in map(Path, args.paths):
+        if p.is_dir() and not discover([p]):
+            print(f"Skipped {p}: no .txt or .dbml schema files", file=sys.stderr)
+            continue
+        name = _name(p)
+        if name.lower() in seen or name.lower() == "index":
+            other = seen.get(name.lower(), "the index page")
+            print(f"error: {p} and {other} would both be written to {name}.html", file=sys.stderr)
+            return 2
+        seen[name.lower()] = p
+        res = _built_page(argparse.Namespace(**{**vars(args), "paths": [str(p)]}))
+        if isinstance(res, int):
+            failed = max(failed, res)
+            continue
+        pages.append((name, *res))
+    if failed:  # nothing is written, so a failed build never leaves a half-updated site
+        return failed
+    if not pages:
+        print("error: no schema files found in: " + ", ".join(args.paths), file=sys.stderr)
+        return 2
+    out = Path(args.site)
+    out.mkdir(parents=True, exist_ok=True)
+    index = []
+    for name, page, model in pages:
+        (out / f"{name}.html").write_text(page, encoding="utf-8")
+        index.append((name, quote(f"{name}.html"), len(model["tables"]), len(model["rels"])))
+        print(f"Wrote {out / f'{name}.html'} ({len(model['tables'])} tables, {len(model['rels'])} relationships)")
+    (out / "index.html").write_text(render_index(index), encoding="utf-8")
+    print(f"Wrote {out / 'index.html'} ({len(pages)} diagrams)")
+    return 0
+
+
 def cmd_build(args) -> int:
+    if args.site:
+        return _build_site(args)
     res = _built_page(args)
     if isinstance(res, int):
         return res
@@ -575,11 +644,20 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="read this schema file's text from stdin instead of disk (an editor's unsaved buffer)",
     )
+    sp.add_argument(
+        "--each",
+        action="store_true",
+        help="check each PATH as its own schema, as build --site does (folders with no schema files are skipped)",
+    )
     sp.set_defaults(func=cmd_check)
 
     sp = sub.add_parser("build", help="write an interactive HTML diagram")
     paths(sp)
-    sp.add_argument("-o", "--output", default="diagram.html")
+    out = sp.add_mutually_exclusive_group()
+    out.add_argument("-o", "--output", default="diagram.html")
+    out.add_argument(
+        "--site", metavar="DIR", help="one page per PATH (named after it) plus an index.html linking them, in DIR"
+    )
     selectors(sp)
     sp.add_argument(
         "--diff-base", metavar="GIT_REF", help="colour tables/columns changed since this git ref (e.g. origin/main)"
