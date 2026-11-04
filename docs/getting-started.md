@@ -35,6 +35,8 @@ No errors found. Good job!
 
 Errors print as `schema.txt:12: error: …`, using QuickDBD's own messages, and exit with code 1. That makes the same command a CI gate ([7. CI and Automation](github-action.md)).
 
+![qdbd check reporting an error and a warning](assets/img/term-check.png)
+
 ## 2.3 Edit it live { #edit-it-live }
 
 ```bash
@@ -47,6 +49,8 @@ A browser tab opens with the diagram and an editor pane. The editor pane loads C
 - **Drag tables** to arrange them. Positions are saved to `schema.layout.json`; commit it with the schema ([3.4 Table Positions](layout.md)).
 - **Stop** the server with ++ctrl+c++.
 
+![qdbd serve: the editor pane on the left, the live diagram on the right](assets/img/serve.png){ .shot }
+
 ## 2.4 Build a page to share { #build-and-share }
 
 ```bash
@@ -57,6 +61,10 @@ qdbd build schema.txt -o schema.html
 
 In the page, click a table to see its details, type `+Order` in the filter, or press **Link** to copy a URL to exactly what you're looking at. The tour is in [4.1 Reading the Diagram](reading-the-diagram.md).
 
+![qdbd build output](assets/img/term-build.png)
+
+![The built page: the online shop sample, with the table list and the toolbar](assets/img/quickstart.png){ .shot }
+
 ## 2.5 Export an image { #export-an-image }
 
 ```bash
@@ -65,6 +73,10 @@ qdbd export schema.txt --focus Order --depth 1 -o order.svg   # one table and it
 ```
 
 `.drawio` files open in [diagrams.net](https://app.diagrams.net) as editable ER shapes. More: [4.3 Exports](exports.md).
+
+![qdbd export output](assets/img/term-export.png)
+
+![A PNG from qdbd export: Order and its neighbours, keys only](assets/img/export.png){ .shot }
 
 ## 2.6 Where next { #next }
 

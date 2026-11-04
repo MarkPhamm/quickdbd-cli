@@ -33,6 +33,8 @@ On pull requests it also:
 5. builds the diagram with `--diff-base`, so changes are highlighted;
 6. posts **one** comment with the markdown diff, and updates that same comment on later pushes. A pull request that changes no schema gets no comment. On pull requests from forks, whose token is read-only, the diff goes to the run summary instead.
 
+![The pull request's diagram, built with --diff-base](assets/img/diff.png){ .shot }
+
 ## 7.2 Inputs { #inputs }
 
 | Input | Default | |

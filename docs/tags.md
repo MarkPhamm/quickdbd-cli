@@ -91,6 +91,8 @@ Hand-tagging is for proposals. To get added, removed and changed columns from gi
 - **Details panel:** the table's tags and each column's tags, as clickable chips.
 - **Minimap and exports:** PNG, SVG and draw.io keep the header colours.
 
+![A star schema coloured by tag, with the legend chips under the filter box](assets/img/tags.png){ .shot }
+
 ## Selecting by tag
 
 `tag:` works like dbt's tag selector, in the page's filter box and with `-s`:

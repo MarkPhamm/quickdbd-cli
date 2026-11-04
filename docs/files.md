@@ -38,4 +38,6 @@ To arrange the diagram so each file's tables sit together, add `--by-group`:
 qdbd build schema/ --by-group -o schema.html
 ```
 
+![qdbd build --by-group output, with the region count](assets/img/term-build-by-group.png)
+
 ![Regions](assets/img/regions.png){ .shot }
