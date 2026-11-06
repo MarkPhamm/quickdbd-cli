@@ -128,19 +128,23 @@ def _paths(root: Path) -> tuple[dict[str, list[Path]], list[Path]]:
     cfg = _yaml(root / "dbt_project.yml", root)
     cfg = cfg if isinstance(cfg, dict) else {}
 
-    def get(key: str, old: str | None, default: str) -> list[Path]:
-        v = cfg.get(key) or (cfg.get(old) if old else None) or [default]
-        return [root / p for p in ([v] if isinstance(v, str) else v)]
+    def get(key: str, old: str | None = None, default: str | None = None) -> list[Path]:
+        v = cfg.get(key) or (cfg.get(old) if old else None) or ([default] if default else [])
+        out = []
+        for p in [v] if isinstance(v, str) else v:
+            # dbt resolves these inside the project; anything else (`/`, `../..`) would walk the whole disk
+            if not (root / str(p)).resolve().is_relative_to(root.resolve()):
+                raise DbtError(f"dbt_project.yml: {key} '{p}' is outside the project")
+            out.append(root / str(p))
+        return out
 
     kinds = {
         "model": get("model-paths", "source-paths", "models"),
         "seed": get("seed-paths", "data-paths", "seeds"),
         "snapshot": get("snapshot-paths", None, "snapshots"),
     }
-    docs = cfg.get("docs-paths")
-    if docs:
-        doc_dirs = [root / p for p in ([docs] if isinstance(docs, str) else docs)]
-    else:  # dbt's default: every resource path
+    doc_dirs = get("docs-paths")
+    if not doc_dirs:  # dbt's default: every resource path
         doc_dirs = [d for ds in kinds.values() for d in ds]
         doc_dirs += get("analysis-paths", None, "analyses") + get("macro-paths", None, "macros")
     return kinds, doc_dirs

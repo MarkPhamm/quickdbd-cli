@@ -153,6 +153,14 @@ def test_invalid_yml_is_an_error_naming_the_yml_line(tmp_path):
     assert "models/schema.yml:" in s.errors[0].message and "invalid YAML" in s.errors[0].message
 
 
+@pytest.mark.parametrize("paths, bad", [('["/"]', "/"), ('["../.."]', "../.."), ('"models/../../x"', "models/../../x")])
+def test_resource_paths_must_stay_inside_the_project(tmp_path, paths, bad):
+    root = project(tmp_path, ORDERS_YML)
+    (root / "dbt_project.yml").write_text(f"name: p\nmodel-paths: {paths}\n")
+    s = compile_here(tmp_path, "# @dbt: dbt\n\norders\n-\norder_id int\n")
+    assert [d.message for d in s.errors] == [f"dbt: dbt_project.yml: model-paths '{bad}' is outside the project"]
+
+
 def test_files_must_agree_on_the_project(tmp_path):
     project(tmp_path, ORDERS_YML)
     (tmp_path / "other").mkdir()
