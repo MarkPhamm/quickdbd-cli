@@ -174,10 +174,12 @@ def _comment_lines(text: str) -> list[str]:
     return out
 
 
-def _node_tags(n: dict) -> list[str]:
+def node_tags(n: dict) -> list[str]:
     """dbt tags (node-level and config), lowercased, in order, usable as qdbd tag names."""
     out: list[str] = []
-    raw = list(n.get("tags") or []) + list((n.get("config") or {}).get("tags") or [])
+    raw: list = []
+    for v in (n.get("tags"), (n.get("config") or {}).get("tags")):
+        raw += [v] if isinstance(v, str) else list(v or [])  # yml allows `tags: pii`
     for tag in raw:
         tag = re.sub(r"[^a-z0-9_.-]+", "-", str(tag).lower()).strip("-.")
         if tag and tag not in out:
@@ -243,7 +245,7 @@ class _Importer:
             name = self._base_name(n)
             if names[name] > 1:  # same name in two packages
                 name = f"{n.get('package_name')}.{name}"
-            t = Tbl(n["unique_id"], name, self._group(n), n.get("description") or "", tags=_node_tags(n))
+            t = Tbl(n["unique_id"], name, self._group(n), n.get("description") or "", tags=node_tags(n))
             self._columns(t, n)
             self.tables[t.uid] = t
             self.by_name.setdefault(n.get("name", "").lower(), []).append(t.uid)

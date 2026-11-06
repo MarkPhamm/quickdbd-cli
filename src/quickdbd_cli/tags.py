@@ -4,7 +4,7 @@ A table's tags come from the first source that has any:
 
 1. explicit ``# @tag: dim, pii`` comments;
 2. its name: ``dim_*`` / ``DimCustomer`` -> dim, ``fct_*`` -> fact, ``stg_*`` -> staging, ...;
-3. ``# @dbt-tags: ...`` comments written by ``qdbd import dbt``.
+3. dbt tags: ``# @dbt-tags: ...`` comments written by ``qdbd import dbt``, and the yml's tags (``# @dbt: PATH``).
 
 The header takes the colour of the table's first tag. ``# @color TAG #hex`` overrides the defaults, and a DBML
 ``headercolor`` beats both.
@@ -70,7 +70,7 @@ def table_tags(t: Table) -> list[str]:
     tag = name_tag(t.name)
     if tag:
         return [tag]
-    return list(t.dbt_tags)
+    return list(dict.fromkeys(t.dbt_tags + (t.dbt.tags if t.dbt else [])))
 
 
 def tag_colors(schema: Schema, tag_lists: Iterable[list[str]]) -> dict[str, str]:

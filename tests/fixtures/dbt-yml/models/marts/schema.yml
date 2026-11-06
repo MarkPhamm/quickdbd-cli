@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: orders
+    description: '{{ doc("orders") }}'
+    config:
+      tags: [finance]
+    columns:
+      - name: order_id
+        description: Primary key.
+        data_type: integer
+      - name: status
+        description: "{{ doc('order_status') }}"
+        data_type: varchar(20)
+        tags: pii
+      - name: amount
+        description: Order total, in cents.
+        data_type: numeric(10,2)
+      - name: shipped_at
+        description: When the order left the warehouse.
+
+  - name: customers
+    description: One row per customer.
+    tags: crm
+    columns:
+      - name: customer_id
+        description: Primary key.
+      - name: name
+        description: Full name.
+        data_type: string
+
+sources:
+  - name: shop
+    tables:
+      - name: raw_payments
+        description: Payments as loaded from the shop database.

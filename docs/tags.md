@@ -23,7 +23,7 @@ A table's tags come from the **first** of these that gives it any:
 |---|---|---|
 | 1 | an explicit `# @tag:` comment above the table (or at the end of its name line) | `# @tag: gold, pii` |
 | 2 | the table's name | `dim_customer` → `dim` |
-| 3 | dbt tags, written by [`qdbd import dbt`](dbt.md) | `# @dbt-tags: nightly, finance` |
+| 3 | dbt tags, written by [`qdbd import dbt`](dbt.md), or from the yml of a [linked dbt project](dbt.md#descriptions-from-dbt-yml) | `# @dbt-tags: nightly, finance` |
 
 So an explicit tag overrides the name, and the name overrides dbt's tags. `@tag` and `@tags` both work; separate several tags with commas or spaces. Tag names are case-insensitive.
 

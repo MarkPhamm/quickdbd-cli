@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
+from . import dbtyml
 from .model import REL_TYPES, VIRTUAL_FIELD, Column, Diagnostic, End, Relationship, Schema, Table
 
 SECTIONS = ["tables", "settings", "layout"]
@@ -25,8 +27,14 @@ REJECT = "QuickDBD would reject this: "
 # qdbd directives live in comments, so files stay valid QuickDBD.
 TAG_RE = re.compile(r"^@(tags?|dbt-tags?)\s*:?\s*(.*)$", re.I)
 COLOR_RE = re.compile(r"^@colou?r\b\s*:?\s*(.*)$", re.I)
+DBT_RE = re.compile(r"^@dbt\s*:\s*(.*?)\s*$", re.I)  # `@dbt: PATH` (file) or `@dbt: none` (above a table)
 TAG_NAME_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
 HEX_RE = re.compile(r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+
+
+def is_dbt_none(comment: str) -> bool:
+    m = DBT_RE.match(comment)
+    return bool(m) and m.group(1).lower() == "none"
 
 
 def split_tags(text: str) -> list[str]:
@@ -219,6 +227,13 @@ class FileParse:
     unmodelled: list[tuple[int, str]] = field(default_factory=list)  # DBML: (line, what) parsed, not drawn
     enums: dict[str, list[str]] = field(default_factory=dict)  # DBML: enum name -> values
     groups: dict[str, int] = field(default_factory=dict)  # DBML: TableGroup name -> line
+    dbt: tuple[str, int] | None = None  # `# @dbt: PATH`: (path as written, line)
+
+    def set_dbt(self, value: str, line: int) -> None:
+        if self.dbt and self.dbt[0] != value:
+            self.error(line, f"@dbt differs from line {self.dbt[1]} ('{self.dbt[0]}')")
+        elif not self.dbt:
+            self.dbt = (value, line)
 
     def error(self, line: int, msg: str) -> None:
         self.diagnostics.append(Diagnostic(self.path, line, msg, "error"))
@@ -253,6 +268,10 @@ class _FileParser:
                 # the hex value has its own '#', which line_data treats as the end of the comment
                 full = re.search(r"#\s*(@colou?r\b.*)$", raw, re.I)
                 self._color(full.group(1).strip() if full else comment, lineno)
+                comment = None
+            m = DBT_RE.match(comment) if comment else None
+            if m and not is_dbt_none(comment):
+                self.fp.set_dbt(m.group(1), lineno)
                 comment = None
             if comment:
                 pending.append(comment)
@@ -410,7 +429,9 @@ class _FileParser:
             table = Table(ident, caption, fp.path, e.line, aliases, {})
             for c in e.comments:
                 m = TAG_RE.match(c)
-                if not m:
+                if is_dbt_none(c):
+                    table.dbt_skip = True
+                elif not m:
                     table.comments.append(c)
                 elif m.group(1).lower().startswith("dbt"):
                     table.dbt_tags += [t for t in split_tags(m.group(2)) if t not in table.dbt_tags]
@@ -567,6 +588,7 @@ class _FileParser:
                 for c in t.columns.values():
                     if c.type is None and not c.virtual:
                         c.type = default_type
+                        c.type_default = True
         self.fp.layout_entries = sections["layout"]
         return self.fp
 
@@ -628,8 +650,9 @@ def parse_file(text: str, path: str = "<input>") -> FileParse:
 
 
 class _Resolver:
-    def __init__(self, files: list[FileParse]):
+    def __init__(self, files: list[FileParse], dbt: bool = True):
         self.files = files
+        self.dbt = dbt
         self.schema = Schema()
         self.aliases: dict[str, str] = {}
         self._diag: dict[str, list[Diagnostic]] = {f.path: f.diagnostics for f in files}
@@ -803,10 +826,29 @@ class _Resolver:
                     continue
                 s.layout[t.id] = (float(xs), float(ys))
 
+    def apply_dbt(self) -> None:
+        """`# @dbt: PATH`: descriptions, tags and types from that dbt project's yml, plus drift warnings."""
+        named = [(f, Path(f.path).parent / f.dbt[0], f.dbt[1]) for f in self.files if f.dbt]
+        if not named:
+            return
+        first, path, line = named[0]
+        for f, other, ln in named[1:]:
+            if other.resolve() != path.resolve():
+                self.error(f.path, ln, f"@dbt names a different dbt project than {first.path}:{line}")
+        try:
+            self.schema.dbt_root = dbtyml.find_root(path)  # set first: `qdbd serve` watches it even while broken
+            project = dbtyml.load_project(self.schema.dbt_root)
+        except (dbtyml.DbtError, OSError) as e:
+            self.error(first.path, line, f"dbt: {e}")
+            return
+        dbtyml.apply(self.schema, project, self.error)
+
     def run(self) -> Schema:
         self.merge()
         self.resolve_rels()
         self.parse_layout()
+        if self.dbt:
+            self.apply_dbt()
         diags = [d for f in self.files for d in self._diag.get(f.path, [])]
         order = {f.path: i for i, f in enumerate(self.files)}
         diags.sort(key=lambda d: (order.get(d.path, 0), d.line))
@@ -820,15 +862,17 @@ def _same_rel(r: Relationship, a: End, b: End) -> bool:
     )
 
 
-def compile_files(sources: list[tuple[str, str]]) -> tuple[Schema, list[FileParse]]:
+def compile_files(sources: list[tuple[str, str]], dbt: bool = True) -> tuple[Schema, list[FileParse]]:
     """Like ``compile_sources``, also returning each file's own parse (comments, settings, DBML extras)."""
     files = [parse_file(text, path) for path, text in sources]
-    return _Resolver(files).run(), files
+    return _Resolver(files, dbt).run(), files
 
 
-def compile_sources(sources: list[tuple[str, str]]) -> Schema:
-    """Compile ``[(path, text), ...]`` into one Schema (tables share one namespace)."""
-    return compile_files(sources)[0]
+def compile_sources(sources: list[tuple[str, str]], dbt: bool = True) -> Schema:
+    """Compile ``[(path, text), ...]`` into one Schema (tables share one namespace).
+
+    ``dbt=False`` skips `# @dbt:` (the yml is read from disk, which a converted or git-ref copy can't rely on)."""
+    return compile_files(sources, dbt)[0]
 
 
 def compile_text(text: str, path: str = "<input>") -> Schema:

@@ -79,6 +79,7 @@ Declare a relationship once, in either direction.
 - Tags give tables a role and a header colour: `# @tag: gold, pii` above a table. Names like `dim_`, `fct_`, `stg_`, `int_`, `raw_` are tagged automatically.
 - `# @color gold #b8860b` sets a tag's colour (anywhere in any file).
 - Columns take tags too, on or above the column line: `discount decimal # @tag: added`. The row is tinted in the tag's colour; `added` is green, `removed` is red and struck through. Use them to mark proposed column changes for review.
+- `# @dbt: ../my_dbt_project` (anywhere in one file; the path is relative to that file) links a dbt project. Tables matching a model, seed, snapshot or source (`"source_name.table"`) by name get its yml description (shown before the comment), tags and `data_type` (for columns with no type). Where the schema and the yml disagree, `qdbd check` warns (`--strict` fails). `# @dbt: none` above a table skips it.
 
 ## Settings and layout sections
 
@@ -128,7 +129,7 @@ Ref: order_items.(order_id, region) > orders.(id, region)
 - Drawn: tables (`schema.table`, `public.users` = `users`), columns and types, `pk`, `null`, `unique`, `increment`, `default:`, indexes, `note`/`Note`, every `Ref` form (short, long, inline, composite, with `?` for an optional side), `TableGroup`, `headercolor`, `TablePartial`.
 - Accepted but not drawn: `Project`, `Enum` (the column shows the enum name as its type), `checks`, `records`, sticky notes, ref `delete:`/`update:`, `TableGroup` colours and notes.
 - `use` imports aren't followed: every file you give qdbd is read into one namespace.
-- `// @tag:` and `// @color` comments work; plain `//` comments are not documentation (use `note`).
+- `// @tag:`, `// @color` and `// @dbt:` comments work; plain `//` comments are not documentation (use `note`).
 
 # Notes
 

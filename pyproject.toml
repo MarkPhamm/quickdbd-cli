@@ -25,6 +25,7 @@ classifiers = [
 ]
 dependencies = [
   "mini-racer>=0.14",
+  "pyyaml>=6",
   "resvg-py>=0.5",
 ]
 

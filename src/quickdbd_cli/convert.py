@@ -38,7 +38,7 @@ class ConvertResult:
 
 def convert(sources: list[tuple[str, str, str]], to: str, split_groups: bool) -> ConvertResult:
     """``sources``: ``(display path, output-relative path, text)``. Files already in ``to`` are copied as is."""
-    schema, parses = compile_files([(d, t) for d, _, t in sources])
+    schema, parses = compile_files([(d, t) for d, _, t in sources], dbt=False)
     res = ConvertResult()
     for t in schema.tables.values():
         if t.id in schema.layout:
@@ -88,7 +88,10 @@ def canonical(schema: Schema, lost: set[tuple]) -> dict:
                 if ("col", t.name, c.name, k) in lost:
                     del col[k]
             cols[c.name] = col
-        table = {"cols": cols, "doc": _doc(t.comments), "aliases": t.aliases, "tags": t.tags, "dbt_tags": t.dbt_tags}
+        table = {
+            "cols": cols, "doc": _doc(t.comments), "aliases": t.aliases, "tags": t.tags, "dbt_tags": t.dbt_tags,
+            "dbt_skip": t.dbt_skip,
+        }  # fmt: skip
         for k in list(table):
             if ("table", t.name, k) in lost:
                 del table[k]
@@ -153,7 +156,9 @@ class _DbmlWriter:
                 self.warn(line, f"settings: [settings] {k.capitalize()} has no DBML equivalent; dropped")
         for tag, (color, _) in sorted(fp.colors.items()):
             lines.append(f"// @color {tag} {color}")
-        if fp.colors:
+        if fp.dbt:  # shortcut: kept as written, so it breaks if -o puts the file in another folder
+            lines.append(f"// @dbt: {fp.dbt[0]}")
+        if fp.colors or fp.dbt:
             lines.append("")
         for t in (t for t in self.schema.tables.values() if t.path == fp.path):
             lines += self.table(t)
@@ -170,6 +175,8 @@ class _DbmlWriter:
             out.append(f"// @tag: {', '.join(t.tags)}")
         if t.dbt_tags:
             out.append(f"// @dbt-tags: {', '.join(t.dbt_tags)}")
+        if t.dbt_skip:
+            out.append("// @dbt: none")
         head = f"Table {_dbml_name(t.name)}"
         if t.aliases:
             head += f" as {_dbml_name(t.aliases[0])}"
@@ -313,6 +320,8 @@ class _QuickdbdWriter:
             header.append(f"# enum {name}: {', '.join(values)}")
         for tag, (color, _) in sorted(fp.colors.items()):
             header.append(f"# @color {tag} {color}")
+        if fp.dbt:  # shortcut: kept as written, so it breaks if -o puts the file in another folder
+            header.append(f"# @dbt: {fp.dbt[0]}")
         if not self.split:
             for group, line in fp.groups.items():
                 self.warn(line, f"TableGroup {group}: QuickDBD groups tables by file (use -o DIR to split); dropped")
@@ -347,6 +356,8 @@ class _QuickdbdWriter:
             out.append(f"# @tag: {', '.join(t.tags)}")
         if t.dbt_tags:
             out.append(f"# @dbt-tags: {', '.join(t.dbt_tags)}")
+        if t.dbt_skip:
+            out.append("# @dbt: none")
         out.append(_qdbd_name(t.name) + (f" as {', '.join(t.aliases)}" if t.aliases else ""))
         out.append("-")
         for c in t.columns.values():

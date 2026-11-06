@@ -61,11 +61,12 @@ def _column_json(col: Column) -> dict:
     bold = col.pk or col.fk
     name_w = text_width(col.name, s["rowSize"], bold)
     bs = [{"t": b, "w": round(text_width(b, s["badgeSize"]) + 2 * s["badgePad"], 2)} for b in badges(col)]
-    type_w = text_width(col.type or "", s["rowSize"])
+    typ = col.shown_type() or ""
+    type_w = text_width(typ, s["rowSize"])
     out = {
         "id": col.id,
         "name": col.name,
-        "type": col.type or "",
+        "type": typ,
         "pk": col.pk,
         "fk": col.fk,
         "nullable": col.nullable,
@@ -77,10 +78,11 @@ def _column_json(col: Column) -> dict:
         "typeW": type_w,
         "badges": bs,
     }
-    if col.comments:
-        out["doc"] = "\n".join(col.comments)
-    if col.tags:
-        out["tags"] = list(col.tags)
+    if col.doc():
+        out["doc"] = col.doc()
+    tags = col.tags or (col.dbt.tags if col.dbt else [])
+    if tags:
+        out["tags"] = list(tags)
     return out
 
 
@@ -98,8 +100,8 @@ def table_json(table: Table) -> dict:
     w = max(round(w), s["minW"])
     h = s["headerH"] + len(cols) * s["rowH"] + s["bottomPad"]
     out = {"id": table.id, "name": table.name, "aliases": table.aliases, "w": w, "h": h, "nameW": name_w, "cols": cols}
-    if table.comments:
-        out["doc"] = "\n".join(table.comments)
+    if table.doc():
+        out["doc"] = table.doc()
     return out
 
 
