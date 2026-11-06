@@ -16,7 +16,18 @@ import unicodedata
 from dataclasses import dataclass, field
 
 from .model import Column, Diagnostic, Table
-from .parser import COLOR_RE, HEX_RE, TAG_NAME_RE, TAG_RE, FileParse, PendingRel, encode, split_tags
+from .parser import (
+    COLOR_RE,
+    DBT_RE,
+    HEX_RE,
+    TAG_NAME_RE,
+    TAG_RE,
+    FileParse,
+    PendingRel,
+    encode,
+    is_dbt_none,
+    split_tags,
+)
 
 # Relationship operator -> (cardinality of the left end, of the right end). A `?` makes its own side optional.
 _BASE = {"-": ("one", "one"), "<>": ("many", "many"), ">": ("many", "one"), "<": ("one", "many")}
@@ -1287,7 +1298,9 @@ class _Interpreter:
         line = t.line - 1
         while line in self.comments and line not in self.code_lines:
             m = TAG_RE.match(self.comments[line])
-            if m:
+            if is_dbt_none(self.comments[line]):
+                t.dbt_skip = True
+            elif m:
                 target = t.dbt_tags if m.group(1).lower().startswith("dbt") else t.tags
                 target[:0] = [x for x in split_tags(m.group(2)) if x not in target]
             line -= 1
@@ -1306,10 +1319,17 @@ class _Interpreter:
 
     def colors(self) -> None:
         first_code = min(self.code_lines, default=0)
+
+        def directive(text: str) -> bool:
+            return bool(COLOR_RE.match(text) or (DBT_RE.match(text) and not is_dbt_none(text)))
+
         self.fp.general_comments = [
-            text for line, text in sorted(self.comments.items()) if line < first_code and not COLOR_RE.match(text)
+            text for line, text in sorted(self.comments.items()) if line < first_code and not directive(text)
         ]
         for line, text in sorted(self.comments.items()):
+            d = DBT_RE.match(text)
+            if d and not is_dbt_none(text):
+                self.fp.set_dbt(d.group(1), line)
             m = COLOR_RE.match(text)
             if not m:
                 continue

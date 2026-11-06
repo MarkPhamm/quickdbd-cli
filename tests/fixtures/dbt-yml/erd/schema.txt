@@ -1,0 +1,34 @@
+# Shop ERD
+# @dbt: ..
+
+# The shop's view of an order
+orders
+-
+order_id PK int
+status varchar(255)
+amount int
+note string
+
+customers
+-
+customer_id PK int
+# Full name.
+name
+
+# no yml, but the model exists
+payments
+-
+payment_id PK int
+
+"shop.raw_payments"
+-
+id int
+
+# @dbt: none
+planned_refunds
+-
+refund_id PK int
+
+ghost
+-
+id int

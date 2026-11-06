@@ -175,7 +175,7 @@ def sources_at_ref(ref: str, inputs: list[Path]) -> list[tuple[str, str]]:
 
 
 def schema_at_ref(ref: str, inputs: list[Path]) -> Schema:
-    return compile_sources(sources_at_ref(ref, inputs))
+    return compile_sources(sources_at_ref(ref, inputs), dbt=False)
 
 
 # --------------------------------------------------------------------------- output

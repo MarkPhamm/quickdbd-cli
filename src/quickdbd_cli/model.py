@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 VIRTUAL_FIELD = "qdbdvirtualfield"
 
@@ -32,6 +33,25 @@ class Diagnostic:
 
 
 @dataclass
+class DbtInfo:
+    """What a dbt project's yml says about a table or column. Kept apart from comments/type/tags, so
+    `qdbd convert` never writes it into schema files."""
+
+    doc: str = ""
+    tags: list[str] = field(default_factory=list)
+    type: str | None = None
+
+
+def merged_doc(dbt: DbtInfo | None, comments: list[str]) -> str:
+    """The dbt description first, then the schema file's comments (once, if they say the same)."""
+    own = "\n".join(comments)
+    theirs = dbt.doc if dbt else ""
+    if not theirs or " ".join(theirs.split()) == " ".join(own.split()):
+        return own
+    return theirs + ("\n" + own if own else "")
+
+
+@dataclass
 class Column:
     id: str
     name: str
@@ -48,6 +68,16 @@ class Column:
     virtual: bool = False
     comments: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)  # `# @tag: ...` comments
+    type_default: bool = False  # type came from the file's DefaultFieldType setting
+    dbt: DbtInfo | None = None  # from the dbt project's yml (`# @dbt: PATH`)
+
+    def shown_type(self) -> str | None:
+        if self.dbt and self.dbt.type and (self.type is None or self.type_default):
+            return self.dbt.type
+        return self.type
+
+    def doc(self) -> str:
+        return merged_doc(self.dbt, self.comments)
 
 
 @dataclass
@@ -64,6 +94,11 @@ class Table:
     group: str | None = None  # DBML TableGroup; else the explorer groups by file
     color: str | None = None  # DBML headercolor; beats tag colours
     end_line: int | None = None  # DBML: the closing `}` line
+    dbt_skip: bool = False  # `# @dbt: none` above the table
+    dbt: DbtInfo | None = None  # from the dbt project's yml (`# @dbt: PATH`)
+
+    def doc(self) -> str:
+        return merged_doc(self.dbt, self.comments)
 
 
 @dataclass
@@ -91,6 +126,7 @@ class Schema:
     diagnostics: list[Diagnostic] = field(default_factory=list)
     general_comments: list[str] = field(default_factory=list)
     tag_colors: dict[str, str] = field(default_factory=dict)  # `# @color TAG #hex`
+    dbt_root: Path | None = None  # the dbt project named by `# @dbt: PATH`
 
     @property
     def errors(self) -> list[Diagnostic]:

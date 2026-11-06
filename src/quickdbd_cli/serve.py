@@ -1,12 +1,13 @@
 """`qdbd serve`: local live editor.
 
-Watches the schema files (mtime polling), recompiles on change and pushes a reload event to the
-page over Server-Sent Events. Dragged table positions are saved to the layout sidecar; the
-browser editor pane writes the .txt/.dbml files, refusing to overwrite a file changed on disk since
-the browser last loaded it. With ``read_only`` the page is the plain viewer plus live reload, and
-the server never writes anything. With ``embed`` (the VS Code extension's preview) the page is the
-viewer plus live reload; dragging still saves the layout, but files are only edited in VS Code. With
-``diff_base`` every reload is coloured by its changes since that git ref, like ``build --diff-base``.
+Watches the schema files and the dbt project a `# @dbt:` line names (mtime polling), recompiles on
+change and pushes a reload event to the page over Server-Sent Events. Dragged table positions are
+saved to the layout sidecar; the browser editor pane writes the .txt/.dbml files, refusing to
+overwrite a file changed on disk since the browser last loaded it. With ``read_only`` the page is
+the plain viewer plus live reload, and the server never writes anything. With ``embed`` (the VS Code
+extension's preview) the page is the viewer plus live reload; dragging still saves the layout, but
+files are only edited in VS Code. With ``diff_base`` every reload is coloured by its changes since
+that git ref, like ``build --diff-base``.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from . import diff, layout
+from . import dbtyml, diff, layout
 from .html import render_page
 from .parser import syntax_of
 from .project import Project, discover, display_path
@@ -43,16 +44,26 @@ class State:
         self.files: list[Path] = []
         # mtimes are strings: nanosecond integers exceed JavaScript's safe integer range.
         self.mtimes: dict[str, str] = {}
+        self.dbt_root: Path | None = None
         self.reload(initial=True)
 
     def _scan(self) -> dict[str, str]:
         self.files = discover(self.project.inputs)
         self.project.files = self.files
-        return {display_path(f): str(f.stat().st_mtime_ns) for f in self.files}
+        out = {display_path(f): str(f.stat().st_mtime_ns) for f in self.files}
+        if self.dbt_root:
+            try:
+                out.update({f"dbt:{f}": str(f.stat().st_mtime_ns) for f in dbtyml.watched_files(self.dbt_root)})
+            except (dbtyml.DbtError, OSError):
+                out["dbt:"] = "unreadable"
+        return out
 
     def reload(self, initial: bool = False) -> None:
         mtimes = self._scan()
         schema = self.project.compile()
+        if schema.dbt_root != self.dbt_root:  # a `# @dbt:` line was added, removed or changed
+            self.dbt_root = schema.dbt_root
+            mtimes = self._scan()
         diags = [
             {"path": d.path, "line": d.line, "message": d.message, "severity": d.severity, "text": d.format()}
             for d in schema.diagnostics

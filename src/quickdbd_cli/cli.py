@@ -57,14 +57,14 @@ def _symbols(schema: Schema) -> dict:
     tables = []
     for t in schema.tables.values():
         cols = [
-            {"name": c.name, "line": c.line, "type": c.type, "pk": c.pk, "fk": c.fk}
+            {"name": c.name, "line": c.line, "type": c.shown_type(), "pk": c.pk, "fk": c.fk}
             for c in t.columns.values()
             if not c.virtual
         ]
         end = t.end_line or max([t.line + 1] + [c["line"] for c in cols])
         table = {"name": t.name, "aliases": t.aliases, "file": t.path, "line": t.line, "endLine": end, "columns": cols}
-        if t.comments:
-            table["doc"] = "\n".join(t.comments)
+        if t.doc():
+            table["doc"] = t.doc()
         tables.append(table)
 
     def end(e) -> dict:
@@ -337,13 +337,13 @@ def cmd_convert(args) -> int:
         root = next((p for p in inputs if p.is_dir() and f.resolve().is_relative_to(p.resolve())), None)
         rel = f.resolve().relative_to(root.resolve()).as_posix() if root else f.name
         sources.append((str(f), rel, f.read_text(encoding="utf-8")))
-    schema = compile_sources([(d, t) for d, _, t in sources])
+    schema = compile_sources([(d, t) for d, _, t in sources], dbt=False)
     if not _print_diagnostics(schema, False):
         return 1
     res = convert.convert(sources, args.to, split_groups=to_dir)
     for w in res.warnings:
         print(w.format(), file=sys.stderr)
-    again = compile_sources(list(res.files.items()))
+    again = compile_sources(list(res.files.items()), dbt=False)
     if again.errors or convert.canonical(again, res.lost) != convert.canonical(schema, res.lost):
         for d in again.errors:
             print(d.format(), file=sys.stderr)

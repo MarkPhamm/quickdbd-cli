@@ -93,7 +93,13 @@ export function activate(context: vscode.ExtensionContext): Api {
     registerSymbols(checker),
     vscode.workspace.onDidOpenTextDocument((doc) => void opened(doc, checker)),
     vscode.workspace.onDidChangeTextDocument((e) => checker.schedule(e.document, TYPING_DELAY)),
-    vscode.workspace.onDidSaveTextDocument((doc) => checker.schedule(doc, 0)),
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      checker.schedule(doc, 0);
+      // dbt yml / docs blocks feed schemas with a `# @dbt:` line: their descriptions and drift warnings
+      if (!/\.(ya?ml|md)$/i.test(doc.uri.fsPath)) return;
+      vscode.workspace.textDocuments.forEach((d) => checker.schedule(d, 0));
+      sidebar.schemas.refresh();
+    }),
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("quickdbd.qdbdPath")) qdbd.reset();
       if (!e.affectsConfiguration("quickdbd")) return;

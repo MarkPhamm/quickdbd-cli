@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+- Schemas with a `# @dbt: PATH` line (qdbd 0.5.0+) take descriptions, tags and types from that dbt project's yml, and show drift warnings where the schema and dbt disagree. Saving a `.yml` or `.md` file now re-checks open schemas and the sidebar, so those stay current. See [dbt descriptions](https://qdbd.dev/dbt/#descriptions-from-dbt-yml).
+
 ## 0.6.1
 
 - The description links the [60-second demo video](https://qdbd.dev/#demo).

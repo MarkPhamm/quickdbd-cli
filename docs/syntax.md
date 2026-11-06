@@ -68,6 +68,8 @@ Targets can be aliases; quoted names work in targets too: `FK >- "dbo.Customer".
 
 `#` starts a comment, except inside double quotes. Comment lines directly above a table or column, plus a comment at the end of its line, become its **documentation**, shown as a tooltip and in the details panel.
 
+If the descriptions already live in a dbt project's yml, `# @dbt: PATH` brings them in instead of copying them ([Descriptions from dbt yml](dbt.md#descriptions-from-dbt-yml)).
+
 ## Settings and layout sections
 
 ```text
