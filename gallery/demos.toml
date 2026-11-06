@@ -27,7 +27,7 @@ caption = "AdventureWorks DW (28 tables), a star schema in five regions, built b
 [[group]]
 id = "features"
 title = "Feature tour"
-description = "One 200-table schema and a small shop, seen through each qdbd feature: search, selectors, join paths, regions, diffs and tags."
+description = "One 200-table schema and a small shop, seen through each qdbd feature: search, selectors, join paths, regions, diffs, tags and descriptions pulled from dbt yml."
 
 [[group]]
 id = "samples"
@@ -104,6 +104,15 @@ title = "Tags and colours"
 description = "A star schema coloured by tag: dim_, fct_ and stg_ prefixes, plus @tag and @color comments."
 source = "gallery/tags"
 tags = ["tags", "colours", "star schema"]
+
+[[demo]]
+id = "dbt-docs"
+group = "features"
+title = "Descriptions from dbt"
+description = "A hand-written shop schema. One # @dbt: line fills descriptions, tags and column types from the dbt project's yml."
+source = "gallery/dbt-docs/schema.txt"
+view = "t=orders"
+tags = ["dbt", "yml", "descriptions", "docs"]
 
 [[demo]]
 id = "adventureworks"

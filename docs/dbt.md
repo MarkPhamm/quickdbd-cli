@@ -81,7 +81,11 @@ Re-run the import whenever models change. Generated files say so in their header
 
 ## Descriptions from dbt yml
 
-`qdbd import dbt` writes the whole schema for you. If you'd rather **draw the ERD by hand** but your dbt yml already documents the models, link the dbt project instead of copying its descriptions:
+`qdbd import dbt` writes the whole schema for you. If you'd rather **draw the ERD by hand** but your dbt yml already documents the models, link the dbt project instead of copying its descriptions.
+
+<iframe class="demo" src="../demo/dbt-docs/#t=orders" title="Descriptions from dbt yml"></iframe>
+
+*The [descriptions demo](../demo/dbt-docs/#t=orders), opened on `orders`. The description, the `finance` tag and the column types come from the dbt project's yml. There is no `manifest.json`.*
 
 ```text
 # @dbt: ../my_dbt_project

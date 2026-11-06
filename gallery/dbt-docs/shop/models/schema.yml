@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  - name: customers
+    description: One row per person who has placed an order.
+    tags: [crm]
+    columns:
+      - name: customer_id
+        description: Primary key.
+        data_type: int
+      - name: name
+        description: The name given at checkout.
+        data_type: string
+      - name: email
+        description: Address the receipt is sent to.
+        data_type: varchar
+        tags: [pii]
+      - name: country
+        description: ISO country of the billing address.
+        data_type: char(2)
+
+  - name: orders
+    description: "{{ doc('orders') }}"
+    config:
+      tags: [finance]
+    columns:
+      - name: order_id
+        description: Primary key.
+        data_type: int
+      - name: customer_id
+        description: Who placed the order.
+        data_type: int
+      - name: status
+        description: "{{ doc('order_status') }}"
+        data_type: varchar(20)
+      - name: amount
+        description: Charged total, in the shop currency.
+        data_type: numeric(12,2)
+      - name: ordered_at
+        description: When the customer checked out.
+        data_type: timestamp
+
+  - name: products
+    description: One row per thing the shop sells.
+    tags: [catalog]
+    columns:
+      - name: product_id
+        description: Primary key.
+        data_type: int
+      - name: sku
+        description: Stock code printed on the pick list.
+        data_type: varchar(40)
+      - name: name
+        description: Name shown on the product page.
+        data_type: string
+      - name: price
+        description: Current list price.
+        data_type: numeric(10,2)
+
+  - name: order_items
+    description: One row per product on an order.
+    tags: [finance]
+    columns:
+      - name: order_id
+        description: The order this line belongs to.
+        data_type: int
+      - name: product_id
+        description: The product sold.
+        data_type: int
+      - name: quantity
+        description: Units on this line.
+        data_type: int
+      - name: unit_price
+        description: Price charged per unit, which can differ from the list price.
+        data_type: numeric(10,2)
+
+  - name: payments
+    description: Money taken against an order. An order can be paid in more than one charge.
+    tags: [finance]
+    columns:
+      - name: payment_id
+        description: Primary key.
+        data_type: int
+      - name: order_id
+        description: The order this payment settles.
+        data_type: int
+      - name: method
+        description: card, cash or gift card.
+        data_type: varchar(20)
+      - name: amount
+        description: Amount captured.
+        data_type: numeric(12,2)
+
+sources:
+  - name: shop
+    tables:
+      - name: charges
+        description: Card charges as the payment provider sent them, before cleaning.
+        tags: [raw]
+        columns:
+          - name: id
+            description: Charge id from the provider.
+            data_type: string
+          - name: order_id
+            description: The order the charge was for, when the provider knew it.
+            data_type: int
+          - name: amount
+            description: Amount the provider captured.
+            data_type: numeric(12,2)
