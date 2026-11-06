@@ -193,7 +193,7 @@
   function fit(only, animate) {
     var b = Q.bounds(only ? Q.subset(S.vm, only) : S.vm, S.pos, S.mode), sz = stageSize(), pad = 40;
     if (S.regions && !only) b = [b[0] - 30, b[1] - 60, b[2] + 30, b[3] + 30]; // room for region borders and labels
-    if (only) sz = [sz[0] - (details.classList.contains("open") ? 400 : 0), sz[1]]; // keep clear of the details panel
+    if (details.classList.contains("open")) sz = [Math.max(200, sz[0] - 400), sz[1]]; // the panel covers the right side
     // Keep clear of the floating search box / toolbar at the top and, on narrow screens, the toolbar at the bottom.
     var top = 70, bottom = sz[0] < 900 ? 70 : pad, availH = sz[1] - top - bottom;
     var k = Math.min((sz[0] - 2 * pad) / (b[2] - b[0]), availH / (b[3] - b[1]), 1.5);

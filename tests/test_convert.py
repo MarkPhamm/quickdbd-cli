@@ -33,15 +33,19 @@ def _demo_sources() -> list[str]:
 @pytest.mark.parametrize("src", _demo_sources())
 def test_round_trip_examples_and_demos(src):
     sources = _sources(ROOT / src)
-    original = compile_sources([(d, t) for d, _, t in sources])
+    # dbt=False matches `qdbd convert`: a converted copy keeps `# @dbt:` as written and does not read the yml.
+    original = compile_sources([(d, t) for d, _, t in sources], dbt=False)
     to_dbml = conv.convert(sources, "dbml", split_groups=False)
     back = conv.convert([(k, k, v) for k, v in to_dbml.files.items()], "quickdbd", split_groups=False)
-    again = compile_sources(list(back.files.items()))
+    again = compile_sources(list(back.files.items()), dbt=False)
     assert again.errors == []
     lost = to_dbml.lost | back.lost
     assert conv.canonical(again, lost) == conv.canonical(original, lost)
     kinds = {w.message.split(":")[0] for w in to_dbml.warnings}
-    assert kinds <= {"table-level relationship", "alias", "settings"}, kinds
+    allowed = {"table-level relationship", "alias", "settings"}
+    if src == "gallery/dbt-docs/schema.txt":
+        allowed.add("type")  # column types are left blank so the linked yml's data_type is what the diagram shows
+    assert kinds <= allowed, kinds
 
 
 def test_dbml_to_quickdbd_teammate_style():

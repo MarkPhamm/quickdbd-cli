@@ -78,6 +78,21 @@ def test_feature_demos(built):
     assert _model(built / "regions" / "index.html").get("regions")
     tags = _model(built / "tags" / "index.html")
     assert {"dim", "fact", "staging", "gold"} <= {t["name"] for t in tags["tags"]}
+    docs = _model(built / "dbt-docs" / "index.html")
+    by_name = {t["name"]: t for t in docs["tables"]}
+    orders = by_name["orders"]
+    assert orders["doc"] == "One row per order, open or complete.\nRecognised in revenue once status is paid."
+    assert orders["tags"] == ["finance"]
+    status = next(c for c in orders["cols"] if c["name"] == "status")
+    assert status["type"] == "varchar(20)" and status["doc"] == "placed, paid, shipped or returned."
+    name = next(c for c in by_name["customers"]["cols"] if c["name"] == "name")
+    assert name["doc"] == "The name given at checkout."  # the schema comment and the yml say the same thing
+    email = next(c for c in by_name["customers"]["cols"] if c["name"] == "email")
+    assert email["tags"] == ["pii"] and email["type"] == "varchar"
+    assert by_name["shop.charges"]["tags"] == ["raw"]
+    refunds = by_name["planned_refunds"]
+    assert "tags" not in refunds  # `# @dbt: none`: nothing is read from the yml
+    assert refunds["doc"] == "Not in dbt yet: the refund flow is still being designed."
 
 
 def test_sample_databases_and_dbt_projects(built):

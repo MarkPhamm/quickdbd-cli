@@ -1,0 +1,56 @@
+# A hand-written shop ERD for the demo gallery. The line below names a dbt project;
+# qdbd reads its yml and docs (no manifest.json) and fills descriptions, tags and
+# types. The line is a comment, so this file still pastes into QuickDBD.
+# @dbt: shop
+
+customers
+-
+customer_id PK
+# The name given at checkout.
+name
+email
+country
+
+# Recognised in revenue once status is paid.
+orders
+-
+order_id PK
+customer_id FK >- customers.customer_id
+status
+amount
+ordered_at
+
+products
+-
+product_id PK
+sku
+name
+price
+
+order_items
+-
+order_id PK FK >- orders.order_id
+product_id PK FK >- products.product_id
+quantity
+unit_price
+
+payments
+-
+payment_id PK
+order_id FK >- orders.order_id
+method
+amount
+
+"shop.charges"
+-
+id PK
+order_id FK >- orders.order_id
+amount
+
+# @dbt: none
+# Not in dbt yet: the refund flow is still being designed.
+planned_refunds
+-
+refund_id PK int
+order_id int FK >- orders.order_id
+reason string

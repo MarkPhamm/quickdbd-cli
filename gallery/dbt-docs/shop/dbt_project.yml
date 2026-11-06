@@ -1,0 +1,6 @@
+# Read by gallery/dbt-docs/schema.txt via `# @dbt: shop`. Not a runnable project:
+# there is no profiles.yml, and qdbd reads this yml directly.
+name: shop
+version: "1.0.0"
+profile: shop
+model-paths: ["models"]
