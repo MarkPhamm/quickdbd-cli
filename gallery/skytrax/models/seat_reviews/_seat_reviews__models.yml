@@ -1,0 +1,151 @@
+version: 2
+
+models:
+  - name: dim_seat_configuration
+    description: "Seat configuration dimension. Grain: one row per (seat_type, seat_layout)."
+    columns:
+      - name: seat_configuration_id
+        description: Primary key - surrogate hash of (seat_type, seat_layout).
+        data_type: varchar
+        data_tests: [unique, not_null]
+      - name: seat_type
+        description: "Cabin reviewed: Economy Class, Premium Economy, Business Class, First Class or unknown."
+        data_type: varchar
+        data_tests: [not_null]
+      - name: seat_layout
+        description: Abreast layout as free text, e.g. '3x4x3'; 'unknown' when not stated.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: seats_per_row
+        description: Seats abreast, parsed from seat_layout; null when the layout is not an NxN pattern.
+        data_type: integer
+
+  - name: fct_seat_review
+    description: >
+      Aircraft seat review fact. Grain: one row per review submission. Measures
+      are the twelve 1-5 category ratings plus average_rating and rating_band.
+    columns:
+      - name: review_id
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airline_id
+        description: FK to dim_airline.
+        data_type: bigint
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_airline')
+                field: airline_id
+      - name: aircraft_id
+        description: FK to dim_aircraft.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_aircraft')
+                field: aircraft_id
+      - name: seat_configuration_id
+        description: FK to dim_seat_configuration.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_seat_configuration')
+                field: seat_configuration_id
+      - name: customer_id
+        description: FK to dim_customer.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: date_submitted_id
+        description: FK to dim_date - date the review was submitted.
+        data_type: date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: date_flown_id
+        description: FK to dim_date - date of the flight; null when not stated.
+        data_type: date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: is_verified
+        data_type: boolean
+      - name: type_of_traveller
+        data_type: varchar
+        data_tests: [not_null]
+      - name: seat_legroom
+        data_type: integer
+        data_tests: &rating_1_to_5
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+                inclusive: true
+      - name: seat_recline
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: seat_width
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: aisle_space
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: seat_storage
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: power_supply
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: viewing_tv_screen
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: sleep_comfort
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: sitting_comfort
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: seat_bed_width
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: seat_bed_length
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: seat_privacy
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: recommended
+        description: Whether the reviewer would recommend the seat.
+        data_type: boolean
+      - name: average_rating
+        description: "{{ doc('average_rating') }}"
+        data_type: double
+      - name: rating_band
+        description: "{{ doc('rating_band') }}"
+        data_type: varchar
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['bad', 'medium', 'good', 'unknown']
+      - name: review_text
+        data_type: varchar
+      - name: source_updated_at
+        data_type: timestamp
+        data_tests: [not_null]
+      - name: dbt_loaded_at
+        data_type: timestamptz
+        data_tests: [not_null]

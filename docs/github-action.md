@@ -94,6 +94,8 @@ Run your dbt build first, then point the action at the manifest:
 
 Commit `erd/` so pull requests have a base to diff against. Walkthrough: [5.6 Step 4: Automate in CI](example/ci.md).
 
+For a hand-drawn ERD linked to the yml with `# @dbt:` (no manifest), [qdbd-dbt-demo](https://github.com/MarkPhamm/qdbd-dbt-demo) is a working setup: `qdbd check --strict` fails a pull request on drift, and each branch publishes its own diagram to Pages.
+
 ## 7.6 GitLab CI and others { #not-on-github }
 
 The action only wraps the CLI, so any CI can run the same commands. On GitLab, this checks the schema on every pipeline that changes it, keeps the diagram as a job artifact, and publishes it to GitLab Pages from the default branch:

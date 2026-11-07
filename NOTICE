@@ -25,6 +25,7 @@ The demo gallery (gallery/, not part of the Python package) includes schemas der
   Luis Rocha. MIT License.
 * dbt-synthea (gallery/synthea), OHDSI. Apache License 2.0. Trimmed dbt manifest and catalog only.
 * dbt_shopify (gallery/shopify), Fivetran. Apache License 2.0. Trimmed dbt manifest and catalog only.
+* qdbd-dbt-demo (gallery/skytrax), Minh (Mark) Pham. Apache License 2.0. Hand-written ERD and dbt yml only.
 
 Each folder keeps the upstream licence in its LICENSE file.
 

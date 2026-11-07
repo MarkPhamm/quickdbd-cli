@@ -47,7 +47,7 @@ description = "Written in DBML, dbdiagram.io's syntax, which qdbd reads as it is
 [[group]]
 id = "dbt"
 title = "dbt projects"
-description = "Generated from a dbt manifest.json. Primary keys come from unique + not_null tests, relationships from relationships tests."
+description = "Generated from a dbt manifest.json (keys from unique + not_null tests, relationships from relationships tests), or drawn by hand with descriptions, tags and types pulled from the dbt yml."
 
 [[demo]]
 id = "synthetic"
@@ -121,7 +121,6 @@ title = "AdventureWorks"
 description = "Microsoft's bicycle-company OLTP database: 68 tables in five schemas, one region each, with column descriptions."
 source = "gallery/adventureworks"
 build_args = ["--by-group"]
-featured = true
 tags = ["sql server", "t-sql", "regions", "docs"]
 
 [[demo]]
@@ -216,6 +215,16 @@ view = "t=concept"
 shot = "z=0.45&c=1900,1500"
 featured = true
 tags = ["dbt", "healthcare", "omop", "large"]
+
+[[demo]]
+id = "skytrax"
+group = "dbt"
+title = "Skytrax reviews (dbt yml)"
+description = "Four star schemas, drawn by hand. One # @dbt: line adds the dbt yml's descriptions, pii tags and column types. Source: the qdbd-dbt-demo repo on GitHub."
+source = "gallery/skytrax/erd"
+view = "t=dim_customer"
+featured = true
+tags = ["dbt", "yml", "star schema", "pii", "docs"]
 
 [[demo]]
 id = "shopify"

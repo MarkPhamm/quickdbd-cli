@@ -1,0 +1,32 @@
+fct_lounge_review
+-
+review_id PK
+airline_id FK >- dim_airline.airline_id
+lounge_id FK >- dim_lounge.lounge_id
+customer_id FK >- dim_customer.customer_id
+date_submitted_id FK >- dim_date.date_id
+date_visit_id FK >- dim_date.date_id
+is_verified
+type_of_traveller
+comfort
+cleanliness
+bar_and_beverages
+catering
+washrooms
+wifi_connectivity
+staff_service
+recommended
+average_rating
+# Typed here, so the yml data_type (varchar) does not replace it. Base types
+# still agree, so --strict stays clean.
+rating_band varchar(7)
+review_text
+source_updated_at
+dbt_loaded_at
+
+dim_lounge
+-
+lounge_id PK
+lounge_name
+airport
+type_of_lounge

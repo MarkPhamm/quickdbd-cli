@@ -1,0 +1,43 @@
+fct_airline_review
+-
+review_id PK
+airline_id FK >- dim_airline.airline_id
+customer_id FK >- dim_customer.customer_id
+date_submitted_id FK >- dim_date.date_id
+date_flown_id FK >- dim_date.date_id
+origin_location_id FK >- dim_location.location_id
+destination_location_id FK >- dim_location.location_id
+transit_location_id FK >- dim_location.location_id
+aircraft_id FK >- dim_aircraft.aircraft_id
+is_verified
+seat_type
+type_of_traveller
+has_layover
+seat_comfort
+cabin_staff_service
+food_and_beverages
+inflight_entertainment
+ground_service
+wifi_and_connectivity
+value_for_money
+recommended
+average_rating
+rating_band
+review_text
+source_updated_at
+dbt_loaded_at
+
+dim_location
+-
+location_id PK
+city
+airport
+
+# @dbt: none
+# Not in dbt yet: one row per origin and destination pair, so a route can be
+# compared across the airlines that fly it.
+dim_route
+-
+route_id PK
+origin_location_id FK >- dim_location.location_id
+destination_location_id FK >- dim_location.location_id

@@ -1,0 +1,36 @@
+fct_seat_review
+-
+review_id PK
+airline_id FK >- dim_airline.airline_id
+aircraft_id FK >- dim_aircraft.aircraft_id
+seat_configuration_id FK >- dim_seat_configuration.seat_configuration_id
+customer_id FK >- dim_customer.customer_id
+date_submitted_id FK >- dim_date.date_id
+date_flown_id FK >- dim_date.date_id
+is_verified
+type_of_traveller
+seat_legroom
+seat_recline
+seat_width
+aisle_space
+seat_storage
+power_supply
+viewing_tv_screen
+sleep_comfort
+sitting_comfort
+seat_bed_width
+seat_bed_length
+seat_privacy
+recommended
+average_rating
+rating_band
+review_text
+source_updated_at
+dbt_loaded_at
+
+dim_seat_configuration
+-
+seat_configuration_id PK
+seat_type
+seat_layout
+seats_per_row
