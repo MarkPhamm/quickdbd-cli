@@ -18,33 +18,33 @@
     .view { position: absolute; left: 0; top: 44px; width: 1728px; height: 1080px; overflow: hidden; }
     .view video { position: absolute; left: 0; top: 0; width: 1728px; height: 1080px; }
   </style>
-  <div data-hf-id="hf-41kq" id="root" data-composition-id="more" data-width="1920" data-height="1080">
-    <div data-hf-id="hf-nt0f" class="stage" data-layout-allow-overflow>
-      <div data-hf-id="hf-nt9y" id="more-enter" class="enter">
-        <div data-hf-id="hf-6vki" id="more-cam" class="cam">
-          <div data-hf-id="hf-v0ka" class="win">
-            <div data-hf-id="hf-ufsv" class="bar"><i data-hf-id="hf-wt6k"></i><i data-hf-id="hf-zeb8"></i><i data-hf-id="hf-y7e5"></i><span data-hf-id="hf-2izg">erd.html · the qa branch, coloured against main</span></div>
-            <div data-hf-id="hf-z18r" class="view">
-              <video data-hf-id="hf-tn8g" id="more-diff" class="clip" src="assets/footage/diff.mp4" data-start="0" data-duration="3.1" data-media-start="0.5" data-playback-rate="1.13" data-track-index="0" muted playsinline></video>
+  <div id="root" data-composition-id="more" data-width="1920" data-height="1080">
+    <div class="stage" data-layout-allow-overflow>
+      <div id="more-enter" class="enter">
+        <div id="more-cam" class="cam">
+          <div class="win">
+            <div class="bar"><i></i><i></i><i></i><span>erd.html · the qa branch, coloured against main</span></div>
+            <div class="view">
+              <video id="more-diff" class="clip" src="assets/footage/diff.mp4" data-start="0" data-duration="3.5" data-media-start="0.5" data-track-index="0" muted playsinline></video>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div data-hf-id="hf-v8kf" class="stage" data-layout-allow-overflow>
-      <div data-hf-id="hf-fzol" id="more2-enter" class="enter" style="opacity: 0">
-        <div data-hf-id="hf-i2z4" id="more2-cam" class="cam">
-          <div data-hf-id="hf-13um" class="win">
-            <div data-hf-id="hf-c51b" class="bar"><i data-hf-id="hf-ylp6"></i><i data-hf-id="hf-0l8b"></i><i data-hf-id="hf-0zjc"></i><span data-hf-id="hf-gy55">erd.html</span></div>
-            <div data-hf-id="hf-2kx7" class="view">
-              <video data-hf-id="hf-l0c0" id="more-exports" class="clip" src="assets/footage/exports.mp4" data-start="3.05" data-duration="2.45" data-media-start="0.7" data-playback-rate="1.4" data-track-index="1" muted playsinline></video>
+    <div class="stage" data-layout-allow-overflow>
+      <div id="more2-enter" class="enter" style="opacity: 0">
+        <div id="more2-cam" class="cam">
+          <div class="win">
+            <div class="bar"><i></i><i></i><i></i><span>erd.html</span></div>
+            <div class="view">
+              <video id="more-exports" class="clip" src="assets/footage/exports.mp4" data-start="3.6" data-duration="4.0" data-media-start="0.3" data-track-index="1" muted playsinline></video>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <h1 data-hf-id="hf-j8xx" id="more-t1" class="clip ttl" data-start="0.2" data-duration="2.75" data-track-index="2"><span data-hf-id="hf-4q4b" class="w">Every</span> <span data-hf-id="hf-zxzy" class="w">PR</span> <span data-hf-id="hf-4k5i" class="w">shows</span> <span data-hf-id="hf-8yca" class="w">what</span> <span data-hf-id="hf-j9ah" class="w acc">changed</span></h1>
-    <h1 data-hf-id="hf-zup3" id="more-t2" class="clip ttl" data-start="3.25" data-duration="2.2" data-track-index="3"><span data-hf-id="hf-h2xq" class="w">Export</span> <span data-hf-id="hf-mmtl" class="w">PNG,</span> <span data-hf-id="hf-iske" class="w">SVG,</span> <span data-hf-id="hf-c0w0" class="w">draw.io</span></h1>
+    <h1 id="more-t1" class="clip ttl" data-start="0.2" data-duration="3.2" data-track-index="2"><span class="w">Every</span> <span class="w">PR</span> <span class="w">shows</span> <span class="w">what</span> <span class="w acc">changed</span></h1>
+    <h1 id="more-t2" class="clip ttl" data-start="3.8" data-duration="3.75" data-track-index="3"><span class="w">Export</span> <span class="w">PNG,</span> <span class="w">SVG,</span> <span class="w">draw.io</span></h1>
   </div>
   <script>
     (function () {
@@ -63,7 +63,7 @@
           y = Math.min(0, Math.max(890 - s * 1124, 445 - s * qy));
         }
         if (t === 0) tl.fromTo(sel, { x: 0, y: 0, scale: 1 }, { x, y, scale: s, duration: 0.01 }, 0);
-        else tl.to(sel, { x, y, scale: s, duration: d || 0.42, ease: "power3.inOut" }, t);
+        else tl.to(sel, { x, y, scale: s, duration: d || 0.6, ease: "power3.inOut" }, t);
       };
       const whipIn = (sel, t) => tl.fromTo(sel, { x: 360, opacity: 0, filter: "blur(14px)" },
         { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.26, ease: "expo.out" }, t);
@@ -71,12 +71,13 @@
       // The qa branch's diff: "1 new · 2 changed", then "Show changes" narrows it to dim_cabin (new) and the facts.
       whipIn("#more-enter", 0);
       cam("#more-cam", 0, 2.1, 720, 225);
-      whipOut("#more-enter", 2.9);
+      whipOut("#more-enter", 3.42);
       // The export buttons, clicked for real.
-      whipIn("#more2-enter", 3.05);
+      whipIn("#more2-enter", 3.6);
       cam("#more2-cam", 0, 2.3, 1145, 34);
-      say("#more-t1", 0.23, 2.75);
-      say("#more-t2", 3.28, 5.25);
+      say("#more-t1", 0.23, 3.25);
+      say("#more-t2", 3.83, 7.45);
+      whipOut("#more2-enter", 7.5);
       window.__timelines["more"] = tl;
     })();
   </script>

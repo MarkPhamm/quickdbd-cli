@@ -37,7 +37,7 @@
   <a href="https://qdbd.dev/#demo"><img src="https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo.gif" alt="Searching, focusing and opening a table in a qdbd diagram" width="760"></a>
 </p>
 <p align="center">
-  <em><a href="https://qdbd.dev/#demo">Watch the full 60-second demo →</a></em>
+  <em><a href="https://qdbd.dev/#demo">Watch the full 75-second demo →</a></em>
 </p>
 
 ## What is qdbd?
