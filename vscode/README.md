@@ -4,7 +4,7 @@ Edit [QuickDBD](https://www.quickdatabasediagrams.com) and [DBML](https://dbml.d
 
 ![A schema on the left, the live diagram on the right with the table under the cursor selected](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/vscode.png)
 
-[![Watch the 60-second qdbd demo video](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo-poster.jpg)](https://qdbd.dev/#demo)
+[![Watch the 75-second qdbd demo video](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/demo-poster.jpg)](https://qdbd.dev/#demo)
 
 ## Features
 
