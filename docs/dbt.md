@@ -83,9 +83,16 @@ Re-run the import whenever models change. Generated files say so in their header
 
 `qdbd import dbt` writes the whole schema for you. If you'd rather **draw the ERD by hand** but your dbt yml already documents the models, link the dbt project instead of copying its descriptions.
 
-<iframe class="demo" src="../demo/dbt-docs/#t=orders" title="Descriptions from dbt yml"></iframe>
+<iframe class="demo" src="../demo/skytrax/#t=dim_customer" title="Descriptions from dbt yml: the Skytrax reviews project"></iframe>
 
-*The [descriptions demo](../demo/dbt-docs/#t=orders), opened on `orders`. The description, the `finance` tag and the column types come from the dbt project's yml. There is no `manifest.json`.*
+*The [Skytrax reviews demo](../demo/skytrax/#t=dim_customer), opened on `dim_customer`. The ERD is drawn by hand; the description (shown before the file's own comment), the `pii` tags on `customer_name` and `nationality`, and every column type come from the dbt project's yml. Try the filter `tag:pii`. There is no `manifest.json`.*
+
+!!! example "A full example project"
+    [qdbd-dbt-demo](https://github.com/MarkPhamm/qdbd-dbt-demo) is the dbt project behind that demo: dbt on DuckDB, four star schemas, and an `erd/` folder linked with `# @dbt: ..`. Clone it to try everything on this page:
+
+    - `qdbd serve erd`, then open `dim_customer`.
+    - Add `has_shower` under `staff_service` in `erd/lounge_reviews.txt` and run `qdbd check erd` to see a drift warning.
+    - CI runs `qdbd check --strict` on every pull request, and each environment publishes its own diagram: [main](https://markphamm.github.io/qdbd-dbt-demo/), plus [qa](https://markphamm.github.io/qdbd-dbt-demo/qa/) and [dev](https://markphamm.github.io/qdbd-dbt-demo/dev/) coloured with what promoting them would change.
 
 ```text
 # @dbt: ../my_dbt_project

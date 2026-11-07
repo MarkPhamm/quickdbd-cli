@@ -1,0 +1,100 @@
+version: 2
+
+models:
+  - name: dim_airline
+    description: "Conformed airline dimension. Grain: one row per airline. Shared by airline, lounge and seat reviews."
+    columns:
+      - name: airline_id
+        description: Primary key - natural key from the source airline lookup.
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airline_name
+        description: Airline name as published on Skytrax.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: airline_name_cleaned
+        description: Lowercased, trimmed name with trailing review-count artifacts stripped.
+        data_type: varchar
+        data_tests: [not_null]
+
+  - name: dim_customer
+    description: >
+      Conformed customer dimension. Grain: one row per (customer_name, nationality).
+      Review counts and first/latest dates span all four review subjects.
+    columns:
+      - name: customer_id
+        description: Primary key - surrogate hash of (customer_name, nationality).
+        data_type: varchar
+        data_tests: [unique, not_null]
+      - name: customer_name
+        description: Reviewer display name; 'unknown' when the source left it blank.
+        data_type: varchar
+        # Names a person. qdbd tints the row of any column tagged in the yml.
+        tags: [pii]
+        data_tests: [not_null]
+      - name: nationality
+        description: Reviewer nationality; 'unknown' when the source left it blank.
+        data_type: varchar
+        tags: [pii]
+        data_tests: [not_null]
+      - name: number_of_reviews
+        description: Count of reviews this reviewer submitted across all four subjects.
+        data_type: bigint
+        data_tests: [not_null]
+      - name: airline_review_count
+        description: Airline reviews submitted by this reviewer. 0 when they have none.
+        data_type: bigint
+        data_tests: [not_null]
+      - name: airport_review_count
+        description: Airport reviews submitted by this reviewer. 0 when they have none.
+        data_type: bigint
+        data_tests: [not_null]
+      - name: lounge_review_count
+        description: Lounge reviews submitted by this reviewer. 0 when they have none.
+        data_type: bigint
+        data_tests: [not_null]
+      - name: seat_review_count
+        description: Seat reviews submitted by this reviewer. 0 when they have none.
+        data_type: bigint
+        data_tests: [not_null]
+      - name: first_review_date
+        description: Earliest date_submitted for this reviewer, across all subjects.
+        data_type: date
+      - name: latest_review_date
+        description: Latest date_submitted for this reviewer, across all subjects.
+        data_type: date
+
+  - name: dim_aircraft
+    description: "Conformed aircraft dimension. Grain: one row per aircraft model string across airline and seat reviews."
+    columns:
+      - name: aircraft_id
+        description: Primary key - surrogate hash of aircraft_model.
+        data_type: varchar
+        data_tests: [unique, not_null]
+      - name: aircraft_model
+        description: Free-text aircraft model from the review; 'unknown' when not stated.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: aircraft_manufacturer
+        description: Leading token of the model string, e.g. 'Boeing'.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: seat_capacity
+        description: Typical seat count of the matched aircraft family; null when unmatched.
+        data_type: integer
+
+  - name: dim_date
+    description: "Conformed calendar and fiscal date dimension. Grain: one row per day, covering every subject."
+    columns:
+      - name: date_id
+        description: Primary key - the calendar date itself.
+        data_type: date
+        data_tests: [unique, not_null]
+      - name: is_weekend
+        description: True for Saturday and Sunday.
+        data_type: boolean
+        data_tests: [not_null]
+      - name: fin_year
+        description: Fiscal year, assuming a 1 July start.
+        data_type: bigint
+        data_tests: [not_null]

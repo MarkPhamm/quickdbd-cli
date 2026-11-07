@@ -24,6 +24,9 @@
     #end-cmd span { color: #8fb0ff; }
     #end-links { position: absolute; left: 0; right: 0; top: 700px; text-align: center; font-size: 36px; font-weight: 500;
       color: #4a505b; letter-spacing: -0.01em; }
+    #end-repo { position: absolute; left: 0; right: 0; top: 774px; text-align: center; font-size: 32px; font-weight: 500;
+      color: #4a505b; letter-spacing: -0.01em; }
+    #end-repo b { font: 500 32px "Geist Mono", monospace; color: #15181e; letter-spacing: -0.02em; }
   </style>
   <div data-hf-id="hf-gwfo" id="root" data-composition-id="end" data-width="1920" data-height="1080">
     <svg data-hf-id="hf-13pq" id="end-lock" viewBox="0 0 240 64" aria-label="qdbd">
@@ -36,6 +39,7 @@
     </svg>
     <div data-hf-id="hf-cng5" id="end-cta"><div data-hf-id="hf-niyh" id="end-cmd"><span data-hf-id="hf-my1r">$</span> pipx install quickdbd-cli</div></div>
     <div data-hf-id="hf-mvf0" id="end-links"><span data-hf-id="hf-6jbi" class="w">qdbd.dev</span> <span data-hf-id="hf-jh5p" class="w">·</span> <span data-hf-id="hf-34xf" class="w">VS Code Marketplace</span> <span data-hf-id="hf-zyk1" class="w">·</span> <span data-hf-id="hf-4w01" class="w">Open VSX</span></div>
+    <div data-hf-id="hf-8c9l" id="end-repo"><span data-hf-id="hf-cqk6" class="w">Example</span> <span data-hf-id="hf-1xaa" class="w">dbt</span> <span data-hf-id="hf-cz1x" class="w">project:</span> <b data-hf-id="hf-ad1e" class="w">github.com/MarkPhamm/qdbd-dbt-demo</b></div>
   </div>
   <script>
     (function () {
@@ -65,6 +69,7 @@
       tl.fromTo("#end-word", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "power3.out" }, 0.95);
       tl.fromTo("#end-cmd", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 1.55);
       tl.fromTo("#end-links .w", IN, { ...ON }, 1.95);
+      tl.fromTo("#end-repo .w", IN, { ...ON }, 2.1);
       window.__timelines["end"] = tl;
     })();
   </script>

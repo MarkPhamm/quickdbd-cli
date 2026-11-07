@@ -71,9 +71,9 @@ Every demo is a single HTML page written by `qdbd build`, from a QuickDBD schema
 | | |
 |---|---|
 | [![200 tables](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthetic.png)](https://qdbd.dev/demo/synthetic/)<br>**[200 tables](https://qdbd.dev/demo/synthetic/)**<br>Five business domains, 200 tables and every relationship type. Search, filter, click a table to focus it. | [![Schema diff](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/diff.png)](https://qdbd.dev/demo/diff/)<br>**[Schema diff](https://qdbd.dev/demo/diff/)**<br>What a branch changed, coloured in: new tables in green, changed columns in amber, removals listed. |
-| [![AdventureWorks](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/adventureworks.png)](https://qdbd.dev/demo/adventureworks/)<br>**[AdventureWorks](https://qdbd.dev/demo/adventureworks/)**<br>Microsoft's bicycle-company OLTP database: 68 tables in five schemas, one region each, with column descriptions. | [![OMOP CDM on Synthea](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthea.png)](https://qdbd.dev/demo/synthea/#t=concept)<br>**[OMOP CDM on Synthea](https://qdbd.dev/demo/synthea/#t=concept)**<br>OHDSI's dbt-synthea: synthetic patient records mapped to the OMOP Common Data Model. 145 tables, 235 relationships from tests. |
+| [![OMOP CDM on Synthea](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/synthea.png)](https://qdbd.dev/demo/synthea/#t=concept)<br>**[OMOP CDM on Synthea](https://qdbd.dev/demo/synthea/#t=concept)**<br>OHDSI's dbt-synthea: synthetic patient records mapped to the OMOP Common Data Model. 145 tables, 235 relationships from tests. | [![Skytrax reviews (dbt yml)](https://raw.githubusercontent.com/MarkPhamm/quickdbd-cli/main/docs/assets/img/gallery/skytrax.png)](https://qdbd.dev/demo/skytrax/#t=dim_customer)<br>**[Skytrax reviews (dbt yml)](https://qdbd.dev/demo/skytrax/#t=dim_customer)**<br>Four star schemas, drawn by hand. One # @dbt: line adds the dbt yml's descriptions, pii tags and column types. Source: the qdbd-dbt-demo repo on GitHub. |
 
-[View all 20 demos →](https://qdbd.dev/demo/)
+[View all 21 demos →](https://qdbd.dev/demo/)
 <!-- gallery:end -->
 
 ## Quickstart
@@ -239,7 +239,7 @@ You edit the text; the diagram is generated from it. Table positions are the one
 - [Install](https://qdbd.dev/install/) and [Quick Start](https://qdbd.dev/getting-started/)
 - [Schema Syntax](https://qdbd.dev/syntax/), [many files](https://qdbd.dev/files/), [table positions](https://qdbd.dev/layout/), [tags and colours](https://qdbd.dev/tags/)
 - [Reading the Diagram](https://qdbd.dev/reading-the-diagram/), [selectors](https://qdbd.dev/selectors/), [exports](https://qdbd.dev/exports/), [sharing a link](https://qdbd.dev/sharing/)
-- [dbt Projects](https://qdbd.dev/dbt/), with a [jaffle_shop walkthrough](https://qdbd.dev/example/)
+- [dbt Projects](https://qdbd.dev/dbt/), with a [jaffle_shop walkthrough](https://qdbd.dev/example/) and an [example dbt project](https://github.com/MarkPhamm/qdbd-dbt-demo) whose hand-drawn ERD takes its docs from the yml
 - [AI Agents (MCP)](https://qdbd.dev/mcp/): `qdbd mcp` for Claude, Copilot and Cursor
 - [Schema Diffs](https://qdbd.dev/diffs/), the [GitHub Action](https://qdbd.dev/github-action/) and the [CLI reference](https://qdbd.dev/cli/)
 - [Development](https://qdbd.dev/development/): working on qdbd itself, releasing, and adding a demo

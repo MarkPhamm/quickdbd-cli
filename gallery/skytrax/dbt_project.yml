@@ -1,0 +1,66 @@
+name: qdbd_dbt_demo
+version: "1.0.0"
+
+# Which profile (in profiles.yml) this project uses. The profile holds the
+# connection details; this file holds the project details. Keeping them
+# separate is what lets one project connect to dev, qa, ci, or prod unchanged.
+profile: qdbd_dbt_demo
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+# `dbt clean` deletes these.
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Raw data is not loaded at all: models/staging/_skytrax__sources.yml points a
+# dbt source at data/raw/*.csv and DuckDB reads the files in place.
+
+models:
+  qdbd_dbt_demo:
+    # `+schema:` declares which layer a folder belongs to. Whether anything
+    # acts on that declaration is decided by macros/generate_schema_name.sql:
+    # production splits the layers into real schemas, dev, qa and ci ignore it
+    # and put everything in one flat schema.
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: ["staging"]
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+      +tags: ["intermediate"]
+
+    # One folder per star schema, straight under models/. qdbd import dbt
+    # writes one file per top-level folder, so each subject gets its own
+    # erd/generated/<folder>.txt. Shared dimensions live in conformed; each
+    # subject keeps its fact and the dimensions only that fact uses.
+    conformed:
+      +materialized: table
+      +schema: conformed
+      +tags: ["conformed"]
+    airline_reviews:
+      +materialized: table
+      +schema: airline_reviews
+      +tags: ["airline_reviews"]
+    airport_reviews:
+      +materialized: table
+      +schema: airport_reviews
+      +tags: ["airport_reviews"]
+    lounge_reviews:
+      +materialized: table
+      +schema: lounge_reviews
+      +tags: ["lounge_reviews"]
+    seat_reviews:
+      +materialized: table
+      +schema: seat_reviews
+      +tags: ["seat_reviews"]
+
+data_tests:
+  qdbd_dbt_demo:
+    +store_failures: true
+
+flags:
+  require_generic_test_arguments_property: true

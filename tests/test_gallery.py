@@ -114,6 +114,10 @@ def test_sample_databases_and_dbt_projects(built):
     assert dw["regions"] and len({t["group"] for t in dw["tables"]}) == 5  # one region per business process
     aw = _model(built / "adventureworks" / "index.html")
     assert aw["regions"] and any(t.get("doc") for t in aw["tables"])  # MS_Description -> tooltips
+    sky = _model(built / "skytrax" / "index.html")
+    assert (len(sky["tables"]), len(sky["rels"])) == (13, 25)
+    cust = next(t for t in sky["tables"] if t["name"] == "dim_customer")
+    assert cust["doc"] and any(c.get("tags") == ["pii"] for c in cust["cols"])  # from the linked dbt yml
 
 
 def test_readme_gallery_is_in_sync():

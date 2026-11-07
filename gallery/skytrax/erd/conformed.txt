@@ -1,0 +1,41 @@
+# Hand-written diagram, one file per star schema. The tables, columns and
+# relationships are written here. Table and column descriptions and column
+# types come from the dbt yml, through the line below, which covers every file
+# in this folder. No manifest.json, no `dbt parse`.
+# @dbt: ..
+
+# Conformed dimensions: built once, joined by every fact that needs them.
+
+dim_airline
+-
+airline_id PK
+airline_name
+airline_name_cleaned
+
+# Shown after the yml description: the source has no reviewer id, so do not
+# count this table as people.
+dim_customer
+-
+customer_id PK
+customer_name
+nationality
+number_of_reviews
+airline_review_count
+airport_review_count
+lounge_review_count
+seat_review_count
+first_review_date
+latest_review_date
+
+dim_aircraft
+-
+aircraft_id PK
+aircraft_model
+aircraft_manufacturer
+seat_capacity
+
+dim_date
+-
+date_id PK
+is_weekend
+fin_year

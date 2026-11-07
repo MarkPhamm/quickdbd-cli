@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: dim_lounge
+    description: >
+      Lounge dimension. Grain: one row per (lounge_name, airport, type_of_lounge)
+      - the access tier is part of the grain because the same lounge is reviewed
+      under several tiers.
+    columns:
+      - name: lounge_id
+        description: Primary key - surrogate hash of (lounge_name, airport, type_of_lounge).
+        data_type: varchar
+        data_tests: [unique, not_null]
+      - name: lounge_name
+        data_type: varchar
+        data_tests: [not_null]
+      - name: airport
+        description: Airport the lounge sits in, as free text from the review.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: type_of_lounge
+        description: "Access tier: Business Class, First Class, Frequent Flyer, Members, Pay to Use or unknown."
+        data_type: varchar
+        data_tests: [not_null]
+
+  - name: fct_lounge_review
+    description: >
+      Airport lounge review fact. Grain: one row per review submission. Measures
+      are the seven 1-5 category ratings plus average_rating and rating_band.
+    columns:
+      - name: review_id
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airline_id
+        description: FK to dim_airline - the airline operating the lounge.
+        data_type: bigint
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_airline')
+                field: airline_id
+      - name: lounge_id
+        description: FK to dim_lounge.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_lounge')
+                field: lounge_id
+      - name: customer_id
+        description: FK to dim_customer.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: date_submitted_id
+        description: FK to dim_date - date the review was submitted.
+        data_type: date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: date_visit_id
+        description: FK to dim_date - date of the lounge visit; null when not stated.
+        data_type: date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: is_verified
+        data_type: boolean
+      - name: type_of_traveller
+        data_type: varchar
+        data_tests: [not_null]
+      - name: comfort
+        data_type: integer
+        data_tests: &rating_1_to_5
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+                inclusive: true
+      - name: cleanliness
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: bar_and_beverages
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: catering
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: washrooms
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: wifi_connectivity
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: staff_service
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: recommended
+        description: Whether the reviewer would recommend the lounge.
+        data_type: boolean
+      - name: average_rating
+        description: "{{ doc('average_rating') }}"
+        data_type: double
+      - name: rating_band
+        description: "{{ doc('rating_band') }}"
+        data_type: varchar
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['bad', 'medium', 'good', 'unknown']
+      - name: review_text
+        data_type: varchar
+      - name: source_updated_at
+        data_type: timestamp
+        data_tests: [not_null]
+      - name: dbt_loaded_at
+        data_type: timestamptz
+        data_tests: [not_null]

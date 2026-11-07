@@ -4,10 +4,15 @@ Real pages built by the real CLI, driven with real mouse and keyboard events, ca
 screencast at 2x and encoded with ffmpeg. Terminal text is the commands' real output, saved verbatim.
 
     .venv/bin/python videos/capture/record.py            # everything
-    .venv/bin/python videos/capture/record.py serve      # one clip
+    .venv/bin/python videos/capture/record.py dbt        # one clip
 
-Needs Playwright (dev-only, drives the system Chrome) and ffmpeg. Output goes to videos/capture/out/ (gitignored).
-Never point `qdbd serve` at examples/synthetic: dragging rewrites its committed layout file.
+After the 200-table hook, the footage is github.com/MarkPhamm/qdbd-dbt-demo: a dbt project whose hand-drawn ERD takes
+its docs from the yml through `# @dbt: ..`. prep() clones it (pinned commits, so the footage is reproducible) into
+out/, and the clips edit only that scratch copy.
+
+Needs Playwright (dev-only, drives the system Chrome), ffmpeg and network for the first clone. Output goes to
+videos/capture/out/ (gitignored). Never point `qdbd serve` at examples/synthetic: dragging rewrites its committed
+layout file.
 """
 
 import asyncio
@@ -23,6 +28,7 @@ import time
 import urllib.request
 from pathlib import Path
 
+import yaml
 from playwright.async_api import async_playwright
 
 HERE = Path(__file__).resolve().parent
@@ -30,8 +36,11 @@ ROOT = HERE.parent.parent
 OUT = HERE / "out"
 QDBD = str(ROOT / ".venv" / "bin" / "qdbd")
 VIEW = {"width": 1440, "height": 900}
-PORT = 8765
 CDP_PORT = 9333
+DEMO_REPO = "https://github.com/MarkPhamm/qdbd-dbt-demo"
+DEMO_MAIN = "dddef9fd6750e1605a8ac33404ac0cc1a401dbc4"
+DEMO_QA = "51f6436558a0d6827ee4b6ccd6498babd38d8f20"  # main + dim_cabin, the diff the film ends on
+DEMO = OUT / "dbtdemo"
 
 # The home tour's cursor and ripple (docs/javascripts/home-tour.js, docs/stylesheets/home.css), plus the Link
 # button hidden: the video never shows sharing.
@@ -81,35 +90,23 @@ def run(args, cwd):
 
 
 def prep():
-    """Build every page the clips use, and save the terminal text verbatim."""
-    shop = OUT / "shop"
-    shop.mkdir(parents=True, exist_ok=True)
-    shutil.copy(HERE / "shop" / "shop.txt", shop)
+    """Clone the demo project, build every page the clips use, and save the terminal text verbatim."""
     term = OUT / "terminal"
-    term.mkdir(exist_ok=True)
+    term.mkdir(parents=True, exist_ok=True)
     (OUT / "downloads").mkdir(exist_ok=True)
-    cmds = {
-        "convert": ["convert", "shop.txt", "--to", "dbml", "-o", "shop.dbml"],
-        "build": ["build", "shop.dbml", "-o", "shop.html"],
-        "export-png": ["export", "shop.txt", "-o", "shop.png", "--scale", "2"],
-        "export-svg": ["export", "shop.txt", "-o", "shop.svg"],
-        "export-drawio": ["export", "shop.txt", "-o", "shop.drawio"],
-    }
-    for name, args in cmds.items():
-        (term / f"{name}.txt").write_text(f"$ qdbd {' '.join(args)}\n{run(args, shop)}", encoding="utf-8")
-    run(["build", str(ROOT / "gallery" / "adventureworks-dw"), "--by-group", "-o", str(OUT / "aw.html")], ROOT)
+    mirror = OUT / "dbtdemo.git"
+    if not mirror.exists():
+        subprocess.run(["git", "clone", "-q", "--mirror", DEMO_REPO, str(mirror)], check=True)
+    for work, sha in ((DEMO, DEMO_MAIN), (OUT / "dbtdemo-qa", DEMO_QA)):
+        shutil.rmtree(work, ignore_errors=True)  # fresh each run: the vscode clip edits it
+        subprocess.run(["git", "clone", "-q", str(mirror), str(work)], check=True)
+        subprocess.run(["git", "-c", "advice.detachedHead=false", "checkout", "-q", sha], cwd=work, check=True)
+    args = ["build", "erd", "-o", "erd.html"]
+    (term / "build.txt").write_text(f"$ qdbd {' '.join(args)}\n{run(args, DEMO)}", encoding="utf-8")
+    qa = OUT / "dbtdemo-qa"
+    subprocess.run(["git", "branch", "-qf", "main", DEMO_MAIN], cwd=qa, check=True)  # the bar says "since main"
+    run(["build", "erd", "--diff-base", "main", "-o", str(OUT / "dbtdiff.html")], qa)
     run(["build", str(ROOT / "examples" / "synthetic"), "-o", str(OUT / "synthetic.html")], ROOT)
-    # --diff-base takes a git ref, so the gallery's diff demo (before.txt -> quickdbd-sample.txt) needs a scratch repo.
-    repo = OUT / "diffrepo"
-    shutil.rmtree(repo, ignore_errors=True)
-    repo.mkdir()
-    shutil.copy(ROOT / "gallery" / "diff" / "before.txt", repo / "schema.txt")
-    git = ["git", "-c", "user.name=demo", "-c", "user.email=demo@example.com"]
-    for args in (["init", "-q"], ["add", "."], ["commit", "-qm", "before"]):
-        subprocess.run([*git, *args], cwd=repo, check=True)
-    shutil.copy(ROOT / "examples" / "quickdbd-sample.txt", repo / "schema.txt")
-    run(["build", "schema.txt", "--diff-base", "HEAD", "-o", str(OUT / "diff.html")], repo)
-    (term / "diff.md").write_text(run(["diff", "--base", "HEAD", "schema.txt", "--format", "markdown"], repo), "utf-8")
 
 
 class Recorder:
@@ -234,11 +231,18 @@ async def new_page(browser, view=VIEW):
     return page, Hand(page)
 
 
-async def shop_view(page):
-    """Four tables fit at 150%, so the open table list would cover Customer: collapse it to the search box."""
-    await page.click("#extoggle")
-    await page.click("#zfit")
-    await page.wait_for_timeout(600)
+async def demo_page(browser):
+    """The demo project's diagram, fitted."""
+    page, hand = await new_page(browser)
+    await page.goto((DEMO / "erd.html").as_uri())
+    await page.wait_for_timeout(900)
+    return page, hand
+
+
+# The screen point halfway along a relationship line, by its key (child|column|parent|column).
+LINE_MID = """(k) => { const p = document.querySelector('.hit path[data-k="' + k + '"]');
+    const m = p.getPointAtLength(p.getTotalLength() * 0.5), c = p.getScreenCTM();
+    return {x: m.x * c.a + c.e, y: m.y * c.d + c.f}; }"""
 
 
 async def hook(browser):
@@ -308,104 +312,66 @@ async def hook(browser):
     print(f"wrote videos/capture/out/hook.mp4 ({n} frames, {n / fps:.1f}s) and hook.png")
 
 
-async def opened(browser):
-    """The shop diagram just opened: hover lights each table's relationships."""
-    page, hand = await new_page(browser)
-    await page.goto((OUT / "shop" / "shop.html").as_uri())
-    await shop_view(page)
-    async with Recorder(page, "open") as rec:
-        await asyncio.sleep(0.4)
-        for t in ("Order", "OrderLine", "Product"):
-            await hand.to_el(f'.t[data-id="{t}"]', 700, dy=14)
-            rec.mark(f"hover-{t}")
-            await asyncio.sleep(1.1)
-        await asyncio.sleep(0.3)
-
-
 async def explore(browser):
-    """AdventureWorks DW: search, select (neighbours stay lit), hover a relationship, read the details."""
-    page, hand = await new_page(browser)
-    await page.goto((OUT / "aw.html").as_uri() + "#z=0.6&c=900,1000")
-    await page.wait_for_timeout(900)
+    """Search and select dim_customer (the facts that use it stay lit), click a line for its JOIN, filter like dbt."""
+    page, hand = await demo_page(browser)
     async with Recorder(page, "explore") as rec:
         await asyncio.sleep(0.5)
         await hand.to_el("#q", 600, dx=60)
         await page.keyboard.press("/")
         rec.mark("type")
         await asyncio.sleep(0.2)
-        await page.keyboard.type("FactInternetS", delay=95)
+        await page.keyboard.type("dim_cust", delay=95)
         await asyncio.sleep(0.5)
-        await hand.to_el('.ti[data-id="FactInternetSales"]', 600, dx=70)
+        await hand.to_el('.ti[data-id="dim_customer"]', 600, dx=70)
         rec.mark("select")
         await hand.click()
-        await asyncio.sleep(1.6)
-        k = "FactInternetSales|CustomerKey|DimCustomer|CustomerKey"
-        pt = await page.evaluate(
-            """(k) => { const p = document.querySelector('.hit path[data-k="' + k + '"]');
-                const m = p.getPointAtLength(p.getTotalLength() * 0.5), c = p.getScreenCTM();
-                return {x: m.x * c.a + c.e, y: m.y * c.d + c.f}; }""",
-            k,
-        )
+        await asyncio.sleep(2.0)
+        pt = await page.evaluate(LINE_MID, "fct_lounge_review|customer_id|dim_customer|customer_id")
         await hand.to(pt["x"], pt["y"], 800)
+        await asyncio.sleep(0.3)
         rec.mark("line")
-        await asyncio.sleep(1.8)
-        await hand.to_el("#details", 700, dy=260)
+        await hand.click()
+        await asyncio.sleep(2.8)  # the card: both ends, a plain-English sentence and the JOIN
+        await page.keyboard.press("Escape")
+        await hand.to_el("#filter", 600, dx=80)
+        await hand.click()
+        rec.mark("filter")
+        await page.keyboard.type("group:lounge_reviews", delay=70)
+        await asyncio.sleep(0.3)
+        await page.keyboard.press("Enter")
+        rec.mark("filtered")
+        await asyncio.sleep(2.2)
+
+
+async def dbt(browser):
+    """The yml on the diagram: dim_customer's header tooltip (the yml description, then the file's own comment), its
+    details with column docs and pii chips, then the pii legend chip filtering to tag:pii."""
+    page, hand = await demo_page(browser)
+    async with Recorder(page, "dbt") as rec:
+        await asyncio.sleep(0.4)
+        await hand.to_el('.t[data-id="dim_customer"] .tn', 800)
+        await page.wait_for_selector("#tip.open", timeout=3000)  # the header tooltip: yml description, then comment
+        rec.mark("hover")
+        await asyncio.sleep(2.6)
+        rec.mark("select")
+        await hand.click()
+        await asyncio.sleep(0.4)
+        if not await page.locator("#details.open").count():  # a first click selects; the second opens the details
+            await hand.click()
+        await asyncio.sleep(1.0)
+        await hand.to_el("#details", 700, dy=330)
         rec.mark("details")
-        await asyncio.sleep(1.4)
-
-
-async def serve(browser):
-    """qdbd serve: type a new table in the editor pane; autosave; it lands next to Product; drag it."""
-    work = OUT / "serve"
-    shutil.rmtree(work, ignore_errors=True)
-    work.mkdir(parents=True)
-    shutil.copy(HERE / "shop" / "shop.txt", work)
-    proc = subprocess.Popen(
-        [QDBD, "serve", "shop.txt", "--port", str(PORT), "--no-open"],
-        cwd=work,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    try:
-        first = proc.stdout.readline()
-        (OUT / "terminal" / "serve.txt").write_text(f"$ qdbd serve shop.txt\n{first.split('  (layout')[0]}\n", "utf-8")
-        page, hand = await new_page(browser)
-        await page.goto(f"http://127.0.0.1:{PORT}/")
-        await page.wait_for_selector(".CodeMirror")
-        await page.wait_for_timeout(1200)
-        await page.evaluate(
-            "() => { const cm = document.querySelector('.CodeMirror').CodeMirror; "
-            "cm.focus(); cm.setCursor(cm.lineCount(), 0); }"
-        )
-        async with Recorder(page, "serve") as rec:
-            await asyncio.sleep(0.4)
-            await hand.to(200, 470, 600)
-            rec.mark("type")
-            await page.keyboard.type(
-                "\nReview\n-\nReviewId PK int\nProductId int FK >- Product.ProductId\nStars int", delay=55
-            )
-            rec.mark("typed")
-            await page.wait_for_selector('.t[data-id="Review"]', timeout=10000)
-            rec.mark("drawn")
-            await asyncio.sleep(1.2)
-            b = await page.locator('.t[data-id="Review"]').bounding_box()
-            await hand.to(b["x"] + 60, b["y"] + 14, 700)
-            await page.mouse.down()
-            rec.mark("drag")
-            await hand.to(b["x"] - 240, b["y"] + 330, 1000)  # into the empty space under OrderLine
-            await page.mouse.up()
-            await asyncio.sleep(1.2)
-    finally:
-        proc.terminate()
-        proc.wait()
+        await asyncio.sleep(2.2)
+        await hand.to_el('.tchip[data-tag="pii"]', 800)
+        rec.mark("pii")
+        await hand.click()
+        await asyncio.sleep(2.4)
 
 
 async def exports(browser):
     """The toolbar's SVG, PNG and draw.io buttons, clicked for real."""
-    page, hand = await new_page(browser)
-    await page.goto((OUT / "shop" / "shop.html").as_uri())
-    await shop_view(page)
+    page, hand = await demo_page(browser)
     async with Recorder(page, "exports") as rec:
         await asyncio.sleep(0.3)
         for b in ("#xsvg", "#xpng", "#xdrawio"):
@@ -419,15 +385,19 @@ async def exports(browser):
 
 
 async def diff(browser):
-    """Still: what a branch changed, coloured in."""
-    page, _ = await new_page(browser)
-    await page.goto((OUT / "diff.html").as_uri())
+    """The qa branch against main, coloured in: dim_cabin new, the two facts that join it changed. "Show changes"
+    narrows the diagram to them."""
+    page, hand = await new_page(browser)
+    await page.goto((OUT / "dbtdiff.html").as_uri())
     await page.wait_for_timeout(600)
     await page.click("#extoggle")
-    await page.add_style_tag(content=".qv-cursor { display: none !important; }")
-    await page.wait_for_timeout(500)
-    await page.screenshot(path=str(OUT / "diff.png"))
-    print("wrote videos/capture/out/diff.png")
+    await page.wait_for_timeout(400)
+    async with Recorder(page, "diff") as rec:
+        await asyncio.sleep(0.6)
+        await hand.to_el("#diffonly", 700)
+        rec.mark("show")
+        await hand.click()
+        await asyncio.sleep(2.4)
 
 
 VSCODE_APP = ROOT / "vscode" / ".vscode-test" / "vscode-darwin-arm64-1.143.1" / "Visual Studio Code.app"
@@ -442,6 +412,9 @@ VSCODE_SETTINGS = {
     "editor.wordBasedSuggestions": "off",
     "editor.hover.delay": 250,
     "editor.lightbulb.enabled": "off",
+    "editor.autoIndent": "keep",  # the yml is indented with Tab / Shift+Tab from the line above
+    "editor.autoClosingQuotes": "never",
+    "editor.autoClosingBrackets": "never",
     "workbench.startupEditor": "none",
     "workbench.tips.enabled": False,
     "workbench.activityBar.location": "hidden",
@@ -465,22 +438,34 @@ def line(page, text):
     return page.locator(".view-line").filter(has_text=re.compile(rf"^\s*{words}\s*$")).first
 
 
+async def type_after(page, hand, text, lines, down=0):
+    """Click the end of the editor line `text`, go `down` lines, and type `lines` below that."""
+    b = await line(page, text).bounding_box()
+    await hand.to(b["x"] + 260, b["y"] + b["height"] / 2, 700)
+    await hand.click()
+    for _ in range(down):
+        await page.keyboard.press("ArrowDown")
+    await page.keyboard.press("End")
+    for ln in lines:
+        await page.keyboard.press("Enter")
+        await page.keyboard.type(ln, delay=55)
+
+
 async def vscode(browser):
-    """Real VS Code (the integration tests' download) with this checkout's extension: the diagram opens beside the file,
-    a typo gets QuickDBD's own error, the fix is saved and drawn, and the diagram follows the cursor."""
+    """Real VS Code (the integration tests' download) with this checkout's extension on the demo project: the diagram
+    follows the cursor; a column typed only in the ERD gets a dbt drift warning; adding it to the yml fixes it, and
+    the diagram picks up the yml's type and description."""
     base = OUT / "vscode"
     shutil.rmtree(base, ignore_errors=True)
-    ws = base / "shop"
-    (ws / ".vscode").mkdir(parents=True)
-    shutil.copy(HERE / "shop" / "shop.txt", ws)
-    (ws / ".vscode" / "settings.json").write_text(json.dumps({"quickdbd.qdbdPath": QDBD}))
+    (DEMO / ".vscode").mkdir(exist_ok=True)
+    (DEMO / ".vscode" / "settings.json").write_text(json.dumps({"quickdbd.qdbdPath": QDBD}))
     (base / "user-data" / "User").mkdir(parents=True)
     (base / "user-data" / "User" / "settings.json").write_text(json.dumps(VSCODE_SETTINGS))
     env = {k: v for k, v in os.environ.items() if k != "ELECTRON_RUN_AS_NODE"}  # set inside VS Code terminals
     args = [
         str(VSCODE_APP / "Contents" / "MacOS" / "Code"),
-        str(ws),
-        str(ws / "shop.txt"),
+        str(DEMO),
+        str(DEMO / "erd" / "lounge_reviews.txt"),
         "--new-window",
         f"--extensionDevelopmentPath={ROOT / 'vscode'}",
         "--disable-workspace-trust",
@@ -515,43 +500,70 @@ async def vscode(browser):
         await asyncio.sleep(0.6)
         await page.keyboard.press("Enter")
         await asyncio.sleep(6)  # qdbd serve --embed starts; the diagram appears beside the file
-        # The schema text is narrow: give the diagram more of the width.
         sash = await page.locator(".part.editor .monaco-sash.vertical").first.bounding_box()
         await page.mouse.move(sash["x"] + 2, sash["y"] + sash["height"] / 2)
         await page.mouse.down()
-        await page.mouse.move(sash["x"] - 150, sash["y"] + sash["height"] / 2, steps=8)
+        await page.mouse.move(sash["x"] - 120, sash["y"] + sash["height"] / 2, steps=8)
         await page.mouse.up()
         await asyncio.sleep(1.5)
         hand = Hand(page)
         async with Recorder(page, "vscode") as rec:
             await asyncio.sleep(0.6)
-            for t in ("Customer", "Product"):
-                b = await line(page, t).bounding_box()
-                await hand.to(b["x"] + 60, b["y"] + b["height"] / 2, 700)
-                rec.mark(f"follow-{t}")
-                await hand.click()
-                await asyncio.sleep(1.8)  # the diagram follows the cursor to that table
-            b = await line(page, "Total money").bounding_box()
-            await hand.to(b["x"] + 240, b["y"] + b["height"] / 2, 700)
+            b = await line(page, "fct_lounge_review").bounding_box()
+            await hand.to(b["x"] + 80, b["y"] + b["height"] / 2, 700)
+            rec.mark("follow")
             await hand.click()
-            await page.keyboard.press("End")
-            await page.keyboard.press("Enter")
+            await asyncio.sleep(1.8)  # the diagram follows the cursor to that table
             rec.mark("type")
-            await page.keyboard.type("ProductId int FK >- Prodcut.ProductId", delay=55)
-            await page.locator(".squiggly-error").first.wait_for(timeout=15000)
+            await type_after(page, hand, "staff_service", ["has_shower"])
+            await page.locator(".squiggly-warning").first.wait_for(timeout=15000)
             await asyncio.sleep(0.4)
             rec.mark("squiggle")
-            await hand.to_el(".squiggly-error", 600)
+            await hand.to_el(".squiggly-warning", 600)
             rec.mark("hover")
-            await asyncio.sleep(2.6)  # the hover shows QuickDBD's own message
-            for _ in range(len(".ProductId")):
-                await page.keyboard.press("ArrowLeft")
-                await asyncio.sleep(0.03)
-            await page.keyboard.press("Alt+Shift+ArrowLeft")
-            await asyncio.sleep(0.3)
-            rec.mark("fix")
-            await page.keyboard.type("Product", delay=70)
-            await asyncio.sleep(2.0)  # checked as you type, unsaved: the error clears
+            await asyncio.sleep(2.8)  # the hover: dbt: column 'has_shower' is not in the yml for 'fct_lounge_review'
+            await page.keyboard.press("Meta+S")
+            await page.keyboard.press("Meta+P")
+            await page.keyboard.type("_lounge_reviews__models.yml", delay=15)
+            await asyncio.sleep(0.6)
+            await page.keyboard.press("Enter")
+            await asyncio.sleep(0.8)
+            await page.keyboard.press("Meta+F")
+            await page.keyboard.type("name: staff_service", delay=10)
+            await page.keyboard.press("Escape")
+            await asyncio.sleep(0.5)
+            rec.mark("yml")
+            b = await line(page, "- name: staff_service").bounding_box()
+            await hand.to(b["x"] + 260, b["y"] + b["height"] / 2, 700)
+            await hand.click()
+            for key in ("ArrowDown", "ArrowDown", "End", "Enter", "Shift+Tab"):  # below its data_tests line
+                await page.keyboard.press(key)
+            await page.keyboard.type("- name: has_shower", delay=55)
+            await page.keyboard.press("Enter")
+            await page.keyboard.press("Tab")
+            await page.keyboard.type("description: Whether the lounge has showers.", delay=45)
+            await page.keyboard.press("Enter")
+            await page.keyboard.type("data_type: boolean", delay=55)
+            await asyncio.sleep(0.4)
+            rec.mark("save")
+            await page.keyboard.press("Meta+S")
+            await asyncio.sleep(0.5)
+            yml = yaml.safe_load((DEMO / "models" / "lounge_reviews" / "_lounge_reviews__models.yml").read_text())
+            fct = next(m for m in yml["models"] if m["name"] == "fct_lounge_review")
+            assert {"name": "has_shower", "description": "Whether the lounge has showers.", "data_type": "boolean"} in (
+                fct["columns"]
+            ), "the typed yml block came out wrong"
+            await asyncio.sleep(2.0)  # serve sees the yml change; the preview redraws with the new type
+            await hand.to_el('.tab:has-text("lounge_reviews.txt")', 700)
+            rec.mark("back")
+            await hand.click()  # back to lounge_reviews.txt: the warning is gone
+            await asyncio.sleep(1.0)
+            await hand.to(1000, 640, 600)  # the preview's details panel: has_shower now has the yml's type and text
+            rec.mark("scroll")
+            for _ in range(6):
+                await page.mouse.wheel(0, 70)
+                await asyncio.sleep(0.05)
+            await asyncio.sleep(2.0)
         await vs.close()
     finally:
         proc.terminate()
@@ -560,9 +572,8 @@ async def vscode(browser):
 
 CLIPS = {
     "hook": hook,
-    "open": opened,
     "explore": explore,
-    "serve": serve,
+    "dbt": dbt,
     "exports": exports,
     "diff": diff,
     "vscode": vscode,
@@ -580,8 +591,8 @@ async def main(names):
     # The video project reads its footage from assets/footage (gitignored: rebuild it with this script).
     footage = ROOT / "videos" / "qdbd-demo" / "assets" / "footage"
     footage.mkdir(parents=True, exist_ok=True)
-    for f in [*OUT.glob("*.mp4"), *OUT.glob("*.marks.json"), OUT / "hook.png", OUT / "diff.png"]:
-        if f.exists() and f.name != "hook-in.mp4":
+    for f in [*OUT.glob("*.mp4"), *OUT.glob("*.marks.json"), OUT / "hook.png"]:
+        if f.exists():
             shutil.copy(f, footage)
 
 

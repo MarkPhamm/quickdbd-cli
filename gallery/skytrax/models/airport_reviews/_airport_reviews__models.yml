@@ -1,0 +1,124 @@
+version: 2
+
+models:
+  - name: dim_airport
+    description: "Airport dimension. Grain: one row per airport."
+    columns:
+      - name: airport_id
+        description: Primary key - natural key from the source airport lookup.
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airport_name
+        description: Airport name as published on Skytrax.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: airport_name_cleaned
+        description: Lowercased, trimmed airport name.
+        data_type: varchar
+        data_tests: [not_null]
+
+  - name: fct_airport_review
+    description: >
+      Airport review fact. Grain: one row per review submission. Measures are
+      the eight 1-5 category ratings plus average_rating and rating_band.
+    columns:
+      - name: review_id
+        description: Primary key - review identifier from the source.
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airport_id
+        description: FK to dim_airport.
+        data_type: bigint
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_airport')
+                field: airport_id
+      - name: customer_id
+        description: FK to dim_customer.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: date_submitted_id
+        description: FK to dim_date - date the review was submitted.
+        data_type: date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: date_visit_id
+        description: FK to dim_date - date of the airport visit; null when not stated.
+        data_type: date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: is_verified
+        description: Whether Skytrax marked the review as a verified visit.
+        data_type: boolean
+      - name: experience_at_airport
+        description: "How the airport was used: Departure Only, Arrival Only, Arrival and Departure, Transit or unknown."
+        data_type: varchar
+        data_tests: [not_null]
+      - name: type_of_traveller
+        data_type: varchar
+        data_tests: [not_null]
+      - name: queuing_times
+        data_type: integer
+        data_tests: &rating_1_to_5
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+                inclusive: true
+      - name: terminal_cleanliness
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: terminal_seating
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: terminal_signs
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: food_beverages
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: airport_shopping
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: airport_staff
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: wifi_connectivity
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: recommended
+        description: Whether the reviewer would recommend the airport.
+        data_type: boolean
+      - name: average_rating
+        description: "{{ doc('average_rating') }}"
+        data_type: double
+      - name: rating_band
+        description: "{{ doc('rating_band') }}"
+        data_type: varchar
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['bad', 'medium', 'good', 'unknown']
+      - name: review_text
+        data_type: varchar
+      - name: source_updated_at
+        data_type: timestamp
+        data_tests: [not_null]
+      - name: dbt_loaded_at
+        data_type: timestamptz
+        data_tests: [not_null]

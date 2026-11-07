@@ -1,0 +1,168 @@
+version: 2
+
+models:
+  - name: dim_location
+    description: >
+      Role-playing location dimension covering origin, destination and transit
+      airports. Grain: one row per (city, airport).
+    columns:
+      - name: location_id
+        description: Primary key - surrogate hash of (city, airport).
+        data_type: varchar
+        data_tests: [unique, not_null]
+      - name: city
+        description: City name; 'unknown' when the source left it blank.
+        data_type: varchar
+        data_tests: [not_null]
+      - name: airport
+        description: IATA airport code; 'unknown' when the source left it blank.
+        data_type: varchar
+        data_tests: [not_null]
+
+  - name: fct_airline_review
+    description: >
+      Airline (flight) review fact. Grain: one row per review submission.
+      Measures are the seven 1-5 category ratings plus the derived
+      average_rating and rating_band.
+    columns:
+      - name: review_id
+        description: Primary key - review identifier from the source.
+        data_type: bigint
+        data_tests: [unique, not_null]
+      - name: airline_id
+        description: FK to dim_airline.
+        data_type: bigint
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_airline')
+                field: airline_id
+      - name: customer_id
+        description: FK to dim_customer.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: date_submitted_id
+        description: FK to dim_date - date the review was submitted.
+        data_type: date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: date_flown_id
+        description: FK to dim_date - date of the flight; null when not stated.
+        data_type: date
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: origin_location_id
+        description: FK to dim_location - departure airport.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+      - name: destination_location_id
+        description: FK to dim_location - arrival airport.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+      - name: transit_location_id
+        description: FK to dim_location - layover airport; resolves to 'unknown' for direct flights.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+      - name: aircraft_id
+        description: FK to dim_aircraft.
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_aircraft')
+                field: aircraft_id
+      - name: is_verified
+        description: Whether Skytrax marked the review as a verified trip.
+        data_type: boolean
+      - name: seat_type
+        description: "Cabin flown: Economy Class, Premium Economy, Business Class, First Class or unknown."
+        data_type: varchar
+        data_tests: [not_null]
+      - name: type_of_traveller
+        description: "Trip type: Solo Leisure, Couple Leisure, Family Leisure, Business or unknown."
+        data_type: varchar
+        data_tests: [not_null]
+      - name: has_layover
+        description: True when a transit airport was recorded.
+        data_type: boolean
+        data_tests: [not_null]
+      - name: seat_comfort
+        data_type: integer
+        data_tests: &rating_1_to_5
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 5
+                inclusive: true
+      - name: cabin_staff_service
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: food_and_beverages
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: inflight_entertainment
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: ground_service
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: wifi_and_connectivity
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: value_for_money
+        data_type: integer
+        data_tests: *rating_1_to_5
+      - name: recommended
+        description: Whether the reviewer would recommend the airline.
+        data_type: boolean
+      - name: average_rating
+        description: "{{ doc('average_rating') }}"
+        data_type: double
+      - name: rating_band
+        description: "{{ doc('rating_band') }}"
+        data_type: varchar
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['bad', 'medium', 'good', 'unknown']
+      - name: review_text
+        description: Free-text review body.
+        data_type: varchar
+      - name: source_updated_at
+        description: Source updated_at, carried through for lineage.
+        data_type: timestamp
+        data_tests: [not_null]
+      - name: dbt_loaded_at
+        description: Timestamp this row was last written by dbt.
+        data_type: timestamptz
+        data_tests: [not_null]

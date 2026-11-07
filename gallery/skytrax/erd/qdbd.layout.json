@@ -1,0 +1,57 @@
+{
+  "tables": {
+    "dim_aircraft": {
+      "x": 465,
+      "y": 1012
+    },
+    "dim_airline": {
+      "x": 665,
+      "y": 824
+    },
+    "dim_airport": {
+      "x": 1360,
+      "y": 435
+    },
+    "dim_customer": {
+      "x": 712,
+      "y": 1012
+    },
+    "dim_date": {
+      "x": 465,
+      "y": 824
+    },
+    "dim_location": {
+      "x": 817,
+      "y": 276
+    },
+    "dim_lounge": {
+      "x": 0,
+      "y": 1210
+    },
+    "dim_route": {
+      "x": 541,
+      "y": 262
+    },
+    "dim_seat_configuration": {
+      "x": 0,
+      "y": 496
+    },
+    "fct_airline_review": {
+      "x": 1041,
+      "y": 0
+    },
+    "fct_airport_review": {
+      "x": 1568,
+      "y": 0
+    },
+    "fct_lounge_review": {
+      "x": 170,
+      "y": 824
+    },
+    "fct_seat_review": {
+      "x": 230,
+      "y": 0
+    }
+  },
+  "version": 1
+}

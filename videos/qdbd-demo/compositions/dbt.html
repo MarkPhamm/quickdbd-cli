@@ -1,0 +1,119 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    /* The editor: the same file the film built, back at its first lines. */
+    .term { position: absolute; left: 96px; top: 190px; width: 1728px; height: 950px; border-radius: 16px; overflow: hidden;
+      background: #15181e; box-shadow: 0 24px 54px -24px rgba(21, 24, 30, 0.38); transform-origin: 0 0; }
+    .tabs { position: absolute; left: 0; top: 0; right: 0; height: 52px; display: flex; align-items: flex-end; gap: 2px;
+      padding-left: 22px; background: #0e1014; }
+    .tabs .dot { width: 14px; height: 14px; border-radius: 50%; background: #3a3f48; margin: 0 8px 19px 0; }
+    .tab { height: 44px; line-height: 44px; padding: 0 26px; font: 500 28px "Geist Mono", monospace; color: #f2f2ee;
+      border-radius: 10px 10px 0 0; background: #15181e; }
+    .code { position: absolute; left: 0; top: 52px; right: 0; bottom: 0; overflow: hidden; }
+    .blk { position: absolute; left: 0; top: 30px; width: 100%; }
+    .ln { position: relative; height: 40px; line-height: 40px; font: 400 29px "Geist Mono", monospace; color: #e8e8e3; white-space: pre; }
+    .ln b { display: inline-block; width: 84px; padding-right: 26px; text-align: right; font-weight: 400; color: #5b6270; }
+    .t { color: #ffffff; font-weight: 600; } .c { color: #e8e8e3; } .k { color: #8fb0ff; } .m { color: #6b7280; }
+    #dbt-hl { position: absolute; left: 0; top: 190px; width: 100%; height: 40px; background: rgba(143, 176, 255, 0.2);
+      box-shadow: inset 4px 0 0 #8fb0ff; transform-origin: 0 50%; }
+    /* The browser. */
+    .stage { position: absolute; left: 0; top: 190px; width: 1920px; height: 890px; overflow: hidden; }
+    .enter, .cam { position: absolute; left: 0; top: 0; width: 1920px; height: 890px; transform-origin: 0 0; }
+    .win { position: absolute; left: 96px; top: 0; width: 1728px; height: 1124px; border-radius: 16px 16px 0 0; overflow: hidden;
+      background: #fafaf7; box-shadow: 0 0 0 1px rgba(21, 24, 30, 0.12), 0 24px 54px -24px rgba(21, 24, 30, 0.28); }
+    .bar { position: absolute; left: 0; top: 0; right: 0; height: 44px; display: flex; align-items: center; gap: 9px; padding: 0 18px;
+      background: #fafaf7; border-bottom: 1px solid rgba(21, 24, 30, 0.12); font: 500 28px "Geist", sans-serif; color: #4a505b; }
+    .bar i { width: 13px; height: 13px; border-radius: 50%; background: #d6d6d0; }
+    .bar span { margin-left: 18px; }
+    .view { position: absolute; left: 0; top: 44px; width: 1728px; height: 1080px; overflow: hidden; }
+    .view video { position: absolute; left: 0; top: 0; width: 1728px; height: 1080px; }
+  </style>
+  <div data-hf-id="hf-0str" id="root" data-composition-id="dbt" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-qd4l" id="dbt-ed" class="term" data-layout-allow-overflow>
+      <div data-hf-id="hf-5rmk" class="tabs"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i><div data-hf-id="hf-16p8" class="tab">erd/conformed.txt</div></div>
+      <div data-hf-id="hf-qevj" class="code">
+        <div data-hf-id="hf-ghja" id="dbt-hl"></div>
+        <div data-hf-id="hf-x42t" class="blk">
+          <div data-hf-id="hf-gmyq" class="ln"><b data-hf-id="hf-t4n0">1</b><span data-hf-id="hf-bzib" class="m"># Hand-written diagram, one file per star schema. The tables, columns and</span></div>
+          <div data-hf-id="hf-ru7a" class="ln"><b data-hf-id="hf-rxpx">2</b><span data-hf-id="hf-yjpi" class="m"># relationships are written here. Table and column descriptions and column</span></div>
+          <div data-hf-id="hf-s8ib" class="ln"><b data-hf-id="hf-sc0y">3</b><span data-hf-id="hf-bjzm" class="m"># types come from the dbt yml, through the line below, which covers every file</span></div>
+          <div data-hf-id="hf-smtc" class="ln"><b data-hf-id="hf-ubk3">4</b><span data-hf-id="hf-lmk6" class="m"># in this folder. No manifest.json, no `dbt parse`.</span></div>
+          <div data-hf-id="hf-puo5" class="ln"><b data-hf-id="hf-upv4">5</b><span data-hf-id="hf-11jr" class="k"># @dbt: ..</span></div>
+          <div data-hf-id="hf-q8z6" class="ln"><b data-hf-id="hf-tiy1">6</b></div>
+          <div data-hf-id="hf-qna7" class="ln"><b data-hf-id="hf-tx92">7</b><span data-hf-id="hf-n8t1" class="m"># Conformed dimensions: built once, joined by every fact that needs them.</span></div>
+          <div data-hf-id="hf-r1l8" class="ln"><b data-hf-id="hf-pjvr">8</b></div>
+          <div data-hf-id="hf-o9g1" class="ln"><b data-hf-id="hf-py6s">9</b><span data-hf-id="hf-8lxu" class="t">dim_airline</span></div>
+          <div data-hf-id="hf-onr2" class="ln"><b data-hf-id="hf-jyhw">10</b><span data-hf-id="hf-dmxx" class="m">-</span></div>
+          <div data-hf-id="hf-9fs2" class="ln"><b data-hf-id="hf-jk6v">11</b><span data-hf-id="hf-moh6" class="c">airline_id</span> <span data-hf-id="hf-bt5x" class="k">PK</span></div>
+          <div data-hf-id="hf-91h1" class="ln"><b data-hf-id="hf-j5vu">12</b><span data-hf-id="hf-zbtw" class="c">airline_name</span></div>
+          <div data-hf-id="hf-a8e4" class="ln"><b data-hf-id="hf-irkt">13</b><span data-hf-id="hf-m1ln" class="c">airline_name_cleaned</span></div>
+          <div data-hf-id="hf-9u33" class="ln"><b data-hf-id="hf-ljq0">14</b></div>
+          <div data-hf-id="hf-b106" class="ln"><b data-hf-id="hf-l5ez">15</b><span data-hf-id="hf-6edu" class="m"># Shown after the yml description: the source has no reviewer id, so do not</span></div>
+          <div data-hf-id="hf-amp5" class="ln"><b data-hf-id="hf-kr3y">16</b><span data-hf-id="hf-mzkf" class="m"># count this table as people.</span></div>
+          <div data-hf-id="hf-btm8" class="ln"><b data-hf-id="hf-kcsx">17</b><span data-hf-id="hf-5ua4" class="t">dim_customer</span></div>
+        </div>
+      </div>
+    </div>
+    <div data-hf-id="hf-nt0f" class="stage" data-layout-allow-overflow>
+      <div data-hf-id="hf-87he" id="dbt-enter" class="enter" style="opacity: 0">
+        <div data-hf-id="hf-f0u5" id="dbt-cam" class="cam">
+          <div data-hf-id="hf-v0ka" class="win">
+            <div data-hf-id="hf-ufsv" class="bar"><i data-hf-id="hf-wt6k"></i><i data-hf-id="hf-zeb8"></i><i data-hf-id="hf-y7e5"></i><span data-hf-id="hf-py10">erd.html · qdbd-dbt-demo</span></div>
+            <div data-hf-id="hf-z18r" class="view">
+              <video data-hf-id="hf-didh" id="dbt-a" class="clip" src="assets/footage/dbt.mp4" data-start="2.35" data-duration="2.65" data-media-start="1.25" data-track-index="0" muted playsinline></video>
+              <video data-hf-id="hf-laun" id="dbt-b" class="clip" src="assets/footage/dbt.mp4" data-start="5.0" data-duration="2.3" data-media-start="4.3" data-track-index="1" muted playsinline></video>
+              <video data-hf-id="hf-dknj" id="dbt-c" class="clip" src="assets/footage/dbt.mp4" data-start="7.3" data-duration="2.2" data-media-start="10.6" data-playback-rate="1.27" data-track-index="2" muted playsinline></video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h1 data-hf-id="hf-q6jn" id="dbt-t1" class="clip ttl" data-start="0.3" data-duration="1.95" data-track-index="3"><span data-hf-id="hf-8g5g" class="w">Already</span> <span data-hf-id="hf-49yg" class="w">documented</span> <span data-hf-id="hf-gpzr" class="w">in</span> <span data-hf-id="hf-ioec" class="w acc">dbt?</span></h1>
+    <h1 data-hf-id="hf-hz71" id="dbt-t2" class="clip ttl" data-start="2.6" data-duration="4.55" data-track-index="4"><span data-hf-id="hf-civn" class="w">Your</span> <span data-hf-id="hf-ufnm" class="w">yml</span> <span data-hf-id="hf-xvix" class="w">docs,</span> <span data-hf-id="hf-mx6p" class="w">on</span> <span data-hf-id="hf-9o0j" class="w">the</span> <span data-hf-id="hf-rl8t" class="w">diagram</span></h1>
+    <h1 data-hf-id="hf-9c1d" id="dbt-t3" class="clip ttl" data-start="7.45" data-duration="2.0" data-track-index="5"><span data-hf-id="hf-cwv5" class="w">Tags</span> <span data-hf-id="hf-iw80" class="w">come</span> <span data-hf-id="hf-huo5" class="w">along</span> <span data-hf-id="hf-ptne" class="w">too</span></h1>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      const cam = (sel, t, s, cx, cy, d, TOP = 44) => {
+        const qx = 96 + 1.2 * cx, qy = TOP + 1.2 * cy;
+        let x = 0, y = 0;
+        if (s > 1) {
+          x = Math.min(-s * 96, Math.max(1920 - s * 1824, 960 - s * qx));
+          y = Math.min(0, Math.max(890 - s * 1124, 445 - s * qy));
+        }
+        if (t === 0) tl.fromTo(sel, { x: 0, y: 0, scale: 1 }, { x, y, scale: s, duration: 0.01 }, 0);
+        else tl.to(sel, { x, y, scale: s, duration: d || 0.42, ease: "power3.inOut" }, t);
+      };
+      const whipIn = (sel, t) => tl.fromTo(sel, { x: 360, opacity: 0, filter: "blur(14px)" },
+        { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.26, ease: "expo.out" }, t);
+      const whipOut = (sel, t) => tl.to(sel, { x: -360, opacity: 0, filter: "blur(14px)", duration: 0.16, ease: "power3.in" }, t);
+      // The editor is back; the camera pushes in on line 5 and the line lights up.
+      whipIn("#dbt-ed", 0);
+      tl.to("#dbt-ed", { scale: 1.45, y: -40, duration: 0.55, ease: "power2.inOut" }, 0.35);
+      tl.fromTo("#dbt-hl", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.4, ease: "power3.out" }, 0.85);
+      whipOut("#dbt-ed", 2.2);
+      // The browser: the dim_customer header tooltip (yml description, then the file's comment), its details panel,
+      // then the pii legend chip filtering to tag:pii.
+      whipIn("#dbt-enter", 2.35);
+      cam("#dbt-cam", 0, 1.75, 820, 745);
+      cam("#dbt-cam", 4.92, 1.75, 1230, 330);
+      cam("#dbt-cam", 7.22, 1.2, 430, 330);
+      say("#dbt-t1", 0.33, 2.05);
+      say("#dbt-t2", 2.63, 7.0);
+      say("#dbt-t3", 7.48, 9.3);
+      whipOut("#dbt-enter", 9.33);
+      window.__timelines["dbt"] = tl;
+    })();
+  </script>
+</template>

@@ -43,7 +43,7 @@ def test_round_trip_examples_and_demos(src):
     assert conv.canonical(again, lost) == conv.canonical(original, lost)
     kinds = {w.message.split(":")[0] for w in to_dbml.warnings}
     allowed = {"table-level relationship", "alias", "settings"}
-    if src == "gallery/dbt-docs/schema.txt":
+    if src in ("gallery/dbt-docs/schema.txt", "gallery/skytrax/erd"):
         allowed.add("type")  # column types are left blank so the linked yml's data_type is what the diagram shows
     assert kinds <= allowed, kinds
 

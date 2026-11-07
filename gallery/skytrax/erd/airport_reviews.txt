@@ -1,0 +1,30 @@
+fct_airport_review
+-
+review_id PK
+airport_id FK >- dim_airport.airport_id
+customer_id FK >- dim_customer.customer_id
+date_submitted_id FK >- dim_date.date_id
+date_visit_id FK >- dim_date.date_id
+is_verified
+experience_at_airport
+type_of_traveller
+queuing_times
+terminal_cleanliness
+terminal_seating
+terminal_signs
+food_beverages
+airport_shopping
+airport_staff
+wifi_connectivity
+recommended
+average_rating
+rating_band
+review_text
+source_updated_at
+dbt_loaded_at
+
+dim_airport
+-
+airport_id PK
+airport_name
+airport_name_cleaned

@@ -40,10 +40,10 @@
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
         </button>
       </div>
-      <a class="qh-note" href="{{ 'dbt/' | url }}">
+      <div class="qh-note">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2 2 7l10 5 10-5-10-5Zm0 13-8.6-4.3L2 11.4 12 16.4l10-5-1.4-.7L12 15Zm0 4-8.6-4.3L2 15.4l10 5 10-5-1.4-.7L12 19Z"/></svg>
-        <span><b>Using dbt?</b> Primary keys and relationships come straight from your tests. <u>dbt import</u></span>
-      </a>
+        <span><b>Using dbt?</b> Import keys and relationships from your tests, or draw the ERD and pull its docs from your yml. <a href="{{ 'dbt/' | url }}">dbt guide</a> or <a href="{{ 'demo/skytrax/' | url }}#t=dim_customer">live example</a></span>
+      </div>
       <div class="qh-note">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M17.6 2.2 9.3 9.8 4.4 6.1 2 7.3v9.4l2.4 1.2 4.9-3.7 8.3 7.6L22 20V4l-4.4-1.8ZM4.5 14.5v-5L7 12l-2.5 2.5Zm12.9 1.6L12.6 12l4.8-4.1v8.2Z"/></svg>
         <span><b>In VS Code or Cursor?</b> The diagram beside your editor, no terminal needed. <a href="https://marketplace.visualstudio.com/items?itemName=MarkPhamm.quickdbd">VS Code Marketplace</a> or <a href="https://open-vsx.org/extension/MarkPhamm/quickdbd">Open VSX</a></span>
@@ -84,11 +84,11 @@
        screen; with reduced motion it waits for the play button. -->
   <section class="qh-section qh-wrap qh-video" id="demo">
     <h2><span class="qh-hl">qdbd</span> in 60 seconds</h2>
-    <p class="qh-sub">A text file becomes a diagram you can explore, edit live and keep beside your code in VS Code. No sound.</p>
+    <p class="qh-sub">A text file becomes a diagram you can explore, fill from your dbt yml and keep beside your code in VS Code. Filmed on <a href="https://github.com/MarkPhamm/qdbd-dbt-demo">qdbd-dbt-demo</a>. No sound.</p>
     <div class="qh-fig">
       <div class="qh-video__frame">
         <video src="{{ 'assets/video/qdbd-demo.mp4' | url }}" poster="{{ 'assets/img/demo-poster.jpg' | url }}" width="1920" height="1080"
-          muted loop playsinline controls preload="metadata" aria-label="qdbd demo: build a diagram from a text file, explore it, edit it live and use it in VS Code"></video>
+          muted loop playsinline controls preload="metadata" aria-label="qdbd demo: build a diagram from a text file, explore it, pull descriptions from dbt yml, fix drift in VS Code and review the change in a pull request"></video>
       </div>
     </div>
   </section>
