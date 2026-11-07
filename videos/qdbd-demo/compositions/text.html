@@ -1,0 +1,92 @@
+<template>
+  <style>
+    @font-face { font-family: "Geist"; src: url("assets/fonts/Geist.woff2") format("woff2"); font-weight: 100 900; }
+    @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 100 900; }
+    #root { position: absolute; inset: 0; font-family: "Geist", sans-serif; color: #15181e; }
+    .ttl { position: absolute; left: 96px; top: 74px; margin: 0; font-size: 64px; font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1.1; white-space: nowrap; }
+    .w { display: inline-block; }
+    .acc { color: #2f5bea; }
+    .term { position: absolute; left: 96px; top: 190px; width: 1728px; height: 950px; border-radius: 16px; overflow: hidden;
+      background: #15181e; box-shadow: 0 24px 54px -24px rgba(21, 24, 30, 0.38); transform-origin: 0 0; }
+    .tabs { position: absolute; left: 0; top: 0; right: 0; height: 52px; display: flex; align-items: flex-end; gap: 2px;
+      padding-left: 22px; background: #0e1014; }
+    .tabs .dot { width: 14px; height: 14px; border-radius: 50%; background: #3a3f48; margin: 0 8px 19px 0; }
+    .tab { height: 44px; line-height: 44px; padding: 0 26px; font: 500 28px "Geist Mono", monospace; color: #f2f2ee;
+      border-radius: 10px 10px 0 0; background: #15181e; display: grid; }
+    .tab span { grid-area: 1 / 1; }
+    .code { position: absolute; left: 0; top: 52px; right: 0; bottom: 0; overflow: hidden; }
+    .blk { position: absolute; left: 0; top: 30px; width: 100%; }
+    .ln { height: 40px; line-height: 40px; font: 400 29px "Geist Mono", monospace; color: #e8e8e3; white-space: pre; }
+    .ln b { display: inline-block; width: 84px; padding-right: 26px; text-align: right; font-weight: 400; color: #5b6270; }
+    .t { color: #ffffff; font-weight: 600; } .c { color: #e8e8e3; } .k { color: #8fb0ff; } .m { color: #6b7280; }
+    .sh { position: absolute; left: 44px; top: 96px; font: 400 36px "Geist Mono", monospace; color: #e8e8e3; opacity: 0; }
+    .row { height: 62px; line-height: 62px; white-space: pre; }
+    .p { color: #8fb0ff; }
+    .typed { display: inline-block; overflow: hidden; vertical-align: top; white-space: pre; width: calc(var(--n) * 1ch); }
+    .ok { color: #9aa3b2; opacity: 0; } .ok em { font-style: normal; color: #f2f2ee; }
+    #text-file { color: #f0c987; }
+  </style>
+  <div data-hf-id="hf-zipc" id="root" data-composition-id="text" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-ejid" id="text-win" class="term" data-layout-allow-overflow>
+      <div data-hf-id="hf-5rmk" class="tabs"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i>
+        <div data-hf-id="hf-clpx" class="tab"><span data-hf-id="hf-dem9" id="text-tab1">erd/conformed.txt</span><span data-hf-id="hf-1i11" id="text-tab2" style="opacity: 0">zsh</span></div></div>
+      <div data-hf-id="hf-fg3a" id="text-code" class="code">
+        <div data-hf-id="hf-x42t" class="blk">
+          <!-- The first 20 lines of erd/conformed.txt in github.com/MarkPhamm/qdbd-dbt-demo, verbatim. -->
+          <div data-hf-id="hf-gmyq" class="ln"><b data-hf-id="hf-t4n0">1</b><span data-hf-id="hf-bzib" class="m"># Hand-written diagram, one file per star schema. The tables, columns and</span></div>
+          <div data-hf-id="hf-ru7a" class="ln"><b data-hf-id="hf-rxpx">2</b><span data-hf-id="hf-yjpi" class="m"># relationships are written here. Table and column descriptions and column</span></div>
+          <div data-hf-id="hf-s8ib" class="ln"><b data-hf-id="hf-sc0y">3</b><span data-hf-id="hf-bjzm" class="m"># types come from the dbt yml, through the line below, which covers every file</span></div>
+          <div data-hf-id="hf-smtc" class="ln"><b data-hf-id="hf-ubk3">4</b><span data-hf-id="hf-lmk6" class="m"># in this folder. No manifest.json, no `dbt parse`.</span></div>
+          <div data-hf-id="hf-puo5" class="ln"><b data-hf-id="hf-upv4">5</b><span data-hf-id="hf-11jr" class="k"># @dbt: ..</span></div>
+          <div data-hf-id="hf-q8z6" class="ln"><b data-hf-id="hf-tiy1">6</b></div>
+          <div data-hf-id="hf-qna7" class="ln"><b data-hf-id="hf-tx92">7</b><span data-hf-id="hf-n8t1" class="m"># Conformed dimensions: built once, joined by every fact that needs them.</span></div>
+          <div data-hf-id="hf-r1l8" class="ln"><b data-hf-id="hf-pjvr">8</b></div>
+          <div data-hf-id="hf-o9g1" class="ln"><b data-hf-id="hf-py6s">9</b><span data-hf-id="hf-8lxu" class="t">dim_airline</span></div>
+          <div data-hf-id="hf-onr2" class="ln"><b data-hf-id="hf-jyhw">10</b><span data-hf-id="hf-dmxx" class="m">-</span></div>
+          <div data-hf-id="hf-9fs2" class="ln"><b data-hf-id="hf-jk6v">11</b><span data-hf-id="hf-moh6" class="c">airline_id</span> <span data-hf-id="hf-bt5x" class="k">PK</span></div>
+          <div data-hf-id="hf-91h1" class="ln"><b data-hf-id="hf-j5vu">12</b><span data-hf-id="hf-zbtw" class="c">airline_name</span></div>
+          <div data-hf-id="hf-a8e4" class="ln"><b data-hf-id="hf-irkt">13</b><span data-hf-id="hf-m1ln" class="c">airline_name_cleaned</span></div>
+          <div data-hf-id="hf-9u33" class="ln"><b data-hf-id="hf-ljq0">14</b></div>
+          <div data-hf-id="hf-b106" class="ln"><b data-hf-id="hf-l5ez">15</b><span data-hf-id="hf-6edu" class="m"># Shown after the yml description: the source has no reviewer id, so do not</span></div>
+          <div data-hf-id="hf-amp5" class="ln"><b data-hf-id="hf-kr3y">16</b><span data-hf-id="hf-mzkf" class="m"># count this table as people.</span></div>
+          <div data-hf-id="hf-btm8" class="ln"><b data-hf-id="hf-kcsx">17</b><span data-hf-id="hf-5ua4" class="t">dim_customer</span></div>
+          <div data-hf-id="hf-bfb7" class="ln"><b data-hf-id="hf-n4y4">18</b><span data-hf-id="hf-n06x" class="m">-</span></div>
+          <div data-hf-id="hf-69bu" class="ln"><b data-hf-id="hf-mqn3">19</b><span data-hf-id="hf-fxcs" class="c">customer_id</span> <span data-hf-id="hf-xfw9" class="k">PK</span></div>
+          <div data-hf-id="hf-5v0t" class="ln"><b data-hf-id="hf-k42n">20</b><span data-hf-id="hf-p2sy" class="c">customer_name</span></div>
+        </div>
+      </div>
+      <!-- Real `qdbd build` output (videos/capture/out/terminal/build.txt). -->
+      <div data-hf-id="hf-mhq2" id="text-sh" class="sh">
+        <div data-hf-id="hf-thy4" class="row"><span data-hf-id="hf-41jt" class="p">$ </span><span data-hf-id="hf-3ncb" id="text-c1" class="typed" style="--n: 0">qdbd build erd -o erd.html</span></div>
+        <div data-hf-id="hf-mhe2" id="text-o1" class="row ok"><em data-hf-id="hf-h8pq">Wrote <span data-hf-id="hf-c2x2" id="text-file">erd.html</span> (13 tables, 25 relationships)</em></div>
+      </div>
+    </div>
+    <h1 data-hf-id="hf-njxr" id="text-t1" class="clip ttl" data-start="0.3" data-duration="4.15" data-track-index="1"><span data-hf-id="hf-wem7" class="w">Text</span> <span data-hf-id="hf-k3mp" class="w">in,</span> <span data-hf-id="hf-rpws" class="w">one</span> <span data-hf-id="hf-8a7y" class="w acc">HTML</span> <span data-hf-id="hf-oy3n" class="w">page</span> <span data-hf-id="hf-zsf0" class="w">out</span></h1>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, filter: "blur(6px)" };
+      const ON = { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.067, ease: "power4.out" };
+      const OUT = { opacity: 0, filter: "blur(6px)", duration: 0.16, stagger: 0.03, ease: "power3.in" };
+      const say = (id, a, b) => { tl.fromTo(id + " .w", IN, { ...ON }, a); tl.to(id + " .w", { ...OUT }, b); };
+      // The editor arrives on the stage the hook's plate left; the schema text arrives a line at a time.
+      tl.fromTo("#text-win", { opacity: 0, scale: 0.97, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, 0);
+      tl.fromTo("#text-code .ln", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.065 }, 0.3);
+      say("#text-t1", 0.33, 4.25);
+      // The editor becomes the terminal: the text leaves, the window shortens, the shell arrives.
+      tl.to("#text-code", { opacity: 0, filter: "blur(8px)", duration: 0.15, ease: "power3.in" }, 2.05);
+      tl.fromTo("#text-win", { height: 950 }, { height: 440, duration: 0.32, ease: "power3.out" }, 2.1);
+      tl.fromTo("#text-tab1", { opacity: 1 }, { opacity: 0, duration: 0.1 }, 2.15);
+      tl.fromTo("#text-tab2", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 2.2);
+      tl.fromTo("#text-sh", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 2.35);
+      tl.fromTo("#text-c1", { "--n": 0 }, { "--n": 26, duration: 0.75, ease: "steps(26)" }, 2.45);
+      tl.fromTo("#text-o1", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 3.4);
+      // Zoom through erd.html in the output line (window x 260, y 189): the browser opens out of it.
+      tl.to("#text-win", { scale: 9, x: 960 - 96 - 9 * 260, y: 540 - 190 - 9 * 189, filter: "blur(10px)", opacity: 0,
+        transformOrigin: "0 0", duration: 0.38, ease: "power3.in" }, 4.55);
+      window.__timelines["text"] = tl;
+    })();
+  </script>
+</template>
