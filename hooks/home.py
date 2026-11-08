@@ -7,8 +7,8 @@
   the site rather than kept twice in git.
 - The path and AI-agent sections show what qdbd's MCP tools (agent.py) answer about Sakila and AdventureWorks, run at
   build time.
-- The live demo drives the real viewer in an iframe, which must be same-origin: the AdventureWorks DW page is built
-  into the site at assets/tour/adventureworks-dw.html, for `mkdocs serve` as well as the Pages build.
+- The live demos drive the real viewer in iframes, which must be same-origin: the AdventureWorks DW page and the
+  dbt-yml shop page are built into the site at assets/tour/, for `mkdocs serve` as well as the Pages build.
 """
 
 import html
@@ -28,13 +28,16 @@ ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "overrides" / "home.html"
 ICON = ROOT / "src" / "quickdbd_cli" / "assets" / "icon.svg"
 TOUR_SOURCE = ROOT / "gallery" / "adventureworks-dw"
+DBT_SOURCE = ROOT / "gallery" / "dbt-docs" / "schema.txt"  # the dbt-yml demo: a hand-written ERD + `# @dbt: shop`
 AGENT_SOURCE = ROOT / "gallery" / "adventureworks"  # the AI-agent section's answers
 PATH_SOURCE = ROOT / "gallery" / "sakila"  # the path section; scripts/gen_thumbnails.py PATH_SHOT shows the same join
 TOUR_PAGE = Path("assets") / "tour" / "adventureworks-dw.html"
+DBT_PAGE = Path("assets") / "tour" / "dbt-docs.html"
 # The snippet's two tables side by side; any other table goes further right.
 MINI_POSITIONS = {"Customer": (0, 10), "Order": (300, 0)}
 
-_tour_html: str | None = None  # `mkdocs serve` rebuilds on every change; the tour page only needs laying out once
+_tour_html: str | None = None  # `mkdocs serve` rebuilds on every change; the tour pages only need laying out once
+_dbt_html: str | None = None
 
 
 def mini_diagram(home_html: str) -> dict:
@@ -106,6 +109,22 @@ def build_tour(site_dir: Path) -> Path:
     return out
 
 
+def build_dbt_tour(site_dir: Path) -> Path:
+    """Write the dbt-yml shop page the home page's second live demo drives; returns its path."""
+    global _dbt_html
+    if _dbt_html is None:
+        project = Project.open([DBT_SOURCE])
+        schema = compile_sources(project.sources())
+        if schema.errors:
+            raise ValueError(f"the dbt tour schema doesn't compile: {schema.errors[0]}")
+        model, pos = project.build(schema)
+        _dbt_html = render_page(model, pos, "Descriptions from dbt")
+    out = Path(site_dir) / DBT_PAGE
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(_dbt_html, encoding="utf-8")
+    return out
+
+
 def on_config(config, **kwargs):
     config.extra["home_mini"] = mini_diagram(HOME.read_text(encoding="utf-8"))
     config.extra["agent"] = agent_answers()
@@ -115,4 +134,5 @@ def on_config(config, **kwargs):
 
 def on_post_build(config, **kwargs):
     build_tour(Path(config["site_dir"]))
+    build_dbt_tour(Path(config["site_dir"]))
     shutil.copyfile(ICON, Path(config["site_dir"]) / "assets" / "img" / "icon.svg")

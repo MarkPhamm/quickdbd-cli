@@ -1,10 +1,11 @@
 /* Home page live demo: a scripted cursor drives the real viewer (assets/tour/adventureworks-dw.html, same origin) with
- * real events. Four chapters loop; hovering the frame hands control to the visitor. Phones and touch screens keep the
- * still screenshot; with reduced motion the page loads ready to use and a chapter card jumps to its end state.
- * The elements it drives are pinned by tests/test_viewer_contract.py. */
+ * real events. Five chapters loop; the last switches the frame to the dbt project (assets/tour/dbt-docs.html) and shows
+ * the descriptions, tags and types qdbd reads from its yml. Hovering the frame hands control to the visitor. Phones and
+ * touch screens keep the still screenshot; with reduced motion the page loads ready to use and a chapter card jumps to
+ * its end state. The elements it drives are pinned by tests/test_viewer_contract.py. */
 (function () {
   "use strict";
-  var DUR = [7, 8, 7, 11]; // seconds per chapter, for the progress bars
+  var DUR = [7, 8, 7, 11, 11]; // seconds per chapter, for the progress bars
 
   window.qhome.add(function (root) {
     var section = root.querySelector(".qh-tour");
@@ -12,8 +13,10 @@
     var frame = section.querySelector(".qh-tour__frame"), stage = frame.querySelector(".qh-tour__stage");
     var overlay = frame.querySelector(".qh-tour__overlay"), cursor = frame.querySelector(".qh-cursor");
     var toastEl = frame.querySelector(".qh-tour__toast"), stateEl = frame.querySelector(".qh-tour__state");
+    var pageBar = frame.querySelector(".qh-tour__page");
     var chapters = [].slice.call(section.querySelectorAll(".qh-tour__chapters li"));
-    var reduce = window.qhome.reduce.matches, ifr = null, W = null, D = null;
+    var PAGES = chapters.map(function (c) { return c.getAttribute("data-page") || "aw"; });
+    var reduce = window.qhome.reduce.matches, ifr = null, W = null, D = null, pageKey = null;
     var scale = 1, cx = 0, cy = 0, token = 0, instant = false, resumeT = null;
 
     function Stop() {}
@@ -26,6 +29,29 @@
     function fitScale() {
       scale = stage.clientWidth / 1440;
       if (ifr) ifr.style.transform = "scale(" + scale + ")";
+    }
+    /* Switch the frame to the chapter's page (AdventureWorks DW or the dbt shop). Both are qdbd pages built into the
+     * site by hooks/home.py; the dbt one opens on `orders` so its yml description is already in the details panel. */
+    function showPage(key, my) {
+      if (pageKey === key) return Promise.resolve();
+      pageKey = key;
+      if (pageBar) pageBar.textContent = key === "dbt" ? "Descriptions from dbt, 7 tables" : "AdventureWorks DW, 28 tables";
+      return new Promise(function (res, rej) {
+        function done() {
+          ifr.removeEventListener("load", done);
+          if (my !== token || !frame.isConnected) { rej(new Stop()); return; }
+          W = ifr.contentWindow;
+          D = ifr.contentDocument;
+          if (!D.getElementById("qdbd-data") || !W.qdbdViewer) { pageKey = null; rej(new Stop()); return; }
+          D.documentElement.setAttribute("data-theme", "light"); // the home page is light; the viewer would follow a dark OS
+          cx = 60; cy = 40; // the cursor restarts from the frame's top-left corner
+          cursor.style.transitionDuration = "0ms";
+          cursor.style.transform = "translate(" + cx * scale + "px," + cy * scale + "px)";
+          res();
+        }
+        ifr.addEventListener("load", done);
+        ifr.src = key === "dbt" ? frame.getAttribute("data-dbt-src") : frame.getAttribute("data-src");
+      });
     }
     function moveTo(x, y, my) {
       var t = instant ? 0 : Math.min(1100, 350 + Math.hypot(x - cx, y - cy) * 0.9);
@@ -155,6 +181,30 @@
         if (sql) { await moveToEl(sql, my); ripple(); toast("SQL copied"); }
         await sleep(2400, my);
       },
+      async function (my) { // dbt yml: the description, the tag, a column doc
+        if (W.qdbdViewer.state.focus !== "orders") {
+          var qi = q("#q");
+          qi.value = "orders";
+          qi.dispatchEvent(new W.Event("input", { bubbles: true }));
+          await sleep(300, my);
+          q('.ti[data-id="orders"]').click();
+          await sleep(900, my);
+        }
+        await sleep(500, my);
+        var doc = q(".doc");
+        if (doc) { await moveToEl(doc, my); ripple(); }
+        await sleep(1800, my);
+        var chip = q('.tchip[data-tag="finance"]');
+        if (chip) {
+          await moveToEl(chip, my);
+          ripple();
+          chip.click();
+          toast("tag:finance");
+          await sleep(2400, my);
+        }
+        var cd = q(".cd");
+        if (cd) { await moveToEl(cd, my); ripple(); await sleep(1600, my); }
+      },
     ];
 
     function mark(i) {
@@ -173,6 +223,7 @@
       try {
         for (var i = from; ; i = (i + 1) % steps.length) {
           mark(i);
+          await showPage(PAGES[i], my);
           if (i === 0) { reset(); await sleep(800, my); }
           await steps[i](my);
         }
@@ -186,6 +237,7 @@
       instant = true;
       try {
         if (i !== 1) reset();
+        await showPage(PAGES[i], my);
         await steps[i](my);
       } catch (e) {
         if (!(e instanceof Stop)) throw e;
@@ -240,8 +292,9 @@
           ifr = null;
           return;
         }
+        pageKey = "aw";
         live();
-      });
+      }, { once: true });
       ifr.src = frame.getAttribute("data-src");
       stage.insertBefore(ifr, overlay);
       fitScale();

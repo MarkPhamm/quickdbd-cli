@@ -264,7 +264,7 @@
   font: 500 12px var(--bp-mono); padding: 8px 14px; border-radius: 8px; opacity: 0;
   transition: opacity .2s var(--bp-ease-out), transform .22s var(--bp-ease-out); }
 .qh-tour__toast.open { opacity: 1; transform: translate(-50%, 0); }
-.qh-tour__chapters { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; text-align: left; }
+.qh-tour__chapters { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; text-align: left; }
 .qh-tour__chapters li { position: relative; overflow: hidden; cursor: pointer; padding: 12px 14px 14px; border: 1px solid var(--qh-line);
   border-radius: 10px; background: var(--qh-card); transition: border-color var(--bp-t-hover) linear, transform .22s var(--bp-ease-out); }
 .qh-tour__chapters li:hover { transform: translateY(-2px); }
@@ -278,6 +278,21 @@
 @keyframes qh-progress { to { transform: none; } }
 /* still screenshot until home-tour.js turns the section live (not on phones or touch screens) */
 .qh-tour:not(.live) .qh-tour__chapters, .qh-tour:not(.live) .qh-tour__hint, .qh-tour:not(.live) .qh-tour__state { display: none; }
+
+/* ----------------------------------------------------------------- dbt yml demo */
+.qh-dbt__viewer { margin-top: 40px; }
+.qh-dbt__caption { color: var(--qd-label); font-size: 14px; margin: 12px 0 0; }
+.qh-dbt__caption a { white-space: nowrap; }
+.qh-split--dbt { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; margin-top: 44px; }
+.qh-dbt__files .qh-code { min-height: 278px; }
+.qh-dbt__files .qh-more { margin-top: 18px; }
+.qh-dbt__points { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; margin: 0; padding: 0; list-style: none; }
+.qh-dbt__points li { border-top: 1px solid var(--bp-rule-strong); padding-top: 12px; color: var(--qd-muted); font-size: 14px; line-height: 1.55; }
+.qh-dbt__points b { display: block; color: var(--bp-ink); font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+/* the dbt viewer loads on wide, hover-capable screens; the still screenshot is the fallback */
+.qh-embed.live .qh-tour__still { display: none; }
+.qh-embed:not(.live) .qh-tour__stage iframe { visibility: hidden; }
+.qh-embed:not(.live) .qh-tour__state { display: none; }
 
 /* ------------------------------------------------------------------- responsive */
 @media (max-width: 960px) {
@@ -294,6 +309,8 @@
 @media (max-width: 600px) {
   .qh-wrap { --qh-pad: 16px; }
   .qh-tour__chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qh-dbt__points { grid-template-columns: minmax(0, 1fr); }
+  .qh-dbt__files .qh-code { font-size: 12.5px; }
   .qh-steps4, .qh-gallery { grid-template-columns: minmax(0, 1fr); }
   .qh-callout { position: static; width: auto; margin-top: 12px; }
   .qh-lead, .qh-sub { font-size: 16px; }

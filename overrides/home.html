@@ -85,7 +85,7 @@
        screen; with reduced motion it waits for the play button. -->
   <section class="qh-section qh-wrap qh-video" id="demo">
     <h2><span class="qh-hl">qdbd</span> in 75 seconds</h2>
-    <p class="qh-sub">A text file becomes a diagram you can explore, fill from your dbt yml and keep beside your code in VS Code. Filmed on <a href="https://github.com/MarkPhamm/qdbd-dbt-demo">qdbd-dbt-demo</a>.</p>
+    <p class="qh-sub">A text file becomes a diagram you can explore, fill from your <a href="#dbt">dbt yml</a> and keep beside your code in VS Code. Filmed on <a href="https://github.com/MarkPhamm/qdbd-dbt-demo">qdbd-dbt-demo</a>.</p>
     <div class="qh-fig">
       <div class="qh-video__frame">
         <video src="{{ 'assets/video/qdbd-demo.mp4' | url }}" poster="{{ 'assets/img/demo-poster.jpg' | url }}" width="1920" height="1080"
@@ -99,10 +99,10 @@
        Without it, on phones and on touch screens, the still screenshot links to the demo. -->
   <section class="qh-section qh-wrap qh-tour">
     <h2>The <span class="qh-hl">real page,</span> driven by a script</h2>
-    <p class="qh-sub">This is the actual <span class="qh-hl">qdbd</span> viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <p class="qh-sub">This is the actual <span class="qh-hl">qdbd</span> viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process. The last chapter opens a dbt project and shows the descriptions qdbd reads from its yml.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
     <div class="qh-fig qh-fig--tour">
-    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}">
-      <div class="qh-frame__bar"><span>AdventureWorks DW, 28 tables</span><b class="qh-tour__state">Playing</b></div>
+    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}" data-dbt-src="{{ 'assets/tour/dbt-docs.html' | url }}#t=orders">
+      <div class="qh-frame__bar"><span class="qh-tour__page">AdventureWorks DW, 28 tables</span><b class="qh-tour__state">Playing</b></div>
       <div class="qh-tour__stage">
         <a class="qh-tour__still" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
           <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd" loading="lazy" width="1440" height="860">
@@ -120,7 +120,61 @@
       <li><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
       <li><b>Selectors</b><span>dbt-style filters</span><i></i></li>
       <li><b>Join paths</b><span>From one table to another</span><i></i></li>
+      <li data-page="dbt"><b>dbt yml</b><span>Descriptions, tags and types</span><i></i></li>
     </ol>
+  </section>
+
+  <!-- ------------------------------------------------------------- dbt yml demo
+       The viewer is the gallery's dbt-docs demo, built into the site by hooks/home.py; the snippets are its own files. -->
+  <section class="qh-section qh-wrap qh-dbt" id="dbt">
+    <h2>Already documented in <span class="qh-hl">dbt?</span></h2>
+    <p class="qh-sub">A hand-written ERD plus one <code># @dbt:</code> line is enough. <span class="qh-hl">qdbd</span> reads the project’s yml and docs directly — no <code>manifest.json</code>, no <code>dbt parse</code> — and fills descriptions, tags and column types. When the two disagree, <code>qdbd check</code> and VS Code say so.</p>
+    <div class="qh-dbt__viewer qh-tour__frame qh-embed" data-src="{{ 'assets/tour/dbt-docs.html' | url }}#t=orders" data-title="The shop ERD with descriptions from dbt yml">
+      <div class="qh-frame__bar"><span>Descriptions from dbt, 7 tables</span><b class="qh-tour__state">Live</b></div>
+      <div class="qh-tour__stage">
+        <a class="qh-tour__still" href="{{ 'demo/dbt-docs/' | url }}#t=orders">
+          <img src="{{ 'assets/img/dbt-docs.png' | url }}" alt="The shop ERD with the orders table selected and its dbt yml descriptions in the details panel" loading="lazy" width="1440" height="820">
+          <span>Open the live demo</span>
+        </a>
+      </div>
+    </div>
+    <p class="qh-dbt__caption">The ERD is hand-written. The description, the <code>finance</code> tag and every column type come from <code>models/schema.yml</code> and <code>docs.md</code>. <a href="{{ 'demo/dbt-docs/' | url }}#t=orders">Open the live demo</a></p>
+    <div class="qh-split qh-split--dbt">
+      <div class="qh-dbt__files">
+        <div class="qh-tabs">
+          <div class="qh-tabs__bar" role="tablist">
+            <button role="tab" aria-selected="true" data-tab="t-dbt-text">erd/shop.txt</button>
+            <button role="tab" aria-selected="false" data-tab="t-dbt-yml">models/schema.yml</button>
+          </div>
+<pre class="qh-code" id="t-dbt-text" role="tabpanel"><span class="c"># One line names the dbt project.</span>
+<b># @dbt: shop</b>
+
+orders
+-
+order_id <i>PK</i>
+customer_id <i>FK &gt;- customers.customer_id</i>
+status
+amount
+ordered_at</pre>
+<pre class="qh-code" id="t-dbt-yml" role="tabpanel" hidden>{% raw %}models:
+  - name: orders
+    description: "{{ doc('orders') }}"
+    config:
+      tags: [finance]
+    columns:
+      - name: status
+        description: "{{ doc('order_status') }}"
+        data_type: varchar(20){% endraw %}</pre>
+        </div>
+        <p class="qh-more"><a href="{{ 'dbt/' | url }}#descriptions-from-dbt-yml">Read the dbt yml guide</a></p>
+      </div>
+      <ul class="qh-dbt__points">
+        <li><b>Descriptions</b><span>Model and column docs, shown before the file’s own comment.</span></li>
+        <li><b>Tags</b><span>Model and column tags colour the diagram; filter with <code>tag:pii</code>.</span></li>
+        <li><b>Types</b><span><code>data_type</code> fills columns the schema leaves untyped.</span></li>
+        <li><b>Drift</b><span><code>qdbd check</code> and VS Code warn where the ERD and the yml disagree.</span></li>
+      </ul>
+    </div>
   </section>
 
   <!-- -------------------------------------------------------- problem framing -->

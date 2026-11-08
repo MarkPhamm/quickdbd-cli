@@ -1,4 +1,4 @@
-"""The home-page MkDocs hook (hooks/home.py): the live mini diagram and the tour page."""
+"""The home-page MkDocs hook (hooks/home.py): the live mini diagram and the two tour pages."""
 
 import json
 import re
@@ -44,6 +44,13 @@ def test_mini_diagram_relationship_text():
     assert rel["card"]["sentence"] == "Each Customer row has many Order rows"
 
 
+def test_tour_has_a_dbt_chapter():
+    tour = re.search(r'<section class="qh-section qh-wrap qh-tour">(.*?)</section>', HOME_HTML, re.S).group(1)
+    assert tour.count("<li") == 5
+    assert 'data-page="dbt"' in tour
+    assert 'data-dbt-src=' in tour
+
+
 def test_build_tour(tmp_path):
     page = home.build_tour(tmp_path)
     assert page.exists()
@@ -53,3 +60,15 @@ def test_build_tour(tmp_path):
     # the tables docs/javascripts/home-tour.js types, clicks and paths between
     driven = {"FactInternetSales", "DimCustomer", "FactResellerSales", "DimProductCategory"}
     assert driven <= {t["id"] for t in model["tables"]}
+
+
+def test_build_dbt_tour(tmp_path):
+    page = home.build_dbt_tour(tmp_path)
+    assert page.exists()
+    text = page.read_text(encoding="utf-8")
+    model = json.loads(re.search(r'id="qdbd-data">(.*?)</script>', text, re.S).group(1))["model"]
+    assert len(model["tables"]) == 7
+    orders = next(t for t in model["tables"] if t["id"] == "orders")
+    assert orders["doc"] == "One row per order, open or complete.\nRecognised in revenue once status is paid."
+    assert orders["tags"] == ["finance"]
+    assert {c["name"]: c["type"] for c in orders["cols"]}["amount"] == "numeric(12,2)"
