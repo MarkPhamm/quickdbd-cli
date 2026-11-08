@@ -25,7 +25,7 @@ uv venv && uv pip install -e ".[dev,docs]"
 .venv/bin/mkdocs serve        # http://127.0.0.1:8000
 ```
 
-The site deploys to GitHub Pages from `main`, with the demo gallery built into `/demo/`.
+The site deploys to GitHub Pages from `main`, with the demo gallery built into `/demo/`. `mkdocs serve` also writes the two demos the docs embed, `/demo/skytrax/` and `/demo/jaffle/`.
 
 ## Demo gallery
 
