@@ -5,4 +5,5 @@ assets/footage/
 assets/music/
 .hyperframes/
 .thumbnails/
+.waveform-cache/
 boards/
