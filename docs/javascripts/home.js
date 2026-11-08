@@ -295,14 +295,22 @@
     onView(code, function () { setTimeout(function () { t.play(null, 45); }, 400); });
   }
 
-  /* Demo video: muted autoplay only while on screen. With reduced motion it waits for its play button. */
+  /* Demo video: play with sound while on screen. If the browser blocks that, fall back to muted autoplay so the picture still runs. With reduced motion it waits for its play button. */
   function video(root) {
     var v = root.querySelector(".qh-video video");
     if (!v || reduce.matches) return;
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (!e.isIntersecting) v.pause();
-        else { var p = v.play(); if (p) p.catch(function () {}); }
+        else {
+          v.muted = false;
+          var p = v.play();
+          if (p) p.catch(function () {
+            v.muted = true;
+            var q = v.play();
+            if (q) q.catch(function () {});
+          });
+        }
       });
     }, { threshold: 0.4 }).observe(v);
   }
