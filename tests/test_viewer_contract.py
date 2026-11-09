@@ -19,6 +19,14 @@ def test_tour_contract(tmp_path):
     page = out.read_text(encoding="utf-8")
     for el in ('id="q"', 'id="filter"', 'id="zfit"', 'id="rcard"', 'id="details"'):
         assert el in page, el
-    for el in ('id="pathto"', 'id="pathsql"', 'id="rcopy"', 'class="hit"', 'class="ti"',
-               'class="doc"', 'class="cd"', 'class="tchip'):
+    for el in (
+        'id="pathto"',
+        'id="pathsql"',
+        'id="rcopy"',
+        'class="hit"',
+        'class="ti"',
+        'class="doc"',
+        'class="cd"',
+        'class="tchip',
+    ):
         assert el in VIEWER, el

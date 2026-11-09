@@ -48,7 +48,7 @@ def test_tour_has_a_dbt_chapter():
     tour = re.search(r'<section class="qh-section qh-wrap qh-tour">(.*?)</section>', HOME_HTML, re.S).group(1)
     assert tour.count("<li") == 5
     assert 'data-page="dbt"' in tour
-    assert 'data-dbt-src=' in tour
+    assert "data-dbt-src=" in tour
 
 
 def test_build_tour(tmp_path):
