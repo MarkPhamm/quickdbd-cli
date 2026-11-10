@@ -15,7 +15,7 @@ jobs:
     permissions: { contents: read, pull-requests: write }   # write: for the PR comment
     steps:
       - uses: actions/checkout@v4
-      - uses: MarkPhamm/quickdbd-cli@v0.6.0
+      - uses: MarkPhamm/quickdbd-cli@v0.6.1
         with:
           path: erd/                  # schema file(s) or folder(s)
           output: site/index.html
@@ -72,7 +72,7 @@ Upload `output`'s folder with `actions/upload-pages-artifact` and deploy it with
 When each folder is its own diagram (say `docs/erd/sales/` and `docs/erd/hr/`), set `site` instead of `output`. The action then builds `site/sales.html`, `site/hr.html` and an `index.html` linking them, with [`qdbd build --site`](cli.md#build). Each folder is checked and diffed on its own, so two diagrams can share table names, and the pull request comment has a section per folder:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.6.0
+- uses: MarkPhamm/quickdbd-cli@v0.6.1
   with:
     path: docs/erd/*/
     site: site/
@@ -85,7 +85,7 @@ The glob is expanded by the shell, and folders with no schema files are skipped.
 Run your dbt build first, then point the action at the manifest:
 
 ```yaml
-- uses: MarkPhamm/quickdbd-cli@v0.6.0
+- uses: MarkPhamm/quickdbd-cli@v0.6.1
   with:
     dbt-manifest: target/
     dbt-args: --infer-fks
@@ -145,7 +145,7 @@ To check schema files before every commit, add the [pre-commit](https://pre-comm
 ```yaml
 repos:
   - repo: https://github.com/MarkPhamm/quickdbd-cli
-    rev: v0.6.0
+    rev: v0.6.1
     hooks:
       - id: qdbd-check
         files: ^erd/.*\.(txt|dbml)$
