@@ -531,7 +531,7 @@
       var rows = items.map(function (t) {
         if (open) visible.push(t.id);
         return '<div class="ti" data-id="' + Q.esc(t.id) + '">' +
-          (t.color ? '<i class="tdot" style="background:' + Q.esc(t.color) + '" title="' + Q.esc(t.tags.join(", ")) + '"></i>' : "") + Q.esc(t.name) +
+          (t.color ? '<i class="tdot" style="background:' + Q.esc(t.color) + '" title="' + Q.esc((t.tags || []).join(", ")) + '"></i>' : "") + Q.esc(t.name) +
           (t.aliases.length ? "<small>as " + Q.esc(t.aliases.join(", ")) + "</small>" : "") + "</div>";
       }).join("");
       if (flat) return rows;
@@ -991,8 +991,8 @@
       if (p.get("p") && S.focus) findPathTo(p.get("p"));
       var z = parseFloat(p.get("z")), c = (p.get("c") || "").split(",").map(Number);
       if (z > 0 && c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) {
-        var sz = stageSize();
-        S.view = { k: Math.min(4, Math.max(0.03, z)), x: sz[0] / 2 - c[0] * z, y: sz[1] / 2 - c[1] * z };
+        var sz = stageSize(), k = Math.min(4, Math.max(0.03, z));
+        S.view = { k: k, x: sz[0] / 2 - c[0] * k, y: sz[1] / 2 - c[1] * k };
         applyView();
       } else if (id) centerOn(id);
       else fit();

@@ -60,7 +60,7 @@ BODY = """
         <input id="q" type="search" placeholder="Search {count} tables  ( / )" autocomplete="off" spellcheck="false">
       </div>
       <div class="exfilter">
-        <input id="filter" type="text" placeholder="Filter: orders+1  group:marts  !stg_*" autocomplete="off"
+        <input id="filter" type="text" placeholder="Filter: +orders  group:marts" autocomplete="off"
           spellcheck="false" title="{filter_help}">
         <div class="fstat" id="fstat"></div>
         <div class="tagbar" id="tagbar"></div>
