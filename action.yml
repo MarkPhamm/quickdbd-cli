@@ -210,8 +210,8 @@ runs:
           exit 0
         fi
         # Only update our own comment: anyone can post one that starts with the marker. The default token can't
-        # read /user, and then comments come from github-actions[bot].
-        me=$(gh api user --jq .login 2>/dev/null || echo "github-actions[bot]")
+        # read /user (gh prints the 403 body on stdout), and then comments come from github-actions[bot].
+        me=$(gh api user --jq .login 2>/dev/null) || me="github-actions[bot]"
         # --jq runs once per page, so take the first id from all pages.
         ids=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
           --jq ".[] | select(.user.login == \"$me\" and (.body | startswith(\"$marker\"))) | .id")
