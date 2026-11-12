@@ -48,7 +48,7 @@ Commit `erd/` (step 1) so the action can compare the pull request's schema with 
 !!! warning "A Pages site is public unless you restrict it"
     Anyone can open a GitHub Pages site, unless it's published from a private or internal repository of an organisation on GitHub Enterprise Cloud with [access control](https://docs.github.com/en/enterprise-cloud@latest/pages/getting-started-with-github-pages/changing-the-visibility-of-your-github-pages-site) turned on. Publish a client's schema only where their agreement allows it. Publishing means you accept the [disclaimer](../sharing.md#disclaimer).
 
-To keep an always-current ERD on GitHub Pages, add a deploy job. This site's own [`.github/workflows/erd.yml`](https://github.com/MarkPhamm/quickdbd-cli/blob/main/.github/workflows/erd.yml) does exactly that for the [demo](../demo/).
+To keep an always-current ERD on GitHub Pages, add a deploy job. This site's own [`.github/workflows/erd.yml`](https://github.com/MarkPhamm/quickdbd-cli/blob/main/.github/workflows/erd.yml) does exactly that for the [demo](../../demo/).
 
 ```yaml
       - if: github.event_name == 'push'
