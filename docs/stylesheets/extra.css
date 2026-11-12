@@ -213,11 +213,28 @@ iframe.demo { width: 100%; height: 620px; border: 1px solid var(--bp-rule-strong
   .md-sidebar--primary .md-sidebar__inner { padding-right: 0; }
   .md-nav--primary .md-nav__list { padding-right: .6rem; }
 }
+/* narrow screens keep Docs, Demos and Quick start in the header; GitHub is in the drawer and the footer */
 @media screen and (max-width: 59.984em) {
-  .qd-navlink, .qd-navbtn { display: none; }
+  .qd-github { display: none; }
   .qd-brand { margin-right: .5rem; }
-  .qd-header__title { border-left: 0; }
 }
+@media screen and (max-width: 44.984em) {
+  .qd-version { display: none; }
+  .qd-navlink { padding: 0 .7rem; }
+  .qd-navbtn { margin: 0 .4rem 0 .6rem; }
+}
+@media screen and (max-width: 33.984em) { .qd-demos { display: none; } }
+@media screen and (max-width: 29.984em) {
+  .qd-navlink { display: none; }
+  .qd-navbtn { font-size: .65rem; padding: .4rem .6rem; margin-left: auto; }
+}
+@media screen and (max-width: 22.484em) { .qd-navbtn { display: none; } }
+/* the home page has no nav drawer, so its menu button would open an empty overlay */
+body:has(.qh) .qd-drawer { display: none; }
+
+/* Back to top: a bottom-right corner, not the top centre over the text (Material sets top inline) */
+.md-top { top: auto !important; bottom: 1.2rem; right: 1.2rem; margin: 0; transform: none; }
+.md-top[hidden] { transform: translateY(.2rem); }
 .md-nav--primary .md-nav__source { background: var(--bp-sheet); color: var(--bp-ink); border-bottom: 1px solid var(--bp-rule); }
 @media screen and (max-width: 76.234em) { .md-sidebar--primary { background: var(--qd-side); } }
 
