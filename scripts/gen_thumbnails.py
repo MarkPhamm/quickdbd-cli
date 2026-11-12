@@ -4,6 +4,7 @@
     python scripts/gen_thumbnails.py diff tags  # just these
     python scripts/gen_thumbnails.py hero       # the README hero (docs/assets/img/hero.png)
     python scripts/gen_thumbnails.py path-sql   # the home page's path-to-SQL shot (docs/assets/img/path-sql.png)
+    python scripts/gen_thumbnails.py diff-shot  # the schema diff shot (docs/assets/img/diff.png)
 
 Dev-only: needs Playwright (`uv pip install -p .venv playwright`) and drives the system Chrome, so no
 browser download. Each demo is opened at its `view` + `shot` URL hash; the screenshot is framed in a card
@@ -27,6 +28,8 @@ W, H = 1200, 630
 SHOT_W, SHOT_H = 1280, 820
 # The home page's "Every relationship is a JOIN" section; hooks/home.py asks join_path for the same two tables.
 PATH_SHOT = ("sakila", "t=payment&p=country")
+# The home page's and the docs' diff shot: the change the home page's sample PR comment describes.
+DIFF_SHOT = ("diff", "t=Customer")
 # Hidden in the screenshot: the table list, toolbar, minimap and hint. The details panel and diff bar stay.
 CLEAN = ".explorer, .bar, .minimap, .hint { display: none !important; }"
 
@@ -120,6 +123,13 @@ def main(argv: list[str]) -> int:
             page.mouse.move(700, 820)
             page.wait_for_timeout(800)
             dst = ROOT / "docs" / "assets" / "img" / "path-sql.png"
+            page.screenshot(path=str(dst))
+            print(f"Wrote {dst.relative_to(ROOT)}")
+        if "diff-shot" in (set(argv) or {"diff-shot"}):
+            page.set_viewport_size({"width": 1440, "height": 860})
+            page.goto((out / DIFF_SHOT[0] / "index.html").as_uri() + f"#{DIFF_SHOT[1]}")
+            page.wait_for_timeout(800)
+            dst = ROOT / "docs" / "assets" / "img" / "diff.png"
             page.screenshot(path=str(dst))
             print(f"Wrote {dst.relative_to(ROOT)}")
         browser.close()
