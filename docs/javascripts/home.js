@@ -112,7 +112,9 @@
         c.style.setProperty("--my", e.clientY - r.top + "px");
       });
     });
-    window.qhome.sections.forEach(function (fn) { fn(root); });
+    window.qhome.sections.forEach(function (fn) {
+      try { fn(root); } catch (e) { console.error(e); } // one broken section mustn't stop the rest
+    });
   }
 
   /* Compare cards: rise, rows and marks pop in, then the side cards step back and the qdbd card lifts. */
@@ -295,21 +297,21 @@
     onView(code, function () { setTimeout(function () { t.play(null, 45); }, 400); });
   }
 
-  /* Demo video: play with sound while on screen. If the browser blocks that, fall back to muted autoplay so the picture still runs. With reduced motion it waits for its play button. */
+  /* Demo video: play muted while on screen; sound only when the visitor turns it on. A video the visitor paused
+     stays paused when it scrolls back into view. With reduced motion it waits for its play button. */
   function video(root) {
     var v = root.querySelector(".qh-video video");
     if (!v || reduce.matches) return;
+    v.muted = true;
+    var held = false, ours = false;
+    v.addEventListener("pause", function () { if (!ours) held = true; ours = false; });
+    v.addEventListener("play", function () { held = false; });
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (!e.isIntersecting) v.pause();
-        else {
-          v.muted = false;
+        if (!e.isIntersecting) { if (!v.paused) { ours = true; v.pause(); } }
+        else if (!held) {
           var p = v.play();
-          if (p) p.catch(function () {
-            v.muted = true;
-            var q = v.play();
-            if (q) q.catch(function () {});
-          });
+          if (p) p.catch(function () {});
         }
       });
     }, { threshold: 0.4 }).observe(v);

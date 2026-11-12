@@ -17,7 +17,7 @@
   }
 
   window.qhome.add(function (root) {
-    var tabs = root.querySelector(".qh-tabs");
+    var text = root.querySelector("#t-text"), tabs = text && text.closest(".qh-tabs"); // not the dbt section's tabs above it
     if (!tabs) return;
     var Q = window.qhome, reduce = Q.reduce.matches;
 
