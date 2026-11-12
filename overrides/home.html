@@ -32,7 +32,7 @@
         <a class="qh-btn qh-btn--primary" href="{{ 'getting-started/' | url }}">Quick start
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg></a>
         <a class="qh-btn" href="{{ 'demo/' | url }}">See live demos</a>
-        <a class="qh-btn" href="https://github.com/MarkPhamm/qdbd-dbt-demo">dbt demo repo</a>
+        <a class="qh-textlink" href="https://github.com/MarkPhamm/qdbd-dbt-demo">dbt demo repo →</a>
       </div>
       <div class="qh-install">
         <span class="qh-install__prompt">$</span>
@@ -65,17 +65,19 @@
             <svg viewBox="0 0 1440 860" preserveAspectRatio="none"><path pathLength="1" d="M756 183h14M763 183V579M756 579h14M751 191l24-16M751 587l24-16"/></svg>
             <span style="left: 53.6%; top: 46%">26 cols</span>
           </div>
-          <dl class="qh-sheet__title" aria-hidden="true">
-            <dt>drawing</dt><dd>adventureworks-dw</dd>
-            <dt>tables</dt><dd>28</dd>
-            <dt>rev</dt><dd>v{{ config.extra.version }}</dd>
-          </dl>
         </div>
       </div>
-      <div class="qh-callout">
-        <div class="qh-callout__head"><span>FactInternetSales</span><a href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">Try it live</a></div>
-        <div class="qh-callout__row"><b>26</b> columns, <b>8</b> foreign keys</div>
-        <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
+      <div class="qh-hero__under">
+        <div class="qh-callout">
+          <div class="qh-callout__head"><span>FactInternetSales</span><a href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">Try it live</a></div>
+          <div class="qh-callout__row"><b>26</b> columns, <b>8</b> foreign keys</div>
+          <div class="qh-callout__foot">Column docs, keys and join paths in every page qdbd builds</div>
+        </div>
+        <dl class="qh-sheet__title" aria-hidden="true">
+          <dt>drawing</dt><dd>adventureworks-dw</dd>
+          <dt>tables</dt><dd>28</dd>
+          <dt>rev</dt><dd>v{{ config.extra.version }}</dd>
+        </dl>
       </div>
     </div>
   </section>
