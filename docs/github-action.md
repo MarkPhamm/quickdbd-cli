@@ -31,7 +31,7 @@ On pull requests it also:
 
 4. fetches the base branch and runs `qdbd diff --base origin/<base>`;
 5. builds the diagram with `--diff-base`, so changes are highlighted;
-6. posts **one** comment with the markdown diff, and updates that same comment on later pushes.
+6. posts **one** comment with the markdown diff, and updates that same comment on later pushes. On pull requests from forks, whose token is read-only, the diff goes to the run summary instead.
 
 ## 7.2 Inputs { #inputs }
 
