@@ -246,6 +246,10 @@
 .qh-tour__frame.mine .qh-tour__state { color: var(--bp-warn); }
 @keyframes qh-pulse { 50% { opacity: .3; } }
 .qh-tour__stage { position: relative; aspect-ratio: 1440 / 820; overflow: hidden; }
+.qh-wheeltip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; pointer-events: none;
+  padding: 10px 16px; border-radius: 8px; background: rgba(20, 24, 32, 0.82); color: #fff; font: 500 14px var(--bp-sans);
+  opacity: 0; transition: opacity 0.2s; }
+.qh-wheeltip.on { opacity: 1; }
 .qh-tour__stage iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 820px; border: 0; transform-origin: 0 0; }
 .qh-tour__still { position: absolute; inset: 0; display: block; }
 .qh-tour__still img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
