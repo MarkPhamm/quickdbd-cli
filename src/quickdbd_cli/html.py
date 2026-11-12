@@ -21,8 +21,10 @@ def favicon() -> str:
 
 
 def _json_for_script(obj) -> str:
-    # Safe inside <script type="application/json">: no "</" sequences.
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    # Safe inside <script type="application/json">: no "<" at all, since "<!--<script" changes how the tokenizer
+    # ends the element, not only "</".
+    s = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return s.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
 def _escape(text: str) -> str:

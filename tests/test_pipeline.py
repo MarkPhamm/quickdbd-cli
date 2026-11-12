@@ -387,6 +387,15 @@ def test_page_has_explorer_and_details():
         assert marker in html
 
 
+def test_page_data_block_survives_html_in_comments():
+    # "<!--<script" inside script data would switch the HTML tokenizer to a state where </script> no longer ends it.
+    text = "# <!--<script> example </script>\n" + SMALL
+    html = render_page(model_json(compile_text(text)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
+    data = html.split('id="qdbd-data">', 1)[1].split("</script>", 1)[0]
+    assert "<" not in data and ">" not in data
+    assert json.loads(data)["model"]["tables"][0]["doc"] == "<!--<script> example </script>"
+
+
 def test_page_has_share_link_controls():
     html = render_page(model_json(compile_text(SMALL)), {"Customer": [0, 0], "Order": [300, 0]}, "t")
     assert 'id="xlink"' in html and 'id="toast"' in html
