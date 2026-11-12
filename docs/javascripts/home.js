@@ -317,7 +317,31 @@
     }, { threshold: 0.4 }).observe(v);
   }
 
-  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, sections: [compare, flow, quick, pr, closing, video] };
+  /* A live viewer in a same-origin iframe on this page: a plain wheel over the diagram scrolls the page instead of
+     zooming, so scrolling past never traps the visitor. Ctrl/⌘ + wheel and trackpad pinch (a ctrl wheel) still zoom. */
+  function wheelScrolls(ifr, stage) {
+    var D = ifr.contentDocument, mod = /Mac|iP/.test(navigator.platform) ? "⌘" : "Ctrl", tip = null, t = 0;
+    var hint = D.querySelector(".hint");
+    if (hint) hint.textContent = hint.textContent.replace("Scroll to zoom", mod + " + scroll to zoom");
+    ifr.contentWindow.addEventListener("wheel", function (ev) {
+      if (ev.ctrlKey || ev.metaKey || !ev.target.closest || !ev.target.closest("#canvas")) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var k = ev.deltaMode === 1 ? 16 : ev.deltaMode === 2 ? window.innerHeight : 1;
+      window.scrollBy(ev.deltaX * k, ev.deltaY * k);
+      if (!tip) {
+        tip = document.createElement("div");
+        tip.className = "qh-wheeltip";
+        tip.textContent = "Use " + mod + " + scroll to zoom";
+        stage.appendChild(tip);
+      }
+      tip.classList.add("on");
+      clearTimeout(t);
+      t = setTimeout(function () { tip.classList.remove("on"); }, 1200);
+    }, { capture: true, passive: false });
+  }
+
+  window.qhome = { reduce: reduce, wait: wait, onView: onView, every: every, typer: typer, wheelScrolls: wheelScrolls, sections: [compare, flow, quick, pr, closing, video] };
   /* Section scripts register here; run after this file's helpers exist. */
   window.qhome.add = function (fn) { window.qhome.sections.push(fn); };
   function start() {

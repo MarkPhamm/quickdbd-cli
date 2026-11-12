@@ -27,6 +27,7 @@
           var W = ifr.contentWindow, D = ifr.contentDocument;
           if (!D.getElementById("qdbd-data") || !W.qdbdViewer) throw new Error("not a qdbd page");
           D.documentElement.setAttribute("data-theme", "light"); // the home page is light; the viewer would follow a dark OS
+          window.qhome.wheelScrolls(ifr, stage);
           embed.classList.add("live");
         } catch (e) {
           ifr.remove();
