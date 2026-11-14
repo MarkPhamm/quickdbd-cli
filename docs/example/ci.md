@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # ... your dbt setup: dbt deps && dbt build && dbt docs generate
-      - uses: MarkPhamm/quickdbd-cli@v0.6.2
+      - uses: MarkPhamm/quickdbd-cli@v0.6.3
         with:
           dbt-manifest: target/
           dbt-args: --infer-fks
