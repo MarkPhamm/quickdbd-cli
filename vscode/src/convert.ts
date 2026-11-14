@@ -6,7 +6,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import type { Checker } from "./checker.ts";
 import type { Qdbd } from "./cli.ts";
-import { targetTitle } from "./target.ts";
+import { schemaFilesIn, targetTitle } from "./target.ts";
 
 export type Syntax = "dbml" | "quickdbd";
 
@@ -29,11 +29,13 @@ export async function convertSchema(
     out = path.resolve(target.cwd, output);
   } else if (folder) {
     const suggested = `${target.cwd}-${to}`;
-    const pick = await vscode.window.showInformationMessage(
-      `Convert the ${targetTitle(target)} schema to ${NAME[to]} in ${path.basename(suggested)}/?`,
-      { modal: true, detail: "The converted files go into a new folder next to this one." },
-      "Convert",
-    );
+    const pick = schemaFilesIn(suggested).length // then confirmReplace below asks instead
+      ? "Convert"
+      : await vscode.window.showInformationMessage(
+          `Convert the ${targetTitle(target)} schema to ${NAME[to]} in ${path.basename(suggested)}/?`,
+          { modal: true, detail: "The converted files go into a new folder next to this one." },
+          "Convert",
+        );
     out = pick ? suggested : undefined;
   } else {
     const stem = path.parse(target.paths[0]).name;
@@ -44,7 +46,7 @@ export async function convertSchema(
       })
     )?.fsPath;
   }
-  if (!out) return undefined;
+  if (!out || (folder && !(await confirmReplace(out)))) return undefined;
   const args = ["convert", ...target.paths, "--to", to, "-o", out];
   const res = await vscode.window.withProgress(
     { location: vscode.ProgressLocation.Notification, title: `Converting to ${NAME[to]}…` },
@@ -67,6 +69,19 @@ export async function convertSchema(
   const uri = vscode.Uri.file(file);
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
   return uri;
+}
+
+/** Before writing into `dir`: true when it holds no schema files, else whether the user chose to replace them. */
+export async function confirmReplace(dir: string): Promise<boolean> {
+  const files = schemaFilesIn(dir);
+  if (!files.length) return true;
+  const list = files.length > 5 ? `${files.slice(0, 5).join(", ")}, …` : files.join(", ");
+  const pick = await vscode.window.showWarningMessage(
+    `${path.basename(dir)}/ already has ${files.length} schema file${files.length === 1 ? "" : "s"}: ${list}. Replace them?`,
+    { modal: true, detail: "Files with the same names are overwritten, and edits made in them are lost. Other files are left alone." },
+    "Replace",
+  );
+  return pick === "Replace";
 }
 
 function firstSchema(dir: string): string | undefined {

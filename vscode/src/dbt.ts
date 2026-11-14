@@ -4,6 +4,7 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 import { LANGUAGE } from "./checker.ts";
 import type { Qdbd } from "./cli.ts";
+import { confirmReplace } from "./convert.ts";
 
 /** Paths that skip the questions, for keybindings and tests; `output` is relative to the dbt project. */
 export interface ImportOptions {
@@ -21,6 +22,8 @@ export async function importDbt(
   const project = path.dirname(path.dirname(path.resolve(manifest))); // the dbt project, above target/
   const output = opts.output ? path.resolve(project, opts.output) : await pickOutput(project);
   if (!output) return;
+  const folder = !output.toLowerCase().endsWith(".txt"); // a single file comes from the save dialog, which asks
+  if (folder && !(await confirmReplace(output))) return;
   const res = await vscode.window.withProgress(
     { location: vscode.ProgressLocation.Notification, title: "Importing the dbt project…" },
     () => qdbd.run(["import", "dbt", manifest, "-o", output], project),
@@ -30,7 +33,7 @@ export async function importDbt(
     void vscode.window.showErrorMessage(`qdbd import failed: ${(res.stderr || res.stdout).trim()}`);
     return;
   }
-  const first = output.toLowerCase().endsWith(".txt") ? output : firstSchema(output);
+  const first = folder ? firstSchema(output) : output;
   if (!first) return;
   let doc = await vscode.workspace.openTextDocument(first);
   if (doc.languageId !== LANGUAGE) doc = await vscode.languages.setTextDocumentLanguage(doc, LANGUAGE);

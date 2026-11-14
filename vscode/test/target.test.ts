@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { test } from "node:test";
-import { findTarget, isSchemaFile, schemaLanguage } from "../src/target.ts";
+import { findTarget, isSchemaFile, schemaFilesIn, schemaLanguage } from "../src/target.ts";
 
 const TABLE = "Customer\n-\nCustomerId PK int\n";
 
@@ -67,4 +67,10 @@ test("a folder mixing QuickDBD and DBML files is one project", () => {
 test("a .dbml file with its own layout sidecar is a one-file project", () => {
   const root = tree({ "shop.dbml": DBML, "shop.layout.json": "{}", "other.txt": TABLE });
   assert.deepEqual(findTarget(path.join(root, "shop.dbml"), root), { cwd: root, paths: ["shop.dbml"] });
+});
+
+test("schemaFilesIn lists what a write into a folder could replace", () => {
+  const root = tree({ "erd/models.txt": TABLE, "erd/shop.dbml": "", "erd/notes.md": "", "erd/qdbd.layout.json": "{}" });
+  assert.deepEqual(schemaFilesIn(path.join(root, "erd")), ["models.txt", "shop.dbml"]);
+  assert.deepEqual(schemaFilesIn(path.join(root, "missing")), []);
 });
