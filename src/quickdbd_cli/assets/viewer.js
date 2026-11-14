@@ -587,8 +587,9 @@
   });
   document.getElementById("extoggle").onclick = function () { explorer.classList.toggle("collapsed"); };
   document.addEventListener("keydown", function (ev) {
-    if ((ev.key === "/" || (ev.key === "f" && (ev.metaKey || ev.ctrlKey))) && document.activeElement.tagName !== "TEXTAREA" &&
-        !(document.activeElement.closest && document.activeElement.closest(".CodeMirror"))) {
+    var a = document.activeElement, typing = /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) || a.isContentEditable;
+    if (((ev.key === "/" && !typing) || (ev.key === "f" && (ev.metaKey || ev.ctrlKey))) && a.tagName !== "TEXTAREA" &&
+        !(a.closest && a.closest(".CodeMirror"))) {
       ev.preventDefault();
       explorer.classList.remove("collapsed");
       input.focus();
