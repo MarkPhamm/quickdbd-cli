@@ -145,6 +145,17 @@ export async function run(): Promise<void> {
   );
   await restore(teamEditor, teamText);
   await until("DBML error cleared", () => (vscode.languages.getDiagnostics(teamDoc.uri).length === 0 ? true : undefined));
+  // F12 on an inline ref's column lands on the column (line 3), not the table header.
+  await teamEditor.edit((e) => e.insert(new vscode.Position(teamDoc.lineCount, 0), "\nTable probe {\n  g integer [ref: > guests.guest_sk, not null]\n}\n"));
+  const inline = teamDoc.lineCount - 3;
+  const inlineDefs = await until("F12 on an inline DBML ref", async () => {
+    const at = new vscode.Position(inline, teamDoc.lineAt(inline).text.indexOf("guest_sk,") + 2);
+    const d = await vscode.commands.executeCommand<(vscode.Location | vscode.LocationLink)[]>("vscode.executeDefinitionProvider", teamDoc.uri, at);
+    return d?.length ? d : undefined;
+  });
+  const inlineRange = "range" in inlineDefs[0] ? inlineDefs[0].range : inlineDefs[0].targetRange;
+  assert.equal(inlineRange.start.line, 2, "the guest_sk column of guests");
+  await restore(teamEditor, teamText);
   await vscode.commands.executeCommand("quickdbd.openPreview");
   await until("DBML diagram", webviewTab("ERD: dbml"));
   step(`DBML: detected, outline (${teamSymbols.length} tables), live errors, diagram`);

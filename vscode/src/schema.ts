@@ -137,12 +137,14 @@ export function findColumn(table: Table, name: string): Column | undefined {
 }
 
 const REF = /("[^"]*"|[^\s".#]+)(?:\.("[^"]*"|[^\s".#]+))?/g;
+// DBML: an unquoted name is letters, digits and _, so `[ref: > users.id, not null]` ends at `,` / `]`.
+const DBML_NAMES = /("[^"]*"|[\p{L}\p{N}_]+)(?:\.("[^"]*"|[\p{L}\p{N}_]+))?/gu;
 
 /** The `Table` or `Table.Column` reference under character `ch` of a line, quotes removed. */
-export function refAt(text: string, ch: number): { table: string; column?: string } | undefined {
-  const hash = commentStart(text);
+export function refAt(text: string, ch: number, dbml = false): { table: string; column?: string } | undefined {
+  const hash = commentStart(text, dbml);
   if (hash >= 0 && ch >= hash) return undefined;
-  for (const m of text.slice(0, hash >= 0 ? hash : undefined).matchAll(REF)) {
+  for (const m of text.slice(0, hash >= 0 ? hash : undefined).matchAll(dbml ? DBML_NAMES : REF)) {
     const start = m.index ?? 0;
     if (ch < start || ch > start + m[0].length) continue;
     const unquote = (s: string) => s.replace(/^"|"$/g, "");
@@ -151,11 +153,14 @@ export function refAt(text: string, ch: number): { table: string; column?: strin
   return undefined;
 }
 
-function commentStart(text: string): number {
-  let quoted = false;
+/** Where a line's comment starts: `#` in QuickDBD, `//` in DBML (whose '…' strings are skipped too); -1 if none. */
+function commentStart(text: string, dbml = false): number {
+  let quote = "";
   for (let i = 0; i < text.length; i++) {
-    if (text[i] === '"') quoted = !quoted;
-    else if (text[i] === "#" && !quoted) return i;
+    if (quote) {
+      if (text[i] === quote) quote = "";
+    } else if (text[i] === '"' || (dbml && text[i] === "'")) quote = text[i];
+    else if (dbml ? text.startsWith("//", i) : text[i] === "#") return i;
   }
   return -1;
 }

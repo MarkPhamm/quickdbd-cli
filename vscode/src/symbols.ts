@@ -48,7 +48,7 @@ export function registerSymbols(checker: Checker): vscode.Disposable {
       async provideDefinition(doc, pos) {
         await checker.ready(doc);
         const r = checker.reportFor(doc);
-        const ref = r && refAt(doc.lineAt(pos.line).text, pos.character);
+        const ref = r && refAt(doc.lineAt(pos.line).text, pos.character, doc.languageId === "dbml");
         const table = ref && findTable(r.report, ref.table);
         if (!r || !ref || !table) return undefined;
         const col = ref.column ? findColumn(table, ref.column) : undefined;

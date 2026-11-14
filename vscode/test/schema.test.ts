@@ -74,6 +74,16 @@ test("reads the reference under the cursor", () => {
   assert.deepEqual(refAt("rel >- Product", 9), { table: "Product" });
 });
 
+test("reads DBML references: inline refs end at ] or , and // starts a comment", () => {
+  const at = (line: string, word: string) => refAt(line, line.indexOf(word) + 1, true);
+  assert.deepEqual(at("  user_id integer [ref: > users.id, not null]", "id,"), { table: "users", column: "id" });
+  assert.deepEqual(at("  user_id integer [ref: > users.id]", "id]"), { table: "users", column: "id" });
+  assert.deepEqual(at("Ref: orders.user_id > users.id", "users"), { table: "users", column: "id" });
+  assert.deepEqual(at('Ref: "order items".order_id > orders.id', "order "), { table: "order items", column: "order_id" });
+  assert.equal(at("  total decimal // see users.id", "users"), undefined, "comments aren't references");
+  assert.deepEqual(at("  site varchar [note: 'http://x'] // users.id", "site"), { table: "site" }, "// in a string isn't a comment");
+});
+
 test("versions and URLs", () => {
   assert.deepEqual(parseVersion("qdbd 0.1.16\n"), [0, 1, 16]);
   assert.equal(parseVersion("command not found"), undefined);
