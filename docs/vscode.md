@@ -101,6 +101,7 @@ Opening the diagram writes `qdbd.layout.json` for a folder (or `<name>.layout.js
 | `quickdbd.qdbdPath` | empty | Path to `qdbd`. Empty: the workspace's `.venv`, else the newer of the extension's own install and the one on `PATH`. |
 | `quickdbd.autoDetect` | `true` | Open matching `.txt` files as QuickDBD. |
 | `quickdbd.strict` | `false` | Report QuickDBD-compatibility warnings as errors. |
+| `quickdbd.allowSharing` | `false` | Show **Share as a Gist Link**. A user setting only, so no workspace can turn it on; see the [disclaimer](sharing.md#disclaimer). |
 
 ## Troubleshooting
 
