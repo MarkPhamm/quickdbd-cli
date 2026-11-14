@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1
+
+- **Cmd+K V** / **Ctrl+K V** opens the diagram in DBML files too.
+- The sidebar offers only the conversion to the other syntax: no more **Convert to DBML** on a DBML schema.
+- **Go to Definition** (F12) on a DBML inline ref such as `[ref: > users.id, not null]` lands on the column, and text after `//` is no longer read as a reference.
+- **Import dbt Project** and converting a folder schema ask before replacing schema files already in the output folder, so hand edits aren't lost.
+
 ## 0.7.0
 
 - Schemas with a `# @dbt: PATH` line (qdbd 0.6.0+) take descriptions, tags and types from that dbt project's yml, and show drift warnings where the schema and dbt disagree. Saving a `.yml` or `.md` file now re-checks open schemas and the sidebar, so those stay current. See [dbt descriptions](https://qdbd.dev/dbt/#descriptions-from-dbt-yml).
