@@ -8,7 +8,7 @@ import { isSchemaLanguage, type Checker } from "./checker.ts";
 import type { Found, Qdbd, Source } from "./cli.ts";
 import { sharingAllowed } from "./export.ts";
 import { columnDetail, tablesByFile, targetKey, type Column, type Table, type Target } from "./schema.ts";
-import { findTarget, isSchemaFile, targetTitle } from "./target.ts";
+import { findTarget, schemaLanguage, targetTitle, type SchemaLanguage } from "./target.ts";
 
 // Never schemas: hidden folders (.git, .venv, editor history and test sandboxes such as .vscode-test, like
 // target.ts's folder walk), dependencies and build output.
@@ -18,10 +18,12 @@ const MAX_FILES = 5000;
 export const MAX_BYTES = 2_000_000;
 const RESCAN_DELAY = 500;
 
-/** A schema: what qdbd runs on, and one of its files (absolute), to open it by. */
+/** A schema: what qdbd runs on, and one of its files (absolute), to open it by. `language` is unset when a folder
+ * mixes both syntaxes, so either conversion applies. */
 export interface Schema {
   target: Target;
   file: string;
+  language?: SchemaLanguage;
 }
 
 export type Node =
@@ -90,7 +92,9 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   }
 
   schemaOf(doc: vscode.TextDocument): Schema {
-    return { target: this.checker.targetFor(doc), file: doc.uri.fsPath };
+    const target = this.checker.targetFor(doc);
+    const language = this.schemas.get(targetKey(target))?.language ?? (isSchemaLanguage(doc.languageId) ? doc.languageId : undefined);
+    return { target, file: doc.uri.fsPath, language };
   }
 
   private async scan(): Promise<void> {
@@ -105,9 +109,12 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
       } catch {
         continue;
       }
-      if (!isSchemaFile(file, text, auto)) continue;
+      const language = schemaLanguage(file, text, auto);
+      if (!language) continue;
       const target = findTarget(file, vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath);
-      if (!found.has(targetKey(target))) found.set(targetKey(target), { target, file });
+      const s = found.get(targetKey(target));
+      if (!s) found.set(targetKey(target), { target, file, language });
+      else if (s.language !== language) s.language = undefined;
     }
     this.schemas = found;
     void vscode.commands.executeCommand("setContext", "quickdbd.noSchemas", found.size === 0);
@@ -140,7 +147,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
       const report = this.checker.reportOf(n.target);
       const item = new vscode.TreeItem(targetTitle(n.target), Collapsed);
       item.id = `s:${key}`;
-      item.contextValue = "schema";
+      item.contextValue = n.language ? `schema.${n.language}` : "schema"; // menus offer only the other syntax's Convert
       const errors = report?.errors ?? 0;
       const files = report ? new Set((report.tables ?? []).map((t) => t.file)).size : 0;
       item.description = !report
@@ -219,9 +226,11 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
   private readonly sub: vscode.Disposable;
 
   private readonly qdbd: Qdbd;
+  private readonly current: () => Promise<Schema | undefined>;
 
-  constructor(qdbd: Qdbd) {
+  constructor(qdbd: Qdbd, current: () => Promise<Schema | undefined>) {
     this.qdbd = qdbd;
+    this.current = current;
     this.sub = vscode.Disposable.from(
       qdbd.onDidResolve((f) => {
         this.cli = f;
@@ -250,14 +259,15 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
       cli.description = SOURCES[this.cli.source];
       cli.accessibilityInformation = { label: `${cli.label}, ${cli.description}` };
     }
+    const language = (await this.current())?.language; // only the conversion to the other syntax
     return [
       row("Open Diagram", "open-preview", "quickdbd.openPreview"),
       row("Open in Browser", "globe", "quickdbd.openInBrowser", "The diagram and an editor on localhost, in your browser"),
       row("Compare with Git Ref…", "git-compare", "quickdbd.compare", "The diagram coloured by what changed since a branch, tag or commit"),
       row("Export…", "desktop-download", "quickdbd.export", "PNG, SVG, draw.io or an HTML page"),
       ...(sharingAllowed() ? [row("Share as a Gist Link", "link-external", "quickdbd.share", "A secret gist; the link is copied")] : []),
-      row("Convert to DBML", "arrow-swap", "quickdbd.convertToDbml", "The schema in dbdiagram.io's syntax; what DBML can't express is listed"),
-      row("Convert to QuickDBD Syntax", "arrow-swap", "quickdbd.convertToQuickdbd", "The schema in QuickDBD's syntax; what QuickDBD can't express is listed"),
+      ...(language === "dbml" ? [] : [row("Convert to DBML", "arrow-swap", "quickdbd.convertToDbml", "The schema in dbdiagram.io's syntax; what DBML can't express is listed")]),
+      ...(language === "quickdbd" ? [] : [row("Convert to QuickDBD Syntax", "arrow-swap", "quickdbd.convertToQuickdbd", "The schema in QuickDBD's syntax; what QuickDBD can't express is listed")]),
       row("Import dbt Project…", "database", "quickdbd.importDbt", "Schema files from target/manifest.json"),
       row("New Schema File…", "new-file", "quickdbd.newSchema"),
       cli,
@@ -266,6 +276,10 @@ class Actions implements vscode.TreeDataProvider<vscode.TreeItem> {
 
   getTreeItem(item: vscode.TreeItem): vscode.TreeItem {
     return item;
+  }
+
+  refresh(): void {
+    this.changed.fire(undefined);
   }
 
   dispose(): void {
@@ -283,11 +297,14 @@ export class Sidebar implements vscode.Disposable {
 
   constructor(checker: Checker, qdbd: Qdbd) {
     this.schemas = new Schemas(checker, qdbd);
-    const actions = new Actions(qdbd);
+    const actions = new Actions(qdbd, () => this.current());
     this.schemaView = vscode.window.createTreeView("quickdbd.schemas", { treeDataProvider: this.schemas, showCollapseAll: true });
     this.actionsView = vscode.window.createTreeView("quickdbd.actions", { treeDataProvider: actions });
     const label = () =>
-      void this.current().then((s) => (this.actionsView.description = s ? targetTitle(s.target) : undefined));
+      void this.current().then((s) => {
+        this.actionsView.description = s ? targetTitle(s.target) : undefined;
+        actions.refresh();
+      });
     this.subs.push(
       this.schemas,
       actions,
@@ -305,7 +322,7 @@ export class Sidebar implements vscode.Disposable {
     const doc = vscode.window.activeTextEditor?.document;
     if (doc && isSchemaLanguage(doc.languageId) && doc.uri.scheme === "file") return this.schemas.schemaOf(doc);
     const picked = this.schemaView.selection[0];
-    if (picked) return { target: picked.target, file: picked.file };
+    if (picked) return { target: picked.target, file: picked.file, language: picked.language };
     if (!scan && !this.schemaView.visible && !this.actionsView.visible) return undefined;
     const all = await this.schemas.all();
     return all.length === 1 ? all[0] : undefined;

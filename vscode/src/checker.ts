@@ -3,14 +3,14 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 import type { Qdbd } from "./cli.ts";
-import { findTarget } from "./target.ts";
+import { findTarget, type SchemaLanguage } from "./target.ts";
 import { targetKey, type Report, type Target } from "./schema.ts";
 
 export const LANGUAGE = "quickdbd";
 export const LANGUAGES = ["quickdbd", "dbml"];
 
 /** A document qdbd checks: QuickDBD or DBML. */
-export function isSchemaLanguage(id: string): boolean {
+export function isSchemaLanguage(id: string): id is SchemaLanguage {
   return LANGUAGES.includes(id);
 }
 

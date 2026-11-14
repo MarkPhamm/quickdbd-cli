@@ -264,12 +264,12 @@
       "view/item/context": [
         {
           "command": "quickdbd.openPreview",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "inline@1"
         },
         {
           "command": "quickdbd.compare",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "inline@2"
         },
         {
@@ -279,52 +279,52 @@
         },
         {
           "command": "quickdbd.openPreview",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "1_open@1"
         },
         {
           "command": "quickdbd.openInBrowser",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "1_open@2"
         },
         {
           "command": "quickdbd.compare",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "1_open@3"
         },
         {
           "command": "quickdbd.exportPng",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "2_export@1"
         },
         {
           "command": "quickdbd.exportSvg",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "2_export@2"
         },
         {
           "command": "quickdbd.exportDrawio",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "2_export@3"
         },
         {
           "command": "quickdbd.exportHtml",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "2_export@4"
         },
         {
           "command": "quickdbd.share",
-          "when": "config.quickdbd.allowSharing && view == quickdbd.schemas && viewItem == schema",
+          "when": "config.quickdbd.allowSharing && view == quickdbd.schemas && viewItem =~ /^schema/",
           "group": "3_share"
         },
         {
           "command": "quickdbd.convertToDbml",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema(\\.quickdbd)?$/",
           "group": "4_convert@1"
         },
         {
           "command": "quickdbd.convertToQuickdbd",
-          "when": "view == quickdbd.schemas && viewItem == schema",
+          "when": "view == quickdbd.schemas && viewItem =~ /^schema(\\.dbml)?$/",
           "group": "4_convert@2"
         }
       ]
@@ -334,7 +334,7 @@
         "command": "quickdbd.openPreview",
         "key": "ctrl+k v",
         "mac": "cmd+k v",
-        "when": "editorLangId == quickdbd"
+        "when": "editorLangId =~ /^(quickdbd|dbml)$/"
       }
     ],
     "configuration": {

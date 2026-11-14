@@ -18,7 +18,7 @@ import { Previews } from "./preview.ts";
 import type { Target } from "./schema.ts";
 import { isSchemaArg, Sidebar, type Node } from "./sidebar.ts";
 import { registerSymbols } from "./symbols.ts";
-import { schemaLanguage, targetTitle } from "./target.ts";
+import { schemaLanguage, targetTitle, type SchemaLanguage } from "./target.ts";
 
 const TYPING_DELAY = 300;
 
@@ -40,7 +40,7 @@ Total money
 
 /** For tests: the sidebar's schemas, with their table counts once checked. */
 export interface Api {
-  schemas(): Promise<{ title: string; tables?: number; target: Target; file: string }[]>;
+  schemas(): Promise<{ title: string; tables?: number; target: Target; file: string; language?: SchemaLanguage }[]>;
   /** The MCP servers offered to AI chat (before qdbd is resolved). */
   mcpServers(): Promise<ServerDef[]>;
 }
