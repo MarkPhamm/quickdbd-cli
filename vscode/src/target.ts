@@ -75,3 +75,12 @@ export function schemaLanguage(file: string, text: string, autoDetect: boolean):
 export function isSchemaFile(file: string, text: string, autoDetect: boolean): boolean {
   return schemaLanguage(file, text, autoDetect) !== null;
 }
+
+/** The schema files directly in `dir` (none when it doesn't exist), sorted: what a write into it could replace. */
+export function schemaFilesIn(dir: string): string[] {
+  try {
+    return fs.readdirSync(dir).filter((n) => SCHEMA_EXT.test(n)).sort();
+  } catch {
+    return [];
+  }
+}

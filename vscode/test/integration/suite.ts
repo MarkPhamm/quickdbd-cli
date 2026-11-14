@@ -126,6 +126,25 @@ export async function run(): Promise<void> {
   assert.equal(vscode.window.activeTextEditor?.document.languageId, "quickdbd");
   step(`dbt import: ${imported.join(", ")}, opened with its diagram`);
 
+  // Importing again into the same folder asks first; dismissing the dialog keeps a hand edit.
+  const edited = path.join(ws, "jaffle", "erd", imported[0]);
+  fs.appendFileSync(edited, "# HAND EDIT\n");
+  const win = vscode.window as { showWarningMessage: unknown };
+  const realWarning = win.showWarningMessage;
+  const asked: string[] = [];
+  win.showWarningMessage = async (message: string, opts: vscode.MessageOptions) => {
+    if (opts?.modal) asked.push(message);
+    return undefined; // dismissed
+  };
+  try {
+    await vscode.commands.executeCommand("quickdbd.importDbt", { manifest: path.join(ws, "jaffle", "target", "manifest.json"), output: "erd" });
+  } finally {
+    win.showWarningMessage = realWarning;
+  }
+  assert.match(asked[0] ?? "", new RegExp(`^erd/ already has ${imported.length} schema files: ${imported[0]}`));
+  assert.match(fs.readFileSync(edited, "utf8"), /# HAND EDIT\n$/, "nothing written");
+  step("dbt import into a folder with schema files asks first");
+
   // DBML: a .dbml file opens as DBML, with an outline, live errors and its diagram.
   const team = path.join(ws, "dbml", "team.dbml");
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(team));
