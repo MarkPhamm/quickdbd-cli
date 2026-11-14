@@ -181,6 +181,9 @@ export async function run(): Promise<void> {
   const hidden = listed.filter((x) => path.relative(ws, x.file).split(path.sep).some((part) => part.startsWith(".")));
   assert.deepEqual(hidden.map((x) => x.file), [], "nothing from hidden folders (.history, .vscode-test, …)");
   step(`sidebar: ${listed.map((x) => `${x.title} (${x.tables} tables)`).join(", ")}`);
+  const language = (title: string) => listed.find((x) => x.title === title)?.language;
+  assert.deepEqual(["dbml", "quickdbd-sample", "mixed"].map(language), ["dbml", "quickdbd", undefined], "row menus convert to the other syntax");
+  step("sidebar: each schema knows its syntax (a mixed folder has none)");
 
   // run.mjs allows sharing in the workspace's settings.json; only a user setting may turn it on.
   assert.equal(vscode.workspace.getConfiguration("quickdbd").get("allowSharing"), false, "a workspace can't allow sharing");
