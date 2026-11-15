@@ -48,25 +48,25 @@ Read it in order the first time; each step builds on the one before.
 
 - **New to qdbd?**
 
-    Install it and build your first diagram.
+    Install it, build a first diagram.
 
     [1. Install](install.md)
 
-- **Have a dbt project?**
+- **Using dbt?**
 
-    Generate the schema from `manifest.json`, with relationships from your tests.
+    Generate the schema from dbt.
 
     [5. dbt Projects](dbt.md)
 
-- **Reading a diagram someone shared?**
+- **Got a diagram?**
 
-    What the markers, colours, panels and filters mean.
+    What the colours and panels mean.
 
     [4.1 Reading the Diagram](reading-the-diagram.md)
 
-- **Reviewing schema changes?**
+- **Reviewing changes?**
 
-    A comment on every pull or merge request, and the diagram with the changes coloured, on GitHub or GitLab.
+    Diffs on GitHub and GitLab.
 
     [7. CI and Automation](github-action.md)
 
