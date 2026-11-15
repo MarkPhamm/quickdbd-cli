@@ -75,6 +75,8 @@ Esc, ×, or clicking empty canvas closes it.
 
 The minimap (bottom right) shows where you are; click or drag it to move.
 
+![Keys mode: only key and relationship columns](assets/img/keys-mode.png){ .shot }
+
 ## Regions
 
 When a schema has several files or dbt folders, **Regions** draws a labelled, coloured area behind each group. They read best with `--by-group`, which arranges each group together ([3.4 Table Positions](layout.md)).
@@ -101,3 +103,5 @@ The live editor adds:
 - an editor pane with one tab per file (**Save** or Ctrl/Cmd+S writes it; typing alone changes nothing; Ctrl/Cmd+/ comments the selected lines out or back in) and an error panel;
 - dragged positions are **saved** to the layout file;
 - if a file changes on disk while you have unsaved edits, a banner lets you keep yours or reload.
+
+![qdbd serve: editor pane, error panel and live diagram](assets/img/serve.png){ .shot }

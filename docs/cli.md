@@ -8,6 +8,8 @@ Every command except [`import dbt`](#import-dbt) (which takes a dbt manifest) an
 qdbd check PATH... [--strict] [--format text|github|json] [--symbols] [--stdin-file FILE] [--each]
 ```
 
+![qdbd check output](assets/img/term-check.png)
+
 Validates the schema. Prints `No errors found. Good job!`, or `file:line: error: message` lines and exits 1. `--strict` also fails on [QuickDBD-compatibility warnings](syntax.md#where-qdbd-is-more-forgiving).
 
 `--format` changes the output:
@@ -41,6 +43,8 @@ Two options are there for editors, and the [VS Code extension](vscode.md) uses b
 qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
 ```
 
+![qdbd serve: editor pane and live diagram](assets/img/serve.png){ .shot }
+
 Local live editor on `127.0.0.1`: reloads when files change, browser editor pane that writes the file on **Save** (or Ctrl/Cmd+S), drag tables to save positions. Ctrl+C stops it. The [VS Code extension](vscode.md#what-you-get)'s **Open in Browser** runs this, on any free port.
 
 The default port is 8765. If it's busy (for example, a second `qdbd serve` is running), the next free port is used and printed. An explicit `--port` that's busy is an error.
@@ -56,6 +60,8 @@ The default port is 8765. If it's busy (for example, a second `qdbd serve` is ru
 ```bash
 qdbd build PATH... [-o FILE | --site DIR] [-s SELECTOR] [--exclude SELECTOR] [--diff-base REF] [--by-group] [--layout FILE] [--strict]
 ```
+
+![qdbd build output](assets/img/term-build-by-group.png)
 
 Writes one self-contained HTML page, `diagram.html` unless `-o` names another. Builds are deterministic (same input, same bytes), and the layout file is read but never written.
 
@@ -81,6 +87,8 @@ Builds the page like `build` and publishes it as a secret GitHub gist (with the 
 qdbd export PATH... -o out.png|out.svg|out.drawio [-s …] [--exclude …] [--focus TABLE --depth N] [--mode full|keys|header] [--regions] [--by-group] [--layout FILE] [--scale 2] [--strict]
 ```
 
+![qdbd export output](assets/img/term-export.png)
+
 See [4.3 Exports](exports.md).
 
 ## 8.6 layout { #layout }
@@ -89,6 +97,8 @@ See [4.3 Exports](exports.md).
 qdbd layout PATH... [--reset] [--by-group] [--layout FILE]
 ```
 
+![qdbd layout output](assets/img/term-layout.png)
+
 Writes positions to the layout file: placing new tables, re-laying out everything (`--reset`), or grouping by file / folder (`--by-group`). See [3.4 Table Positions](layout.md).
 
 ## 8.7 path { #path }
@@ -96,6 +106,8 @@ Writes positions to the layout file: placing new tables, re-laying out everythin
 ```bash
 qdbd path PATH... --from TABLE --to TABLE
 ```
+
+![qdbd path output](assets/img/term-path.png)
 
 Prints the shortest relationship path and a SQL `FROM … JOIN … ON …` snippet. Exits 1 when the tables aren't connected.
 
@@ -108,6 +120,8 @@ qdbd diff OLD NEW
 qdbd diff --base GIT_REF PATH... [--format text|markdown|json] [-o FILE] [--exit-code]
 ```
 
+![qdbd diff output](assets/img/term-diff.png)
+
 See [6. Reviewing Changes](diffs.md).
 
 ## 8.9 import dbt { #import-dbt }
@@ -116,6 +130,8 @@ See [6. Reviewing Changes](diffs.md).
 qdbd import dbt target/manifest.json [-o FILE_OR_DIR] [--catalog FILE] [--package NAME] [--select GLOB] [--no-sources] [--infer-fks] [--check]
 ```
 
+![qdbd import dbt output](assets/img/term-import.png)
+
 Writes `schema.txt` unless `-o` names another `.txt` file, or a folder for one file per dbt folder. See [5.1 dbt Import](dbt.md).
 
 ## 8.10 convert { #convert }
@@ -123,6 +139,8 @@ Writes `schema.txt` unless `-o` names another `.txt` file, or a folder for one f
 ```bash
 qdbd convert PATH... --to dbml|quickdbd [-o FILE_OR_DIR]
 ```
+
+![qdbd convert output](assets/img/term-convert.png)
 
 Converts between QuickDBD text and DBML. With one file and no `-o`, prints the result; with `-o DIR`, writes each file under it with the new extension (DBML `TableGroup`s become one QuickDBD file each). Anything the target syntax can't express is a warning; the output is recompiled and must otherwise match the input, or nothing is written. See [3.2 DBML](dbml.md#convert).
 

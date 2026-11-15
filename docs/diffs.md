@@ -9,6 +9,8 @@ qdbd diff --base origin/main erd/         # a git ref vs the working tree
 
 With `--base`, qdbd reads the schema files as they were at that ref through `git show`; nothing is checked out.
 
+![qdbd diff output: tables, columns and relationships added, removed and changed](assets/img/term-diff.png)
+
 Tables match by name, columns by name within a table, and relationships by their two endpoints. The report lists:
 
 - tables added and removed;
@@ -28,6 +30,8 @@ Tables match by name, columns by name within a table, and relationships by their
 ```bash
 qdbd build erd/ --diff-base origin/main -o erd.html
 ```
+
+![Changes since a branch: new tables green, changed amber, removed red and struck through](assets/img/diff.png){ .shot }
 
 - **NEW** tables: green header. **CHANGED** tables: amber header. **REMOVED** tables are still drawn, with a red header and struck-through columns.
 - Added columns: green name. Removed columns: still drawn, red name struck through. Changed columns: an amber bar at the row's edge.

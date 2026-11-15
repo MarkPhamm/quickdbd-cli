@@ -64,6 +64,8 @@ rel >- Product
 
 Targets can be aliases; quoted names work in targets too: `FK >- "dbo.Customer"."Customer Id"`. A relationship may be declared once (in either direction).
 
+![OrderLine selected: its relationships drawn with crow's feet and cardinality labels](assets/img/syntax.png){ .shot }
+
 ## Comments
 
 `#` starts a comment, except inside double quotes. Comment lines directly above a table or column, plus a comment at the end of its line, become its **documentation**, shown as a tooltip and in the details panel.
