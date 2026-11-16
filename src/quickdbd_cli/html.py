@@ -7,6 +7,7 @@ from importlib import resources
 from urllib.parse import quote
 
 from .export import font_css
+from .model import counts
 
 CODEMIRROR = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16"
 
@@ -209,7 +210,7 @@ INDEX_CSS = (
 def render_index(pages: list[tuple[str, str, int, int]], title: str = "Diagrams") -> str:
     """``qdbd build --site``'s index: a link per (name, href, tables, relationships)."""
     items = "".join(
-        f'<li><a href="{_escape(href)}">{_escape(name)}</a><span>{t} tables, {r} relationships</span></li>'
+        f'<li><a href="{_escape(href)}">{_escape(name)}</a><span>{counts(t, r)}</span></li>'
         for name, href, t, r in pages
     )
     return (

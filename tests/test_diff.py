@@ -124,7 +124,7 @@ def test_build_diff_base_marks_model(repo, capsys):
     # diff: selector works with the annotations
     sel = repo / "s.html"
     assert main(["build", str(repo / "erd"), "--diff-base", "main", "-s", "diff:added", "-o", str(sel)]) == 0
-    assert "(1 tables" in capsys.readouterr().out.splitlines()[-1]
+    assert "(1 table," in capsys.readouterr().out.splitlines()[-1]
 
 
 def test_serve_diff_base_colours_the_live_model(repo):
