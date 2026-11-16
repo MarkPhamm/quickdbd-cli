@@ -484,6 +484,7 @@ def test_by_group_cli(tmp_path, capsys):
     svg = tmp_path / "g.svg"
     assert main(["export", str(work), "--by-group", "-o", str(svg)]) == 0
     assert svg.read_text().count('class="rg"') == 5
+    assert "(200 tables, 211 relationships, 5 regions)" in capsys.readouterr().out
     drawio = tmp_path / "g.drawio"
     assert main(["export", str(work), "--regions", "-o", str(drawio)]) == 0
     assert drawio.read_text().count("verticalAlign=top;align=left;spacingLeft=12") == 5
