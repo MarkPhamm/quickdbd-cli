@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .layout import SidecarError
 from .model import Diagnostic, Schema, counts
 from .project import Project, SelectionError, SourceError, read_source, selector_expr
 
@@ -803,7 +804,7 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    except SourceError as e:
+    except (SourceError, SidecarError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 

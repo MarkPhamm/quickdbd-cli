@@ -239,12 +239,28 @@ def default_sidecar(files: list[Path], inputs: list[Path]) -> Path:
     return common / "qdbd.layout.json"
 
 
+class SidecarError(ValueError):
+    """A layout sidecar that can't be read; the message names the file."""
+
+
 def read_sidecar(path: Path) -> dict[str, tuple[int, int]]:
-    """Returns {table name: (x, y)}."""
+    """Returns {table name: (x, y)}. Raises SidecarError for a broken file, which is left as it is."""
     if not path.exists():
         return {}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return {name: (int(v["x"]), int(v["y"])) for name, v in data.get("tables", {}).items()}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        raise SidecarError(f"{path}: not valid JSON ({e}); fix it or delete it to lay out again") from None
+    tables = data.get("tables", {}) if isinstance(data, dict) else None
+    if not isinstance(tables, dict):
+        raise SidecarError(f'{path}: expected {{"tables": {{NAME: {{"x": X, "y": Y}}}}}}')
+    out = {}
+    for name, v in tables.items():
+        for axis in ("x", "y"):
+            if not isinstance(v, dict) or not isinstance(v.get(axis), (int, float)):
+                raise SidecarError(f'{path}: table {name!r} has no "{axis}" position')
+        out[name] = (int(v["x"]), int(v["y"]))
+    return out
 
 
 def write_sidecar(path: Path, by_name: dict[str, tuple[int, int]]) -> None:
