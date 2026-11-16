@@ -497,3 +497,15 @@ def test_regions_skip_ungrouped_tables():
     rt = runtime()
     rt.load("render.js")
     assert rt.call("qdbd.regions", m, {"Customer": [0, 0], "Order": [300, 0]}, "full") == []
+
+
+def test_folder_skips_notes_txt_but_a_named_file_still_errors(tmp_path, capsys):
+    erd = tmp_path / "erd"
+    erd.mkdir()
+    (erd / "schema.txt").write_text(SMALL)
+    (erd / "README.txt").write_text("Notes for the team\n\nRemember to update the Customer table next sprint.\n")
+    (erd / "empty.txt").write_text("")
+    assert main(["check", str(erd)]) == 0
+    err = capsys.readouterr().err
+    assert "README.txt" in err and "no tables" in err and "empty.txt" not in err
+    assert main(["check", str(erd / "README.txt")]) == 1

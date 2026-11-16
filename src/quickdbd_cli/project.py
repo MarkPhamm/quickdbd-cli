@@ -3,23 +3,41 @@
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 from . import layout
 from .measure import model_json
 from .model import Schema
-from .parser import compile_sources
+from .parser import compile_sources, syntax_of
+from .targets import has_table
 
 SCHEMA_SUFFIXES = (".txt", ".dbml")
 
 
-def discover(inputs: list[Path]) -> list[Path]:
-    """Expand directories to every ``*.txt`` and ``*.dbml`` beneath them (recursive, sorted)."""
+def _is_notes(f: Path) -> bool:
+    """A non-empty .txt with no table that isn't DBML: a README or notes file, not a schema."""
+    if f.suffix != ".txt":
+        return False
+    text = f.read_text(encoding="utf-8", errors="replace")
+    return bool(text.strip()) and not has_table(text) and syntax_of(f.name, text) != "dbml"
+
+
+def discover(inputs: list[Path], skipped: list[Path] | None = None) -> list[Path]:
+    """Expand directories to every ``*.txt`` and ``*.dbml`` beneath them (recursive, sorted).
+
+    A folder's notes files (see ``_is_notes``) are left out, and added to ``skipped`` when given;
+    a file named in ``inputs`` is always kept, so a broken schema named on the command line still errors.
+    """
     files: list[Path] = []
     for p in inputs:
         if p.is_dir():
-            files.extend(sorted(f for f in p.rglob("*") if f.suffix in SCHEMA_SUFFIXES and f.is_file()))
+            for f in sorted(f for f in p.rglob("*") if f.suffix in SCHEMA_SUFFIXES and f.is_file()):
+                if not _is_notes(f):
+                    files.append(f)
+                elif skipped is not None:
+                    skipped.append(f)
         elif p.exists():
             files.append(p)
         else:
@@ -52,7 +70,10 @@ class Project:
 
     @classmethod
     def open(cls, inputs: list[Path], sidecar: Path | None = None) -> Project:
-        files = discover(inputs)
+        skipped: list[Path] = []
+        files = discover(inputs, skipped)
+        for f in skipped:
+            print(f"warning: skipped {display_path(f)}: no tables, so not a schema file", file=sys.stderr)
         if not files:
             raise FileNotFoundError("no .txt or .dbml schema files found in: " + ", ".join(map(str, inputs)))
         return cls(inputs, files, sidecar or layout.default_sidecar(files, inputs))
