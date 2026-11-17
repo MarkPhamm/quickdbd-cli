@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{#- Microsoft Clarity and Google Tag Manager, docs site only (never in built diagrams) -#}
+{#- Microsoft Clarity, Google Tag Manager and GA4, docs site only (never in built diagrams) -#}
 {% block extrahead %}
   {{ super() }}
   <script type="text/javascript">
@@ -15,6 +15,13 @@
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-5HS6D2K2');</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WPWXH5682W"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WPWXH5682W');
+  </script>
 {% endblock %}
 
 {#- breadcrumb above every page title: home › section › page -#}
