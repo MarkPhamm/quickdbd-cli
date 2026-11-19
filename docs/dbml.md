@@ -86,6 +86,8 @@ The output is recompiled before anything is written, and must give the same tabl
 | QuickDBD | DBML | table-level links (`rel >- Product`, kept as a `//` comment), a second alias, `[settings]` zoom and position. `[layout]` positions go to the [layout file](layout.md) beside the output. |
 | DBML | QuickDBD | header colours, enums (kept as a `#` comment listing the values), checks, records, composite and expression indexes (drawn as `INDEX` on each column), ref settings, sticky notes, `Project`, the optional (`?`) operators QuickDBD has no symbol for (made required). |
 
+Nullability keeps its meaning. QuickDBD columns are NOT NULL unless marked `NULL`, DBML columns are nullable unless marked `not null`, so a DBML column with neither gets `NULL` in QuickDBD, and a QuickDBD column without `NULL` gets `[not null]` in DBML (primary keys excepted).
+
 With `-o DIR`, DBML `TableGroup`s become one QuickDBD file each (tables outside any group stay in a file named after the source), since QuickDBD groups tables by file. To a single file, groups are dropped with a warning.
 
 In VS Code, **QuickDBD: Convert to DBML** and **Convert to QuickDBD Syntax** do the same from the editor, a schema's row in the sidebar, or the sidebar's **Actions**.

@@ -1,6 +1,6 @@
 # 3.3 Many Files, One Diagram
 
-Big schemas are easier to manage split into files, one per area or team. Point any command at a folder and every `*.txt` and `*.dbml` under it, recursively, becomes **one** diagram:
+Big schemas are easier to manage split into files, one per area or team. Point any command at a folder and every `*.txt` and `*.dbml` under it, recursively, becomes **one** diagram. A `.txt` with no table in it, such as a `README.txt`, is skipped with a warning:
 
 ```text
 schema/
