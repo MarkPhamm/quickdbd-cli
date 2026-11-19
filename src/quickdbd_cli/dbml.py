@@ -1124,7 +1124,7 @@ class _Interpreter:
             t.color = color
             t.comments = list(note) if note else []
             for f in items:
-                col = Column(encode(f.name), f.name, f.line, order=len(t.columns), type=f.typ)
+                col = Column(encode(f.name), f.name, f.line, order=len(t.columns), type=f.typ, not_null=False)
                 if col.id in t.columns:
                     self.error(f.line, f"Duplicate column '{f.name}'")
                     continue
@@ -1133,6 +1133,8 @@ class _Interpreter:
                         col.pk = True
                     elif s.key == "null":
                         col.nullable = True
+                    elif s.key == "not null":
+                        col.not_null = True
                     elif s.key == "unique":
                         col.unique = True
                     elif s.key == "increment":

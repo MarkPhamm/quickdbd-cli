@@ -60,7 +60,8 @@ class Column:
     type: str | None = None
     pk: bool = False
     fk: bool = False
-    nullable: bool = False
+    nullable: bool = False  # drawn as NULL: QuickDBD's `NULL`, DBML's `null`
+    not_null: bool | None = None  # DBML only: whether `not null` was written; None for QuickDBD columns
     unique: bool = False
     index: bool = False
     identity: bool = False
@@ -70,6 +71,12 @@ class Column:
     tags: list[str] = field(default_factory=list)  # `# @tag: ...` comments
     type_default: bool = False  # type came from the file's DefaultFieldType setting
     dbt: DbtInfo | None = None  # from the dbt project's yml (`# @dbt: PATH`)
+
+    def sql_nullable(self) -> bool:
+        """Allows NULL in SQL: QuickDBD columns are NOT NULL unless `NULL`, DBML ones nullable unless `not null`/pk."""
+        if self.not_null is None:
+            return self.nullable
+        return self.nullable or not (self.not_null or self.pk)
 
     def shown_type(self) -> str | None:
         if self.dbt and self.dbt.type and (self.type is None or self.type_default):
