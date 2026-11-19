@@ -7,6 +7,7 @@
   var active = null;
   var cm = null, textarea = null;
   var diagnostics = [];
+  var serverNote = null; // why edits aren't reaching the disk: server gone, or a failed save
   var tabs = document.getElementById("tabs");
   var problems = document.getElementById("problems");
   var banner = document.getElementById("banner");
@@ -122,7 +123,9 @@
     var text = currentText(f);
     fetch("/file", { method: "PUT", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path: f.path, text: text, mtime: f.mtime }) })
-      .then(function (r) { return r.json().then(function (j) { return [r.status, j]; }); })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) { return [r.status, j]; });
+      })
       .then(function (res) {
         var code = res[0], j = res[1];
         if (code === 200) {
@@ -130,12 +133,27 @@
           f.mtime = j.mtime;
           f.dirty = currentText(f) !== f.text;
           if (f.dirty) onEditFor(f);
+          if (serverNote) setServerNote(null);
         } else if (code === 409) {
           f.conflict = { text: j.text, mtime: j.mtime };
           showBanner();
+        } else {
+          setServerNote("Not saved: qdbd serve answered " + code + ". Your edits are kept in this tab.");
         }
         drawTabs();
+      })
+      .catch(function () { // the file stays dirty, and is saved again when /events reconnects
+        setServerNote("Not saved: qdbd serve is not running. Keep this tab open: your edits save when it's back.");
       });
+  }
+
+  function setServerNote(text) {
+    serverNote = text;
+    drawProblems();
+  }
+
+  function saveAll() {
+    order.forEach(function (p) { if (files[p].dirty && !files[p].conflict) save(files[p]); });
   }
 
   function onEditFor(f) {
@@ -187,12 +205,18 @@
 
   function drawProblems() {
     var errors = diagnostics.filter(function (d) { return d.severity === "error"; });
-    problems.classList.toggle("bad", errors.length > 0);
-    if (!diagnostics.length) {
+    problems.classList.toggle("bad", errors.length > 0 || !!serverNote);
+    if (!diagnostics.length && !serverNote) {
       problems.textContent = "No errors found. Good job!";
       return;
     }
     problems.innerHTML = "";
+    if (serverNote) {
+      var down = document.createElement("div");
+      down.className = "err";
+      down.textContent = serverNote;
+      problems.appendChild(down);
+    }
     if (errors.length) {
       var note = document.createElement("div");
       note.textContent = "Showing the last valid diagram until these are fixed:";
@@ -255,9 +279,24 @@
     },
   };
 
+  window.addEventListener("beforeunload", function (e) {
+    if (order.some(function (p) { return files[p].dirty; })) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+
   makeEditor();
   refresh(true).then(function () {
-    var es = new EventSource("/events");
+    var es = new EventSource("/events"); // reconnects by itself after the server comes back
     es.onmessage = function () { refresh(false); };
+    es.onerror = function () {
+      if (!serverNote) setServerNote("qdbd serve is not running. Edits are kept in this tab and save when it's back.");
+    };
+    es.onopen = function () {
+      if (!serverNote) return;
+      setServerNote(null);
+      saveAll();
+    };
   });
 })();
