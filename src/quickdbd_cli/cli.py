@@ -170,11 +170,14 @@ def _built_page(args) -> tuple[str, dict] | int:
     return render_page(model, pos, _title(project)), model
 
 
-def _summary(model: dict) -> str:
-    """Table and relationship counts, plus the region count when ``--by-group`` drew regions."""
-    s = counts(len(model["tables"]), len(model["rels"]))
-    if model.get("regions"):
-        n = len({t["group"] for t in model["tables"] if t.get("group")})
+def _summary(model: dict, only: list[str] | None = None, regions: bool | None = None) -> str:
+    """Counts of what was drawn: tables (``only``, else all), relationships between them, and regions if drawn
+    (``regions``, else the model's ``--by-group`` flag)."""
+    ids = set(only) if only else {t["id"] for t in model["tables"]}
+    rels = [r for r in model["rels"] if r["a"]["t"] in ids and r["b"]["t"] in ids]
+    s = counts(len(ids), len(rels))
+    if model.get("regions") if regions is None else regions:
+        n = len({t["group"] for t in model["tables"] if t["id"] in ids and t.get("group")})
         s += f", {n} region{'s' * (n != 1)}"
     return s
 
@@ -309,7 +312,7 @@ def cmd_export(args) -> int:
             export.render_drawio(model, pos, only=only, mode=args.mode, title=_title(project), regions=regions),
             encoding="utf-8",
         )
-        print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
+        print(f"Wrote {out} ({_summary(model, only, regions)})")
         return 0
     svg = export.render_svg(model, pos, only=only, mode=args.mode, embed_font=(fmt == "svg"), regions=regions)
     if fmt == "svg":
@@ -320,7 +323,7 @@ def cmd_export(args) -> int:
             note = f"--scale lowered to {scale:.2f} to keep the PNG within {export.MAX_PNG_SIDE} px"
             print(f"note: {note}", file=sys.stderr)
         out.write_bytes(export.svg_to_png(svg, scale))
-    print(f"Wrote {out} ({len(only) if only else len(model['tables'])} tables)")
+    print(f"Wrote {out} ({_summary(model, only, regions)})")
     return 0
 
 

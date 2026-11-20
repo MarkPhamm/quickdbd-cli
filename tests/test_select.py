@@ -123,7 +123,7 @@ def test_export_select_compacts_layout(tmp_path, capsys):
 
     root = write_files(tmp_path)
     assert main(["export", str(root), "-s", "+order_items", "-o", str(tmp_path / "x.svg")]) == 0
-    assert "(4 tables)" in capsys.readouterr().out
+    assert "(4 tables, 3 relationships)" in capsys.readouterr().out
 
 
 def test_select_errors(tmp_path, capsys):
