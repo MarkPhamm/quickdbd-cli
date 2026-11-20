@@ -101,13 +101,13 @@
        Without it, on phones and on touch screens, the still screenshot links to the demo. -->
   <section class="qh-section qh-wrap qh-tour">
     <h2>The <span class="qh-hl">real page,</span> driven by a script</h2>
-    <p class="qh-sub">This is the actual <span class="qh-hl">qdbd</span> viewer running AdventureWorks DW: 28 tables, dimensions around facts, one region per business process. The last chapter opens a dbt project and shows the descriptions qdbd reads from its yml.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
+    <p class="qh-sub">This is the actual <span class="qh-hl">qdbd</span> viewer running a dbt project's ERD: four review star schemas around shared dimensions, one region each, with descriptions read from the yml. The last chapter shows what a branch changed since <code>main</code>.<span class="qh-tour__hint"> Move your mouse over it to take control.</span></p>
     <div class="qh-fig qh-fig--tour">
-    <div class="qh-tour__frame" data-src="{{ 'assets/tour/adventureworks-dw.html' | url }}" data-dbt-src="{{ 'assets/tour/dbt-docs.html' | url }}#t=orders">
-      <div class="qh-frame__bar"><span class="qh-tour__page">AdventureWorks DW, 28 tables</span><b class="qh-tour__state">Playing</b></div>
+    <div class="qh-tour__frame" data-src="{{ 'assets/tour/skytrax.html' | url }}" data-diff-src="{{ 'assets/tour/skytrax-diff.html' | url }}">
+      <div class="qh-frame__bar"><span class="qh-tour__page">Skytrax reviews, 13 tables</span><b class="qh-tour__state">Playing</b></div>
       <div class="qh-tour__stage">
-        <a class="qh-tour__still" href="{{ 'demo/adventureworks-dw/' | url }}#t=FactInternetSales">
-          <img src="{{ 'assets/img/hero.png' | url }}" alt="The AdventureWorks DW star schema in qdbd" loading="lazy" width="1440" height="860">
+        <a class="qh-tour__still" href="{{ 'demo/skytrax/' | url }}#t=dim_customer">
+          <img src="{{ 'assets/img/gallery/skytrax.png' | url }}" alt="The Skytrax reviews star schemas in qdbd" loading="lazy" width="1200" height="630">
           <span>Open the live demo</span>
         </a>
         <div class="qh-tour__overlay" aria-hidden="true">
@@ -118,11 +118,12 @@
     </div>
     </div>
     <ol class="qh-tour__chapters">
-      <li><b>Search</b><span>Find a table among 28</span><i></i></li>
-      <li><b>Relationships</b><span>Click a line, copy the JOIN</span><i></i></li>
+      <li><b>Search</b><span>Find a table</span><i></i></li>
+      <li><b>Relationships</b><span>Copy the JOIN</span><i></i></li>
       <li><b>Selectors</b><span>dbt-style filters</span><i></i></li>
-      <li><b>Join paths</b><span>From one table to another</span><i></i></li>
-      <li data-page="dbt"><b>dbt yml</b><span>Descriptions, tags and types</span><i></i></li>
+      <li><b>Join paths</b><span>Table to table</span><i></i></li>
+      <li><b>dbt yml</b><span>Docs, tags, types</span><i></i></li>
+      <li data-page="diff"><b>Diff vs main</b><span>Changes vs main</span><i></i></li>
     </ol>
   </section>
 
