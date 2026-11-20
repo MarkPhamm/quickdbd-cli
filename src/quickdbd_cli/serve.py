@@ -33,8 +33,16 @@ from .project import Project, discover, display_path
 
 
 class State:
-    def __init__(self, project: Project, read_only: bool = False, embed: bool = False, diff_base: str | None = None):
+    def __init__(
+        self,
+        project: Project,
+        read_only: bool = False,
+        embed: bool = False,
+        diff_base: str | None = None,
+        by_group: bool = False,
+    ):
         self.project = project
+        self.by_group = by_group  # start from a fresh grouped layout, regions on
         self.read_only = read_only  # never write to disk: no editor saves, no layout file
         self.embed = embed  # an editor owns the files: layout saves only
         self.diff_base = diff_base
@@ -84,12 +92,17 @@ class State:
             self.diagnostics = diags
             if self.base is not None and not schema.errors:
                 diff.annotate_model(model, self.base, diff.diff_schemas(self.base, schema), self.diff_base)
-            base = layout.read_sidecar(self.project.sidecar)
-            current = {
-                t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
-            }
-            base.update(current)
-            pos = layout.resolve_positions(model, base, schema.layout)
+            if self.by_group:
+                model["regions"] = True
+            if initial and self.by_group and model["tables"]:  # replaces the saved positions, like `layout --by-group`
+                pos = layout.group_layout(model["tables"], model["rels"])
+            else:
+                base = layout.read_sidecar(self.project.sidecar)
+                current = {
+                    t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
+                }
+                base.update(current)
+                pos = layout.resolve_positions(model, base, schema.layout)
             self.model = model
             self.positions = {k: [v[0], v[1]] for k, v in pos.items()}
             if not self.read_only and not schema.errors:  # the sidecar keeps every table's place
@@ -249,10 +262,11 @@ def make_server(
     tries: int = 1,
     embed: bool = False,
     diff_base: str | None = None,
+    by_group: bool = False,
 ) -> tuple[ThreadingHTTPServer, State]:
     """Bind the HTTP server without starting it. Port 0 picks a free port; with ``tries`` > 1, a busy port
     moves on to the next one (port, port+1, ...). Raises ``diff.DiffError`` for a ``diff_base`` git can't read."""
-    state = State(project, read_only=read_only, embed=embed, diff_base=diff_base)
+    state = State(project, read_only=read_only, embed=embed, diff_base=diff_base, by_group=by_group)
     title = project.inputs[0].stem if len(project.inputs) == 1 else "diagram"
     server = None
     for p in range(port, port + max(tries, 1)) if port else [0]:
@@ -289,9 +303,12 @@ def serve(
     tries: int = 1,
     embed: bool = False,
     diff_base: str | None = None,
+    by_group: bool = False,
 ) -> int:
     try:
-        server, state = make_server(project, port, read_only=read_only, tries=tries, embed=embed, diff_base=diff_base)
+        server, state = make_server(
+            project, port, read_only=read_only, tries=tries, embed=embed, diff_base=diff_base, by_group=by_group
+        )
     except (PortInUse, diff.DiffError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

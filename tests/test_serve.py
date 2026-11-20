@@ -2,10 +2,12 @@
 
 import json
 import os
+import shutil
 import threading
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -352,3 +354,19 @@ def test_serve_dbml_round_trip(dbml_srv):
     for name in ("customer", "orders"):
         assert after["positions"][name] == before[name]
     assert set(layout.read_sidecar(f.with_name("shop.layout.json"))) == {"customer", "orders", "items"}
+
+
+def test_serve_by_group_starts_from_a_grouped_layout(tmp_path):
+    work = tmp_path / "s"
+    shutil.copytree(Path(__file__).parents[1] / "examples" / "synthetic", work)
+    project = Project.open([work])
+    server, state = make_server(project, port=0, embed=True, by_group=True)
+    server.server_close()
+    assert state.model["regions"] is True
+    grouped = layout.group_layout(state.model["tables"], state.model["rels"])
+    assert state.positions == {k: [v[0], v[1]] for k, v in grouped.items()}
+    saved = layout.read_sidecar(project.sidecar)  # written, like `qdbd layout --by-group`
+    by_id = {t["id"]: t["name"] for t in state.model["tables"]}
+    assert saved == {by_id[k]: tuple(v) for k, v in state.positions.items()}
+    poll_once(state)  # later reloads keep the positions
+    assert state.model["regions"] is True

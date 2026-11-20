@@ -36,6 +36,7 @@ To arrange the diagram so each file's tables sit together, add `--by-group`:
 
 ```bash
 qdbd build schema/ --by-group -o schema.html
+qdbd serve schema/ --by-group     # the same layout, live, and saved so you can adjust it by dragging
 ```
 
 ![qdbd build --by-group output, with the region count](assets/img/term-build-by-group.png)

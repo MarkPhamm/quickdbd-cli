@@ -557,6 +557,7 @@ def cmd_serve(args) -> int:
         tries=tries,
         embed=args.embed,
         diff_base=args.diff_base,
+        by_group=args.by_group,
     )
 
 
@@ -669,6 +670,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)
     sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
+    sp.add_argument(
+        "--by-group",
+        action="store_true",
+        help="start from a fresh layout that keeps each file / dbt folder together, with regions "
+        "(replaces the saved positions)",
+    )
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--no-open", action="store_true", help="don't open a browser")
     sp.add_argument(
