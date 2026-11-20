@@ -4,7 +4,11 @@
 qdbd import dbt target/manifest.json -o erd/
 ```
 
+![qdbd import dbt output](assets/img/term-import.png)
+
 `manifest.json` (or the `target/` directory) is all qdbd needs. If `catalog.json` sits next to it (`dbt docs generate`), column types come from it automatically.
+
+![dbt's jaffle_shop, imported with qdbd import dbt](assets/img/jaffle.png){ .shot }
 
 !!! tip "Run `dbt docs generate` first"
     `manifest.json` only knows the columns you've documented in YAML. `catalog.json`, written by `dbt docs generate`, lists every column in the warehouse with its type. Without it, undocumented models show up with no columns, and qdbd prints a hint saying how many.

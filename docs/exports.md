@@ -14,6 +14,10 @@ qdbd export erd/ -o orders.svg --focus orders     # a table and its direct neigh
 qdbd export erd/ -o marts.drawio -s 'group:marts' # editable draw.io file
 ```
 
+![qdbd export output](assets/img/term-export.png)
+
+![qdbd export -s '+Order+1' --mode keys: Order and its neighbours, key columns only](assets/img/export.png){ .shot }
+
 | Option | |
 |---|---|
 | `-o FILE` | `.png`, `.svg` or `.drawio` |

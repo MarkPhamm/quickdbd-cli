@@ -37,6 +37,8 @@ The site deploys to GitHub Pages from `main`, with the demo gallery built into `
 
 Demos marked `featured = true` (four of them) fill the table in the README: after changing one, run `python scripts/build_gallery.py --readme`. The `[hero]` entry picks the screenshot at the top of the README (`python scripts/gen_thumbnails.py hero`).
 
+The docs pages' screenshots (`DOC_SHOTS` in `scripts/gen_thumbnails.py`, plus `serve.png` and `export.png`) come from the same demo builds: rerun `python scripts/gen_thumbnails.py docs` after a UI change.
+
 `tests/test_gallery.py` checks the catalog, that every demo has a thumbnail, that the README table is in sync, and that the build is deterministic.
 
 ## 9.3 Example data { #example-data }

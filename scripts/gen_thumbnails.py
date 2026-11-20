@@ -5,6 +5,7 @@
     python scripts/gen_thumbnails.py hero       # the README hero (docs/assets/img/hero.png)
     python scripts/gen_thumbnails.py path-sql   # the home page's path-to-SQL shot (docs/assets/img/path-sql.png)
     python scripts/gen_thumbnails.py diff-shot  # the schema diff shot (docs/assets/img/diff.png)
+    python scripts/gen_thumbnails.py docs       # the docs pages' screenshots (DOC_SHOTS, serve.png, export.png)
 
 Dev-only: needs Playwright (`uv pip install -p .venv playwright`) and drives the system Chrome, so no
 browser download. Each demo is opened at its `view` + `shot` URL hash; the screenshot is framed in a card
@@ -14,15 +15,24 @@ with the demo's title and description. Commit the PNGs.
 from __future__ import annotations
 
 import base64
+import contextlib
+import io
+import os
+import shlex
+import shutil
 import sys
 import tempfile
+import threading
 from pathlib import Path
 
 from build_gallery import ROOT, THUMBS, build, load_catalog
 from playwright.sync_api import sync_playwright
 
+from quickdbd_cli.cli import main as qdbd
 from quickdbd_cli.export import font_css
 from quickdbd_cli.html import _escape
+from quickdbd_cli.project import Project
+from quickdbd_cli.serve import make_server
 
 W, H = 1200, 630
 SHOT_W, SHOT_H = 1280, 820
@@ -30,6 +40,41 @@ SHOT_W, SHOT_H = 1280, 820
 PATH_SHOT = ("sakila", "t=payment&p=country")
 # The home page's and the docs' diff shot: the change the home page's sample PR comment describes.
 DIFF_SHOT = ("diff", "t=Customer")
+# The docs pages' screenshots, docs/assets/img/<name>.png: (name, demo, URL hash), each a 1440x860 page at 2x with
+# the table list collapsed and no minimap. No hash zoom: the page fits the diagram.
+DOC_SHOTS = [
+    ("quickstart", "shop", ""),
+    ("syntax", "shop", "t=OrderLine"),
+    ("dbml", "ticketing", ""),
+    ("tags", "tags", ""),
+    ("keys-mode", "chinook", "m=keys"),
+]
+SAMPLE = ROOT / "examples" / "quickdbd-sample.txt"
+# Real command output, docs/assets/img/<name>.png: (name, folder in the scratch workspace, qdbd arguments).
+TERM_SHOTS = [
+    ("term-check", "check", ["check", "schema.txt"]),
+    ("term-build", ".", ["build", "schema.txt", "-o", "schema.html"]),
+    ("term-build-by-group", ".", ["build", "erd/", "--by-group", "-o", "erd.html"]),
+    ("term-export", ".", ["export", "schema.txt", "-s", "+Order+1", "--mode", "keys", "-o", "order.png"]),
+    ("term-layout", ".", ["layout", "erd/", "--by-group"]),
+    ("term-path", ".", ["path", "sakila/", "--from", "payment", "--to", "country"]),
+    ("term-diff", ".", ["diff", "before.txt", "schema.txt"]),
+    ("term-import", ".", ["import", "dbt", "target/manifest.json", "-o", "models/"]),
+    ("term-convert", ".", ["convert", "schema.txt", "--to", "dbml"]),
+]
+TERM_MAX_LINES = 18
+TERM = """<!doctype html><html><head><meta charset="utf-8"><style>
+body {{ margin: 0; background: #fff; }}
+.term {{ display: inline-block; min-width: 760px; max-width: 1000px; margin: 8px; border-radius: 10px; overflow: hidden;
+  background: #15181e; box-shadow: 0 10px 28px -14px rgba(21, 24, 30, .45); }}
+.top {{ height: 30px; background: #252a33; display: flex; align-items: center; gap: 7px; padding-left: 14px; }}
+.top i {{ width: 11px; height: 11px; border-radius: 50%; background: #4a505b; }}
+pre {{ margin: 0; padding: 16px 20px 18px; font: 14px/1.55 Menlo, "SF Mono", Consolas, monospace; color: #d7dae0;
+  white-space: pre-wrap; }}
+.cmd {{ color: #fff; font-weight: bold; }} .cmd b {{ color: #6fb3ff; }}
+.err {{ color: #ff7b72; }} .warn {{ color: #e3b341; }} .dim {{ color: #7d8590; }}
+</style></head><body><div class="term"><div class="top"><i></i><i></i><i></i></div>
+<pre>{body}</pre></div></body></html>"""
 # Hidden in the screenshot: the table list, toolbar, minimap and hint. The details panel and diff bar stay.
 CLEAN = ".explorer, .bar, .minimap, .hint { display: none !important; }"
 
@@ -132,8 +177,81 @@ def main(argv: list[str]) -> int:
             dst = ROOT / "docs" / "assets" / "img" / "diff.png"
             page.screenshot(path=str(dst))
             print(f"Wrote {dst.relative_to(ROOT)}")
+        if "docs" in (set(argv) or {"docs"}):
+            doc_shots(browser.new_page(viewport={"width": 1440, "height": 860}, device_scale_factor=2), out)
         browser.close()
     return 0
+
+
+def doc_shots(page, out: Path) -> None:
+    img = ROOT / "docs" / "assets" / "img"
+    for name, demo, frag in DOC_SHOTS:
+        page.goto((out / demo / "index.html").as_uri() + (f"#{frag}" if frag else ""))
+        page.wait_for_timeout(500)
+        page.add_style_tag(content=".minimap, .hint { display: none !important; }")
+        page.click("#extoggle")
+        if "t=" not in frag:  # re-fit without the table list in the way
+            page.click("#zfit")
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(img / f"{name}.png"))
+        print(f"Wrote docs/assets/img/{name}.png")
+    # `qdbd serve` with its editor, on a copy so the example's layout file isn't touched
+    work = out / "serve"
+    work.mkdir()
+    shutil.copy(SAMPLE, work / "schema.txt")
+    server, _ = make_server(Project.open([work]), port=0)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        page.goto(f"http://127.0.0.1:{server.server_address[1]}/")
+        page.wait_for_timeout(1000)
+        page.add_style_tag(content=".minimap, .hint { display: none !important; }")
+        page.click("#extoggle")
+        page.click("#zfit")
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(img / "serve.png"))
+        print("Wrote docs/assets/img/serve.png")
+    finally:
+        server.shutdown()
+        server.server_close()
+    # a real `qdbd export`: the order and its neighbours, keys only
+    qdbd(["export", str(SAMPLE), "-s", "+Order+1", "--mode", "keys", "--scale", "1.5", "-o", str(img / "export.png")])
+    term_shots(page, out / "term")
+
+
+def term_shots(page, ws: Path) -> None:
+    """Run each TERM_SHOTS command in a scratch workspace and screenshot its output as a terminal."""
+    ws.mkdir()
+    shutil.copy(SAMPLE, ws / "schema.txt")
+    shutil.copy(ROOT / "gallery" / "diff" / "before.txt", ws / "before.txt")
+    shutil.copytree(ROOT / "examples" / "synthetic", ws / "erd", ignore=shutil.ignore_patterns("*.layout.json"))
+    shutil.copytree(ROOT / "gallery" / "sakila", ws / "sakila")
+    (ws / "target").mkdir()
+    for f in ("manifest.json", "catalog.json"):
+        shutil.copy(ROOT / "tests" / "fixtures" / "jaffle" / f, ws / "target" / f)
+    # `check` on a copy with one error and one warning
+    (ws / "check").mkdir()
+    text = SAMPLE.read_text(encoding="utf-8").replace("FK >- cat.CatalogId", "FK >- Catalog.CatalogId")
+    (ws / "check" / "schema.txt").write_text(text.replace("\nPrice money", "\nPrice money NOT NULL"), encoding="utf-8")
+    here = Path.cwd()
+    for name, folder, args in TERM_SHOTS:
+        buf = io.StringIO()
+        os.chdir(ws / folder)
+        try:
+            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                qdbd(args)
+        finally:
+            os.chdir(here)
+        lines = buf.getvalue().rstrip("\n").split("\n")
+        if len(lines) > TERM_MAX_LINES:
+            lines = lines[:TERM_MAX_LINES] + [f"… ({len(lines) - TERM_MAX_LINES} more lines)"]
+        body = '<span class="cmd"><span class="dim">$</span> <b>qdbd</b> ' + _escape(shlex.join(args)) + "</span>\n"
+        for line in lines:
+            cls = "err" if ": error:" in line else "warn" if ": warning:" in line else ""
+            cls = "dim" if line.startswith("… (") else cls
+            body += (f'<span class="{cls}">{_escape(line)}</span>' if cls else _escape(line)) + "\n"
+        page.set_content(TERM.format(body=body.rstrip("\n")))
+        page.locator(".term").screenshot(path=str(ROOT / "docs" / "assets" / "img" / f"{name}.png"))
+        print(f"Wrote docs/assets/img/{name}.png")
 
 
 if __name__ == "__main__":

@@ -22,6 +22,8 @@ qdbd build shop.dbml -o shop.html
 
 The [Event ticketing demo](https://qdbd.dev/demo/ticketing/) is written in DBML.
 
+![The Event ticketing demo: four DBML TableGroups, each drawn as a region](assets/img/dbml.png){ .shot }
+
 ## Which files are DBML
 
 - A `.dbml` file is always DBML.
@@ -78,6 +80,8 @@ One folder can hold both. All tables share one namespace ([3.3](files.md)): a Qu
 qdbd convert shop.dbml --to quickdbd            # prints the QuickDBD text
 qdbd convert schema/ --to dbml -o schema-dbml/  # a folder: same file names, new extension
 ```
+
+![qdbd convert to DBML: warnings for what DBML cannot hold, then the DBML text](assets/img/term-convert.png)
 
 The output is recompiled before anything is written, and must give the same tables, columns, keys and links as the input. Whatever the target syntax can't express is reported as a warning, with its line:
 
