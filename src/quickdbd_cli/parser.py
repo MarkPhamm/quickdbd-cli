@@ -760,10 +760,19 @@ class _Resolver:
     def post_process(self, r: Relationship, cs: bool, names: tuple | None = None) -> None:
         tables = []
         shown = names or ((r.a.table, r.a.column), (r.b.table, r.b.column))  # DBML names; QuickDBD's ids as-is
-        for end, (table_name, _) in zip((r.a, r.b), shown, strict=True):
+        for end, (table_name, column_name) in zip((r.a, r.b), shown, strict=True):
             t = self.get_table(end.table, cs)
             if t is None:
-                self.error(r.path, r.line, f"Invalid relationship, the table '{table_name}' does not exist")
+                msg = f"Invalid relationship, the table '{table_name}' does not exist"
+                # QuickDBD encodes unquoted table headers but not unquoted references, so `Café.Id` can't match
+                quoted = None if names else self.get_table(encode(end.table), cs)
+                if quoted:
+                    where = f"line {quoted.line}" if quoted.path == r.path else f"{quoted.path}:{quoted.line}"
+                    msg += (
+                        f' (a table named "{quoted.name}" is defined at {where}: quote it in references, '
+                        f'"{quoted.name}".{column_name})'
+                    )
+                self.error(r.path, r.line, msg)
             tables.append(t)
         if None in tables:
             return
