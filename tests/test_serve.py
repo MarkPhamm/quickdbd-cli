@@ -58,6 +58,7 @@ def test_page_and_state(srv):
     base, _, f = srv
     code, page = call(base, "/")
     assert code == 200 and b'id="side"' in page and b'"serve":true' in page
+    assert b"addon/comment/comment.min.js" in page  # Ctrl/Cmd+/ toggles comments
     code, st = call(base, "/state")
     assert code == 200
     assert [t["name"] for t in st["model"]["tables"]] == ["Customer", "Order"]
