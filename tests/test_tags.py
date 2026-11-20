@@ -159,10 +159,22 @@ def test_svg_and_drawio_use_the_tag_colour(model):
 def test_diff_colour_wins_over_tag():
     old = compile_text("A\n-\nid int\n")
     new = compile_text("A\n-\nid int\n\ndim_b\n-\nid int\n")
-    m = annotate_model(model_json(new), diff_schemas(old, new), "main")
+    m = annotate_model(model_json(new), old, diff_schemas(old, new), "main")
     b = next(t for t in m["tables"] if t["name"] == "dim_b")
     svg = render_svg(m, {"A": [0, 0], "dim_b": [300, 0]}, only=["dim_b"], embed_font=False)
     assert b["color"] == DEFAULT_COLORS["dim"] and "#2e7d32" in svg and DEFAULT_COLORS["dim"] not in svg
+
+
+def test_diff_draws_removed_tables_and_columns():
+    old = compile_text("A\n-\nid int\ngone_col int\n\nB\n-\nid int\na_id int FK >- A.id\n")
+    new = compile_text("A\n-\nid int\nnew_col int\n")
+    m = annotate_model(model_json(new), old, diff_schemas(old, new), "main")
+    a, b = (next(t for t in m["tables"] if t["name"] == n) for n in "AB")
+    assert [c["name"] for c in a["cols"]] == ["id", "gone_col", "new_col"]
+    assert b["diff"] == {"state": "removed"} and len(m["rels"]) == 1  # B's relationship to A is still drawn
+    svg = render_svg(m, {"A": [0, 0], "B": [300, 0]}, embed_font=False)
+    assert svg.count("#c62828") >= 4  # B's header, its two column names, gone_col
+    assert 'style="fill:#2e7d32"' in svg  # new_col named in green
 
 
 COLUMNS = """# @color pii #ff9800

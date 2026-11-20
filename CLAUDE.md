@@ -78,7 +78,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 
 - `t.group` / `file` / `line`: explorer groups and regions
 - `t.doc` / `c.doc`: tooltips
-- `t.diff` and `model.diff`: from `diff.annotate_model`, for `build --diff-base`
+- `t.diff` and `model.diff`: from `diff.annotate_model`, for `build`/`serve --diff-base`. Removed tables and columns are copied in from the base schema (state `removed`) so they're drawn; callers place them with `layout.place_missing`, and `save_positions` never writes them to the sidecar.
 - `model.regions`: set by `--by-group`
 - `t.tags` / `t.color` and `model.tags` (legend): from `tags.py`. Tags come from `# @tag:` comments, else the name prefix (`dim_`, `fct_`, …), else `# @dbt-tags:`; `# @color TAG #hex` overrides colours. All are comments, so files stay valid QuickDBD. Diff colours win over tag colours.
 - `c.color`: column tags (`# @tag:` on or above a column line) colour the row with the first tag's colour; `added`/`removed` default to green/red (removed is struck through).

@@ -116,7 +116,11 @@ class Project:
         return model, {k: [v[0], v[1]] for k, v in pos.items()}
 
     def save_positions(self, model: dict, positions: dict) -> None:
-        by_name = {t["name"]: tuple(positions[t["id"]]) for t in model["tables"] if t["id"] in positions}
+        by_name = {
+            t["name"]: tuple(positions[t["id"]])
+            for t in model["tables"]
+            if t["id"] in positions and t.get("diff", {}).get("state") != "removed"  # gone, only drawn by a diff
+        }
         layout.write_sidecar(self.sidecar, by_name)
 
 
