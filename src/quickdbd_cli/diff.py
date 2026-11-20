@@ -12,6 +12,7 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .measure import STYLE, model_json, row_width
 from .model import VIRTUAL_FIELD, Column, Relationship, Schema
 from .parser import compile_sources
 
@@ -245,16 +246,27 @@ def format_json(d: SchemaDiff) -> str:
 # --------------------------------------------------------------------------- annotate the diagram model
 
 
-def annotate_model(model: dict, d: SchemaDiff, base_label: str) -> dict:
-    """Add ``diff`` markers so render.js colours added/changed tables and columns."""
+def annotate_model(model: dict, old: Schema, d: SchemaDiff, base_label: str) -> dict:
+    """Add ``diff`` markers so render.js colours added/changed/removed tables and columns.
+
+    Removed tables and columns are copied in from ``old`` so they can be drawn (struck through, in red).
+    """
     added = set(d.added)
     changed = {c.name: c for c in d.changed}
+    old_model = model_json(old)
+    base = {t["name"]: t for t in old_model["tables"]}
     for t in model["tables"]:
         if t["name"] in added:
             t["diff"] = {"state": "added"}
         elif t["name"] in changed:
             c = changed[t["name"]]
             cols = {}
+            for i, col in enumerate(base[t["name"]]["cols"]):  # at their old index
+                if col["name"] in c.removed_cols:
+                    t["cols"].insert(min(i, len(t["cols"])), col)
+                    cols[col["id"]] = "removed"
+                    t["w"] = max(t["w"], round(row_width(col)))
+                    t["h"] += STYLE["rowH"]
             for col in t["cols"]:
                 if col["name"] in c.added_cols:
                     cols[col["id"]] = "added"
@@ -263,9 +275,16 @@ def annotate_model(model: dict, d: SchemaDiff, base_label: str) -> dict:
             t["diff"] = {
                 "state": "changed",
                 "cols": cols,
-                "removedCols": c.removed_cols,
                 "changes": {k: v for k, v in c.changed_cols.items()},
             }
+    for name in d.removed:
+        model["tables"].append({**base[name], "diff": {"state": "removed"}})
+    # relationships of removed tables, where both ends are still drawn
+    gone = {base[name]["id"] for name in d.removed}
+    cols = {(t["id"], c["id"]) for t in model["tables"] for c in t["cols"]}
+    for r in old_model["rels"]:
+        if gone & {r["a"]["t"], r["b"]["t"]} and all((e["t"], e["c"]) in cols for e in (r["a"], r["b"])):
+            model["rels"].append(r)
     model["diff"] = {
         "base": base_label,
         "added": len(d.added),

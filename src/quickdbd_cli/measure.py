@@ -86,17 +86,21 @@ def _column_json(col: Column) -> dict:
     return out
 
 
+def row_width(c: dict) -> float:
+    """Width a column row needs: name, badges, key icon and type."""
+    s = STYLE
+    row = c["nameW"] + c["typeW"] + 2 * s["padX"] + s["gap"]
+    row += sum(b["w"] + s["badgeGap"] for b in c["badges"])
+    return row + (s["keyW"] if c["pk"] else 0)
+
+
 def table_json(table: Table) -> dict:
     s = STYLE
     cols = [_column_json(c) for c in table.columns.values() if not c.virtual]
     name_w = text_width(table.name, s["headerSize"])
     w = name_w + 2 * s["padX"]
     for c in cols:
-        row = c["nameW"] + c["typeW"] + 2 * s["padX"] + s["gap"]
-        row += sum(b["w"] + s["badgeGap"] for b in c["badges"])
-        if c["pk"]:
-            row += s["keyW"]
-        w = max(w, row)
+        w = max(w, row_width(c))
     w = max(round(w), s["minW"])
     h = s["headerH"] + len(cols) * s["rowH"] + s["bottomPad"]
     out = {"id": table.id, "name": table.name, "aliases": table.aliases, "w": w, "h": h, "nameW": name_w, "cols": cols}

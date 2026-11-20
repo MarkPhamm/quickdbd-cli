@@ -118,7 +118,9 @@ def test_build_diff_base_marks_model(repo, capsys):
     tables = {t["name"]: t for t in data["model"]["tables"]}
     assert tables["products"]["diff"] == {"state": "added"}
     assert tables["customers"]["diff"]["state"] == "changed"
-    assert tables["customers"]["diff"]["removedCols"] == ["legacy_flag"]
+    legacy = next(c for c in tables["customers"]["cols"] if c["name"] == "legacy_flag")
+    assert tables["customers"]["diff"]["cols"][legacy["id"]] == "removed"
+    assert tables["audit"]["diff"] == {"state": "removed"}  # drawn, in red
     assert "diff" not in tables["orders"] or tables["orders"]["diff"]["state"] == "changed"
     assert data["model"]["diff"]["removed"] == ["audit"]
     # diff: selector works with the annotations
@@ -137,7 +139,8 @@ def test_serve_diff_base_colours_the_live_model(repo):
     server.server_close()
     tables = {t["name"]: t for t in state.model["tables"]}
     assert tables["products"]["diff"] == {"state": "added"}
-    assert tables["customers"]["diff"]["removedCols"] == ["legacy_flag"]
+    assert "legacy_flag" in [c["name"] for c in tables["customers"]["cols"]]
+    assert tables["audit"]["diff"] == {"state": "removed"} and "audit" in state.positions
     assert state.model["diff"]["base"] == "main" and state.model["diff"]["removed"] == ["audit"]
     # Edits are compared with the same base: back to the base text, nothing is marked.
     f = repo / "erd" / "core.txt"

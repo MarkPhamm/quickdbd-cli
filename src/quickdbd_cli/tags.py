@@ -29,7 +29,7 @@ NAME_TAGS: list[tuple[str, tuple[str, ...]]] = [
 ]
 
 # Table-role defaults avoid the diff colours (green = added, amber = changed) and the untagged blue; `added` and
-# `removed` are meant for columns, and use the diff green on purpose.
+# `removed` are meant for columns, and use the diff green and red on purpose.
 DEFAULT_COLORS = {
     "dim": "#00838f",
     "fact": "#c2185b",

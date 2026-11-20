@@ -83,7 +83,7 @@ class State:
             self.mtimes = mtimes
             self.diagnostics = diags
             if self.base is not None and not schema.errors:
-                diff.annotate_model(model, diff.diff_schemas(self.base, schema), self.diff_base)
+                diff.annotate_model(model, self.base, diff.diff_schemas(self.base, schema), self.diff_base)
             base = layout.read_sidecar(self.project.sidecar)
             current = {
                 t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions
