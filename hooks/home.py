@@ -7,8 +7,9 @@
   the site rather than kept twice in git.
 - The path and AI-agent sections show what qdbd's MCP tools (agent.py) answer about Sakila and AdventureWorks, run at
   build time.
-- The live demos drive the real viewer in iframes, which must be same-origin: the AdventureWorks DW page and the
-  dbt-yml shop page are built into the site at assets/tour/, for `mkdocs serve` as well as the Pages build.
+- The live demos drive the real viewer in iframes, which must be same-origin: the Skytrax tour pages (as is, and
+  diffed against a made-up `origin/main`) and the dbt-yml shop page are built into the site at assets/tour/, for
+  `mkdocs serve` as well as the Pages build.
 """
 
 import html
@@ -16,6 +17,7 @@ import re
 import shutil
 from pathlib import Path
 
+from quickdbd_cli import diff, layout
 from quickdbd_cli.agent import Workspace, join_path, search_schema
 from quickdbd_cli.export import render_svg
 from quickdbd_cli.html import render_page
@@ -27,16 +29,36 @@ from quickdbd_cli.project import Project
 ROOT = Path(__file__).resolve().parent.parent
 HOME = ROOT / "overrides" / "home.html"
 ICON = ROOT / "src" / "quickdbd_cli" / "assets" / "icon.svg"
-TOUR_SOURCE = ROOT / "gallery" / "adventureworks-dw"
+TOUR_SOURCE = ROOT / "gallery" / "skytrax" / "erd"  # the live demo: four star schemas, docs from the dbt yml
 DBT_SOURCE = ROOT / "gallery" / "dbt-docs" / "schema.txt"  # the dbt-yml demo: a hand-written ERD + `# @dbt: shop`
 AGENT_SOURCE = ROOT / "gallery" / "adventureworks"  # the AI-agent section's answers
 PATH_SOURCE = ROOT / "gallery" / "sakila"  # the path section; scripts/gen_thumbnails.py PATH_SHOT shows the same join
-TOUR_PAGE = Path("assets") / "tour" / "adventureworks-dw.html"
+TOUR_PAGE = Path("assets") / "tour" / "skytrax.html"
+DIFF_PAGE = Path("assets") / "tour" / "skytrax-diff.html"
+# The tour's diff chapter: the Skytrax ERD is the branch, and these edits turn it back into its `origin/main`.
+# There, dim_route doesn't exist yet, fct_airline_review has a booking channel instead of a transit stop, and
+# fct_seat_review still has seat_pitch. Each (branch text, main text) must match once.
+MAIN_EDITS = {
+    "airline_reviews.txt": [
+        (
+            "transit_location_id FK >- dim_location.location_id\n",
+            "booking_channel_id FK >- dim_booking_channel.booking_channel_id\n",
+        ),
+        ("\n# @dbt: none\n", "\ndim_booking_channel\n-\nbooking_channel_id PK\nchannel_name\n\n# @dbt: none\n"),
+        (
+            "dim_route\n-\nroute_id PK\norigin_location_id FK >- dim_location.location_id\n"
+            "destination_location_id FK >- dim_location.location_id\n",
+            "",
+        ),
+    ],
+    "seat_reviews.txt": [("seat_privacy\n", "seat_privacy\nseat_pitch\n")],
+}
 DBT_PAGE = Path("assets") / "tour" / "dbt-docs.html"
 # The snippet's two tables side by side; any other table goes further right.
 MINI_POSITIONS = {"Customer": (0, 10), "Order": (300, 0)}
 
 _tour_html: str | None = None  # `mkdocs serve` rebuilds on every change; the tour pages only need laying out once
+_diff_html: str | None = None
 _dbt_html: str | None = None
 
 
@@ -93,19 +115,54 @@ def agent_answers() -> dict:
     }
 
 
+def _tour_schema():
+    project = Project.open([TOUR_SOURCE])
+    schema = compile_sources(project.sources())
+    if schema.errors:
+        raise ValueError(f"the tour schema doesn't compile: {schema.errors[0]}")
+    return project, schema
+
+
+def _main_sources(project: Project) -> list[tuple[str, str]]:
+    """The tour schema's sources with MAIN_EDITS applied: the `origin/main` the diff chapter compares with."""
+    out = []
+    for path, text in project.sources():
+        for new, old in MAIN_EDITS.get(Path(path).name, []):
+            if text.count(new) != 1:
+                raise ValueError(f"MAIN_EDITS: {new!r} isn't in {path} exactly once")
+            text = text.replace(new, old)
+        out.append((path, text))
+    return out
+
+
 def build_tour(site_dir: Path) -> Path:
-    """Write the AdventureWorks DW page the live demo drives; returns its path."""
+    """Write the Skytrax page the live demo drives, one region per star schema; returns its path."""
     global _tour_html
     if _tour_html is None:
-        project = Project.open([TOUR_SOURCE])
-        schema = compile_sources(project.sources())
-        if schema.errors:
-            raise ValueError(f"the tour schema doesn't compile: {schema.errors[0]}")
+        project, schema = _tour_schema()
         model, pos = project.build(schema, by_group=True)
-        _tour_html = render_page(model, pos, "AdventureWorks DW")
+        _tour_html = render_page(model, pos, "Skytrax reviews")
     out = Path(site_dir) / TOUR_PAGE
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_tour_html, encoding="utf-8")
+    return out
+
+
+def build_diff_tour(site_dir: Path) -> Path:
+    """Write the same page coloured by what changed since `origin/main` (like --diff-base); returns its path."""
+    global _diff_html
+    if _diff_html is None:
+        project, schema = _tour_schema()
+        old = compile_sources(_main_sources(project), dbt=False)
+        if old.errors:
+            raise ValueError(f"the tour's origin/main doesn't compile: {old.errors[0]}")
+        model, pos = project.build(schema, by_group=True)
+        diff.annotate_model(model, old, diff.diff_schemas(old, schema), "origin/main")
+        pos = {k: list(v) for k, v in layout.place_missing(model["tables"], model["rels"], pos).items()}
+        _diff_html = render_page(model, pos, "Skytrax reviews")
+    out = Path(site_dir) / DIFF_PAGE
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(_diff_html, encoding="utf-8")
     return out
 
 
@@ -134,5 +191,6 @@ def on_config(config, **kwargs):
 
 def on_post_build(config, **kwargs):
     build_tour(Path(config["site_dir"]))
+    build_diff_tour(Path(config["site_dir"]))
     build_dbt_tour(Path(config["site_dir"]))
     shutil.copyfile(ICON, Path(config["site_dir"]) / "assets" / "img" / "icon.svg")

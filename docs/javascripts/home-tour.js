@@ -1,11 +1,11 @@
-/* Home page live demo: a scripted cursor drives the real viewer (assets/tour/adventureworks-dw.html, same origin) with
- * real events. Five chapters loop; the last switches the frame to the dbt project (assets/tour/dbt-docs.html) and shows
- * the descriptions, tags and types qdbd reads from its yml. Hovering the frame hands control to the visitor. Phones and
+/* Home page live demo: a scripted cursor drives the real viewer (assets/tour/skytrax.html, same origin) with real
+ * events. Six chapters loop over one dbt project's ERD; the last switches the frame to the same ERD diffed against
+ * origin/main (assets/tour/skytrax-diff.html). Hovering the frame hands control to the visitor. Phones and
  * touch screens keep the still screenshot; with reduced motion the page loads ready to use and a chapter card jumps to
  * its end state. The elements it drives are pinned by tests/test_viewer_contract.py. */
 (function () {
   "use strict";
-  var DUR = [7, 8, 7, 11, 11]; // seconds per chapter, for the progress bars
+  var DUR = [7, 8, 7, 11, 10, 10]; // seconds per chapter, for the progress bars
 
   window.qhome.add(function (root) {
     var section = root.querySelector(".qh-tour");
@@ -15,7 +15,7 @@
     var toastEl = frame.querySelector(".qh-tour__toast"), stateEl = frame.querySelector(".qh-tour__state");
     var pageBar = frame.querySelector(".qh-tour__page");
     var chapters = [].slice.call(section.querySelectorAll(".qh-tour__chapters li"));
-    var PAGES = chapters.map(function (c) { return c.getAttribute("data-page") || "aw"; });
+    var PAGES = chapters.map(function (c) { return c.getAttribute("data-page") || "main"; });
     var reduce = window.qhome.reduce.matches, ifr = null, W = null, D = null, pageKey = null;
     var scale = 1, cx = 0, cy = 0, token = 0, instant = false, resumeT = null;
 
@@ -30,12 +30,12 @@
       scale = stage.clientWidth / 1440;
       if (ifr) ifr.style.transform = "scale(" + scale + ")";
     }
-    /* Switch the frame to the chapter's page (AdventureWorks DW or the dbt shop). Both are qdbd pages built into the
-     * site by hooks/home.py; the dbt one opens on `orders` so its yml description is already in the details panel. */
+    /* Switch the frame to the chapter's page: the Skytrax ERD, or the same ERD diffed against origin/main. Both are
+     * qdbd pages built into the site by hooks/home.py. */
     function showPage(key, my) {
       if (pageKey === key) return Promise.resolve();
       pageKey = key;
-      if (pageBar) pageBar.textContent = key === "dbt" ? "Descriptions from dbt, 7 tables" : "AdventureWorks DW, 28 tables";
+      if (pageBar) pageBar.textContent = key === "diff" ? "Skytrax reviews, changes since origin/main" : "Skytrax reviews, 13 tables";
       return new Promise(function (res, rej) {
         function done() {
           ifr.removeEventListener("load", done);
@@ -50,7 +50,7 @@
           res();
         }
         ifr.addEventListener("load", done);
-        ifr.src = key === "dbt" ? frame.getAttribute("data-dbt-src") : frame.getAttribute("data-src");
+        ifr.src = key === "diff" ? frame.getAttribute("data-diff-src") : frame.getAttribute("data-src");
       });
     }
     function moveTo(x, y, my) {
@@ -118,31 +118,34 @@
       ti.click();
     }
 
+    async function focus(name, my) {
+      if (W.qdbdViewer.state.focus === name) return;
+      reset();
+      var qi = q("#q");
+      qi.value = name;
+      qi.dispatchEvent(new W.Event("input", { bubbles: true }));
+      q('.ti[data-id="' + name + '"]').click();
+      await sleep(900, my);
+    }
+
     var steps = [
       async function (my) { // search
         var qi = q("#q");
         await moveToEl(qi, my, 40);
         ripple();
         await sleep(250, my);
-        await type(qi, "FactInternetS", my);
+        await type(qi, "fct_airline", my);
         await sleep(350, my);
-        var ti = q('.ti[data-id="FactInternetSales"]');
+        var ti = q('.ti[data-id="fct_airline_review"]');
         await moveToEl(ti, my, 60);
         ripple();
         ti.click();
         await sleep(2600, my);
       },
       async function (my) { // a line, its card, Copy JOIN
-        if (W.qdbdViewer.state.focus !== "FactInternetSales") {
-          reset();
-          var qi = q("#q");
-          qi.value = "FactInternetSales";
-          qi.dispatchEvent(new W.Event("input", { bubbles: true }));
-          q('.ti[data-id="FactInternetSales"]').click();
-          await sleep(900, my);
-        }
+        await focus("fct_airline_review", my);
         await sleep(300, my);
-        var h = linePoint("FactInternetSales|CustomerKey|DimCustomer|CustomerKey");
+        var h = linePoint("fct_airline_review|customer_id|dim_customer|customer_id");
         await moveTo(h.x, h.y, my);
         ripple();
         pointer(h.el, "pointerdown", h.x, h.y);
@@ -162,48 +165,56 @@
         await moveToEl(f, my, 60);
         ripple();
         await sleep(200, my);
-        await type(f, "+FactResellerSales", my);
+        await type(f, "+fct_seat_review", my);
         key(f, "Enter");
         await sleep(2800, my);
       },
-      async function (my) { // join path
+      async function (my) { // join path, from the lounge star to the airport star
         reset();
         await sleep(600, my);
-        await pick("FactInternetSales", my);
+        await pick("fct_lounge_review", my);
         await sleep(900, my);
         var pin = q("#pathto");
         await moveToEl(pin, my, 50);
         ripple();
-        await type(pin, "DimProductCategory", my);
+        await type(pin, "dim_airport", my);
         key(pin, "Enter");
         await sleep(1600, my);
         var sql = q("#pathsql");
         if (sql) { await moveToEl(sql, my); ripple(); toast("SQL copied"); }
         await sleep(2400, my);
       },
-      async function (my) { // dbt yml: the description, the tag, a column doc
-        if (W.qdbdViewer.state.focus !== "orders") {
-          var qi = q("#q");
-          qi.value = "orders";
-          qi.dispatchEvent(new W.Event("input", { bubbles: true }));
-          await sleep(300, my);
-          q('.ti[data-id="orders"]').click();
-          await sleep(900, my);
-        }
+      async function (my) { // dbt yml: the description, a column doc, the pii tag
+        await focus("dim_customer", my);
         await sleep(500, my);
         var doc = q(".doc");
         if (doc) { await moveToEl(doc, my); ripple(); }
         await sleep(1800, my);
-        var chip = q('.tchip[data-tag="finance"]');
+        var cd = q(".cd");
+        if (cd) { await moveToEl(cd, my); ripple(); await sleep(1600, my); }
+        var chip = q('.tchip[data-tag="pii"]');
         if (chip) {
           await moveToEl(chip, my);
           ripple();
           chip.click();
-          toast("tag:finance");
+          toast("tag:pii");
           await sleep(2400, my);
         }
-        var cd = q(".cd");
-        if (cd) { await moveToEl(cd, my); ripple(); await sleep(1600, my); }
+      },
+      async function (my) { // diff vs origin/main: the banner, then a changed table
+        reset();
+        toast("qdbd build --diff-base origin/main");
+        await sleep(1800, my);
+        var only = q("#diffonly");
+        if (only) { await moveToEl(only, my); ripple(); only.click(); await sleep(1800, my); }
+        var ti = q('.ti[data-id="fct_airline_review"]'); // still in the tree: the filter keeps changed tables
+        await moveToEl(ti, my, 60);
+        ripple();
+        ti.click();
+        await sleep(900, my);
+        var chg = q("#details .state");
+        if (chg) { await moveToEl(chg, my); ripple(); }
+        await sleep(2600, my);
       },
     ];
 
@@ -293,7 +304,7 @@
           ifr = null;
           return;
         }
-        pageKey = "aw";
+        pageKey = "main";
         live();
       }, { once: true });
       ifr.src = frame.getAttribute("data-src");

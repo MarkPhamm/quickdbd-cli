@@ -1,7 +1,7 @@
 """The page elements the qdbd.dev live demo drives (docs/javascripts/home-tour.js).
 
 The tour types into the search and filter boxes, clicks tree items, relationship lines and the card's Copy JOIN, uses
-the path finder, and in its dbt chapter highlights the yml description, tag chips and column docs. Renaming any of
+the path finder, highlights the yml description, tag chips and column docs, and clicks the diff banner. Renaming any of
 these breaks the tour silently, so they are pinned here.
 """
 
@@ -28,5 +28,7 @@ def test_tour_contract(tmp_path):
         'class="doc"',
         'class="cd"',
         'class="tchip',
+        'id="diffonly"',
+        'class="state ',
     ):
         assert el in VIEWER, el
