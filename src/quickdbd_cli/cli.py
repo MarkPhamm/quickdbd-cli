@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .model import Diagnostic, Schema
+from .model import Diagnostic, Schema, counts
 from .project import Project, SelectionError, SourceError, read_source, selector_expr
 
 OK = "No errors found. Good job!"
@@ -204,7 +204,7 @@ def _build_site(args) -> int:
     for name, page, model in pages:
         (out / f"{name}.html").write_text(page, encoding="utf-8")
         index.append((name, quote(f"{name}.html"), len(model["tables"]), len(model["rels"])))
-        print(f"Wrote {out / f'{name}.html'} ({len(model['tables'])} tables, {len(model['rels'])} relationships)")
+        print(f"Wrote {out / f'{name}.html'} ({counts(len(model['tables']), len(model['rels']))})")
     (out / "index.html").write_text(render_index(index), encoding="utf-8")
     print(f"Wrote {out / 'index.html'} ({len(pages)} diagrams)")
     return 0
@@ -220,7 +220,7 @@ def cmd_build(args) -> int:
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page, encoding="utf-8")
-    print(f"Wrote {out} ({len(model['tables'])} tables, {len(model['rels'])} relationships)")
+    print(f"Wrote {out} ({counts(len(model['tables']), len(model['rels']))})")
     return 0
 
 
@@ -365,11 +365,11 @@ def cmd_import_dbt(args) -> int:
                 file=sys.stderr,
             )
             return 1
-        print(f"Up to date: {out}: {result.tables} tables, {result.relationships} relationships{inferred}")
+        print(f"Up to date: {out}: {counts(result.tables, result.relationships)}{inferred}")
         return 0
     written = write_result(result, out)
     where = str(out) if not split else f"{out}/ ({len(written)} files)"
-    print(f"Wrote {where}: {result.tables} tables, {result.relationships} relationships{inferred}")
+    print(f"Wrote {where}: {counts(result.tables, result.relationships)}{inferred}")
     if result.no_columns and not result.catalog:
         print(
             f"hint: {result.no_columns} of {result.tables} tables have no known columns (undocumented in dbt). "
@@ -654,7 +654,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("build", help="write an interactive HTML diagram")
     paths(sp)
     out = sp.add_mutually_exclusive_group()
-    out.add_argument("-o", "--output", default="diagram.html")
+    out.add_argument("-o", "--output", default="diagram.html", help="output HTML file (default: diagram.html)")
     out.add_argument(
         "--site", metavar="DIR", help="one page per PATH (named after it) plus an index.html linking them, in DIR"
     )
@@ -664,7 +664,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
-    sp.add_argument("--strict", action="store_true")
+    sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
     sp.set_defaults(func=cmd_build)
 
     sp = sub.add_parser(
@@ -678,7 +678,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
-    sp.add_argument("--strict", action="store_true")
+    sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
     sp.add_argument("--public", action="store_true", help="list the gist publicly (default: secret, link-only)")
     sp.add_argument("--new", action="store_true", help="make a new gist instead of updating the last one")
     sp.add_argument("-y", "--yes", action="store_true", help="accept the disclaimer without asking (for scripts)")
@@ -694,27 +694,29 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--scale", type=float, default=2.0, help="PNG pixel scale (default 2)")
     sp.add_argument("--regions", action="store_true", help="draw a shaded area per file / dbt folder")
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
-    sp.add_argument("--layout")
-    sp.add_argument("--strict", action="store_true")
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
+    sp.add_argument("--strict", action="store_true", help="treat warnings (QuickDBD incompatibilities) as errors")
     sp.set_defaults(func=cmd_export)
 
     sp = sub.add_parser("layout", help="write table positions to the layout sidecar")
     paths(sp)
     sp.add_argument("--reset", action="store_true", help="discard saved positions and auto-layout everything")
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
-    sp.add_argument("--layout")
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.set_defaults(func=cmd_layout)
 
     sp = sub.add_parser("path", help="shortest join path between two tables, with a SQL JOIN snippet")
     paths(sp)
-    sp.add_argument("--from", dest="source", required=True, metavar="TABLE")
-    sp.add_argument("--to", dest="target", required=True, metavar="TABLE")
+    sp.add_argument("--from", dest="source", required=True, metavar="TABLE", help="table to start from")
+    sp.add_argument("--to", dest="target", required=True, metavar="TABLE", help="table to reach")
     sp.set_defaults(func=cmd_path)
 
     sp = sub.add_parser("diff", help="compare schema versions (two paths, or --base GIT_REF vs working tree)")
     sp.add_argument("paths", nargs="+", metavar="PATH", help="OLD NEW, or the schema path(s) with --base")
     sp.add_argument("--base", metavar="GIT_REF", help="compare PATH(s) at this git ref with the working tree")
-    sp.add_argument("--format", choices=["text", "markdown", "json"], default="text")
+    sp.add_argument(
+        "--format", choices=["text", "markdown", "json"], default="text", help="output format (default: text)"
+    )
     sp.add_argument("-o", "--output", help="write to a file instead of stdout")
     sp.add_argument("--exit-code", action="store_true", help="exit 1 when there are changes (like git diff)")
     sp.set_defaults(func=cmd_diff)
@@ -760,7 +762,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)
     sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
-    sp.add_argument("--layout")
+    sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
     sp.add_argument("--no-open", action="store_true", help="don't open a browser")
     sp.add_argument(
         "--read-only",

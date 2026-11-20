@@ -1,5 +1,6 @@
 """Layout, sidecar, rendering, export and CLI behaviour."""
 
+import argparse
 import json
 import shutil
 from pathlib import Path
@@ -7,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from quickdbd_cli import export, layout
-from quickdbd_cli.cli import main
+from quickdbd_cli.cli import build_parser, main
 from quickdbd_cli.html import render_page
 from quickdbd_cli.measure import model_json, text_width
 from quickdbd_cli.parser import compile_text
@@ -264,7 +265,7 @@ def test_build_site_writes_a_page_per_path_and_an_index(tmp_path, capsys):
     assert "<title>hr</title>" in (site / "hr.html").read_text()
     index = (site / "index.html").read_text()
     assert index.index('href="hr.html"') < index.index('href="sales.html"')
-    assert "2 tables, 1 relationships" in index
+    assert "2 tables, 1 relationship" in index
     assert "Skipped" in capsys.readouterr().err
 
 
@@ -519,3 +520,22 @@ def test_non_utf8_schema_is_a_clean_error(tmp_path, capsys, cmd):
     assert main(args) == 2
     err = capsys.readouterr().err
     assert "s.txt" in err and "UTF-8" in err
+
+
+def test_every_cli_option_has_help_text():
+    def walk(parser, name):
+        for a in parser._actions:
+            if isinstance(a, argparse._SubParsersAction):
+                for sub_name, sub in a.choices.items():
+                    yield from walk(sub, f"{name} {sub_name}")
+            elif a.option_strings and a.help is None:
+                yield f"{name} {a.option_strings[-1]}"
+
+    assert list(walk(build_parser(), "qdbd")) == []
+
+
+def test_counts_of_one_are_singular(tmp_path, capsys):
+    f = tmp_path / "s.txt"
+    f.write_text("A\n-\nId PK int\n\nB\n-\nId PK int\nAId int FK >- A.Id\n")
+    assert main(["build", str(f), "-o", str(tmp_path / "s.html")]) == 0
+    assert "(2 tables, 1 relationship)" in capsys.readouterr().out
