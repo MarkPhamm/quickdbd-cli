@@ -153,29 +153,24 @@ def test_external_edit_reloads_and_places_new_table(srv):
     assert not poll_once(state)  # nothing changed since
 
 
-def test_errors_draw_the_current_text(srv):
+def test_errors_draw_no_tables_and_keep_saved_positions(srv):
     base, state, f = srv
     side = f.with_name("shop.layout.json")
+    before = layout.read_sidecar(side)
     f.write_text("Order\n-\nOrderId PK int\nCustomerId int FK >- Customer.CustomerId\n")  # Customer removed
     bump_mtime(f)
     poll_once(state)
     _, st = call(base, "/state")
     assert [d["severity"] for d in st["diagnostics"]] == ["error"]
     assert "Invalid relationship, the table 'Customer' does not exist" in st["diagnostics"][0]["text"]
-    assert [t["name"] for t in st["model"]["tables"]] == ["Order"] and st["model"]["rels"] == []
-    assert st["stale"] is False
-    call(base, "/layout", "POST", {"Order": [10, 20]})  # dragging while broken keeps Customer's place
-    assert set(layout.read_sidecar(side)) == {"Customer", "Order"}
-
-
-def test_unparseable_text_keeps_last_good_model(srv):
-    base, state, f = srv
-    f.write_text("garbage (((\n")
+    assert st["model"]["tables"] == [] and st["model"]["rels"] == []
+    assert layout.read_sidecar(side) == before
+    f.write_text(SCHEMA)  # fixed: tables come back where they were
     bump_mtime(f)
     poll_once(state)
     _, st = call(base, "/state")
-    assert st["stale"] is True and st["diagnostics"][0]["severity"] == "error"
-    assert [t["name"] for t in st["model"]["tables"]] == ["Customer", "Order"]
+    assert {t["name"] for t in st["model"]["tables"]} == {"Customer", "Order"}
+    assert {k: tuple(v) for k, v in st["positions"].items()} == before
 
 
 def test_put_file_recompiles_before_answering(srv):
