@@ -11,7 +11,7 @@ from pathlib import Path
 
 from . import __version__
 from .model import Diagnostic, Schema
-from .project import Project, SelectionError, selector_expr
+from .project import Project, SelectionError, SourceError, read_source, selector_expr
 
 OK = "No errors found. Good job!"
 BY_GROUP_HELP = "fresh layout that keeps each file / dbt folder together, with regions (ignores saved positions)"
@@ -405,7 +405,7 @@ def cmd_convert(args) -> int:
     for f in project.files:
         root = next((p for p in inputs if p.is_dir() and f.resolve().is_relative_to(p.resolve())), None)
         rel = f.resolve().relative_to(root.resolve()).as_posix() if root else f.name
-        sources.append((str(f), rel, f.read_text(encoding="utf-8")))
+        sources.append((str(f), rel, read_source(f)))
     schema = compile_sources([(d, t) for d, _, t in sources], dbt=False)
     if not _print_diagnostics(schema, False):
         return 1
@@ -799,6 +799,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return args.func(args)
     except FileNotFoundError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    except SourceError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 
