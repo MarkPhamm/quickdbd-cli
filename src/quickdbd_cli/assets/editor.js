@@ -1,8 +1,9 @@
-/* qdbd serve: editor pane (one tab per file), autosave, live reload, problems panel. */
+/* qdbd serve: editor pane (one tab per file), save (button or Ctrl/Cmd+S), live reload, problems panel.
+   Typing changes nothing else: a save writes the file and the server recompiles before answering, so the
+   file, the problems and the diagram always show the same text. */
 (function () {
   "use strict";
-  var AUTOSAVE_MS = 1000;
-  var files = {}; // path -> {path, text (disk), mtime, doc, dirty, timer, sentText}
+  var files = {}; // path -> {path, text (disk), mtime, doc, dirty, saving (text being written)}
   var order = [];
   var active = null;
   var cm = null, textarea = null;
@@ -11,6 +12,8 @@
   var tabs = document.getElementById("tabs");
   var problems = document.getElementById("problems");
   var banner = document.getElementById("banner");
+  var saveBtn = document.getElementById("save");
+  var stale = false; // the server kept the last valid diagram: nothing in the current text parses
 
   if (window.CodeMirror && CodeMirror.defineSimpleMode) {
     CodeMirror.defineSimpleMode("qdbd", {
@@ -97,6 +100,9 @@
       b.onclick = function () { activate(p); };
       tabs.appendChild(b);
     });
+    var dirty = order.some(function (p) { return files[p].dirty; });
+    saveBtn.textContent = dirty ? "Save" : "Saved";
+    saveBtn.disabled = !dirty;
   }
 
   function activate(p) {
@@ -114,14 +120,13 @@
     if (!cm) f.buffer = textarea.value;
     f.dirty = currentText(f) !== f.text;
     drawTabs();
-    clearTimeout(f.timer);
-    f.timer = setTimeout(function () { save(f); }, AUTOSAVE_MS);
   }
 
   function save(f) {
-    if (!f.dirty || f.conflict) return;
+    if (!f.dirty || f.conflict) return Promise.resolve();
     var text = currentText(f);
-    fetch("/file", { method: "PUT", headers: { "Content-Type": "application/json" },
+    f.saving = text;
+    return fetch("/file", { method: "PUT", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path: f.path, text: text, mtime: f.mtime }) })
       .then(function (r) {
         return r.json().catch(function () { return {}; }).then(function (j) { return [r.status, j]; });
@@ -132,7 +137,6 @@
           f.text = text;
           f.mtime = j.mtime;
           f.dirty = currentText(f) !== f.text;
-          if (f.dirty) onEditFor(f);
           if (serverNote) setServerNote(null);
         } else if (code === 409) {
           f.conflict = { text: j.text, mtime: j.mtime };
@@ -142,9 +146,10 @@
         }
         drawTabs();
       })
-      .catch(function () { // the file stays dirty, and is saved again when /events reconnects
-        setServerNote("Not saved: qdbd serve is not running. Keep this tab open: your edits save when it's back.");
-      });
+      .catch(function () { // the file stays dirty: Save again once the server is back
+        setServerNote("Not saved: qdbd serve is not running. Keep this tab open and save again when it's back.");
+      })
+      .then(function () { f.saving = null; });
   }
 
   function setServerNote(text) {
@@ -153,13 +158,15 @@
   }
 
   function saveAll() {
-    order.forEach(function (p) { if (files[p].dirty && !files[p].conflict) save(files[p]); });
+    return Promise.all(order.map(function (p) { return save(files[p]); })).then(function () { return refresh(false); });
   }
-
-  function onEditFor(f) {
-    clearTimeout(f.timer);
-    f.timer = setTimeout(function () { save(f); }, AUTOSAVE_MS);
-  }
+  saveBtn.onclick = saveAll;
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "s" || e.key === "S")) {
+      e.preventDefault();
+      saveAll();
+    }
+  }, true);
 
   function showBanner() {
     var f = files[active];
@@ -219,7 +226,8 @@
     }
     if (errors.length) {
       var note = document.createElement("div");
-      note.textContent = "Showing the last valid diagram until these are fixed:";
+      note.textContent = stale ? "Showing the last valid diagram until these are fixed:"
+        : "The diagram leaves out what these break:";
       note.style.color = "#aaa";
       problems.appendChild(note);
     }
@@ -241,7 +249,7 @@
   var lastVersion = -1;
   function refresh(first) {
     return fetch("/state").then(function (r) { return r.json(); }).then(function (st) {
-      if (st.version === lastVersion) return;
+      if (st.version <= lastVersion) return; // an older answer that arrived late
       lastVersion = st.version;
       var seen = {};
       st.files.forEach(function (sf) {
@@ -253,7 +261,11 @@
           return;
         }
         if (sf.mtime === f.mtime) return;
-        if (f.dirty) {
+        if (f.saving != null && sf.text === f.saving) { // our own save, seen before its answer
+          f.text = sf.text;
+          f.mtime = sf.mtime;
+          f.dirty = currentText(f) !== f.text;
+        } else if (f.dirty) {
           if (sf.text !== currentText(f)) f.conflict = { text: sf.text, mtime: sf.mtime };
           else { f.text = sf.text; f.mtime = sf.mtime; f.dirty = false; }
         } else {
@@ -264,6 +276,7 @@
       });
       order = order.filter(function (p) { return seen[p]; });
       diagnostics = st.diagnostics;
+      stale = !!st.stale;
       if (first) activate(order[0]);
       drawTabs();
       showBanner();
@@ -291,12 +304,10 @@
     var es = new EventSource("/events"); // reconnects by itself after the server comes back
     es.onmessage = function () { refresh(false); };
     es.onerror = function () {
-      if (!serverNote) setServerNote("qdbd serve is not running. Edits are kept in this tab and save when it's back.");
+      if (!serverNote) setServerNote("qdbd serve is not running. Edits are kept in this tab: save them when it's back.");
     };
     es.onopen = function () {
-      if (!serverNote) return;
-      setServerNote(null);
-      saveAll();
+      if (serverNote) setServerNote(null);
     };
   });
 })();

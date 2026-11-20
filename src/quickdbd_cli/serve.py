@@ -2,8 +2,10 @@
 
 Watches the schema files and the dbt project a `# @dbt:` line names (mtime polling), recompiles on
 change and pushes a reload event to the page over Server-Sent Events. Dragged table positions are
-saved to the layout sidecar; the browser editor pane writes the .txt/.dbml files, refusing to
-overwrite a file changed on disk since the browser last loaded it. With ``read_only`` the page is
+saved to the layout sidecar; the browser editor pane writes the .txt/.dbml files when the user saves,
+refusing to overwrite a file changed on disk since the browser last loaded it, and recompiles before
+answering, so the file, the problems and the diagram agree. A schema with errors still draws the
+tables that parse; the last valid diagram is kept only when none do. With ``read_only`` the page is
 the plain viewer plus live reload, and the server never writes anything. With ``embed`` (the VS Code
 extension's preview) the page is the viewer plus live reload; dragging still saves the layout, but
 files are only edited in VS Code. With ``diff_base`` every reload is coloured by its changes since
@@ -25,6 +27,7 @@ from urllib.parse import urlsplit
 
 from . import dbtyml, diff, layout
 from .html import render_page
+from .measure import model_json
 from .parser import syntax_of
 from .project import Project, discover, display_path
 
@@ -37,10 +40,12 @@ class State:
         self.diff_base = diff_base
         self.base = diff.schema_at_ref(diff_base, project.inputs) if diff_base else None  # read once
         self.lock = threading.Condition()
+        self.reloading = threading.Lock()  # one reload at a time: the watcher and saves both reload
         self.version = 0
         self.model: dict = {"style": {}, "tables": [], "rels": [], "zoom": None, "position": None}
         self.positions: dict = {}
         self.diagnostics: list[dict] = []
+        self.stale = False  # the model is the last valid one: nothing in the current text parses
         self.files: list[Path] = []
         # mtimes are strings: nanosecond integers exceed JavaScript's safe integer range.
         self.mtimes: dict[str, str] = {}
@@ -59,6 +64,10 @@ class State:
         return out
 
     def reload(self, initial: bool = False) -> None:
+        with self.reloading:
+            self._reload(initial)
+
+    def _reload(self, initial: bool) -> None:
         mtimes = self._scan()
         schema = self.project.compile()
         if schema.dbt_root != self.dbt_root:  # a `# @dbt:` line was added, removed or changed
@@ -68,13 +77,12 @@ class State:
             {"path": d.path, "line": d.line, "message": d.message, "severity": d.severity, "text": d.format()}
             for d in schema.diagnostics
         ]
+        model = model_json(schema)
         with self.lock:
             self.mtimes = mtimes
             self.diagnostics = diags
-            if not schema.errors:
-                from .measure import model_json
-
-                model = model_json(schema)
+            self.stale = bool(schema.errors) and not model["tables"]
+            if not self.stale:
                 if self.base is not None:
                     diff.annotate_model(model, diff.diff_schemas(self.base, schema), self.diff_base)
                 base = layout.read_sidecar(self.project.sidecar)
@@ -85,7 +93,7 @@ class State:
                 pos = layout.resolve_positions(model, base, schema.layout)
                 self.model = model
                 self.positions = {k: [v[0], v[1]] for k, v in pos.items()}
-                if not self.read_only:
+                if not self.read_only and not schema.errors:  # keep a table that is only broken for now
                     self.project.save_positions(model, self.positions)
             self.version += 1
             self.lock.notify_all()
@@ -116,6 +124,7 @@ class State:
                 "model": self.model,
                 "positions": self.positions,
                 "diagnostics": self.diagnostics,
+                "stale": self.stale,
                 "files": files,
             }
 
@@ -125,7 +134,12 @@ class State:
             for name, xy in body.items():
                 if name in by_name:
                     self.positions[by_name[name]] = [int(xy[0]), int(xy[1])]
-            self.project.save_positions(self.model, self.positions)
+            # merged: while the schema has errors, a table missing from the model keeps its saved place
+            saved = layout.read_sidecar(self.project.sidecar)
+            saved.update(
+                {t["name"]: tuple(self.positions[t["id"]]) for t in self.model["tables"] if t["id"] in self.positions}
+            )
+            layout.write_sidecar(self.project.sidecar, saved)
 
     def write_file(self, path: str, text: str, base_mtime: str | None) -> tuple[int, dict]:
         target = next((f for f in self.files if display_path(f) == path), None)
@@ -136,7 +150,12 @@ class State:
             if base_mtime is not None and current != str(base_mtime):
                 return 409, {"error": "changed on disk", "text": target.read_text(encoding="utf-8"), "mtime": current}
             target.write_text(text, encoding="utf-8", newline="")  # as sent: no CRLF on Windows
-            return 200, {"mtime": str(target.stat().st_mtime_ns)}
+            mtime = str(target.stat().st_mtime_ns)
+        try:
+            self.reload()  # before answering, so the page's next /state matches what was saved
+        except Exception as e:  # the file is saved; the watcher retries
+            print(f"[qdbd] reload failed: {e}", file=sys.stderr, flush=True)
+        return 200, {"mtime": mtime}
 
 
 def _handler(state: State, title: str):
