@@ -38,3 +38,5 @@ qdbd build erd/ --diff-base origin/main -s 'diff:modified+1' -o changes.html
 ```
 
 In the page, a filter shows "Showing N of M tables"; shareable links keep it.
+
+![The filter +Order+1: Order, its neighbours, and nothing else](assets/img/filter.png){ .shot }
