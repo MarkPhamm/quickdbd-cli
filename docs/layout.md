@@ -31,6 +31,6 @@ qdbd layout erd/ --by-group     # fresh layout keeping each file / dbt folder to
 
 ![qdbd layout output](assets/img/term-layout.png)
 
-`--by-group` lays out each group on its own and packs the groups as blocks, so [regions](reading-the-diagram.md#regions) never overlap. It also works on `build` and `export` without touching the layout file.
+`--by-group` lays out each group on its own and packs the groups as blocks, so [regions](reading-the-diagram.md#regions) never overlap. It also works on `build` and `export` without touching the layout file, and on `serve`, where it replaces the saved positions so you can fine-tune the grouped layout by dragging.
 
 ![The 200-table example laid out with --by-group: one region per file](assets/img/regions.png){ .shot }

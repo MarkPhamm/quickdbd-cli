@@ -65,7 +65,7 @@ The browser page runs it directly. Python runs the same file inside embedded V8 
 - The default is ELK `stress` followed by an ELK `sporeOverlap` pass (layered layouts produced very long edges), then a 90° turn if the result is tall (`_landscape`).
 - Positions come from, in priority order: the sidecar `*.layout.json` (keyed by table **name**), then QuickDBD `[layout]`, then auto. New tables go next to their related tables via a spiral search (`place_missing`), and existing positions never move.
 - `--by-group` lays out each group separately and packs the blocks.
-- `qdbd build` never writes the sidecar; only `serve` and `qdbd layout` do. Running `qdbd serve examples/synthetic` and dragging rewrites the committed `examples/synthetic/qdbd.layout.json`; don't commit that by accident.
+- `qdbd build` never writes the sidecar; only `serve` and `qdbd layout` do. `serve --by-group` starts from `group_layout` (replacing the sidecar), then reloads place tables as usual. Running `qdbd serve examples/synthetic` and dragging rewrites the committed `examples/synthetic/qdbd.layout.json`; don't commit that by accident.
 
 **Viewer** (`assets/viewer.js`): one IIFE over a state object `S`.
 
