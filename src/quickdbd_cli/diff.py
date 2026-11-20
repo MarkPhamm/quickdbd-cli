@@ -64,8 +64,13 @@ class SchemaDiff:
         }
 
 
+def _col_value(c: Column, field_name: str):
+    # nullable compares what SQL allows: a DBML column is nullable unless `not null` or pk
+    return c.sql_nullable() if field_name == "nullable" else getattr(c, field_name)
+
+
 def _col_desc(c: Column, field_name: str) -> str:
-    v = getattr(c, field_name)
+    v = _col_value(c, field_name)
     if isinstance(v, bool):
         return "yes" if v else "no"
     return "none" if v in (None, "") else str(v)
@@ -105,7 +110,7 @@ def diff_schemas(old: Schema, new: Schema) -> SchemaDiff:
             diffs = [
                 f"{f}: {_col_desc(oc[cname], f)} -> {_col_desc(c, f)}"
                 for f in COL_FIELDS
-                if getattr(oc[cname], f) != getattr(c, f)
+                if _col_value(oc[cname], f) != _col_value(c, f)
             ]
             if diffs:
                 ch.changed_cols[cname] = diffs
