@@ -108,7 +108,8 @@ BODY = """
 
 SIDE = """
 <div id="side">
-  <div class="tabs" id="tabs"></div>
+  <div class="tabbar"><div class="tabs" id="tabs"></div>
+    <button id="save" title="Save (Ctrl/Cmd+S): write the file, then check and redraw" disabled>Saved</button></div>
   <div class="banner" id="banner">File changed on disk while you have unsaved edits.
     <button id="keepmine">Keep mine</button><button id="reload">Reload from disk</button></div>
   <div id="editor"></div>
