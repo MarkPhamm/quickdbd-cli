@@ -26,6 +26,7 @@
         { regex: /default=\S*/i, token: "qdbd-kw" },
         { regex: /^[^\s#-][^#]*$/, token: null, sol: true },
       ],
+      meta: { lineComment: "#" },
     });
     CodeMirror.defineSimpleMode("dbml", {
       start: [
@@ -43,6 +44,7 @@
       ],
       comment: [{ regex: /.*?\*\//, token: "comment", next: "start" }, { regex: /.*/, token: "comment" }],
       note: [{ regex: /.*?'''/, token: "string", next: "start" }, { regex: /.*/, token: "string" }],
+      meta: { lineComment: "//" },
     });
   }
 
@@ -53,7 +55,7 @@
   function makeEditor() {
     var host = document.getElementById("editor");
     if (window.CodeMirror) {
-      cm = CodeMirror(host, { lineNumbers: true, mode: "qdbd", indentWithTabs: false, tabSize: 2, extraKeys: { Tab: false } });
+      cm = CodeMirror(host, { lineNumbers: true, mode: "qdbd", indentWithTabs: false, tabSize: 2, extraKeys: { Tab: false, "Cmd-/": "toggleComment", "Ctrl-/": "toggleComment" } });
       cm.on("change", function (_, ch) { if (ch.origin !== "setValue") onEdit(); });
     } else {
       textarea = document.createElement("textarea");

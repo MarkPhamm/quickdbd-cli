@@ -172,6 +172,7 @@ def render_page(
         scripts = (
             f'<script src="{CODEMIRROR}/codemirror.min.js"></script>'
             f'<script src="{CODEMIRROR}/addon/mode/simple.min.js"></script>'
+            f'<script src="{CODEMIRROR}/addon/comment/comment.min.js"></script>'
             f"<script>{_asset('editor.js')}</script>"
         )
     elif live or embed:
