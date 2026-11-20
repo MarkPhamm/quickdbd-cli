@@ -184,3 +184,21 @@ def test_merge_base_is_where_the_branch_left(repo):
     git("commit", "-qam", "main moves on")
     git("checkout", "-q", "feature")
     assert diff.merge_base("main", [repo / "erd"]) == fork
+
+
+@pytest.mark.parametrize(
+    "old, new, changed",
+    [
+        ("note text", "note text [not null]", True),
+        ("note text [not null]", "note text", True),
+        ("note text", "note text [null]", False),  # DBML columns are nullable unless `not null`
+    ],
+)
+def test_dbml_not_null_changes_are_reported(tmp_path, capsys, old, new, changed):
+    a, b = tmp_path / "old.dbml", tmp_path / "new.dbml"
+    a.write_text(f"Table orders {{\n  id int [pk]\n  {old}\n}}\n")
+    b.write_text(f"Table orders {{\n  id int [pk]\n  {new}\n}}\n")
+    assert main(["diff", str(a), str(b), "--exit-code"]) == int(changed)
+    assert ("nullable:" in capsys.readouterr().out) == changed
+    assert main(["diff", str(a), str(b), "--format", "json"]) == 0
+    assert ("nullable" in capsys.readouterr().out) == changed
