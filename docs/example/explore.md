@@ -58,4 +58,4 @@ qdbd path erd/ --from orders --to customers
 
 Select `orders`, filter `+orders`, then press **Link**. The copied URL reopens exactly that view, so you can paste it in Slack or a ticket.
 
-[Next: review a change :octicons-arrow-right-24:](review.md){ .md-button }
+[Next: review a change](review.md){ .md-button }
