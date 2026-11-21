@@ -205,3 +205,22 @@ def test_dbml_not_null_changes_are_reported(tmp_path, capsys, old, new, changed)
     assert ("nullable:" in capsys.readouterr().out) == changed
     assert main(["diff", str(a), str(b), "--format", "json"]) == 0
     assert ("nullable" in capsys.readouterr().out) == changed
+
+
+def test_base_ref_reads_unicode_filenames(tmp_path, capsys):
+    def git(*args):
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=tmp_path, check=True, capture_output=True
+        )
+
+    git("init", "-q", "-b", "main")
+    f = tmp_path / "café.dbml"
+    f.write_text("Table customers {\n  id int [pk]\n}\n", encoding="utf-8")
+    git("add", "-A")
+    git("commit", "-q", "-m", "base")
+    for target in (f, tmp_path):
+        assert main(["diff", "--base", "HEAD", str(target), "--exit-code"]) == 0, capsys.readouterr().out
+    f.write_text("Table customers {\n  id int [pk]\n  name text\n}\n", encoding="utf-8")
+    assert main(["diff", "--base", "HEAD", str(f), "--exit-code"]) == 1
+    out = capsys.readouterr().out
+    assert "+ name" in out and "+ table" not in out

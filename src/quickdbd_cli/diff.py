@@ -171,9 +171,9 @@ def sources_at_ref(ref: str, inputs: list[Path]) -> list[tuple[str, str]]:
     seen = set()
     for p in inputs:
         rel = p.resolve().relative_to(root).as_posix()
-        listed = _git(["ls-tree", "-r", "--name-only", ref, "--", rel], root).splitlines()
+        listed = _git(["ls-tree", "-r", "-z", "--name-only", ref, "--", rel], root).split("\0")
         for f in sorted(listed):
-            if f in seen or not (f == rel or f.endswith((".txt", ".dbml"))):
+            if not f or f in seen or not (f == rel or f.endswith((".txt", ".dbml"))):
                 continue
             seen.add(f)
             out.append((f, _git(["show", f"{ref}:{f}"], root)))
