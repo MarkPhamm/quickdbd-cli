@@ -77,17 +77,39 @@ def _col_desc(c: Column, field_name: str) -> str:
     return "none" if v in (None, "") else str(v)
 
 
-def _rel_key(s: Schema, r: Relationship) -> str:
+def _rel_keys(s: Schema) -> set[str]:
+    """One key per relationship; the pairs of a composite ref (several on one statement) share one key."""
+    many = ("many", "zeroMany")
+    card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
+
     def end(e):
         t = s.tables[e.table]
         col = t.columns.get(e.column)
-        return t.name if (col is None or col.virtual or e.column == VIRTUAL_FIELD) else f"{t.name}.{col.name}"
+        return (t.name, None) if (col is None or col.virtual or e.column == VIRTUAL_FIELD) else (t.name, col.name)
 
-    many = ("many", "zeroMany")
-    a_child = r.a.card in many or r.b.card not in many
-    child, parent = (r.a, r.b) if a_child else (r.b, r.a)
-    card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
-    return f"{end(child)} -> {end(parent)} ({card[child.card]}:{card[parent.card]})"
+    def oriented(r: Relationship):
+        a_child = r.a.card in many or r.b.card not in many
+        return (r.a, r.b) if a_child else (r.b, r.a)
+
+    def label(names: list[str | None], table: str) -> str:
+        cols = [n for n in names if n]
+        return table if not cols else f"{table}.{cols[0]}" if len(names) == 1 else f"{table}.({', '.join(cols)})"
+
+    groups: dict[tuple[str, int], list[Relationship]] = {}
+    for r in s.valid_relationships():
+        groups.setdefault((r.path, r.line), []).append(r)
+    keys = set()
+    for rels in groups.values():
+        pairs = [oriented(r) for r in rels]
+        tables = {(c.table, p.table) for c, p in pairs}
+        # a composite ref is several pairs on one statement between the same two tables
+        batches = [pairs] if len(tables) == 1 else [[x] for x in pairs]
+        for batch in batches:
+            ct, pt = end(batch[0][0])[0], end(batch[0][1])[0]
+            c = label([end(x[0])[1] for x in batch], ct)
+            p = label([end(x[1])[1] for x in batch], pt)
+            keys.add(f"{c} -> {p} ({card[batch[0][0].card]}:{card[batch[0][1].card]})")
+    return keys
 
 
 def diff_schemas(old: Schema, new: Schema) -> SchemaDiff:
@@ -117,8 +139,8 @@ def diff_schemas(old: Schema, new: Schema) -> SchemaDiff:
                 ch.changed_cols[cname] = diffs
         if not ch.empty:
             d.changed.append(ch)
-    ok = {_rel_key(old, r) for r in old.valid_relationships()}
-    nk = {_rel_key(new, r) for r in new.valid_relationships()}
+    ok = _rel_keys(old)
+    nk = _rel_keys(new)
     d.rels_added = sorted(nk - ok)
     d.rels_removed = sorted(ok - nk)
     return d
