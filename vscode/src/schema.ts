@@ -46,7 +46,7 @@ export function targetKey(t: Target): string {
   return t.cwd + "\0" + t.paths.join("\0");
 }
 
-const SEPARATOR = /^-+\s*$/;
+const SEPARATOR = /^\s*-+\s*$/;
 const KEYED = /(^|\s)(PK|FK)(\s|$)|^\s*rel\s/i;
 
 /** A header line followed by a `---` separator, i.e. at least one table. */
