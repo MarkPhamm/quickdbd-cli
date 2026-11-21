@@ -273,7 +273,7 @@
   font: 500 12px var(--bp-mono); padding: 8px 14px; border-radius: 8px; opacity: 0;
   transition: opacity .2s var(--bp-ease-out), transform .22s var(--bp-ease-out); }
 .qh-tour__toast.open { opacity: 1; transform: translate(-50%, 0); }
-.qh-tour__chapters { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; text-align: left; }
+.qh-tour__chapters { list-style: none; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; text-align: left; }
 .qh-tour__chapters li { position: relative; overflow: hidden; cursor: pointer; padding: 12px 14px 14px; border: 1px solid var(--qh-line);
   border-radius: 10px; background: var(--qh-card); transition: border-color var(--bp-t-hover) linear, transform .22s var(--bp-ease-out); }
 .qh-tour__chapters li:hover { transform: translateY(-2px); }

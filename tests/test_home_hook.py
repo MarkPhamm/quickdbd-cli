@@ -1,4 +1,4 @@
-"""The home-page MkDocs hook (hooks/home.py): the live mini diagram and the two tour pages."""
+"""The home-page MkDocs hook (hooks/home.py): the live mini diagram and the tour pages."""
 
 import json
 import re
@@ -44,22 +44,37 @@ def test_mini_diagram_relationship_text():
     assert rel["card"]["sentence"] == "Each Customer row has many Order rows"
 
 
-def test_tour_has_a_dbt_chapter():
+def test_tour_has_a_diff_chapter():
     tour = re.search(r'<section class="qh-section qh-wrap qh-tour">(.*?)</section>', HOME_HTML, re.S).group(1)
-    assert tour.count("<li") == 5
-    assert 'data-page="dbt"' in tour
-    assert "data-dbt-src=" in tour
+    assert tour.count("<li") == 6
+    assert 'data-page="diff"' in tour
+    assert "data-diff-src=" in tour
+
+
+def _model(page: Path) -> dict:
+    text = page.read_text(encoding="utf-8")
+    return json.loads(re.search(r'id="qdbd-data">(.*?)</script>', text, re.S).group(1))["model"]
 
 
 def test_build_tour(tmp_path):
-    page = home.build_tour(tmp_path)
-    assert page.exists()
-    text = page.read_text(encoding="utf-8")
-    model = json.loads(re.search(r'id="qdbd-data">(.*?)</script>', text, re.S).group(1))["model"]
-    assert len(model["tables"]) == 28 and model["regions"]
-    # the tables docs/javascripts/home-tour.js types, clicks and paths between
-    driven = {"FactInternetSales", "DimCustomer", "FactResellerSales", "DimProductCategory"}
+    model = _model(home.build_tour(tmp_path))
+    assert len(model["tables"]) == 13 and model["regions"]
+    assert len({t["group"] for t in model["tables"]}) == 5  # one region per star schema, plus conformed
+    # the tables and tag docs/javascripts/home-tour.js types, clicks and paths between
+    driven = {"fct_airline_review", "dim_customer", "fct_seat_review", "fct_lounge_review", "dim_airport"}
     assert driven <= {t["id"] for t in model["tables"]}
+    customer = next(t for t in model["tables"] if t["id"] == "dim_customer")
+    assert customer["doc"].startswith("Conformed customer dimension.")
+    assert "pii" in {g["name"] for g in model["tags"]}
+
+
+def test_build_diff_tour(tmp_path):
+    model = _model(home.build_diff_tour(tmp_path))
+    d = model["diff"]
+    assert d["base"] == "origin/main"
+    assert (d["added"], d["changed"], d["removed"]) == (1, 2, ["dim_booking_channel"])
+    states = {t["id"]: t["diff"]["state"] for t in model["tables"] if t.get("diff")}
+    assert states["dim_route"] == "added" and states["fct_airline_review"] == "changed"
 
 
 def test_build_dbt_tour(tmp_path):
