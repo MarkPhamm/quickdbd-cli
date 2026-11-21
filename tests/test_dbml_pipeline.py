@@ -10,7 +10,7 @@ from quickdbd_cli import diff
 from quickdbd_cli.cli import main
 from quickdbd_cli.measure import model_json
 from quickdbd_cli.parser import syntax_of
-from quickdbd_cli.project import Project
+from quickdbd_cli.project import Project, discover
 
 ROOT = Path(__file__).resolve().parent.parent
 TEAM = (Path(__file__).parent / "fixtures" / "dbml" / "team.dbml").read_text()
@@ -162,3 +162,13 @@ def test_uppercase_txt_is_not_discovered(tmp_path):
     (tmp_path / "README.TXT").write_text("Read me first.\n")
     (tmp_path / "Other.DBML").write_text("Table x {\n  id int\n}\n")
     assert [f.name for f in Project.open([tmp_path]).files] == ["schema.txt"]
+
+
+def test_folder_keeps_table_with_indented_separator(tmp_path):
+    (tmp_path / "customers.txt").write_text("Customers\n---\nid PK int\n")
+    (tmp_path / "orders.txt").write_text("Orders\n  ---\nid PK int\n")
+    (tmp_path / "README.txt").write_text("just some notes\n")
+    skipped: list[Path] = []
+    files = discover([tmp_path], skipped)
+    assert [f.name for f in files] == ["customers.txt", "orders.txt"]
+    assert [f.name for f in skipped] == ["README.txt"]
