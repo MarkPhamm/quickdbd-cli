@@ -224,3 +224,19 @@ def test_base_ref_reads_unicode_filenames(tmp_path, capsys):
     assert main(["diff", "--base", "HEAD", str(f), "--exit-code"]) == 1
     out = capsys.readouterr().out
     assert "+ name" in out and "+ table" not in out
+
+
+def test_composite_ref_split_into_independent_refs_is_a_change(tmp_path, capsys):
+    head = "Table parent {\n  a int [pk]\n  b int [pk]\n}\nTable child {\n  x int\n  y int\n}\n"
+    comp = tmp_path / "comp.dbml"
+    comp.write_text(head + "Ref: child.(x, y) > parent.(a, b)\n")
+    split = tmp_path / "split.dbml"
+    split.write_text(head + "Ref: child.x > parent.a\nRef: child.y > parent.b\n")
+    swapped = tmp_path / "swapped.dbml"
+    swapped.write_text(head + "Ref: child.y > parent.b\nRef: child.x > parent.a\n")
+    assert main(["diff", str(comp), str(split), "--exit-code"]) == 1
+    assert "child.(x, y) -> parent.(a, b)" in capsys.readouterr().out
+    assert main(["diff", str(split), str(comp), "--exit-code"]) == 1
+    capsys.readouterr()
+    assert main(["diff", str(split), str(swapped), "--exit-code"]) == 0
+    assert main(["diff", str(comp), str(comp), "--exit-code"]) == 0
