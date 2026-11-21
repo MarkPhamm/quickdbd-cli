@@ -22,7 +22,7 @@ MAX_SCAN = 500  # an all-schema folder holds at most this many files
 MAX_LINES = 5000
 SCHEMA_EXT = (".txt", ".dbml")
 
-_SEPARATOR = re.compile(r"^-+\s*$")
+_SEPARATOR = re.compile(r"^\s*-+\s*$")
 _KEYED = re.compile(r"(^|\s)(PK|FK)(\s|$)|^\s*rel\s", re.IGNORECASE)
 
 
