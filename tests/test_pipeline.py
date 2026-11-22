@@ -519,3 +519,18 @@ def test_non_utf8_schema_is_a_clean_error(tmp_path, capsys, cmd):
     assert main(args) == 2
     err = capsys.readouterr().err
     assert "s.txt" in err and "UTF-8" in err
+
+
+@pytest.mark.parametrize(
+    "text, message",
+    [("{", "not valid JSON"), ('{"tables": {"A": {"x": 1}}}', "table 'A' has no \"y\" position")],
+)
+def test_broken_sidecar_is_a_clean_error(tmp_path, capsys, text, message):
+    f = tmp_path / "s.txt"
+    f.write_text("A\n-\nId PK int\n")
+    side = tmp_path / "s.layout.json"
+    side.write_text(text)
+    assert main(["build", str(f), "-o", str(tmp_path / "s.html")]) == 2
+    err = capsys.readouterr().err
+    assert err.startswith(f"error: {side}: ") and message in err and "Traceback" not in err
+    assert side.read_text() == text  # left for the user to fix
