@@ -153,7 +153,7 @@ def test_docs_and_tags_round_trip():
 def test_column_tags_round_trip():
     text = "a\n-\nid PK int\nnew int # @tag: added\n# @tag: removed, pii\nold int\n"
     dbml = conv.convert([("s.txt", "s.txt", text)], "dbml", split_groups=False).files["s.dbml"]
-    assert "  new int // @tag: added\n" in dbml
+    assert "  new int [not null] // @tag: added\n" in dbml
     back = conv.convert([("s.dbml", "s.dbml", dbml)], "quickdbd", split_groups=False).files["s.txt"]
     cols = compile_sources([("s.txt", back)]).tables["a"].columns
     assert cols["new"].tags == ["added"] and cols["old"].tags == ["removed", "pii"]
@@ -214,7 +214,7 @@ def test_cross_file_refs_convert_to_quickdbd():
     a = "Table orders {\n  id int [pk]\n  member_id int\n}\n"
     b = "Table members {\n  id int [pk]\n}\nRef: orders.member_id > members.id\n"
     res = _roundtrip_ok([("two/a.dbml", "a.dbml", a), ("two/b.dbml", "b.dbml", b)], "quickdbd")
-    assert "member_id int FK >- members.id" in res.files["a.txt"]
+    assert "member_id int NULL FK >- members.id" in res.files["a.txt"]  # nullable in DBML
     assert res.lost == set()
 
 
@@ -275,3 +275,17 @@ def test_dbml_output_quotes_types_dbdiagram_rejects():
     text = "a\n-\nx XML(Person.Schema)\ny decimal(10,2)\nz int\n"
     out = conv.convert([("s.txt", "s.txt", text)], "dbml", split_groups=False).files["s.dbml"]
     assert 'x "XML(Person.Schema)"' in out and "y decimal(10,2)" in out and "z int" in out
+
+
+def test_nullability_keeps_its_meaning_in_both_directions():
+    dbml = "Table users {\n  id int [pk]\n  email varchar [not null]\n  nickname varchar\n  bio text [null]\n}\n"
+    out = conv.convert([("u.dbml", "u.dbml", dbml)], "quickdbd", split_groups=False).files["u.txt"]
+    assert "id PK int\n" in out and "email varchar\n" in out
+    assert "nickname varchar NULL" in out and "bio text NULL" in out
+
+    qdbd = "users\n-\nid PK int\nemail varchar\nnickname varchar NULL\n"
+    res = conv.convert([("u.txt", "u.txt", qdbd)], "dbml", split_groups=False)
+    out = res.files["u.dbml"]
+    assert "id int [pk]" in out and "email varchar [not null]" in out and "nickname varchar [null]" in out
+    back = conv.convert([("u.dbml", "u.dbml", out)], "quickdbd", split_groups=False).files["u.txt"]
+    assert back.strip() == qdbd.strip()

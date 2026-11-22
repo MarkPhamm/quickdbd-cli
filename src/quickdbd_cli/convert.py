@@ -81,7 +81,7 @@ def canonical(schema: Schema, lost: set[tuple]) -> dict:
             if c.virtual:
                 continue
             col = {
-                "type": c.type or "", "pk": c.pk, "unique": c.unique, "index": c.index, "nullable": c.nullable,
+                "type": c.type or "", "pk": c.pk, "unique": c.unique, "index": c.index, "nullable": c.sql_nullable(),
                 "identity": c.identity, "default": _norm_default(c.default), "doc": _doc(c.comments), "tags": c.tags,
             }  # fmt: skip
             for k in list(col):
@@ -195,6 +195,8 @@ class _DbmlWriter:
                 settings.append("increment")
             if c.nullable:
                 settings.append("null")
+            elif not c.sql_nullable() and not c.pk:  # QuickDBD's NOT NULL default; DBML's is nullable
+                settings.append("not null")
             if c.unique:
                 settings.append("unique")
             if c.default is not None:
@@ -243,7 +245,7 @@ def _quickdbd_column(col: Column, fks: list[str]) -> str:
         parts.append("PK")
     typ = col.type or ""
     parts.append(_qdbd_name(typ) if " " in typ or "#" in typ else typ)
-    if col.nullable:
+    if col.sql_nullable():  # a DBML column without `not null` is nullable, so it needs QuickDBD's NULL
         parts.append("NULL")
     if col.unique and not col.pk:
         parts.append("UNIQUE")
