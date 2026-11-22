@@ -80,6 +80,7 @@ BODY = """
         <button data-mode="keys">Keys</button>
         <button data-mode="header">Names</button>
       </div>
+      <button id="xrelationships" class="on" type="button" aria-pressed="true" title="Hide relationship lines between tables">Relationships</button>
       <div class="sep"></div>
       <button id="xregions" title="Shade an area per file / dbt folder">Regions</button>
       <button id="xlink" title="Copy a link to this exact view (filter, selected table, zoom)">Link</button>
