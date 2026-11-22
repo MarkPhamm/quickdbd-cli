@@ -40,7 +40,7 @@ Two options are there for editors, and the [VS Code extension](vscode.md) uses b
 ## 8.2 serve { #serve }
 
 ```bash
-qdbd serve PATH... [--port 8765] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
+qdbd serve PATH... [--port 8765] [--by-group] [--layout FILE] [--no-open] [--read-only | --embed] [--diff-base REF]
 ```
 
 ![qdbd serve: editor pane and live diagram](assets/img/serve.png){ .shot }
@@ -52,6 +52,8 @@ The default port is 8765. If it's busy (for example, a second `qdbd serve` is ru
 `--read-only` serves a live view with no editor that never writes to disk, so viewers can't change anything. Before you put it behind a tunnel, see [4.4 Sharing a Link](sharing.md#live-read-only-link).
 
 `--embed` is the page behind the [VS Code extension](vscode.md)'s preview: a live view with no editor pane, where dragging still saves positions but files can't be written. It talks to the editor through `postMessage`. `--port 0` picks any free port.
+
+`--by-group` starts from a fresh layout that keeps each file / dbt folder together, with regions on, and saves it to the layout file like [`qdbd layout --by-group`](#layout) (the saved positions are replaced; with `--read-only`, nothing is saved). After that, dragging and new tables work as usual.
 
 `--diff-base REF` colours what changed since that ref, as [`build --diff-base`](#build) does, and keeps comparing as you edit: the ref is read once, at start.
 
