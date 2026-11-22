@@ -455,10 +455,22 @@
     S.model.tables.forEach(function (t) { if (t.group) g[t.group] = true; });
     return Object.keys(g).length;
   }
+  // Hide toolbar dividers with no visible button between them (embed mode and the regions button hide some).
+  function tidySeps() {
+    var last = null, seen = false;
+    Array.prototype.forEach.call(document.querySelector(".bar").children, function (el) {
+      if (!el.classList.contains("sep")) { if (el.style.display !== "none") seen = true; return; }
+      el.style.display = seen ? "" : "none";
+      if (seen) last = el;
+      seen = false;
+    });
+    if (!seen && last) last.style.display = "none"; // nothing after the last divider
+  }
   function setRegions(on) {
     S.regions = !!on && groupCount() > 0;
     regionBtn.classList.toggle("on", S.regions);
     regionBtn.style.display = groupCount() > 1 ? "" : "none";
+    tidySeps();
     render();
     scheduleHash();
   }
@@ -932,6 +944,7 @@
   if (stageSize()[0] < 900) explorer.classList.add("collapsed"); // small screens / embedded frames
   regionBtn.classList.toggle("on", S.regions);
   regionBtn.style.display = groupCount() > 1 ? "" : "none";
+  tidySeps();
   computeView();
   render();
   drawTree();
