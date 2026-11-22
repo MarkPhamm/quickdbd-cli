@@ -126,6 +126,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; animation: qdbd-fade .2s ease-out; }
 @keyframes qdbd-fade { from { opacity: 0; } }
 .hit path { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; }
+#canvas.relationships-hidden .edges, #canvas.relationships-hidden .hit, #canvas.relationships-hidden .fx { display: none; }
 /* relationship card (a clicked line) */
 .rcard { position: absolute; z-index: 6; display: none; min-width: 240px; max-width: min(460px, calc(100% - 16px)); padding: 10px 12px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); font-size: 12px;
