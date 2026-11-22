@@ -8,6 +8,7 @@
     model: data.model,
     pos: data.positions,
     mode: "full",
+    relationships: true, // viewer-only setting: does not change the model or exported diagrams
     focus: null,
     view: { x: 0, y: 0, k: 1 },
     serve: !!data.serve,
@@ -448,6 +449,29 @@
       setMode(b.getAttribute("data-mode"));
     };
   });
+
+  /* Connector visibility is separate from Full / Keys / Names (table collapse). */
+  var relationshipBtn = document.getElementById("xrelationships");
+  function relationshipPref() {
+    try { return localStorage.getItem("qdbd-relationships") !== "hidden"; } catch (e) { return true; }
+  }
+  function setRelationships(on) {
+    S.relationships = !!on;
+    svg.classList.toggle("relationships-hidden", !S.relationships);
+    relationshipBtn.classList.toggle("on", S.relationships);
+    relationshipBtn.setAttribute("aria-pressed", String(S.relationships));
+    relationshipBtn.title = S.relationships ? "Hide relationship lines between tables" : "Show relationship lines between tables";
+    if (!S.relationships) {
+      S.edge = null;
+      S.hover = null;
+      closeCard();
+      svg.classList.remove("efocus");
+      scheduleLight();
+    }
+    try { localStorage.setItem("qdbd-relationships", S.relationships ? "shown" : "hidden"); } catch (e) { /* private mode */ }
+  }
+  relationshipBtn.onclick = function () { setRelationships(!S.relationships); };
+  setRelationships(relationshipPref());
 
   var regionBtn = document.getElementById("xregions");
   function groupCount() {
