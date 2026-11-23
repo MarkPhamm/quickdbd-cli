@@ -227,3 +227,12 @@ def test_serve_reloads_when_the_yml_changes(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+@pytest.mark.parametrize("value", ["5", "true", "{a: 1}", "[1, null]"])
+def test_scalar_or_odd_tags_do_not_crash(tmp_path, value, capsys):
+    shutil.copytree(FIXTURE, tmp_path / "p")
+    for yml in (tmp_path / "p").rglob("*.yml"):
+        if yml.name != "dbt_project.yml":
+            yml.write_text(f"models:\n  - name: customers\n    tags: {value}\n")
+    assert main(["check", str(tmp_path / "p" / "erd")]) in (0, 1)

@@ -179,7 +179,10 @@ def node_tags(n: dict) -> list[str]:
     out: list[str] = []
     raw: list = []
     for v in (n.get("tags"), (n.get("config") or {}).get("tags")):
-        raw += [v] if isinstance(v, str) else list(v or [])  # yml allows `tags: pii`
+        if isinstance(v, str):  # yml allows `tags: pii`
+            raw.append(v)
+        elif isinstance(v, list | tuple):  # anything else (`tags: 5`) is a typo: ignore it
+            raw += v
     for tag in raw:
         tag = re.sub(r"[^a-z0-9_.-]+", "-", str(tag).lower()).strip("-.")
         if tag and tag not in out:
