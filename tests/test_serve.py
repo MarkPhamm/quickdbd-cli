@@ -370,3 +370,35 @@ def test_serve_by_group_starts_from_a_grouped_layout(tmp_path):
     assert saved == {by_id[k]: tuple(v) for k, v in state.positions.items()}
     poll_once(state)  # later reloads keep the positions
     assert state.model["regions"] is True
+
+
+def _raw(base, method, path, body: bytes, headers=None):
+    req = urllib.request.Request(base + path, data=body, method=method, headers=headers or {})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return r.status
+    except urllib.error.HTTPError as e:
+        return e.code
+
+
+@pytest.mark.parametrize(
+    "method, path, body",
+    [
+        ("POST", "/layout", b"notjson"),
+        ("POST", "/layout", b"[1]"),
+        ("POST", "/layout", b'{"Customer": [1]}'),
+        ("POST", "/layout", b'{"Customer": "x"}'),
+        ("PUT", "/file", b"notjson"),
+        ("PUT", "/file", b'{"path": "x", "text": 5}'),
+    ],
+)
+def test_malformed_body_is_a_400(srv, method, path, body):
+    base, _, f = srv
+    if path == "/file":
+        body = body.replace(b'"x"', json.dumps(display_path(f)).encode())
+    assert _raw(base, method, path, body) == 400
+
+
+def test_bad_content_length_is_a_400(srv):
+    base, _, _ = srv
+    assert _raw(base, "PUT", "/file", b"", {"Content-Length": "abc"}) == 400

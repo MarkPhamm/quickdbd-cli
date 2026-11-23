@@ -181,8 +181,12 @@ def _handler(state: State, title: str):
             self._send(code, json.dumps(obj).encode(), "application/json")
 
         def _body(self) -> dict:
+            """The JSON object sent, or ValueError for anything else (the caller answers 400)."""
             n = int(self.headers.get("Content-Length") or 0)
-            return json.loads(self.rfile.read(n) or b"{}")
+            body = json.loads(self.rfile.read(n) or b"{}")
+            if not isinstance(body, dict):
+                raise ValueError("expected a JSON object")
+            return body
 
         def do_GET(self) -> None:
             path = urlsplit(self.path).path  # the page may carry ?theme=
@@ -223,7 +227,14 @@ def _handler(state: State, title: str):
             if state.read_only:
                 self._json(403, {"error": "read-only"})
             elif self.path == "/layout":
-                state.save_layout(self._body())
+                try:
+                    body = self._body()
+                    for xy in body.values():
+                        if not (isinstance(xy, list) and len(xy) == 2 and all(isinstance(v, int | float) for v in xy)):
+                            raise ValueError("positions are [x, y]")
+                except ValueError as e:
+                    return self._json(400, {"error": f"bad request: {e}"})
+                state.save_layout(body)
                 self._json(200, {"ok": True})
             else:
                 self._send(404, b"not found", "text/plain")
@@ -232,8 +243,16 @@ def _handler(state: State, title: str):
             if state.read_only or state.embed:
                 self._json(403, {"error": "read-only"})
             elif self.path == "/file":
-                b = self._body()
-                code, obj = state.write_file(b.get("path", ""), b.get("text", ""), b.get("mtime"))
+                try:
+                    b = self._body()
+                    path, text, mtime = b.get("path", ""), b.get("text", ""), b.get("mtime")
+                    if not (
+                        isinstance(path, str) and isinstance(text, str) and (mtime is None or isinstance(mtime, str))
+                    ):
+                        raise ValueError("path and text must be strings")
+                except ValueError as e:
+                    return self._json(400, {"error": f"bad request: {e}"})
+                code, obj = state.write_file(path, text, mtime)
                 self._json(code, obj)
             else:
                 self._send(404, b"not found", "text/plain")
