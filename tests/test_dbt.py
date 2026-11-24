@@ -411,6 +411,16 @@ def test_hint_when_columns_unknown(tmp_path, capsys):
     assert "no known columns" not in capsys.readouterr().err
 
 
+def test_build_or_check_on_a_manifest_points_to_import(tmp_path, capsys):
+    for argv in (["check", str(JAFFLE / "manifest.json")], ["build", str(JAFFLE / "manifest.json"), "-o", "x.html"]):
+        assert main(argv) == 2
+        err = capsys.readouterr().err
+        assert err.count("\n") == 1 and "qdbd import dbt" in err
+    assert main(["build", str(JAFFLE), "-o", str(tmp_path / "x.html")]) == 2
+    err = capsys.readouterr().err
+    assert "no .txt or .dbml schema files" in err and "qdbd import dbt" in err
+
+
 def test_empty_selection_is_an_error_and_keeps_files(tmp_path, capsys):
     out = tmp_path / "erd"
     assert main(["import", "dbt", str(JAFFLE), "-o", str(out)]) == 0
