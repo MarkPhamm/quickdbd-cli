@@ -138,7 +138,8 @@ def composite_keys(schema: Schema, rels: list[Relationship]) -> dict[int, int]:
         if VIRTUAL_FIELD in (r.a.column, r.b.column):
             continue
         child, parent = _child_parent(r)
-        groups.setdefault(("ref", r.path, r.line, child.table, parent.table), []).append(i)
+        if r.composite is not None:
+            groups.setdefault(("ref", r.path, r.composite), []).append(i)
         groups.setdefault(("pk", child.table, parent.table), []).append(i)
     out: dict[int, int] = {}
     for key, idx in groups.items():

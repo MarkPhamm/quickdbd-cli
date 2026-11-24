@@ -240,3 +240,12 @@ def test_composite_ref_split_into_independent_refs_is_a_change(tmp_path, capsys)
     capsys.readouterr()
     assert main(["diff", str(split), str(swapped), "--exit-code"]) == 0
     assert main(["diff", str(comp), str(comp), "--exit-code"]) == 0
+
+
+def test_inline_and_top_level_refs_on_one_column_diff_empty(tmp_path, capsys):
+    head = "Table parent {\n  a int [unique]\n  b int [unique]\n}\nTable child {\n  x int%s\n}\n%s"
+    inline = tmp_path / "inline.dbml"
+    inline.write_text(head % (" [ref: > parent.a, ref: > parent.b]", ""))
+    top = tmp_path / "top.dbml"
+    top.write_text(head % ("", "Ref: child.x > parent.a\nRef: child.x > parent.b\n"))
+    assert main(["diff", str(inline), str(top), "--exit-code"]) == 0, capsys.readouterr().out

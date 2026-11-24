@@ -1220,7 +1220,7 @@ class _Interpreter:
         return t.id, cols
 
     def resolve_refs(self) -> None:
-        for left, op, right, line in self.refs:
+        for n, (left, op, right, line) in enumerate(self.refs):
             a, b = self._resolve_end(left), self._resolve_end(right)
             if a is None or b is None:
                 continue
@@ -1232,6 +1232,7 @@ class _Interpreter:
                 rel = PendingRel(f"{a[0]}.{ca}", op, f"{b[0]}.{cb}", self.fp.path, line, True)
                 rel.cards = REL_OPS[op]
                 rel.names = ((self._shown(left), name_a), (self._shown(right), name_b))
+                rel.composite = n if len(a[1]) > 1 else None
                 self.fp.rels.append(rel)
 
     def resolve_groups(self) -> None:

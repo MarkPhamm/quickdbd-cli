@@ -78,7 +78,7 @@ def _col_desc(c: Column, field_name: str) -> str:
 
 
 def _rel_keys(s: Schema) -> set[str]:
-    """One key per relationship; the pairs of a composite ref (several on one statement) share one key."""
+    """One key per relationship; the pairs of one multi-column DBML ref share one key."""
     many = ("many", "zeroMany")
     card = {"one": "1", "many": "N", "zeroOne": "0..1", "zeroMany": "0..N"}
 
@@ -95,20 +95,16 @@ def _rel_keys(s: Schema) -> set[str]:
         cols = [n for n in names if n]
         return table if not cols else f"{table}.{cols[0]}" if len(names) == 1 else f"{table}.({', '.join(cols)})"
 
-    groups: dict[tuple[str, int], list[Relationship]] = {}
-    for r in s.valid_relationships():
-        groups.setdefault((r.path, r.line), []).append(r)
+    groups: dict[object, list[Relationship]] = {}
+    for i, r in enumerate(s.valid_relationships()):
+        groups.setdefault(i if r.composite is None else (r.path, r.composite), []).append(r)
     keys = set()
     for rels in groups.values():
-        pairs = [oriented(r) for r in rels]
-        tables = {(c.table, p.table) for c, p in pairs}
-        # a composite ref is several pairs on one statement between the same two tables
-        batches = [pairs] if len(tables) == 1 else [[x] for x in pairs]
-        for batch in batches:
-            ct, pt = end(batch[0][0])[0], end(batch[0][1])[0]
-            c = label([end(x[0])[1] for x in batch], ct)
-            p = label([end(x[1])[1] for x in batch], pt)
-            keys.add(f"{c} -> {p} ({card[batch[0][0].card]}:{card[batch[0][1].card]})")
+        batch = [oriented(r) for r in rels]
+        ct, pt = end(batch[0][0])[0], end(batch[0][1])[0]
+        c = label([end(x[0])[1] for x in batch], ct)
+        p = label([end(x[1])[1] for x in batch], pt)
+        keys.add(f"{c} -> {p} ({card[batch[0][0].card]}:{card[batch[0][1].card]})")
     return keys
 
 
