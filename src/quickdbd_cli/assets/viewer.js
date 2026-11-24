@@ -812,9 +812,9 @@
   dbody.addEventListener("click", function (ev) {
     if (ev.target.id === "pathclear") { S.path = null; showDetails(S.focus); applyFocus(); scheduleHash(); }
     else if (ev.target.id === "pathonly" && S.path && S.path.steps) {
-      var names = [byId[S.focus].name].concat(S.path.steps.map(function (st) { return byId[st.to.t].name; }));
-      // Selector syntax treats spaces, commas, + and a leading ! specially; match those characters with "?".
-      applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
+      // exact ids: a name glob like Order?Items would also match Order_Items
+      var ids = [S.focus].concat(S.path.steps.map(function (st) { return st.to.t; }));
+      applyFilter(ids.map(function (id) { return "id:" + id; }).join(" "));
     } else if (ev.target.id === "pathsql" && S.path && S.path.steps) {
       copyText(Q.pathSql(S.vm, S.focus, S.path.steps), "SQL copied", dbody.querySelector("#pathres pre"));
     }
