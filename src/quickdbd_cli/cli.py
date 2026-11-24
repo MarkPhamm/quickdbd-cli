@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -25,6 +26,16 @@ def _port(text: str) -> int:
         raise argparse.ArgumentTypeError(f"invalid port: {text!r}") from None
     if not 0 <= value <= 65535:
         raise argparse.ArgumentTypeError("must be between 0 and 65535")
+    return value
+
+
+def _positive_float(text: str) -> float:
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid number: {text!r}") from None
+    if not math.isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError("must be a positive number")
     return value
 
 
@@ -743,7 +754,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--focus", metavar="TABLE", help="only this table and its neighbours")
     sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")
     sp.add_argument("--mode", choices=["full", "keys", "header"], default="full", help="collapse mode")
-    sp.add_argument("--scale", type=float, default=2.0, help="PNG pixel scale (default 2)")
+    sp.add_argument("--scale", type=_positive_float, default=2.0, help="PNG pixel scale (default 2)")
     sp.add_argument("--regions", action="store_true", help="draw a shaded area per file / dbt folder")
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")
