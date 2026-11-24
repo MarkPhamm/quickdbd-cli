@@ -402,3 +402,15 @@ def test_malformed_body_is_a_400(srv, method, path, body):
 def test_bad_content_length_is_a_400(srv):
     base, _, _ = srv
     assert _raw(base, "PUT", "/file", b"", {"Content-Length": "abc"}) == 400
+
+
+@pytest.mark.parametrize("bad", ["99999", "-5", "abc"])
+def test_serve_rejects_out_of_range_port(tmp_path, capsys, bad):
+    from quickdbd_cli.cli import main
+
+    with pytest.raises(SystemExit) as e:
+        schema = tmp_path / "s.txt"
+        schema.write_text("t\n-\nid int PK\n")
+        main(["serve", str(schema), "--port", bad, "--no-open"])
+    assert e.value.code == 2
+    assert "--port" in capsys.readouterr().err

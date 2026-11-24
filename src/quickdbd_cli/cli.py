@@ -19,6 +19,16 @@ OK = "No errors found. Good job!"
 BY_GROUP_HELP = "fresh layout that keeps each file / dbt folder together, with regions (ignores saved positions)"
 
 
+def _port(text: str) -> int:
+    try:
+        value = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid port: {text!r}") from None
+    if not 0 <= value <= 65535:
+        raise argparse.ArgumentTypeError("must be between 0 and 65535")
+    return value
+
+
 def _positive_float(text: str) -> float:
     try:
         value = float(text)
@@ -680,7 +690,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("serve", help="live editor: reload on save, drag tables to arrange")
     paths(sp)
-    sp.add_argument("--port", type=int, help="port to listen on (default: 8765, or the next free one)")
+    sp.add_argument("--port", type=_port, help="port to listen on (default: 8765, or the next free one)")
     sp.add_argument(
         "--by-group",
         action="store_true",
