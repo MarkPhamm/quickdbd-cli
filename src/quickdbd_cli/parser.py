@@ -210,6 +210,7 @@ class PendingRel:
     case_sensitive: bool
     cards: tuple[str, str] | None = None  # DBML: each end's cardinality (its operators go beyond REL_TYPES)
     names: tuple[tuple[str, str], tuple[str, str]] | None = None  # DBML: (table, column) as written, for errors
+    composite: int | None = None  # DBML: shared by the column pairs of one multi-column ref
 
 
 @dataclass
@@ -753,7 +754,7 @@ class _Resolver:
                 where = f"{dup.line}" if dup.path == rel.path else f"{dup.path}:{dup.line}"
                 self.error(rel.path, rel.line, f"Relationship already defined at line {where}")
                 continue
-            r = Relationship(a, b, rel.path, rel.line)
+            r = Relationship(a, b, rel.path, rel.line, rel.composite)
             s.relationships.append(r)
             self.post_process(r, rel.case_sensitive, rel.names)
 

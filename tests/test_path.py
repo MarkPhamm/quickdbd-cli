@@ -88,6 +88,24 @@ Ref: t.(a, b) > v.(a, b)
     assert sql == "FROM t\nJOIN v ON v.a = t.a AND v.b = t.b"
 
 
+INDEPENDENT = """Table parent {
+  a int [unique]
+  b int [unique]
+}
+Table child {
+  x int%s
+}
+%s"""
+
+
+def test_two_inline_dbml_refs_on_one_column_are_independent_joins():
+    inline = INDEPENDENT % (" [ref: > parent.a, ref: > parent.b]", "")
+    top = INDEPENDENT % ("", "Ref: child.x > parent.a\nRef: child.x > parent.b\n")
+    for text in (inline, top):
+        steps, sql = path_sql([("s.dbml", text)], "child", "parent")
+        assert sql == "FROM child\nJOIN parent ON parent.a = child.x", text
+
+
 def test_quickdbd_fk_lines_covering_a_composite_pk_join_together():
     text = """offer
 -

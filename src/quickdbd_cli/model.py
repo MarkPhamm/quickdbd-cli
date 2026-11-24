@@ -121,6 +121,7 @@ class Relationship:
     b: End
     path: str
     line: int
+    composite: int | None = None  # the pairs of one multi-column DBML ref share a number
 
 
 @dataclass
