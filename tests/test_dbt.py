@@ -419,3 +419,19 @@ def test_build_or_check_on_a_manifest_points_to_import(tmp_path, capsys):
     assert main(["build", str(JAFFLE), "-o", str(tmp_path / "x.html")]) == 2
     err = capsys.readouterr().err
     assert "no .txt or .dbml schema files" in err and "qdbd import dbt" in err
+
+
+def test_empty_selection_is_an_error_and_keeps_files(tmp_path, capsys):
+    out = tmp_path / "erd"
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out)]) == 0
+    before = sorted(p.name for p in out.iterdir())
+    capsys.readouterr()
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--select", "typo*"]) == 1
+    err = capsys.readouterr().err
+    assert "no tables to import" in err and "typo*" in err
+    assert sorted(p.name for p in out.iterdir()) == before
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(out), "--check", "--select", "typo*"]) == 1
+    assert main(["import", "dbt", str(JAFFLE), "-o", str(tmp_path / "one.txt"), "--package", "nope"]) == 1
+    err = capsys.readouterr().err
+    assert "package nope" in err and "jaffle_shop" in err
+    assert not (tmp_path / "one.txt").exists()
