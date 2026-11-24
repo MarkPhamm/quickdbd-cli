@@ -495,6 +495,25 @@ def load_json(path: Path) -> dict:
         raise DbtImportError(f"{path}: not valid JSON ({e})") from None
 
 
+def _nothing_matched(manifest: dict, path: Path, imp: _Importer) -> str:
+    """Why an import found no tables: the package and selection used, and the packages that do have some."""
+    nodes = [n for n in manifest.get("nodes", {}).values() if n.get("resource_type") in TABLE_TYPES]
+    if imp.sources:
+        nodes += list(manifest.get("sources", {}).values())
+    have = sorted({str(n.get("package_name")) for n in nodes if n.get("package_name")})
+    used = []
+    if imp.packages is not None:
+        used.append(("package " if len(imp.packages) == 1 else "packages ") + ", ".join(sorted(imp.packages)))
+    if imp.select:
+        used.append("--select " + " ".join(f"'{s}'" for s in imp.select))
+    msg = f"no tables to import from {path}" + (f" ({'; '.join(used)})" if used else "")
+    if not have:
+        return msg + ": the manifest has no models, seeds, snapshots or sources"
+    if imp.packages is not None and not imp.packages & set(have):
+        return msg + f". Packages with tables: {', '.join(have)} (choose with --package NAME, or --package all)"
+    return msg + ". --select globs match a model's name, fqn (a.b.c) or file path"
+
+
 def import_dbt(
     manifest_path: Path,
     catalog_path: Path | None = None,
@@ -514,6 +533,8 @@ def import_dbt(
     catalog = load_json(catalog_path) if catalog_path else None
     imp = _Importer(manifest, catalog, packages, select or [], sources, infer=infer_fks)
     groups, rels = imp.run()
+    if not imp.tables:
+        raise DbtImportError(_nothing_matched(manifest, manifest_path, imp))
     project = (manifest.get("metadata") or {}).get("project_name") or "dbt"
     head = [
         f"{HEADER} from {manifest_path.name} (project {project}).",
