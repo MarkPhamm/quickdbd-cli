@@ -40,7 +40,7 @@ qdbd import dbt target/manifest.json -o erd/
 | `--infer-fks` | also guess relationships from column names (below) |
 | `--check` | don't write; exit 1 if the files at `-o` are out of date (CI) |
 
-The generated text is compiled before anything is written; if qdbd can't read its own output, it stops instead of writing a broken schema.
+The generated text is compiled before anything is written; if qdbd can't read its own output, it stops instead of writing a broken schema. If `--package` and `--select` match no tables, it stops with an error and leaves the files at `-o` alone.
 
 ## Guessing relationships: `--infer-fks`
 
