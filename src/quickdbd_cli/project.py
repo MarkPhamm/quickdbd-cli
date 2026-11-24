@@ -50,6 +50,11 @@ def discover(inputs: list[Path], skipped: list[Path] | None = None) -> list[Path
                 elif skipped is not None:
                     skipped.append(f)
         elif p.exists():
+            if p.suffix.lower() == ".json":  # parsed as QuickDBD it would give an error per line
+                raise SourceError(
+                    f"{display_path(p)} is JSON, not a schema file. For a dbt manifest, generate the schema "
+                    f"first: qdbd import dbt {p} -o erd/ (see qdbd import dbt --help)"
+                )
             files.append(p)
         else:
             raise FileNotFoundError(f"no such file or directory: {p}")
@@ -86,7 +91,11 @@ class Project:
         for f in skipped:
             print(f"warning: skipped {display_path(f)}: no tables, so not a schema file", file=sys.stderr)
         if not files:
-            raise FileNotFoundError("no .txt or .dbml schema files found in: " + ", ".join(map(str, inputs)))
+            msg = "no .txt or .dbml schema files found in: " + ", ".join(map(str, inputs))
+            dbt = [m for p in inputs for m in (p / "manifest.json", p / "target" / "manifest.json") if m.is_file()]
+            if dbt:
+                msg += f". For a dbt project, generate them first: qdbd import dbt {dbt[0]} -o erd/"
+            raise FileNotFoundError(msg)
         return cls(inputs, files, sidecar or layout.default_sidecar(files, inputs))
 
     def sources(self, overrides: dict[Path, str] | None = None) -> list[tuple[str, str]]:
