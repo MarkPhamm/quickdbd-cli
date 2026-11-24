@@ -490,11 +490,14 @@
     });
     if (!seen && last) last.style.display = "none"; // nothing after the last divider
   }
-  function setRegions(on) {
-    S.regions = !!on && groupCount() > 0;
+  function showRegionBtn() {
     regionBtn.classList.toggle("on", S.regions);
     regionBtn.style.display = groupCount() > 1 ? "" : "none";
     tidySeps();
+  }
+  function setRegions(on) {
+    S.regions = !!on && groupCount() > 0;
+    showRegionBtn();
     render();
     scheduleHash();
   }
@@ -954,6 +957,10 @@
       S.pos = positions;
       index();
       computeView();
+      showRegionBtn(); // a live edit can add or remove the second group
+      // the join path's end may be gone, or the relationships between them changed
+      if (S.path && !(S.focus && byId[S.focus] && byId[S.path.to])) S.path = null;
+      else if (S.path) S.path.steps = Q.findPath(S.vm, S.focus, S.path.to);
       render();
       applyView();
       drawTree();
@@ -967,9 +974,7 @@
   index();
   if (S.serve) document.body.classList.add("serve");
   if (stageSize()[0] < 900) explorer.classList.add("collapsed"); // small screens / embedded frames
-  regionBtn.classList.toggle("on", S.regions);
-  regionBtn.style.display = groupCount() > 1 ? "" : "none";
-  tidySeps();
+  showRegionBtn();
   computeView();
   render();
   drawTree();
