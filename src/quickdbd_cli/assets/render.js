@@ -376,7 +376,7 @@
   /* ------------------------------------------------------------------ selectors (dbt-style, over relationships)
    * Space-separated atoms are unioned; a comma inside an atom intersects (a,b); a leading ! excludes.
    * Atom: [N]+  method:pattern  +[N]
-   *   method: name (default; also matches aliases), group, file, col, tag
+   *   method: name (default; also matches aliases), group, file, col, tag, diff, id (exact table id)
    *   pattern: glob with * and ?
    *   +x   x plus the tables it references (parents), any depth; 2+x limits to 2 hops
    *   x+   x plus the tables referencing it (children); x+1 limits to 1 hop
@@ -423,11 +423,12 @@
         var has = function (x) { return re.test(x); };
         ok = (t.tags || []).some(has) || t.cols.some(function (c) { return (c.tags || []).some(has); });
       }
+      else if (method === "id") ok = t.id === pat; // exact: a page's own filters (Show only this path)
       else if (method === "diff" || method === "state") {
         var ds = t.diff && t.diff.state, want = pat.toLowerCase();
         ok = !!ds && (want === "modified" || want === "*" || want === ds || (want === "new" && ds === "added"));
       }
-      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col, tag, diff)");
+      else throw new Error("unknown selector method '" + method + "' (use name, group, file, col, tag, diff, id)");
       if (ok) { out[t.id] = true; base.push(t.id); }
     });
     function hops(op, before) {

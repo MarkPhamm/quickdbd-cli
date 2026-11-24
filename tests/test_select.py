@@ -91,6 +91,14 @@ def test_selectors(model, expr, expected):
     assert sel(model, expr) == expected
 
 
+def test_id_matches_one_table_exactly():
+    text = '"Order Items"\n-\nid PK int\n\nOrder_Items\n-\nid PK int\n\nOrders\n-\nid PK int\n'
+    m = model_json(compile_sources([("s.txt", text)]))
+    ids = {t["name"]: t["id"] for t in m["tables"]}
+    assert sel(m, f"id:{ids['Order Items']} id:{ids['Orders']}") == [ids["Order Items"], ids["Orders"]]
+    assert sorted(sel(m, "Order?Items")) == sorted([ids["Order Items"], ids["Order_Items"]])  # globs unchanged
+
+
 def test_unknown_method(model):
     with pytest.raises(Exception, match="unknown selector method"):
         sel(model, "owner:pii")
