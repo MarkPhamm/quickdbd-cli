@@ -254,6 +254,10 @@ def cmd_build(args) -> int:
         return res
     page, model = res
     out = Path(args.output)
+    if out.is_dir():
+        msg = f"error: -o {out} is a folder; give an .html file, or use --site DIR for one page per schema"
+        print(msg, file=sys.stderr)
+        return 2
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page, encoding="utf-8")
     print(f"Wrote {out} ({_summary(model)})")
@@ -853,6 +857,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     except (SourceError, SidecarError) as e:
         print(f"error: {e}", file=sys.stderr)
+        return 2
+    except OSError as e:  # e.g. an output path that is a folder, or not writable
+        print(f"error: {e.strerror or e}: {e.filename}" if e.filename else f"error: {e}", file=sys.stderr)
         return 2
 
 
