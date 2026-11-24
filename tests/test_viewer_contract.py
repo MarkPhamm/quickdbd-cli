@@ -17,7 +17,7 @@ def test_tour_contract(tmp_path):
     out = tmp_path / "d.html"
     assert main(["build", str(ROOT / "examples" / "quickdbd-sample.txt"), "-o", str(out)]) == 0
     page = out.read_text(encoding="utf-8")
-    for el in ('id="q"', 'id="filter"', 'id="zfit"', 'id="rcard"', 'id="details"'):
+    for el in ('id="q"', 'id="filter"', 'id="zfit"', 'id="rcard"', 'id="details"', 'id="xrelationships"'):
         assert el in page, el
     for el in (
         'id="pathto"',
@@ -30,5 +30,7 @@ def test_tour_contract(tmp_path):
         'class="tchip',
         'id="diffonly"',
         'class="state ',
+        '"qdbd-relationships"',
+        '"relationships-hidden"',
     ):
         assert el in VIEWER, el
