@@ -240,3 +240,13 @@ def test_composite_ref_split_into_independent_refs_is_a_change(tmp_path, capsys)
     capsys.readouterr()
     assert main(["diff", str(split), str(swapped), "--exit-code"]) == 0
     assert main(["diff", str(comp), str(comp), "--exit-code"]) == 0
+
+
+def test_base_ref_reports_every_table_when_the_last_schema_file_is_deleted(repo, capsys):
+    core = repo / "erd" / "core.txt"
+    core.unlink()
+    for target in (core, repo / "erd"):
+        assert main(["diff", "--base", "HEAD", str(target), "--exit-code"]) == 1
+        out = capsys.readouterr().out
+        assert "- table customers" in out and "+ table" not in out
+    assert main(["diff", "--base", "HEAD", str(repo / "erd" / "missing.txt")]) == 2

@@ -531,8 +531,13 @@ def cmd_diff(args) -> int:
     paths = [Path(p) for p in args.paths]
     try:
         if args.base:
-            new = Project.open(paths).compile()
             old = diff.schema_at_ref(args.base, paths)
+            try:
+                new = Project.open(paths).compile()
+            except FileNotFoundError:
+                if not old.tables:
+                    raise
+                new = diff.compile_sources([])  # every schema file was deleted: all of the base is removed
             old_label, new_label = args.base, "working tree"
         else:
             if len(paths) != 2:
