@@ -249,3 +249,13 @@ def test_inline_and_top_level_refs_on_one_column_diff_empty(tmp_path, capsys):
     top = tmp_path / "top.dbml"
     top.write_text(head % ("", "Ref: child.x > parent.a\nRef: child.x > parent.b\n"))
     assert main(["diff", str(inline), str(top), "--exit-code"]) == 0, capsys.readouterr().out
+
+
+def test_base_ref_reports_every_table_when_the_last_schema_file_is_deleted(repo, capsys):
+    core = repo / "erd" / "core.txt"
+    core.unlink()
+    for target in (core, repo / "erd"):
+        assert main(["diff", "--base", "HEAD", str(target), "--exit-code"]) == 1
+        out = capsys.readouterr().out
+        assert "- table customers" in out and "+ table" not in out
+    assert main(["diff", "--base", "HEAD", str(repo / "erd" / "missing.txt")]) == 2

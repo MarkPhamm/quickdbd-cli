@@ -17,6 +17,7 @@ qdbd's selectors are modelled on dbt's `--select`, but they follow **relationshi
 | `file:core.txt` | a schema file, glob |
 | `col:customer_id` | tables with a matching column |
 | `tag:fact` | tables with a matching [tag](tags.md) (explicit, from the name, or from dbt) |
+| `id:Order32Items` | one table by its exact id (the name with other characters as char codes); what **Show only this path** writes |
 | `diff:modified` | changed since `--diff-base` (`diff:added`, `diff:changed`, `diff:removed`), like dbt's `state:modified` |
 
 Combine them:

@@ -100,6 +100,20 @@ def test_base_type_differs():
     assert base_type("date") != base_type("timestamp")
 
 
+def test_base_type_keeps_array_suffix():
+    assert base_type("int") != base_type("integer[]")
+    assert base_type("int[]") == base_type("integer[]")
+
+
+@pytest.mark.parametrize("dtype, code", [("integer", 0), ("'integer[]'", 1)])
+def test_strict_check_reports_array_drift(tmp_path, capsys, dtype, code):
+    yml = f"models:\n  - name: orders\n    columns:\n      - name: ids\n        data_type: {dtype}\n"
+    project(tmp_path, yml)
+    (tmp_path / "s.txt").write_text("# @dbt: dbt\n\norders\n-\nids int\n")
+    assert main(["check", str(tmp_path / "s.txt"), "--strict"]) == code
+    assert ("differs from data_type 'integer[]'" in capsys.readouterr().err) == bool(code)
+
+
 def project(tmp_path, yml: str, files: dict[str, str] | None = None) -> Path:
     (tmp_path / "dbt").mkdir()
     (tmp_path / "dbt" / "dbt_project.yml").write_text("name: p\n")
