@@ -222,8 +222,9 @@ def _add(project: DbtProject, name: str, n: dict, rel: str) -> None:
 
 def base_type(t: str) -> str:
     """`varchar(255)` -> `string`, `INTEGER` -> `int`: what two types must share to count as the same."""
-    s = re.split(r"[(<\[]", (norm_type(t) or "").lower())[0].strip("_ ")
-    return _BASE.get(s, s)
+    n = (norm_type(t) or "").lower()
+    s = re.split(r"[(<\[]", n)[0].strip("_ ")
+    return _BASE.get(s, s) + ("[]" if n.endswith("]") else "")  # integer[] is an array, not an int
 
 
 Report = Callable[[str, int, str, str], None]  # (path, line, message, severity)
