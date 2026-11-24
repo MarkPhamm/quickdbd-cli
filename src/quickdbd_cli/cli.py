@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -16,6 +17,16 @@ from .project import Project, SelectionError, SourceError, read_source, selector
 
 OK = "No errors found. Good job!"
 BY_GROUP_HELP = "fresh layout that keeps each file / dbt folder together, with regions (ignores saved positions)"
+
+
+def _positive_float(text: str) -> float:
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid number: {text!r}") from None
+    if not math.isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError("must be a positive number")
+    return value
 
 
 def _print_diagnostics(schema: Schema, strict: bool) -> bool:
@@ -733,7 +744,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--focus", metavar="TABLE", help="only this table and its neighbours")
     sp.add_argument("--depth", type=int, default=1, help="relationship hops around --focus (default 1)")
     sp.add_argument("--mode", choices=["full", "keys", "header"], default="full", help="collapse mode")
-    sp.add_argument("--scale", type=float, default=2.0, help="PNG pixel scale (default 2)")
+    sp.add_argument("--scale", type=_positive_float, default=2.0, help="PNG pixel scale (default 2)")
     sp.add_argument("--regions", action="store_true", help="draw a shaded area per file / dbt folder")
     sp.add_argument("--by-group", action="store_true", help=BY_GROUP_HELP)
     sp.add_argument("--layout", help="layout sidecar file (default: next to the schema)")

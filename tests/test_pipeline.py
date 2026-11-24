@@ -556,3 +556,11 @@ def test_counts_of_one_are_singular(tmp_path, capsys):
     f.write_text("A\n-\nId PK int\n\nB\n-\nId PK int\nAId int FK >- A.Id\n")
     assert main(["build", str(f), "-o", str(tmp_path / "s.html")]) == 0
     assert "(2 tables, 1 relationship)" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("bad", ["0", "-1", "nan", "inf", "abc"])
+def test_export_rejects_non_positive_scale(tmp_path, capsys, bad):
+    with pytest.raises(SystemExit) as e:
+        main(["export", str(SAMPLE), "-o", str(tmp_path / "x.png"), "--scale", bad])
+    assert e.value.code == 2
+    assert "--scale" in capsys.readouterr().err
