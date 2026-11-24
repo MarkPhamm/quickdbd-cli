@@ -564,3 +564,26 @@ def test_export_rejects_non_positive_scale(tmp_path, capsys, bad):
         main(["export", str(SAMPLE), "-o", str(tmp_path / "x.png"), "--scale", bad])
     assert e.value.code == 2
     assert "--scale" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["build", str(SAMPLE), "-o", "{d}"],
+        ["export", str(SAMPLE), "-o", "{d}.png"],
+        ["diff", str(SAMPLE), str(SAMPLE), "-o", "{d}"],
+        ["build", str(SAMPLE), "-o", "{d}/x.html", "--layout", "{d}"],
+    ],
+)
+def test_output_path_that_is_a_directory_is_a_clean_error(tmp_path, capsys, argv):
+    d = tmp_path / "out"
+    d.mkdir()
+    (tmp_path / "out.png").mkdir()
+    assert main([a.replace("{d}", str(d)) for a in argv]) == 2
+    err = capsys.readouterr().err  # the OS words it differently (Windows: Permission denied)
+    assert err.startswith("error: ") and err.count("\n") == 1 and "out" in err
+
+
+def test_build_into_a_folder_points_to_site(tmp_path, capsys):
+    assert main(["build", str(SAMPLE), "-o", str(tmp_path)]) == 2
+    assert "--site" in capsys.readouterr().err
