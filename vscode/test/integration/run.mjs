@@ -25,6 +25,9 @@ fs.writeFileSync(path.join(ws, "mixed", "extra.txt"), "visit_notes\n-\nid PK int
 // Empty for now: the suite writes a .dbml into it while VS Code runs. It exists up front because on Linux a folder
 // created at runtime is watched only once its own create event lands, so a file written into it at once can be missed.
 fs.mkdirSync(path.join(ws, "fresh"));
+// A one-file schema the suite exports and converts with unsaved edits.
+fs.mkdirSync(path.join(ws, "dirty"));
+fs.writeFileSync(path.join(ws, "dirty", "shop.txt"), "Customer\n-\nId PK int\n");
 // Like VS Code's local history: a copy of one schema file in a hidden folder, which the sidebar must not list.
 fs.mkdirSync(path.join(ws, ".history", "5b49af65"), { recursive: true });
 fs.copyFileSync(path.join(repo, "examples", "synthetic", "finance.txt"), path.join(ws, ".history", "5b49af65", "Vbyq.txt"));
