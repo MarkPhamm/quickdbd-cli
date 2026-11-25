@@ -259,3 +259,30 @@ def test_base_ref_reports_every_table_when_the_last_schema_file_is_deleted(repo,
         out = capsys.readouterr().out
         assert "- table customers" in out and "+ table" not in out
     assert main(["diff", "--base", "HEAD", str(repo / "erd" / "missing.txt")]) == 2
+
+
+def test_base_ref_with_one_deleted_input_keeps_the_surviving_files(repo, capsys):
+    erd = repo / "erd"
+    (erd / "users.txt").write_text("users\n-\nid int PK\n")
+    subprocess.run(["git", "checkout", "-q", "--", "erd/core.txt"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "erd/users.txt"], cwd=repo, check=True)
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "users"], cwd=repo, check=True)
+    core, users = erd / "core.txt", erd / "users.txt"
+    core.unlink()
+    users.write_text("users\n-\nid int PK\nemail varchar\n")
+    assert main(["diff", "--base", "HEAD", str(erd), "--exit-code"]) == 1
+    want = capsys.readouterr().out
+    assert "- table users" not in want and "+ email" in want
+    for args in ([core, users], [users, core]):
+        assert main(["diff", "--base", "HEAD", *map(str, args), "--exit-code"]) == 1
+        out = capsys.readouterr().out
+        assert "- table users" not in out and "+ email" in out
+        assert out.splitlines()[-1] == want.splitlines()[-1]
+    # a path that exists neither in git nor on disk is an input error, even next to a valid one
+    assert main(["diff", "--base", "HEAD", str(users), str(erd / "typo.txt")]) == 2
+    capsys.readouterr()
+    # deleting every named input still reports all their tables as removed
+    users.unlink()
+    assert main(["diff", "--base", "HEAD", str(core), str(users), "--exit-code"]) == 1
+    out = capsys.readouterr().out
+    assert "- table users" in out and "- table customers" in out and "+ table" not in out

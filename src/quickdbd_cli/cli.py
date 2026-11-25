@@ -536,8 +536,14 @@ def cmd_diff(args) -> int:
     try:
         if args.base:
             old = diff.schema_at_ref(args.base, paths)
+            # A path deleted since the base contributes nothing to the working side (its tables show as
+            # removed); one that is in neither is a typo.
+            present = [p for p in paths if p.exists()]
+            for p in paths:
+                if not p.exists() and not diff.sources_at_ref(args.base, [p]):
+                    raise FileNotFoundError(f"no such file or directory: {p}")
             try:
-                new = Project.open(paths).compile()
+                new = Project.open(present).compile()
             except FileNotFoundError:
                 if not old.tables:
                     raise
