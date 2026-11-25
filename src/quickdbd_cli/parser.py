@@ -640,6 +640,9 @@ def syntax_of(path: str, text: str) -> str:
 
 
 def parse_file(text: str, path: str = "<input>") -> FileParse:
+    # A UTF-8 byte order mark (Notepad's "UTF-8 with BOM") is file encoding, not schema text: kept, it
+    # would become part of the first table's name.
+    text = text.removeprefix("\ufeff")
     if syntax_of(path, text) == "dbml":
         from .dbml import parse_dbml
 
