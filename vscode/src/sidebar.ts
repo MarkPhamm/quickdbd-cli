@@ -4,7 +4,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { isSchemaLanguage, type Checker } from "./checker.ts";
+import { isCheckable, isSchemaLanguage, type Checker } from "./checker.ts";
 import type { Found, Qdbd, Source } from "./cli.ts";
 import { sharingAllowed } from "./export.ts";
 import { columnDetail, tablesByFile, targetKey, type Column, type Table, type Target } from "./schema.ts";
@@ -42,6 +42,8 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   private schemas = new Map<string, Schema>();
   private scanned: Promise<void> | undefined;
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private recheckTimer: ReturnType<typeof setTimeout> | undefined;
+  private readonly touched = new Set<string>(); // folders where schema files were created or deleted
   private readonly changed = new vscode.EventEmitter<Node | undefined>();
   readonly onDidChangeTreeData = this.changed.event;
   private readonly subs: vscode.Disposable[] = [];
@@ -55,8 +57,8 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
     const watcher = vscode.workspace.createFileSystemWatcher("**/{*.txt,*.dbml,*.layout.json}");
     this.subs.push(
       watcher,
-      watcher.onDidCreate((uri) => skipped(uri) || this.rescanSoon()),
-      watcher.onDidDelete((uri) => skipped(uri) || this.rescanSoon()),
+      watcher.onDidCreate((uri) => skipped(uri) || this.addedOrRemoved(uri)),
+      watcher.onDidDelete((uri) => skipped(uri) || this.addedOrRemoved(uri)),
       watcher.onDidChange((uri) => skipped(uri) || this.changedOnDisk(uri)),
       checker.onDidUpdate(() => this.changed.fire(undefined)),
       qdbd.onDidInstall(() => this.refresh()),
@@ -73,6 +75,32 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   private rescanSoon(): void {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => this.refresh(), RESCAN_DELAY);
+  }
+
+  /** A file created or deleted (a git checkout or pull, a script): look for schemas again, and check the projects
+   * holding its folder again, since their other files may point at tables it had. Batched, as a checkout can touch
+   * hundreds of files at once. */
+  private addedOrRemoved(uri: vscode.Uri): void {
+    this.rescanSoon();
+    if (!/\.(txt|dbml)$/i.test(uri.fsPath)) return;
+    this.touched.add(path.dirname(uri.fsPath));
+    clearTimeout(this.recheckTimer);
+    this.recheckTimer = setTimeout(() => this.recheckTouched(), RESCAN_DELAY);
+  }
+
+  private recheckTouched(): void {
+    const dirs = [...this.touched];
+    this.touched.clear();
+    const holds = (cwd: string) => dirs.some((d) => d === cwd || d.startsWith(cwd + path.sep));
+    const open = new Set<string>();
+    for (const doc of vscode.workspace.textDocuments) {
+      if (!isCheckable(doc) || doc.uri.scheme !== "file") continue;
+      const target = this.checker.targetFor(doc);
+      if (!holds(target.cwd)) continue;
+      open.add(targetKey(target));
+      this.checker.schedule(doc, 0); // with the editor's unsaved text, if any
+    }
+    for (const [key, s] of this.schemas) if (!open.has(key) && holds(s.target.cwd)) void this.checker.checkTarget(s.target);
   }
 
   /** A schema file edited outside VS Code (a git pull, `qdbd import`): check it again, unless an editor already does. */
@@ -195,6 +223,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
 
   dispose(): void {
     clearTimeout(this.timer);
+    clearTimeout(this.recheckTimer);
     this.subs.forEach((s) => s.dispose());
   }
 }

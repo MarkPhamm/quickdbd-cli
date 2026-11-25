@@ -224,6 +224,23 @@ export async function run(): Promise<void> {
   await until("new .dbml file in the sidebar", async () => (await api.schemas()).some((x) => x.title === "fresh" && x.tables === 1));
   step("sidebar picks up a .dbml file created on disk");
 
+  // A file deleted or restored on disk (git checkout, git pull) re-checks the rest of its project.
+  const ySchema = path.join(ws, "gone", "y.txt");
+  const yDoc = await vscode.workspace.openTextDocument(ySchema);
+  await vscode.window.showTextDocument(yDoc);
+  await until("gone/ checked", async () => (await api.schemas()).find((x) => x.title === "gone" && x.tables === 2));
+  assert.deepEqual(vscode.languages.getDiagnostics(yDoc.uri), []);
+  const xSchema = path.join(ws, "gone", "x.txt");
+  const xText = fs.readFileSync(xSchema, "utf8");
+  fs.unlinkSync(xSchema);
+  await until("y.txt's FK breaks once x.txt is deleted", () =>
+    vscode.languages.getDiagnostics(yDoc.uri).find((d) => d.message.includes("'X'")),
+  );
+  await until("gone/ down to 1 table", async () => (await api.schemas()).find((x) => x.title === "gone" && x.tables === 1));
+  fs.writeFileSync(xSchema, xText);
+  await until("y.txt clean once x.txt is back", () => (vscode.languages.getDiagnostics(yDoc.uri).length === 0 ? true : undefined));
+  step("a file deleted or restored on disk re-checks the rest of its project");
+
   // A schema row's button acts on that schema, not the active editor's.
   const sampleRow = listed.find((x) => x.title === "quickdbd-sample")!;
   await vscode.commands.executeCommand("quickdbd.openPreview", { kind: "schema", target: sampleRow.target, file: sampleRow.file });
