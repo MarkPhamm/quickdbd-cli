@@ -435,3 +435,15 @@ def test_multi_file_alias_across_files():
 def test_diagnostic_format():
     s = compile_text("T\n-\nA int foo", "x/schema.txt")
     assert s.errors[0].format() == "x/schema.txt:3: error: Unrecognized keyword 'foo'"
+
+
+@pytest.mark.parametrize("path", ["s.txt", "s.dbml", "dbml.txt"])
+def test_utf8_bom_is_not_part_of_the_first_table_name(path):
+    # Notepad's "UTF-8 with BOM": the mark is file encoding, not text QuickDBD's editor would ever see
+    if path == "s.txt":
+        text = "users\n-\nid int PK\n\norders\n-\nid int PK\nuser_id int FK >- users.id\n"
+    else:
+        text = "Table users {\n  id int [pk]\n}\nTable orders {\n  user_id int [ref: > users.id]\n}\n"
+    s = compile_sources([(path, "﻿" + text)])
+    assert not s.errors, s.errors
+    assert sorted(s.tables) == sorted(compile_sources([(path, text)]).tables)
