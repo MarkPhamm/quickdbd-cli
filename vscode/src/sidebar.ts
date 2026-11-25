@@ -43,6 +43,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
   private scanned: Promise<void> | undefined;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private recheckTimer: ReturnType<typeof setTimeout> | undefined;
+  private recheckAll = false;
   private readonly touched = new Set<string>(); // folders where schema files were created or deleted
   private readonly changed = new vscode.EventEmitter<Node | undefined>();
   readonly onDidChangeTreeData = this.changed.event;
@@ -61,13 +62,15 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
       watcher.onDidDelete((uri) => skipped(uri) || this.addedOrRemoved(uri)),
       watcher.onDidChange((uri) => skipped(uri) || this.changedOnDisk(uri)),
       checker.onDidUpdate(() => this.changed.fire(undefined)),
-      qdbd.onDidInstall(() => this.refresh()),
+      qdbd.onDidInstall(() => this.refresh(true)),
       this.changed,
     );
   }
 
-  /** Look for schemas again (the refresh button, a file created or deleted). */
-  refresh(): void {
+  /** Look for schemas again (a file created or deleted); `recheck` also checks every schema again, not just new ones
+   * (the Refresh button, a changed setting or dbt yml, a newly installed qdbd). */
+  refresh(recheck = false): void {
+    this.recheckAll ||= recheck;
     this.scanned = undefined;
     this.changed.fire(undefined);
   }
@@ -127,6 +130,8 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
 
   private async scan(): Promise<void> {
     const auto = vscode.workspace.getConfiguration("quickdbd").get<boolean>("autoDetect", true);
+    const recheck = this.recheckAll;
+    this.recheckAll = false;
     const found = new Map<string, Schema>();
     for (const uri of await vscode.workspace.findFiles("**/*.{txt,dbml}", EXCLUDE, MAX_FILES)) {
       const file = uri.fsPath;
@@ -148,7 +153,7 @@ export class Schemas implements vscode.TreeDataProvider<Node>, vscode.Disposable
     void vscode.commands.executeCommand("setContext", "quickdbd.noSchemas", found.size === 0);
     // In the background: each report redraws the tree as it lands (checker.onDidUpdate).
     void (async () => {
-      for (const s of found.values()) if (!this.checker.reportOf(s.target)) await this.checker.checkTarget(s.target);
+      for (const s of found.values()) if (recheck || !this.checker.reportOf(s.target)) await this.checker.checkTarget(s.target);
     })();
   }
 

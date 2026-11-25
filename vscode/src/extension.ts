@@ -108,13 +108,13 @@ export function activate(context: vscode.ExtensionContext): Api {
       // dbt yml / docs blocks feed schemas with a `# @dbt:` line: their descriptions and drift warnings
       if (!/\.(ya?ml|md)$/i.test(doc.uri.fsPath)) return;
       vscode.workspace.textDocuments.forEach((d) => checker.schedule(d, 0));
-      sidebar.schemas.refresh();
+      sidebar.schemas.refresh(true);
     }),
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("quickdbd.qdbdPath")) qdbd.reset();
       if (!e.affectsConfiguration("quickdbd")) return;
       vscode.workspace.textDocuments.forEach((d) => checker.schedule(d, 0));
-      sidebar.schemas.refresh();
+      sidebar.schemas.refresh(true);
     }),
     vscode.commands.registerCommand("quickdbd.openPreview", withSchema((doc) => previews.show(doc))),
     vscode.commands.registerCommand(
@@ -161,7 +161,7 @@ export function activate(context: vscode.ExtensionContext): Api {
       }),
     ),
     vscode.commands.registerCommand("quickdbd.installCli", () => qdbd.install()),
-    vscode.commands.registerCommand("quickdbd.refreshSchemas", () => sidebar.schemas.refresh()),
+    vscode.commands.registerCommand("quickdbd.refreshSchemas", () => sidebar.schemas.refresh(true)),
     vscode.commands.registerCommand("quickdbd.newSchema", (opts?: { output?: string }) => newSchema(previews, str(opts?.output))),
     // A table's row in the sidebar: open the diagram, then put the cursor in the table, which the diagram follows.
     vscode.commands.registerCommand("quickdbd.revealTable", async (n?: Node) => {

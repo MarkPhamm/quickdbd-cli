@@ -239,7 +239,14 @@ export async function run(): Promise<void> {
   await until("gone/ down to 1 table", async () => (await api.schemas()).find((x) => x.title === "gone" && x.tables === 1));
   fs.writeFileSync(xSchema, xText);
   await until("y.txt clean once x.txt is back", () => (vscode.languages.getDiagnostics(yDoc.uri).length === 0 ? true : undefined));
-  step("a file deleted or restored on disk re-checks the rest of its project");
+  // With no editor on the project, a file added on disk shows up in the sidebar's count.
+  await vscode.window.showTextDocument(yDoc);
+  await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+  fs.writeFileSync(path.join(ws, "gone", "z.txt"), "Z\n-\nId PK int\n");
+  await until("gone/ up to 3 tables", async () => (await api.schemas()).find((x) => x.title === "gone" && x.tables === 3));
+  await vscode.commands.executeCommand("quickdbd.refreshSchemas");
+  await until("gone/ still 3 tables after Refresh", async () => (await api.schemas()).find((x) => x.title === "gone" && x.tables === 3));
+  step("a file deleted, restored or added on disk re-checks the rest of its project");
 
   // A schema row's button acts on that schema, not the active editor's.
   const sampleRow = listed.find((x) => x.title === "quickdbd-sample")!;
