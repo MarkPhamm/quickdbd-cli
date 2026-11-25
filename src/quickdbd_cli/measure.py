@@ -121,7 +121,7 @@ def _groups(schema: Schema) -> dict[str, str]:
     out = {}
     for p, x in zip(paths, parts, strict=True):
         rel = "/".join(x[common:])
-        out[p] = rel.rsplit(".", 1)[0] if rel.endswith((".txt", ".dbml")) else rel
+        out[p] = rel.rsplit(".", 1)[0] if rel.lower().endswith((".txt", ".dbml")) else rel
     return out
 
 

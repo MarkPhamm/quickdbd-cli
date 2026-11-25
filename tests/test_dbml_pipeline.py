@@ -157,11 +157,13 @@ def test_syntax_of_unclosed_block_comment_is_fast():
     assert time.perf_counter() - start < 0.5
 
 
-def test_uppercase_txt_is_not_discovered(tmp_path):
+def test_uppercase_extensions_are_discovered_but_notes_are_not(tmp_path):
+    # Extensions match case-insensitively, as in the VS Code extension and qdbd mcp (targets.py); a README.TXT is
+    # still left out, as a notes file.
     (tmp_path / "schema.txt").write_text("a\n-\nid PK int\n")
     (tmp_path / "README.TXT").write_text("Read me first.\n")
     (tmp_path / "Other.DBML").write_text("Table x {\n  id int\n}\n")
-    assert [f.name for f in Project.open([tmp_path]).files] == ["schema.txt"]
+    assert [f.name for f in Project.open([tmp_path]).files] == ["Other.DBML", "schema.txt"]
 
 
 def test_folder_keeps_table_with_indented_separator(tmp_path):

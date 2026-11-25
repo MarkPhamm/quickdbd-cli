@@ -587,3 +587,16 @@ def test_output_path_that_is_a_directory_is_a_clean_error(tmp_path, capsys, argv
 def test_build_into_a_folder_points_to_site(tmp_path, capsys):
     assert main(["build", str(SAMPLE), "-o", str(tmp_path)]) == 2
     assert "--site" in capsys.readouterr().err
+
+
+def test_folder_reads_uppercase_extensions(tmp_path, capsys):
+    # Older Windows tools write A.TXT; the extension and qdbd mcp match extensions case-insensitively too.
+    (tmp_path / "A.TXT").write_text("Alpha\n-\nId PK int\n")
+    (tmp_path / "b.txt").write_text("Beta\n-\nId PK int\nAId int FK >- Alpha.Id\n")
+    (tmp_path / "G.DBML").write_text("Table g {\n  id int [pk]\n}\n")
+    (tmp_path / "NOTES.TXT").write_text("Just some notes.\n")
+    assert main(["check", str(tmp_path)]) == 0, capsys.readouterr().err
+    assert "skipped" in capsys.readouterr().err  # NOTES.TXT is a notes file, like notes.txt
+    assert sorted(f.name for f in Project.open([tmp_path]).files) == ["A.TXT", "G.DBML", "b.txt"]
+    model = model_json(Project.open([tmp_path]).compile())
+    assert {t["name"]: t["group"] for t in model["tables"]}["Alpha"] == "A"
