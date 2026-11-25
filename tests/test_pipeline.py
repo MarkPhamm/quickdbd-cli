@@ -600,3 +600,16 @@ def test_folder_reads_uppercase_extensions(tmp_path, capsys):
     assert sorted(f.name for f in Project.open([tmp_path]).files) == ["A.TXT", "G.DBML", "b.txt"]
     model = model_json(Project.open([tmp_path]).compile())
     assert {t["name"]: t["group"] for t in model["tables"]}["Alpha"] == "A"
+
+
+def test_check_json_strict_reports_warnings_as_errors(tmp_path, capsys):
+    # The VS Code `quickdbd.strict` setting shows each diagnostic with the severity the JSON gives it.
+    f = tmp_path / "s.txt"
+    f.write_text("S\n-\nId PK int\nPrice decimal(10, 2)\n")
+    assert main(["check", "--format", "json", str(f)]) == 0
+    loose = json.loads(capsys.readouterr().out)
+    assert (loose["errors"], loose["warnings"], loose["diagnostics"][0]["severity"]) == (0, 1, "warning")
+    assert main(["check", "--format", "json", "--strict", str(f)]) == 1
+    strict = json.loads(capsys.readouterr().out)
+    assert (strict["ok"], strict["errors"], strict["warnings"]) == (False, 1, 0)
+    assert strict["diagnostics"][0]["severity"] == "error"
