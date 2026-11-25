@@ -6,7 +6,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { Checker, LANGUAGE } from "./checker.ts";
+import { Checker, isSchemaLanguage, LANGUAGE } from "./checker.ts";
 import { Qdbd } from "./cli.ts";
 import { pickRef } from "./compare.ts";
 import { convertSchema } from "./convert.ts";
@@ -48,7 +48,7 @@ export interface Api {
 export function activate(context: vscode.ExtensionContext): Api {
   const log = vscode.window.createOutputChannel("QuickDBD");
   const qdbd = new Qdbd(log, context.globalStorageUri.fsPath);
-  const checker = new Checker(qdbd, log);
+  const checker = new Checker(qdbd, log, context.globalStorageUri.fsPath);
   const previews = new Previews(qdbd, checker, log);
   const sidebar = new Sidebar(checker, qdbd);
 
@@ -57,9 +57,18 @@ export function activate(context: vscode.ExtensionContext): Api {
   async function schemaDoc(arg: unknown): Promise<vscode.TextDocument | undefined> {
     if (isSchemaArg(arg)) return vscode.workspace.openTextDocument(arg.file);
     if (arg instanceof vscode.Uri) return vscode.workspace.openTextDocument(arg);
+    const active = vscode.window.activeTextEditor?.document;
+    if (active && isSchemaLanguage(active.languageId) && active.uri.scheme === "untitled") {
+      // The diagram, exports and the rest run qdbd on files: offering some other schema here would be a surprise.
+      const save = await vscode.window.showInformationMessage(
+        "Save this schema as a .txt or .dbml file to open its diagram or use the other QuickDBD commands.",
+        "Save As…",
+      );
+      if (save) void vscode.commands.executeCommand("workbench.action.files.saveAs");
+      return undefined;
+    }
     const current = await sidebar.current(true);
     if (current) {
-      const active = vscode.window.activeTextEditor?.document;
       return active?.uri.fsPath === current.file ? active : vscode.workspace.openTextDocument(current.file);
     }
     const all = await sidebar.schemas.all();
@@ -92,6 +101,7 @@ export function activate(context: vscode.ExtensionContext): Api {
     qdbd.onDidInstall(() => vscode.workspace.textDocuments.forEach((d) => checker.schedule(d, 0))),
     registerSymbols(checker),
     vscode.workspace.onDidOpenTextDocument((doc) => void opened(doc, checker)),
+    vscode.workspace.onDidCloseTextDocument((doc) => checker.forget(doc)),
     vscode.workspace.onDidChangeTextDocument((e) => checker.schedule(e.document, TYPING_DELAY)),
     vscode.workspace.onDidSaveTextDocument((doc) => {
       checker.schedule(doc, 0);
