@@ -83,7 +83,7 @@
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; overflow: hidden; }
 #app { position: fixed; inset: 0; display: flex; }
-#stage { position: relative; flex: 1; overflow: hidden; }
+#stage { position: relative; flex: 1; overflow: hidden; container: stage / inline-size; }
 #canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
 #canvas.panning { cursor: grabbing; }
 #canvas.lod .t text { display: none; } /* big diagram, zoomed out: see LOD_TABLES in viewer.js */
@@ -330,12 +330,19 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 .CodeMirror-selected { background: #2a2e35 !important; }
 .lineerr { background: rgba(229,115,115,.18); }
 
-/* narrow screens and embedded frames: toolbar to the bottom, smaller minimap */
-@media (max-width: 900px) {
+/* A diagram too narrow for the explorer and the toolbar side by side (qdbd serve's editor pane takes 420px
+   of the window, so this goes by the stage's width, not the viewport's): toolbar to the bottom, smaller
+   minimap. NARROW in viewer.js matches the 1080px. */
+@container stage (max-width: 1080px) {
   .bar { top: auto; bottom: 12px; right: auto; left: 12px; flex-wrap: wrap; max-width: calc(100% - 24px);
     border-radius: 10px; padding: 3px; }
   .hint { display: none; }
   .minimap { width: 140px; height: 100px; bottom: auto; top: 14px; right: 12px; }
+  .details { bottom: 64px; }
+  .explorer { max-height: calc(100% - 80px); }
+}
+/* narrow screens and embedded frames: the details panel takes the width */
+@media (max-width: 900px) {
   .explorer { max-width: calc(100% - 180px); }
-  .details { left: 12px; right: 12px; width: auto; top: 12px; bottom: 64px; }
+  .details { left: 12px; right: 12px; width: auto; top: 12px; }
 }

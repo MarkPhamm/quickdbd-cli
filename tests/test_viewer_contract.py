@@ -5,6 +5,7 @@ the path finder, highlights the yml description, tag chips and column docs, and 
 these breaks the tour silently, so they are pinned here.
 """
 
+import re
 from pathlib import Path
 
 from quickdbd_cli.cli import main
@@ -34,3 +35,13 @@ def test_tour_contract(tmp_path):
         '"relationships-hidden"',
     ):
         assert el in VIEWER, el
+
+
+def test_toolbar_breakpoint_follows_the_stage_width():
+    # serve's editor pane takes 420px of the window: a viewport media query left the toolbar over the search box
+    css = (ROOT / "src" / "quickdbd_cli" / "assets" / "style.css").read_text(encoding="utf-8")
+    m = re.search(r"@container stage \(max-width: (\d+)px\) \{\s*\.bar \{", css)
+    assert m and "container: stage / inline-size" in css
+    # explorer (16 + 270px) and the widest toolbar (~750px, with Regions) must fit side by side above it
+    assert int(m.group(1)) >= 1060
+    assert re.search(rf"var NARROW = {m.group(1)};", VIEWER), "fit() must know where the toolbar is"
