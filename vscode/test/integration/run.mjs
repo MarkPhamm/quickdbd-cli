@@ -28,6 +28,10 @@ fs.mkdirSync(path.join(ws, "fresh"));
 // A one-file schema the suite exports and converts with unsaved edits.
 fs.mkdirSync(path.join(ws, "dirty"));
 fs.writeFileSync(path.join(ws, "dirty", "shop.txt"), "Customer\n-\nId PK int\n");
+// Two files of one folder project; the suite deletes and restores x.txt while y.txt is open.
+fs.mkdirSync(path.join(ws, "gone"));
+fs.writeFileSync(path.join(ws, "gone", "x.txt"), "X\n-\nId PK int\n");
+fs.writeFileSync(path.join(ws, "gone", "y.txt"), "Y\n-\nId PK int\nXId int FK >- X.Id\n");
 // Like VS Code's local history: a copy of one schema file in a hidden folder, which the sidebar must not list.
 fs.mkdirSync(path.join(ws, ".history", "5b49af65"), { recursive: true });
 fs.copyFileSync(path.join(repo, "examples", "synthetic", "finance.txt"), path.join(ws, ".history", "5b49af65", "Vbyq.txt"));

@@ -135,7 +135,11 @@ def cmd_check(args) -> int:
     if args.format == "json":
         ok = not schema.errors and not (args.strict and schema.warnings)
         diags = [dataclasses.asdict(d) for d in schema.diagnostics]
-        report = {"ok": ok, "errors": len(schema.errors), "warnings": len(schema.warnings), "diagnostics": diags}
+        errors, warnings = len(schema.errors), len(schema.warnings)
+        if args.strict:  # as in the github format: a warning fails the check, so it's reported as an error
+            diags = [{**d, "severity": "error"} for d in diags]
+            errors, warnings = errors + warnings, 0
+        report = {"ok": ok, "errors": errors, "warnings": warnings, "diagnostics": diags}
         if args.symbols:
             report.update(_symbols(schema))
         print(json.dumps(report, indent=2))

@@ -587,3 +587,16 @@ def test_output_path_that_is_a_directory_is_a_clean_error(tmp_path, capsys, argv
 def test_build_into_a_folder_points_to_site(tmp_path, capsys):
     assert main(["build", str(SAMPLE), "-o", str(tmp_path)]) == 2
     assert "--site" in capsys.readouterr().err
+
+
+def test_check_json_strict_reports_warnings_as_errors(tmp_path, capsys):
+    # The VS Code `quickdbd.strict` setting shows each diagnostic with the severity the JSON gives it.
+    f = tmp_path / "s.txt"
+    f.write_text("S\n-\nId PK int\nPrice decimal(10, 2)\n")
+    assert main(["check", "--format", "json", str(f)]) == 0
+    loose = json.loads(capsys.readouterr().out)
+    assert (loose["errors"], loose["warnings"], loose["diagnostics"][0]["severity"]) == (0, 1, "warning")
+    assert main(["check", "--format", "json", "--strict", str(f)]) == 1
+    strict = json.loads(capsys.readouterr().out)
+    assert (strict["ok"], strict["errors"], strict["warnings"]) == (False, 1, 0)
+    assert strict["diagnostics"][0]["severity"] == "error"
