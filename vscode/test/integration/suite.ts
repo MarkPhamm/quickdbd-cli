@@ -247,6 +247,7 @@ export async function run(): Promise<void> {
   await until("starter in the sidebar", async () => (await api.schemas()).some((x) => x.title === "starter" && x.tables === 2));
   step("new schema file: opened with its diagram, listed in the sidebar");
 
+  await testUntitled();
   await testMcp(api, ws);
   if (process.env.QDBD_TEST_INSTALL) await testInstall(doc);
 
@@ -336,4 +337,51 @@ async function testInstall(doc: vscode.TextDocument): Promise<void> {
   120000);
   await restore(editor, original);
   step("installed qdbd into the extension's own virtualenv");
+}
+
+/** A schema pasted into a new untitled editor: live errors and an outline like a saved file, and the diagram commands
+ * ask to save it rather than offering the workspace's other schemas. */
+async function testUntitled(): Promise<void> {
+  const doc = await vscode.workspace.openTextDocument({ language: "quickdbd", content: "T\n-\nId PK int\nX int FK >- Nope.Id\n" });
+  const editor = await vscode.window.showTextDocument(doc);
+  const err = await until("error in an untitled buffer", () => vscode.languages.getDiagnostics(doc.uri).find((d) => d.message.includes("Nope")));
+  assert.equal(err.range.start.line, 3);
+  const symbols = await until("untitled outline", async () => {
+    const s = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", doc.uri);
+    return s?.length ? s : undefined;
+  });
+  assert.deepEqual(symbols.map((s) => s.name), ["T"]);
+  await editor.edit((e) => e.replace(new vscode.Range(3, 0, 3, 99), "X int"));
+  await until("untitled error cleared", () => (vscode.languages.getDiagnostics(doc.uri).length === 0 ? true : undefined));
+  const dbml = await vscode.workspace.openTextDocument({ language: "dbml", content: "Table a {\n  id int [ref: > nowhere.id]\n}\n" });
+  await vscode.window.showTextDocument(dbml);
+  await until("error in an untitled DBML buffer", () => vscode.languages.getDiagnostics(dbml.uri).find((d) => d.message.includes("nowhere")));
+  await vscode.window.showTextDocument(doc);
+
+  const win = vscode.window as { showQuickPick: unknown; showInformationMessage: unknown };
+  const [realPick, realInfo] = [win.showQuickPick, win.showInformationMessage];
+  const shown: string[] = [];
+  win.showQuickPick = async (_items: unknown, opts?: vscode.QuickPickOptions) => {
+    shown.push(`picker: ${opts?.title}`);
+    return undefined;
+  };
+  win.showInformationMessage = async (message: string) => {
+    shown.push(message);
+    return undefined;
+  };
+  try {
+    await vscode.commands.executeCommand("quickdbd.openPreview");
+  } finally {
+    win.showQuickPick = realPick;
+    win.showInformationMessage = realInfo;
+  }
+  assert.equal(shown.length, 1, JSON.stringify(shown));
+  assert.match(shown[0], /^Save this schema/, "asks to save, not which other schema");
+  await vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+  await vscode.window.showTextDocument(dbml);
+  await vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+  await until("diagnostics of closed untitled buffers dropped", () =>
+    vscode.languages.getDiagnostics().some(([u]) => u.scheme === "untitled") ? undefined : true,
+  );
+  step("untitled schema: live errors, outline, and Open Diagram asks to save it");
 }

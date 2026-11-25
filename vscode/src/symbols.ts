@@ -1,5 +1,4 @@
 /* Outline, Ctrl+T and F12, all from the last `qdbd check --symbols` report (see checker.ts). */
-import * as path from "node:path";
 import * as vscode from "vscode";
 import { LANGUAGES, type Checker } from "./checker.ts";
 import { findColumn, findTable, refAt, type Table, type Target } from "./schema.ts";
@@ -9,8 +8,8 @@ function lineRange(line: number): vscode.Range {
   return new vscode.Range(l, 0, l, 0);
 }
 
-function location(target: Target, file: string, line: number): vscode.Location {
-  return new vscode.Location(vscode.Uri.file(path.resolve(target.cwd, file)), lineRange(line));
+function location(checker: Checker, target: Target, file: string, line: number): vscode.Location {
+  return new vscode.Location(checker.uriOf(target, file), lineRange(line));
 }
 
 function tableSymbol(t: Table): vscode.DocumentSymbol {
@@ -25,7 +24,10 @@ function tableSymbol(t: Table): vscode.DocumentSymbol {
 }
 
 export function registerSymbols(checker: Checker): vscode.Disposable {
-  const selector: vscode.DocumentSelector = LANGUAGES.map((language) => ({ language, scheme: "file" }));
+  const selector: vscode.DocumentSelector = LANGUAGES.flatMap((language) => [
+    { language, scheme: "file" },
+    { language, scheme: "untitled" },
+  ]);
   return vscode.Disposable.from(
     vscode.languages.registerDocumentSymbolProvider(selector, {
       async provideDocumentSymbols(doc) {
@@ -40,7 +42,7 @@ export function registerSymbols(checker: Checker): vscode.Disposable {
         return checker.reports().flatMap(({ target, report }) =>
           (report.tables ?? [])
             .filter((t) => t.name.toLowerCase().includes(q))
-            .map((t) => new vscode.SymbolInformation(t.name, vscode.SymbolKind.Struct, "", location(target, t.file, t.line))),
+            .map((t) => new vscode.SymbolInformation(t.name, vscode.SymbolKind.Struct, "", location(checker, target, t.file, t.line))),
         );
       },
     }),
@@ -52,7 +54,7 @@ export function registerSymbols(checker: Checker): vscode.Disposable {
         const table = ref && findTable(r.report, ref.table);
         if (!r || !ref || !table) return undefined;
         const col = ref.column ? findColumn(table, ref.column) : undefined;
-        return location(r.target, table.file, col ? col.line : table.line);
+        return location(checker, r.target, table.file, col ? col.line : table.line);
       },
     }),
   );
