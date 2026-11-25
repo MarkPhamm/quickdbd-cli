@@ -28,7 +28,7 @@ Validates the schema. Prints `No errors found. Good job!`, or `file:line: error:
 }
 ```
 
-Paths are relative to the current directory. The exit code is the same in every format.
+Paths are relative to the current directory. Under `--strict`, warnings are reported as errors here too. The exit code is the same in every format.
 
 `--each` checks every `PATH` as its own schema, the way [`build --site`](#build) builds them, so two diagrams can both have a `customers` table. Folders with no schema files are skipped, so a glob like `docs/erd/*/` works. It can't be combined with `--format json` or `--stdin-file`.
 
