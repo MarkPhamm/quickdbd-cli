@@ -47,6 +47,20 @@ def test_toolbar_breakpoint_follows_the_stage_width():
     assert re.search(rf"var NARROW = {m.group(1)};", VIEWER), "fit() must know where the toolbar is"
 
 
+def _function_body(name: str) -> str:
+    m = re.search(rf"function {name}\(.*?\n  \}}\n", VIEWER, re.S)
+    assert m, name
+    return m.group(0)
+
+
+def test_filter_recomputes_the_join_path():
+    # A filter that hid a table on the shown path made pathSql look it up in the filtered model and throw (#246)
+    body = _function_body("applyFilter")
+    recompute = body.find("S.path.steps = Q.findPath(S.vm, S.focus, S.path.to)")
+    assert recompute != -1, "applyFilter must recompute the path for the filtered view"
+    assert recompute < body.find("showDetails(S.focus)")
+
+
 def test_show_both_tables_selects_exact_ids():
     # a name glob (spaces as ?) also matched Order_Items, and 'sales:Orders' parsed as a selector method (#247)
     m = re.search(r'ev\.target\.id === "rboth".*?\n    \}', VIEWER, re.S)
