@@ -131,9 +131,10 @@
   rcard.addEventListener("click", function (ev) {
     if (ev.target.id === "rcopy" && cardInfo) copyText(cardInfo.sql, "JOIN copied", rcard.querySelector("pre"));
     else if (ev.target.id === "rboth" && cardInfo) {
-      var names = cardInfo.tables.filter(function (t, i, all) { return all.indexOf(t) === i; }).map(function (t) { return byId[t].name; });
+      // exact ids: a name glob like Order?Items would also match Order_Items, and sales:Orders isn't a name
+      var ids = cardInfo.tables.filter(function (t, i, all) { return all.indexOf(t) === i; });
       closeCard();
-      applyFilter(names.map(function (n) { return n.replace(/[\s,+!]/g, "?"); }).join(" "));
+      applyFilter(ids.map(function (id) { return "id:" + id; }).join(" "));
     }
   });
   document.addEventListener("pointerdown", function (ev) {

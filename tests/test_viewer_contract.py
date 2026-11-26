@@ -45,3 +45,11 @@ def test_toolbar_breakpoint_follows_the_stage_width():
     # explorer (16 + 270px) and the widest toolbar (~750px, with Regions) must fit side by side above it
     assert int(m.group(1)) >= 1060
     assert re.search(rf"var NARROW = {m.group(1)};", VIEWER), "fit() must know where the toolbar is"
+
+
+def test_show_both_tables_selects_exact_ids():
+    # a name glob (spaces as ?) also matched Order_Items, and 'sales:Orders' parsed as a selector method (#247)
+    m = re.search(r'ev\.target\.id === "rboth".*?\n    \}', VIEWER, re.S)
+    assert m
+    assert '"id:" + ' in m.group(0)
+    assert "replace(" not in m.group(0)
