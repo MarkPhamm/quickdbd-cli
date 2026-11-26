@@ -286,3 +286,13 @@ def test_base_ref_with_one_deleted_input_keeps_the_surviving_files(repo, capsys)
     assert main(["diff", "--base", "HEAD", str(core), str(users), "--exit-code"]) == 1
     out = capsys.readouterr().out
     assert "- table users" in out and "- table customers" in out and "+ table" not in out
+
+
+def test_base_ref_reads_uppercase_extensions(tmp_path, capsys):
+    erd = tmp_path / "erd"
+    erd.mkdir()
+    (erd / "A.TXT").write_text("Alpha\n-\nId PK int\n")
+    (erd / "b.txt").write_text("Beta\n-\nId PK int\nAId int FK >- Alpha.Id\n")
+    for args in (["init", "-q"], ["add", "-A"], ["commit", "-qm", "base"]):
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=tmp_path, check=True)
+    assert main(["diff", "--base", "HEAD", str(erd), "--exit-code"]) == 0, capsys.readouterr().out

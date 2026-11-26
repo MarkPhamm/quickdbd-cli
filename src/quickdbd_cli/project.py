@@ -29,7 +29,7 @@ def read_source(f: Path) -> str:
 
 def _is_notes(f: Path) -> bool:
     """A non-empty .txt with no table that isn't DBML: a README or notes file, not a schema."""
-    if f.suffix != ".txt":
+    if f.suffix.lower() != ".txt":
         return False
     text = f.read_text(encoding="utf-8", errors="replace")
     return bool(text.strip()) and not has_table(text) and syntax_of(f.name, text) != "dbml"
@@ -44,7 +44,7 @@ def discover(inputs: list[Path], skipped: list[Path] | None = None) -> list[Path
     files: list[Path] = []
     for p in inputs:
         if p.is_dir():
-            for f in sorted(f for f in p.rglob("*") if f.suffix in SCHEMA_SUFFIXES and f.is_file()):
+            for f in sorted(f for f in p.rglob("*") if f.suffix.lower() in SCHEMA_SUFFIXES and f.is_file()):
                 if not _is_notes(f):
                     files.append(f)
                 elif skipped is not None:
