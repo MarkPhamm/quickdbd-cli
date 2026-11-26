@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path, PurePath
 
-from . import diff, export, layout
+from . import dbtyml, diff, export, layout
 from .dbt import HEADER, DbtImportError, ImportResult, import_dbt
 from .jsrt import JSTimeout, runtime
 from .measure import model_json
@@ -153,9 +153,10 @@ class Workspace:
         files = [f for f in files if not f.is_symlink() or f.resolve().is_relative_to(bound)]
         over = {p.resolve(): text for p, text in (overrides or {}).items()}
         files += [p for p in over if p not in {f.resolve() for f in files}]
-        key = tuple((str(f), *_stat(f)) for f in files)
+        files_key = tuple((str(f), *_stat(f)) for f in files)
         hit = self._cache.get(t)
-        if not over and hit and hit[0] == key:
+        # a `# @dbt:` link also reads the dbt project's yml and docs, which change without the schema files
+        if not over and hit and hit[0] == files_key + _dbt_stamp(hit[1].schema.dbt_root):
             return hit[1]
         sources = []
         for f in files:
@@ -169,7 +170,7 @@ class Workspace:
         schema, fps = compile_files(sources)
         c = Compiled(t, sources, schema, fps, model_json(schema))
         if not over:
-            self._cache[t] = (key, c)
+            self._cache[t] = (files_key + _dbt_stamp(schema.dbt_root), c)
         return c
 
     def _compile_dbt(self, t: Target) -> Compiled:
@@ -209,6 +210,16 @@ class Workspace:
         if p not in known and not (p.suffix.lower() in (".txt", ".dbml") and any(p.is_relative_to(d) for d in folders)):
             raise ToolError(f"{file} is not one of this project's schema files (or a new .txt/.dbml in its folder)")
         return {p: content}
+
+
+def _dbt_stamp(root: Path | None) -> tuple:
+    """The state of the files a linked dbt project contributes (what `qdbd serve` polls)."""
+    if root is None:
+        return ()
+    try:
+        return tuple((str(f), *_stat(f)) for f in dbtyml.watched_files(root))
+    except (dbtyml.DbtError, OSError):
+        return (("dbt", "unreadable"),)
 
 
 def _stat(f: Path) -> tuple[int, int]:
