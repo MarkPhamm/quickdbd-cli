@@ -674,6 +674,9 @@
     if (finput.value.trim() !== S.filter) finput.value = S.filter;
     computeView();
     if (S.focus && !S.shown[S.focus]) S.focus = null;
+    // the path goes through the filtered tables only (or there is none, "with the current filter")
+    if (S.path && !S.focus) S.path = null;
+    else if (S.path) S.path.steps = Q.findPath(S.vm, S.focus, S.path.to);
     render();
     drawTree();
     if (S.focus) showDetails(S.focus);
