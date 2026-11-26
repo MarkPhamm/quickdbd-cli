@@ -45,3 +45,17 @@ def test_toolbar_breakpoint_follows_the_stage_width():
     # explorer (16 + 270px) and the widest toolbar (~750px, with Regions) must fit side by side above it
     assert int(m.group(1)) >= 1060
     assert re.search(rf"var NARROW = {m.group(1)};", VIEWER), "fit() must know where the toolbar is"
+
+
+def _function_body(name: str) -> str:
+    m = re.search(rf"function {name}\(.*?\n  \}}\n", VIEWER, re.S)
+    assert m, name
+    return m.group(0)
+
+
+def test_filter_recomputes_the_join_path():
+    # A filter that hid a table on the shown path made pathSql look it up in the filtered model and throw (#246)
+    body = _function_body("applyFilter")
+    recompute = body.find("S.path.steps = Q.findPath(S.vm, S.focus, S.path.to)")
+    assert recompute != -1, "applyFilter must recompute the path for the filtered view"
+    assert recompute < body.find("showDetails(S.focus)")
