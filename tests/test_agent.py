@@ -1,5 +1,6 @@
 """The `qdbd mcp` tools (agent.py), called directly on real fixtures."""
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -181,3 +182,17 @@ def test_diff_against_the_branch_point(repo):
     assert md.startswith("### Schema changes")
     with pytest.raises(ToolError, match="not a git ref"):
         call(ws, "diff_schema", base="--output=x")
+
+
+def test_dbt_yml_edits_reach_a_running_server(tmp_path, monkeypatch):
+    # The compile cache was keyed on the schema files only: a yml edit stayed invisible until a restart (#250)
+    monkeypatch.chdir(tmp_path)
+    proj = copy("tests/fixtures/dbt-yml", tmp_path)
+    ws = Workspace(proj)
+    assert "Order total, in cents." in text(ws, "describe_tables", tables=["orders"])
+    yml = proj / "models" / "marts" / "schema.yml"
+    old = yml.stat().st_mtime_ns
+    yml.write_text(yml.read_text(encoding="utf-8").replace("Order total, in cents.", "Changed."), encoding="utf-8")
+    os.utime(yml, ns=(old + 10**9, old + 10**9))  # a coarse filesystem clock could leave the mtime unchanged
+    out = text(ws, "describe_tables", tables=["orders"])
+    assert "Changed." in out and "Order total" not in out
