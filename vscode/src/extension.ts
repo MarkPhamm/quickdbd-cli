@@ -15,7 +15,7 @@ import { exportDiagram, share, type Format } from "./export.ts";
 import { registerMcp, schemaFolders } from "./mcp.ts";
 import { serverDefs, type ServerDef } from "./mcpdef.ts";
 import { Previews } from "./preview.ts";
-import type { Target } from "./schema.ts";
+import { targetKey, type Target } from "./schema.ts";
 import { isSchemaArg, Sidebar, type Node } from "./sidebar.ts";
 import { registerSymbols } from "./symbols.ts";
 import { schemaLanguage, targetTitle, type SchemaLanguage } from "./target.ts";
@@ -88,9 +88,20 @@ export function activate(context: vscode.ExtensionContext): Api {
     const plain = arg && typeof arg === "object" && !isSchemaArg(arg) && !(arg instanceof vscode.Uri);
     if (doc) return fn(doc, plain ? { ...arg } : {});
   };
+  // Export, convert and share run qdbd on the files, so unsaved edits are saved first (as VS Code does before a task);
+  // otherwise the output would quietly miss them. The diagram follows saves, so it doesn't need this.
+  const withSavedSchema = (fn: (doc: vscode.TextDocument, opts: Record<string, unknown>) => unknown) =>
+    withSchema(async (doc, opts) => {
+      const key = targetKey(checker.targetFor(doc));
+      for (const d of vscode.workspace.textDocuments) {
+        if (!d.isDirty || d.uri.scheme !== "file" || !isSchemaLanguage(d.languageId)) continue;
+        if (targetKey(checker.targetFor(d)) === key && !(await d.save())) return undefined;
+      }
+      return fn(doc, opts);
+    });
   const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
   const exporter = (format: Format) =>
-    withSchema((doc, opts) => exportDiagram(qdbd, checker, doc, format, str(opts.output)));
+    withSavedSchema((doc, opts) => exportDiagram(qdbd, checker, doc, format, str(opts.output)));
 
   context.subscriptions.push(
     log,
@@ -127,7 +138,7 @@ export function activate(context: vscode.ExtensionContext): Api {
     vscode.commands.registerCommand("quickdbd.exportHtml", exporter("html")),
     vscode.commands.registerCommand(
       "quickdbd.export",
-      withSchema(async (doc) => {
+      withSavedSchema(async (doc) => {
         const formats: { label: string; format: Format }[] = [
           { label: "PNG image", format: "png" },
           { label: "SVG image", format: "svg" },
@@ -138,14 +149,14 @@ export function activate(context: vscode.ExtensionContext): Api {
         if (pick) await exportDiagram(qdbd, checker, doc, pick.format);
       }),
     ),
-    vscode.commands.registerCommand("quickdbd.share", withSchema((doc) => share(qdbd, checker, doc))),
+    vscode.commands.registerCommand("quickdbd.share", withSavedSchema((doc) => share(qdbd, checker, doc))),
     vscode.commands.registerCommand(
       "quickdbd.convertToDbml",
-      withSchema((doc, opts) => convertSchema(qdbd, checker, doc, "dbml", log, str(opts.output))),
+      withSavedSchema((doc, opts) => convertSchema(qdbd, checker, doc, "dbml", log, str(opts.output))),
     ),
     vscode.commands.registerCommand(
       "quickdbd.convertToQuickdbd",
-      withSchema((doc, opts) => convertSchema(qdbd, checker, doc, "quickdbd", log, str(opts.output))),
+      withSavedSchema((doc, opts) => convertSchema(qdbd, checker, doc, "quickdbd", log, str(opts.output))),
     ),
     vscode.commands.registerCommand(
       "quickdbd.compare",

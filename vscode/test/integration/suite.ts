@@ -272,6 +272,7 @@ export async function run(): Promise<void> {
   step("new schema file: opened with its diagram, listed in the sidebar");
 
   await testUntitled();
+  await testUnsavedExport(ws);
   await testMcp(api, ws);
   if (process.env.QDBD_TEST_INSTALL) await testInstall(doc);
 
@@ -408,4 +409,26 @@ async function testUntitled(): Promise<void> {
     vscode.languages.getDiagnostics().some(([u]) => u.scheme === "untitled") ? undefined : true,
   );
   step("untitled schema: live errors, outline, and Open Diagram asks to save it");
+}
+
+/** Export and Convert run qdbd on files: with unsaved edits they save first, so the output has what the editor shows. */
+async function testUnsavedExport(ws: string): Promise<void> {
+  const file = path.join(ws, "dirty", "shop.txt");
+  const doc = await vscode.workspace.openTextDocument(file);
+  const editor = await vscode.window.showTextDocument(doc);
+  await editor.edit((e) => e.insert(new vscode.Position(doc.lineCount, 0), "\nUnsavedTable\n-\nId PK int\n"));
+  assert.ok(doc.isDirty);
+  void vscode.commands.executeCommand("quickdbd.exportHtml", { output: "shop.html" });
+  const page = path.join(ws, "dirty", "shop.html");
+  const html = await until("shop.html", () => (fs.existsSync(page) ? fs.readFileSync(page, "utf8") : undefined));
+  assert.ok(html.includes("UnsavedTable"), "the exported page has the unsaved table");
+  assert.equal(doc.isDirty, false, "saved first");
+  await editor.edit((e) => e.insert(new vscode.Position(doc.lineCount, 0), "\nAnother\n-\nId PK int\n"));
+  await vscode.commands.executeCommand("quickdbd.convertToDbml", { output: "../dirty-dbml" });
+  const dbml = await until("shop.dbml", () => {
+    const f = path.join(ws, "dirty-dbml", "shop.dbml");
+    return fs.existsSync(f) ? fs.readFileSync(f, "utf8") : undefined;
+  });
+  assert.match(dbml, /Table Another/, "the converted file has the unsaved table");
+  step("export and convert save unsaved edits first");
 }
