@@ -59,3 +59,11 @@ def test_filter_recomputes_the_join_path():
     recompute = body.find("S.path.steps = Q.findPath(S.vm, S.focus, S.path.to)")
     assert recompute != -1, "applyFilter must recompute the path for the filtered view"
     assert recompute < body.find("showDetails(S.focus)")
+
+
+def test_show_both_tables_selects_exact_ids():
+    # a name glob (spaces as ?) also matched Order_Items, and 'sales:Orders' parsed as a selector method (#247)
+    m = re.search(r'ev\.target\.id === "rboth".*?\n    \}', VIEWER, re.S)
+    assert m
+    assert '"id:" + ' in m.group(0)
+    assert "replace(" not in m.group(0)
