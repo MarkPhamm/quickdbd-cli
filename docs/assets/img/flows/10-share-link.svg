@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 533" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 10: a data modeller shares the diagram as a file, a secret link or a live read-only view</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="533" fill="#fff"/>
+
+  <rect class="lane" x="1" y="1" width="938" height="170"/>
+  <rect class="lane" x="1" y="171" width="938" height="230"/>
+  <rect class="lane" x="1" y="401" width="938" height="130"/>
+  <rect class="head" x="1" y="1" width="35" height="170"/>
+  <rect class="head" x="1" y="171" width="35" height="230"/>
+  <rect class="head" x="1" y="401" width="35" height="130"/>
+  <text class="ln" transform="translate(23,86) rotate(-90)">Data modeller</text>
+  <text class="ln" transform="translate(23,286) rotate(-90)">qdbd</text>
+  <text class="ln" transform="translate(23,466) rotate(-90)">Stakeholder</text>
+
+  <circle class="start" cx="86" cy="40" r="14"/>
+  <text class="s" x="86" y="68">Wants to share</text>
+
+  <polygon class="gate" points="330,60 382,98 330,136 278,98"/>
+  <text class="t" x="330" y="94">1. How to</text>
+  <text class="t" x="330" y="110">share?</text>
+
+  <rect class="task" x="50" y="214" width="140" height="52" rx="6"/>
+  <text class="t" x="120" y="237">2. Build one file</text>
+  <text class="s" x="120" y="254">one page, no account</text>
+
+  <polygon class="gate" points="330,202 382,240 330,278 278,240"/>
+  <text class="t" x="330" y="236">3. Sharing</text>
+  <text class="t" x="330" y="252">turned on?</text>
+  <circle class="fail" cx="240" cy="240" r="14"/>
+  <text class="s" x="240" y="274">Refused</text>
+
+  <polygon class="gate" points="480,202 542,240 480,278 418,240"/>
+  <text class="t" x="480" y="236">4. Confirm</text>
+  <text class="t" x="480" y="252">disclaimer?</text>
+  <circle class="fail" cx="480" cy="322" r="14"/>
+  <text class="s" x="500" y="326" style="text-anchor:start">Not shared</text>
+
+  <rect class="task" x="580" y="214" width="130" height="52" rx="6"/>
+  <text class="t" x="645" y="237">5. Upload gist</text>
+  <text class="s" x="645" y="254">needs GitHub sign-in</text>
+
+  <rect class="task" x="760" y="214" width="150" height="52" rx="6"/>
+  <text class="t" x="835" y="237">6. Serve read-only</text>
+  <text class="s" x="835" y="254">viewers cannot edit</text>
+
+  <rect class="task" x="420" y="440" width="150" height="52" rx="6"/>
+  <text class="t" x="495" y="463">7. Open diagram</text>
+  <text class="s" x="495" y="480">in a web browser</text>
+
+  <circle class="end" cx="610" cy="466" r="14"/>
+  <text class="s" x="630" y="470" style="text-anchor:start">Diagram seen</text>
+
+  <path class="f" d="M100,40 H330 V58"/>
+  <path class="f" d="M278,98 H120 V212"/>
+  <text class="l" x="190" y="90">File</text>
+  <path class="f" d="M330,136 V200"/>
+  <text class="l" x="338" y="162">Secret link</text>
+  <path class="f" d="M382,98 H835 V212"/>
+  <text class="l" x="400" y="90">Live view</text>
+  <path class="f" d="M278,240 H256"/>
+  <text class="l" x="259" y="232">No</text>
+  <path class="f" d="M382,240 H416"/>
+  <text class="l" x="388" y="232">Yes</text>
+  <path class="f" d="M480,278 V306"/>
+  <text class="l" x="488" y="298">No</text>
+  <path class="f" d="M542,240 H578"/>
+  <text class="l" x="548" y="232">Yes</text>
+  <path class="f" d="M120,266 V466 H418"/>
+  <text class="l" x="190" y="458">Send the file</text>
+  <path class="f" d="M645,266 V420 H520 V438"/>
+  <text class="l" x="653" y="350">Send the link</text>
+  <path class="f" d="M835,266 V508 H495 V494"/>
+  <text class="l" x="843" y="350">Send the URL</text>
+  <path class="f" d="M570,466 H594"/>
+</svg>

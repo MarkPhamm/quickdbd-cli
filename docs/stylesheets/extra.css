@@ -188,6 +188,8 @@
 
 /* screenshots, buttons, cards, embedded demo */
 .md-typeset img.shot { border-radius: 10px; border: 1px solid var(--bp-rule-strong); box-shadow: var(--bp-e2); }
+/* user-flow swimlanes (docs/flows/): plain diagrams, full column width */
+.md-typeset img.flow { display: block; width: 100%; height: auto; background: var(--bp-white); border: 1px solid var(--bp-rule-strong); border-radius: 8px; }
 .md-typeset .md-button { border-radius: 8px; color: var(--bp-ink); border: 1px solid var(--bp-rule-strong); background: var(--bp-sheet);
   font-weight: 500; transition: background-color var(--bp-t-hover) linear, border-color var(--bp-t-hover) linear, color var(--bp-t-hover) linear; }
 .md-typeset .md-button:hover { color: var(--bp-ink); background: var(--bp-white); border-color: var(--bp-ink-3); }

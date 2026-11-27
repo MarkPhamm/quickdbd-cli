@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 533" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 6: pull request check, from opening a pull request to a reviewer decision</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="533" fill="#fff"/>
+
+  <rect class="lane" x="1" y="1" width="938" height="130"/>
+  <rect class="lane" x="1" y="131" width="938" height="270"/>
+  <rect class="lane" x="1" y="401" width="938" height="130"/>
+  <rect class="head" x="1" y="1" width="35" height="130"/>
+  <rect class="head" x="1" y="131" width="35" height="270"/>
+  <rect class="head" x="1" y="401" width="35" height="130"/>
+  <text class="ln" transform="translate(23,66) rotate(-90)">Developer</text>
+  <text class="ln" transform="translate(23,266) rotate(-90)">GitHub Actions</text>
+  <text class="ln" transform="translate(23,466) rotate(-90)">Reviewer</text>
+
+  <circle class="start" cx="70" cy="66" r="14"/>
+  <text class="s" x="70" y="106">PR opened</text>
+  <rect class="task" x="108" y="40" width="140" height="52" rx="6"/>
+  <text class="t" x="178" y="63">1. Update the PR</text>
+  <text class="s" x="178" y="80">open it or push more</text>
+  <rect class="task" x="52" y="155" width="126" height="52" rx="6"/>
+  <text class="t" x="115" y="178">2. Install qdbd</text>
+  <text class="s" x="115" y="195">Python and qdbd</text>
+  <rect class="opt" x="202" y="155" width="150" height="52" rx="6"/>
+  <text class="t" x="277" y="178">3. Import from dbt</text>
+  <text class="s" x="277" y="195">only if dbt is set up</text>
+  <polygon class="gate" points="428,143 480,181 428,219 376,181"/>
+  <text class="t" x="428" y="177">4. Schema</text>
+  <text class="t" x="428" y="193">valid?</text>
+  <rect class="task" x="508" y="155" width="150" height="52" rx="6"/>
+  <text class="t" x="583" y="178">5. Compare to base</text>
+  <text class="s" x="583" y="195">base branch latest</text>
+  <rect class="task" x="680" y="155" width="136" height="52" rx="6"/>
+  <text class="t" x="748" y="178">6. Build diagram</text>
+  <text class="s" x="748" y="195">changes in colour</text>
+  <rect class="task" x="673" y="275" width="150" height="52" rx="6"/>
+  <text class="t" x="748" y="298">7. Upload artifact</text>
+  <text class="s" x="748" y="315">saved with the run</text>
+  <polygon class="gate" points="575,263 627,301 575,339 523,301"/>
+  <text class="t" x="575" y="297">8. Fork</text>
+  <text class="t" x="575" y="313">PR?</text>
+  <polygon class="gate" points="405,263 457,301 405,339 353,301"/>
+  <text class="t" x="405" y="297">9. Comment</text>
+  <text class="t" x="405" y="313">needed?</text>
+  <rect class="task" x="150" y="275" width="150" height="52" rx="6"/>
+  <text class="t" x="225" y="298">10. Post or update</text>
+  <text class="s" x="225" y="315">one PR comment</text>
+  <circle class="end" cx="405" cy="375" r="14"/>
+  <text class="s" x="427" y="379" style="text-anchor:start">No comment posted</text>
+  <rect class="task" x="690" y="40" width="150" height="52" rx="6"/>
+  <text class="t" x="765" y="63">Fix and push again</text>
+  <text class="s" x="765" y="80">errors or review notes</text>
+  <rect class="task" x="150" y="440" width="150" height="52" rx="6"/>
+  <text class="t" x="225" y="463">11. Read summary</text>
+  <text class="s" x="225" y="480">comment or run page</text>
+  <rect class="task" x="340" y="440" width="150" height="52" rx="6"/>
+  <text class="t" x="415" y="463">12. Open diagram</text>
+  <text class="s" x="415" y="480">download, view changes</text>
+  <polygon class="gate" points="590,428 642,466 590,504 538,466"/>
+  <text class="t" x="590" y="462">13. Change</text>
+  <text class="t" x="590" y="478">approved?</text>
+  <circle class="end" cx="700" cy="466" r="14"/>
+  <text class="s" x="700" y="441">Ready to merge</text>
+  <path class="f" d="M84,66 H106"/>
+  <path class="f" d="M160,92 V153"/>
+  <path class="f" d="M178,181 H200"/>
+  <path class="f" d="M352,181 H374"/>
+  <path class="f" d="M480,181 H506"/>
+  <text class="l" x="485" y="173">Yes</text>
+  <path class="f" d="M658,181 H678"/>
+  <path class="f" d="M748,207 V273"/>
+  <path class="f" d="M673,301 H629"/>
+  <path class="f" d="M523,301 H459"/>
+  <text class="l" x="490" y="293">No</text>
+  <path class="f" d="M353,301 H302"/>
+  <text class="l" x="317" y="293">Yes</text>
+  <path class="f" d="M405,339 V357"/>
+  <text class="l" x="413" y="353">No</text>
+  <path class="f" d="M575,339 V420 H260 V438"/>
+  <text class="l" x="583" y="357">Yes</text>
+  <path class="f" d="M225,327 V438"/>
+  <path class="f" d="M300,466 H338"/>
+  <path class="f" d="M490,466 H536"/>
+  <text class="l" x="646" y="458">Yes</text>
+  <path class="f" d="M642,466 H682"/>
+  <path class="f" d="M428,143 V108 H765 V94"/>
+  <text class="l" x="436" y="126">No: job fails</text>
+  <path class="f" d="M688,66 H250"/>
+  <path class="f" d="M590,504 V522 H890 V66 H842"/>
+  <text class="l" x="598" y="514">No: request changes</text>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 13: ask an AI assistant, which calls qdbd tools and answers from the real schema</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="392" fill="#fff"/>
+  <rect class="lane" x="1" y="1" width="938" height="129"/>
+  <rect class="head" x="1" y="1" width="35" height="129"/>
+  <text class="ln" transform="translate(23,65) rotate(-90)">Developer</text>
+  <rect class="lane" x="1" y="130" width="938" height="130"/>
+  <rect class="head" x="1" y="130" width="35" height="130"/>
+  <text class="ln" transform="translate(23,195) rotate(-90)">AI assistant</text>
+  <rect class="lane" x="1" y="260" width="938" height="130"/>
+  <rect class="head" x="1" y="260" width="35" height="130"/>
+  <text class="ln" transform="translate(23,325) rotate(-90)">qdbd (MCP server)</text>
+  <circle class="start" cx="66" cy="65" r="14"/>
+  <text class="s" x="86" y="104" style="text-anchor:middle">Has a question</text>
+  <path class="f" d="M80,65 H98"/>
+  <rect class="task" x="100" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="170" y="62">1. Set up once</text>
+  <text class="s" x="170" y="79">per chat tool</text>
+  <path class="f" d="M240,65 H263"/>
+  <rect class="task" x="265" y="39" width="130" height="52" rx="6"/>
+  <text class="t" x="330" y="62">2. Ask in chat</text>
+  <text class="s" x="330" y="79">a plain question</text>
+  <path class="f" d="M330,91 V167"/>
+  <rect class="task" x="255" y="169" width="150" height="52" rx="6"/>
+  <text class="t" x="330" y="192">3. Choose a tool</text>
+  <text class="s" x="330" y="209">tables, joins, checks</text>
+  <path class="f" d="M407,195 H423"/>
+  <polygon class="gate" points="425,195 490,157 555,195 490,233"/>
+  <text class="t" x="490" y="191">4. Several</text>
+  <text class="t" x="490" y="207">projects?</text>
+  <path class="f" d="M490,233 V297"/>
+  <text class="l" x="498" y="252">Yes</text>
+  <rect class="task" x="420" y="299" width="140" height="52" rx="6"/>
+  <text class="t" x="490" y="322">5. List projects</text>
+  <text class="s" x="490" y="339">finds the right one</text>
+  <path class="f" d="M557,195 H680 V297"/>
+  <text class="l" x="563" y="187">No</text>
+  <path class="f" d="M562,325 H603"/>
+  <rect class="task" x="605" y="299" width="150" height="52" rx="6"/>
+  <text class="t" x="680" y="322">6. Run the tool</text>
+  <text class="s" x="680" y="339">read-only, short answer</text>
+  <path class="f" d="M757,325 H810 V223"/>
+  <rect class="task" x="735" y="169" width="150" height="52" rx="6"/>
+  <text class="t" x="810" y="192">7. Write the reply</text>
+  <text class="s" x="810" y="209">in plain words</text>
+  <path class="f" d="M810,167 V81"/>
+  <circle class="end" cx="810" cy="65" r="14"/>
+  <text class="s" x="810" y="40" style="text-anchor:middle">Answer from the real schema</text>
+</svg>

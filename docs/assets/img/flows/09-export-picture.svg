@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 9: a data modeller exports a picture of the model for a document</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="392" fill="#fff"/>
+
+  <rect class="lane" x="1" y="1" width="938" height="129"/>
+  <rect class="lane" x="1" y="130" width="938" height="130"/>
+  <rect class="lane" x="1" y="260" width="938" height="130"/>
+  <rect class="head" x="1" y="1" width="35" height="129"/>
+  <rect class="head" x="1" y="130" width="35" height="130"/>
+  <rect class="head" x="1" y="260" width="35" height="130"/>
+  <text class="ln" transform="translate(23,65) rotate(-90)">Data modeller</text>
+  <text class="ln" transform="translate(23,195) rotate(-90)">qdbd</text>
+  <text class="ln" transform="translate(23,325) rotate(-90)">Document</text>
+
+  <circle class="start" cx="86" cy="65" r="14"/>
+  <text class="s" x="86" y="104">Needs an image</text>
+
+  <polygon class="gate" points="190,27 242,65 190,103 138,65"/>
+  <text class="t" x="190" y="61">1. Whole or</text>
+  <text class="t" x="190" y="77">part?</text>
+
+  <rect class="task" x="290" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="360" y="62">2. Choose the part</text>
+  <text class="s" x="360" y="79">table, hops or filter</text>
+
+  <rect class="task" x="290" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="360" y="192">3. Draw the image</text>
+  <text class="s" x="360" y="209">PNG, SVG or draw.io</text>
+
+  <rect class="task" x="500" y="299" width="140" height="52" rx="6"/>
+  <text class="t" x="570" y="322">4. Paste the image</text>
+  <text class="s" x="570" y="339">docs, slides or wiki</text>
+
+  <circle class="end" cx="700" cy="325" r="14"/>
+  <text class="s" x="700" y="364">Picture in place</text>
+
+  <path class="f" d="M100,65 H136"/>
+  <path class="f" d="M190,103 V195 H288"/>
+  <text class="l" x="198" y="150">Whole</text>
+  <path class="f" d="M242,65 H288"/>
+  <text class="l" x="244" y="57">Part</text>
+  <path class="f" d="M360,91 V167"/>
+  <path class="f" d="M430,195 H470 V325 H498"/>
+  <path class="f" d="M640,325 H684"/>
+</svg>

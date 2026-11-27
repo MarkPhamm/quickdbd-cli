@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 3: organise a large schema by splitting files, grouping, tagging and filtering</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="392" fill="#fff"/>
+
+  <!-- lanes -->
+  <rect class="lane" x="1" y="1" width="938" height="129"/>
+  <rect class="lane" x="1" y="130" width="938" height="130"/>
+  <rect class="lane" x="1" y="260" width="938" height="130"/>
+  <rect class="head" x="1" y="1" width="35" height="129"/>
+  <rect class="head" x="1" y="130" width="35" height="130"/>
+  <rect class="head" x="1" y="260" width="35" height="130"/>
+  <text class="ln" transform="translate(23,65) rotate(-90)">Data modeller</text>
+  <text class="ln" transform="translate(23,195) rotate(-90)">qdbd</text>
+  <text class="ln" transform="translate(23,325) rotate(-90)">Reader</text>
+
+  <circle class="start" cx="84" cy="65" r="14"/>
+  <text class="s" x="44" y="104" style="text-anchor:start">Too many tables</text>
+  <rect class="task" x="116" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="186" y="62">1. Split into files</text>
+  <text class="s" x="186" y="79">one per domain</text>
+  <rect class="opt" x="284" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="354" y="62">2. Tag tables</text>
+  <text class="s" x="354" y="79">colours and filters</text>
+  <rect class="task" x="282" y="169" width="144" height="52" rx="6"/>
+  <text class="t" x="354" y="192">3. Build one diagram</text>
+  <text class="s" x="354" y="209">all files, one page</text>
+  <rect class="task" x="456" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="526" y="192">4. Group by file</text>
+  <text class="s" x="526" y="209">regions per file</text>
+  <polygon class="gate" points="680,157 732,195 680,233 628,195"/>
+  <text class="t" x="680" y="199">5. Readable?</text>
+  <rect class="opt" x="766" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="836" y="192">6. Limit the page</text>
+  <text class="s" x="836" y="209">show some tables</text>
+  <rect class="task" x="762" y="299" width="148" height="52" rx="6"/>
+  <text class="t" x="836" y="322">7. Filter tables</text>
+  <text class="s" x="836" y="339">search, tags, selectors</text>
+  <rect class="task" x="574" y="299" width="140" height="52" rx="6"/>
+  <text class="t" x="644" y="322">8. Adjust the view</text>
+  <text class="s" x="644" y="339">regions, detail level</text>
+  <circle class="end" cx="530" cy="325" r="14"/>
+  <text class="s" x="530" y="366">Reader finds the tables</text>
+
+  <!-- flows -->
+  <path class="f" d="M98,65 H114"/>
+  <path class="f" d="M256,65 H282"/>
+  <path class="f" d="M354,91 V167"/>
+  <path class="f" d="M426,195 H454"/>
+  <path class="f" d="M596,195 H626"/>
+  <path class="f" d="M680,157 V22 H186 V37"/>
+  <text class="l" x="688" y="118">No: split further</text>
+  <path class="f" d="M732,195 H764"/>
+  <text class="l" x="736" y="187">Yes</text>
+  <path class="f" d="M836,221 V297"/>
+  <path class="f" d="M762,325 H716"/>
+  <path class="f" d="M574,325 H546"/>
+</svg>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 342" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 11: start from a dbt project, by import or by linking the dbt folder</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="342" fill="#fff"/>
+  <rect class="lane" x="1" y="1" width="938" height="200"/>
+  <rect class="head" x="1" y="1" width="35" height="200"/>
+  <text class="ln" transform="translate(23,101) rotate(-90)">Data modeller</text>
+  <rect class="lane" x="1" y="201" width="938" height="140"/>
+  <rect class="head" x="1" y="201" width="35" height="140"/>
+  <text class="ln" transform="translate(23,271) rotate(-90)">qdbd</text>
+  <circle class="start" cx="70" cy="65" r="14"/>
+  <text class="s" x="86" y="104" style="text-anchor:middle">Tables in dbt</text>
+  <path class="f" d="M84,65 H113"/>
+  <polygon class="gate" points="115,65 175,27 235,65 175,103"/>
+  <text class="t" x="175" y="61">1. Manifest</text>
+  <text class="t" x="175" y="77">available?</text>
+  <path class="f" d="M237,65 H418"/>
+  <text class="l" x="243" y="57">Yes</text>
+  <rect class="opt" x="420" y="39" width="160" height="52" rx="6"/>
+  <text class="t" x="500" y="62">2. Add column types</text>
+  <text class="s" x="500" y="79">optional, adds types</text>
+  <path class="f" d="M500,91 V243"/>
+  <rect class="task" x="425" y="245" width="150" height="52" rx="6"/>
+  <text class="t" x="500" y="268">3. Import from dbt</text>
+  <text class="s" x="500" y="285">one file per folder</text>
+  <path class="fo" d="M577,271 H610"/>
+  <rect class="opt" x="612" y="245" width="130" height="52" rx="6"/>
+  <text class="t" x="677" y="268">4. Guess links</text>
+  <text class="s" x="677" y="285">from column names</text>
+  <path class="f" d="M744,271 H777"/>
+  <rect class="task" x="779" y="245" width="140" height="52" rx="6"/>
+  <text class="t" x="849" y="268">9. Build diagram</text>
+  <text class="s" x="849" y="285">same as flow 1</text>
+  <path class="f" d="M849,243 V81"/>
+  <circle class="end" cx="849" cy="65" r="14"/>
+  <text class="s" x="849" y="40" style="text-anchor:middle">Diagram ready</text>
+  <path class="f" d="M175,103 V122"/>
+  <text class="l" x="183" y="117">No</text>
+  <rect class="task" x="105" y="124" width="140" height="52" rx="6"/>
+  <text class="t" x="175" y="147">5. Write schema</text>
+  <text class="s" x="175" y="164">add a link to dbt</text>
+  <path class="f" d="M175,176 V243"/>
+  <rect class="task" x="97" y="245" width="156" height="52" rx="6"/>
+  <text class="t" x="175" y="268">6. Merge dbt details</text>
+  <text class="s" x="175" y="285">no manifest needed</text>
+  <path class="f" d="M255,271 H268"/>
+  <polygon class="gate" points="270,271 330,233 390,271 330,309"/>
+  <text class="t" x="330" y="267">7. Drift</text>
+  <text class="t" x="330" y="283">warnings?</text>
+  <path class="f" d="M330,233 V178"/>
+  <text class="l" x="338" y="226">Yes</text>
+  <rect class="task" x="270" y="124" width="120" height="52" rx="6"/>
+  <text class="t" x="330" y="147">8. Fix drift</text>
+  <text class="s" x="330" y="164">edit schema or yml</text>
+  <path class="f" d="M268,150 H247"/>
+  <path class="f" d="M330,309 V326 H849 V299"/>
+  <text class="l" x="338" y="322">No</text>
+</svg>

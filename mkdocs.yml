@@ -91,4 +91,10 @@ nav:
   - 7. CI and Automation: github-action.md
   - 8. CLI Reference: cli.md
   - 9. Development: development.md
+  - 10. User Flows:
+      - 10.1 Overview: flows/index.md
+      - 10.2 Build the Model: flows/build.md
+      - 10.3 Review Changes: flows/review.md
+      - 10.4 Use and Share: flows/share.md
+      - 10.5 Other Ways In: flows/integrations.md
   - Release Notes: https://github.com/MarkPhamm/quickdbd-cli/releases

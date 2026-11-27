@@ -26,6 +26,8 @@ hand-written / pasted ─────────┘           │
 
 </div>
 
+Step-by-step swimlanes for each use case, from a first diagram to pull request review, are in [User Flows](flows/index.md).
+
 Every command reads the same schema files, so the page, the images and the PR comment always agree. The [GitHub Action](github-action.md#github-action) runs `check`, `build` and `diff` on every pull request.
 
 ## The guide
@@ -43,6 +45,7 @@ Read it in order the first time; each step builds on the one before.
 | 7 | [CI and Automation](github-action.md) | The GitHub Action, GitHub Pages, pre-commit and other CI systems |
 | 8 | [CLI Reference](cli.md) | Every command and exit code |
 | 9 | [Development](development.md) | Working on qdbd itself |
+| 10 | [User Flows](flows/index.md) | Swimlane diagrams of each use case, from a first diagram to pull request review |
 
 <div class="grid cards" markdown>
 

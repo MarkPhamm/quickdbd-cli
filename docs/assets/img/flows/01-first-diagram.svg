@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 1: first diagram, from install to a diagram the stakeholder explores</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="392" fill="#fff"/>
+
+  <!-- lanes: header 36px, height 130 -->
+  <rect class="lane" x="1" y="1" width="938" height="129"/>
+  <rect class="lane" x="1" y="130" width="938" height="130"/>
+  <rect class="lane" x="1" y="260" width="938" height="130"/>
+  <rect class="head" x="1" y="1" width="35" height="129"/>
+  <rect class="head" x="1" y="130" width="35" height="130"/>
+  <rect class="head" x="1" y="260" width="35" height="130"/>
+  <text class="ln" transform="translate(23,65) rotate(-90)">Data modeller</text>
+  <text class="ln" transform="translate(23,195) rotate(-90)">qdbd</text>
+  <text class="ln" transform="translate(23,325) rotate(-90)">Stakeholder</text>
+
+  <!-- shapes -->
+  <circle class="start" cx="86" cy="65" r="14"/>
+  <text class="s" x="86" y="104">Needs a diagram</text>
+
+  <rect class="task" x="118" y="39" width="120" height="52" rx="6"/>
+  <text class="t" x="178" y="62">1. Install qdbd</text>
+  <text class="s" x="178" y="79">one-time setup</text>
+
+  <rect class="task" x="276" y="39" width="132" height="52" rx="6"/>
+  <text class="t" x="342" y="62">2. Write table list</text>
+  <text class="s" x="342" y="79">tables, columns, links</text>
+
+  <polygon class="gate" points="475,157 527,195 475,233 423,195"/>
+  <text class="t" x="475" y="191">3. Model</text>
+  <text class="t" x="475" y="207">valid?</text>
+
+  <rect class="task" x="562" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="632" y="192">4. Generate diagram</text>
+  <text class="s" x="632" y="209">laid out automatically</text>
+
+  <rect class="task" x="562" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="632" y="62">5. Review diagram</text>
+  <text class="s" x="632" y="79">in the browser</text>
+
+  <rect class="task" x="737" y="39" width="136" height="52" rx="6"/>
+  <text class="t" x="805" y="62">6. Share</text>
+  <text class="s" x="805" y="79">file, link or image</text>
+
+  <rect class="task" x="737" y="299" width="136" height="52" rx="6"/>
+  <text class="t" x="805" y="322">7. Explore diagram</text>
+  <text class="s" x="805" y="339">search, details, joins</text>
+
+  <circle class="end" cx="905" cy="325" r="14"/>
+  <text class="s" x="936" y="366" style="text-anchor:end">Model understood</text>
+
+  <!-- flows -->
+  <path class="f" d="M100,65 H116"/>
+  <path class="f" d="M238,65 H274"/>
+  <path class="f" d="M342,91 V195 H421"/>
+  <path class="f" d="M475,157 V65 H410"/>
+  <text class="l" x="483" y="120">No: fix errors</text>
+  <path class="f" d="M527,195 H560"/>
+  <text class="l" x="532" y="187">Yes</text>
+  <path class="f" d="M632,169 V93"/>
+  <path class="f" d="M702,65 H735"/>
+  <path class="f" d="M805,91 V297"/>
+  <path class="f" d="M873,325 H889"/>
+</svg>

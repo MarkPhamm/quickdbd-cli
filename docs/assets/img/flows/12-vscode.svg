@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 392" font-family="Geist, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Flow 12: work in VS Code, from installing the extension to sharing a link</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15181e"/></marker>
+  </defs>
+  <style>
+    .lane { fill: #fff; stroke: #646a75; stroke-width: 1; }
+    .head { fill: #f2f2ee; stroke: #646a75; stroke-width: 1; }
+    .ln { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .task { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .opt { fill: #fff; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .gate { fill: #e6edf6; stroke: #15181e; stroke-width: 1.5; }
+    .start { fill: #fff; stroke: #15181e; stroke-width: 1.5; }
+    .end { fill: #fff; stroke: #15181e; stroke-width: 3.5; }
+    .fail { fill: #fff; stroke: #a14a00; stroke-width: 3.5; }
+    .t { font-size: 13px; font-weight: 600; fill: #15181e; text-anchor: middle; }
+    .s { font-size: 11px; fill: #4a505b; text-anchor: middle; }
+    .l { font-size: 12px; fill: #15181e; }
+    .f { fill: none; stroke: #15181e; stroke-width: 1.5; marker-end: url(#arr); }
+    .fo { fill: none; stroke: #15181e; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arr); }
+  </style>
+  <rect width="940" height="392" fill="#fff"/>
+  <rect class="lane" x="1" y="1" width="938" height="129"/>
+  <rect class="head" x="1" y="1" width="35" height="129"/>
+  <text class="ln" transform="translate(23,65) rotate(-90)">Data modeller</text>
+  <rect class="lane" x="1" y="130" width="938" height="130"/>
+  <rect class="head" x="1" y="130" width="35" height="130"/>
+  <text class="ln" transform="translate(23,195) rotate(-90)">VS Code extension</text>
+  <rect class="lane" x="1" y="260" width="938" height="130"/>
+  <rect class="head" x="1" y="260" width="35" height="130"/>
+  <text class="ln" transform="translate(23,325) rotate(-90)">qdbd</text>
+  <circle class="start" cx="66" cy="65" r="14"/>
+  <text class="s" x="86" y="104" style="text-anchor:middle">Wants an editor</text>
+  <path class="f" d="M80,65 H98"/>
+  <rect class="task" x="100" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="170" y="62">1. Get extension</text>
+  <text class="s" x="170" y="79">Marketplace / Open VSX</text>
+  <path class="f" d="M170,91 V155"/>
+  <polygon class="gate" points="100,195 170,157 240,195 170,233"/>
+  <text class="t" x="170" y="191">2. Is qdbd</text>
+  <text class="t" x="170" y="207">ready?</text>
+  <path class="f" d="M240,195 H280 V93"/>
+  <text class="l" x="246" y="187">Yes</text>
+  <path class="f" d="M170,233 V297"/>
+  <text class="l" x="178" y="252">No</text>
+  <rect class="task" x="100" y="299" width="140" height="52" rx="6"/>
+  <text class="t" x="170" y="322">3. Install qdbd</text>
+  <text class="s" x="170" y="339">sets itself up, ~1 min</text>
+  <path class="f" d="M242,325 H280 V197"/>
+  <rect class="task" x="265" y="39" width="130" height="52" rx="6"/>
+  <text class="t" x="330" y="62">4. Open schema</text>
+  <text class="s" x="330" y="79">a .txt or .dbml file</text>
+  <path class="f" d="M375,91 V167"/>
+  <rect class="task" x="305" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="375" y="192">5. Live checking</text>
+  <text class="s" x="375" y="209">errors, outline, jump</text>
+  <path class="f" d="M447,195 H480 V93"/>
+  <rect class="task" x="440" y="39" width="130" height="52" rx="6"/>
+  <text class="t" x="505" y="62">6. Open preview</text>
+  <text class="s" x="505" y="79">beside the editor</text>
+  <path class="f" d="M540,91 V297"/>
+  <rect class="task" x="470" y="299" width="140" height="52" rx="6"/>
+  <text class="t" x="540" y="322">7. Draw diagram</text>
+  <text class="s" x="540" y="339">updates on every save</text>
+  <path class="fo" d="M612,325 H665 V93"/>
+  <rect class="opt" x="595" y="39" width="140" height="52" rx="6"/>
+  <text class="t" x="665" y="62">8. Extra actions</text>
+  <text class="s" x="665" y="79">export, compare, more</text>
+  <path class="f" d="M737,65 H753"/>
+  <polygon class="gate" points="755,65 805,27 855,65 805,103"/>
+  <text class="t" x="805" y="61">9. Share</text>
+  <text class="t" x="805" y="77">a link?</text>
+  <path class="f" d="M857,65 H887"/>
+  <text class="l" x="864" y="57">No</text>
+  <path class="f" d="M805,103 V167"/>
+  <text class="l" x="813" y="121">Yes</text>
+  <rect class="task" x="735" y="169" width="140" height="52" rx="6"/>
+  <text class="t" x="805" y="192">10. Share link</text>
+  <text class="s" x="805" y="209">after a warning dialog</text>
+  <path class="f" d="M877,195 H903 V81"/>
+  <circle class="end" cx="903" cy="65" r="14"/>
+  <text class="s" x="936" y="40" style="text-anchor:end">Done</text>
+</svg>
