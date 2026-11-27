@@ -296,3 +296,38 @@ def test_base_ref_reads_uppercase_extensions(tmp_path, capsys):
     for args in (["init", "-q"], ["add", "-A"], ["commit", "-qm", "base"]):
         subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=tmp_path, check=True)
     assert main(["diff", "--base", "HEAD", str(erd), "--exit-code"]) == 0, capsys.readouterr().out
+
+
+def test_build_diff_base_lays_out_removed_columns(tmp_path):
+    """Removed columns make a table taller: the layout must see that height, or it overlaps its neighbours."""
+
+    def git(*args):
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=tmp_path, check=True, capture_output=True
+        )
+
+    spokes = "".join(f"T{n}\n-\nid PK int\nhub int FK >- Hub.id\n\n" for n in range(6))
+    wide = "Hub\n-\nid PK int\n" + "".join(f"c{i} int\n" for i in range(12)) + "\n"
+    git("init", "-q", "-b", "main")
+    (tmp_path / "s.txt").write_text(wide + spokes)
+    git("add", "-A")
+    git("commit", "-q", "-m", "base")
+    (tmp_path / "s.txt").write_text("Hub\n-\nid PK int\n\n" + spokes)
+    out = tmp_path / "d.html"
+    assert main(["build", str(tmp_path / "s.txt"), "--diff-base", "main", "-o", str(out)]) == 0
+    data = json.loads(out.read_text().split('id="qdbd-data">', 1)[1].split("</script>", 1)[0])
+    tables, pos = data["model"]["tables"], data["positions"]
+    hub = next(t for t in tables if t["name"] == "Hub")
+    assert len(hub["cols"]) == 13  # the 12 removed columns are drawn
+
+    def box(t):
+        x, y = pos[t["id"]]
+        return x, y, x + t["w"], y + t["h"]
+
+    overlaps = [
+        (a["name"], b["name"])
+        for i, a in enumerate(tables)
+        for b in tables[i + 1 :]
+        if box(a)[0] < box(b)[2] and box(b)[0] < box(a)[2] and box(a)[1] < box(b)[3] and box(b)[1] < box(a)[3]
+    ]
+    assert overlaps == []

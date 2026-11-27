@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -107,13 +108,22 @@ class Project:
         return compile_sources(self.sources(overrides))
 
     def build(
-        self, schema: Schema, reset: bool = False, select: str | None = None, by_group: bool = False
+        self,
+        schema: Schema,
+        reset: bool = False,
+        select: str | None = None,
+        by_group: bool = False,
+        annotate: Callable[[dict], object] | None = None,
     ) -> tuple[dict, dict]:
         """Returns (model, positions) with positions keyed by table id as [x, y].
 
-        ``select`` is a dbt-style selector expression (see ``select_model``); unselected tables are dropped.
+        ``annotate`` changes the model before selection and layout (``diff.annotate_model`` adds removed tables and
+        columns, so they must be laid out at their drawn size). ``select`` is a dbt-style selector expression (see
+        ``select_model``); unselected tables are dropped.
         """
         model = model_json(schema)
+        if annotate:
+            annotate(model)
         if select:
             model = select_model(model, select)
         if by_group:  # fresh grouped layout; saved positions are ignored
