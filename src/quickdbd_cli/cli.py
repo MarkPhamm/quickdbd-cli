@@ -165,23 +165,20 @@ def _built_page(args) -> tuple[str, dict] | int:
     if not _print_diagnostics(schema, args.strict):
         return 1
     try:
+        annotate = None
         if args.diff_base:
-            # Diff first so `diff:` selectors work; then select.
+            # Annotate before selecting (so `diff:` selectors work) and before layout (removed tables and columns
+            # are drawn, so they must be placed at their drawn size).
             from . import diff
 
-            model, pos = project.build(schema, by_group=args.by_group)
             old = diff.schema_at_ref(args.diff_base, project.inputs)
-            diff.annotate_model(model, old, diff.diff_schemas(old, schema), args.diff_base)
-            # removed tables were not laid out: put them next to their old neighbours
-            pos = {k: list(v) for k, v in layout.place_missing(model["tables"], model["rels"], pos).items()}
-            expr = selector_expr(args.select, args.exclude)
-            if expr:
-                from .project import select_model
 
-                model = select_model(model, expr)
-                pos = {k: v for k, v in pos.items() if any(t["id"] == k for t in model["tables"])}
-        else:
-            model, pos = project.build(schema, select=selector_expr(args.select, args.exclude), by_group=args.by_group)
+            def annotate(model: dict) -> None:
+                diff.annotate_model(model, old, diff.diff_schemas(old, schema), args.diff_base)
+
+        model, pos = project.build(
+            schema, select=selector_expr(args.select, args.exclude), by_group=args.by_group, annotate=annotate
+        )
     except SelectionError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
@@ -431,7 +428,7 @@ def cmd_import_dbt(args) -> int:
 
 
 def cmd_convert(args) -> int:
-    from . import convert, layout
+    from . import convert
     from .parser import compile_sources
 
     inputs = [Path(p) for p in args.paths]
