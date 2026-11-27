@@ -250,3 +250,29 @@ def test_scalar_or_odd_tags_do_not_crash(tmp_path, value, capsys):
         if yml.name != "dbt_project.yml":
             yml.write_text(f"models:\n  - name: customers\n    tags: {value}\n")
     assert main(["check", str(tmp_path / "p" / "erd")]) in (0, 1)
+
+
+@pytest.mark.parametrize("name", ["schema.yml", "docs.md", "snap.sql"])
+def test_non_utf8_project_file_is_an_error_naming_it(tmp_path, name):
+    root = project(tmp_path, ORDERS_YML)
+    (root / "snapshots").mkdir()
+    folder = root / ("snapshots" if name.endswith(".sql") else "models")
+    (folder / name).write_bytes(b"{% docs cust %}\nCaf\xe9\n{% enddocs %}\n")
+    s = compile_here(tmp_path, "# @dbt: dbt\n\norders\n-\norder_id int\n")
+    rel = f"{folder.name}/{name}"
+    assert [(d.line, d.message) for d in s.errors] == [(1, f"dbt: {rel}: not valid UTF-8")]
+
+
+@pytest.mark.parametrize(
+    "yml, key",
+    [
+        ("models: 5\n", "models"),
+        ("models:\n  - name: orders\n    columns: 5\n", "columns"),
+        ("sources:\n  - name: raw\n    tables: 5\n", "tables"),
+        ("sources: x\n", "sources"),
+    ],
+)
+def test_yml_value_that_should_be_a_list_is_an_error(tmp_path, yml, key):
+    project(tmp_path, yml)
+    s = compile_here(tmp_path, "# @dbt: dbt\n\norders\n-\norder_id int\n")
+    assert [(d.line, d.message) for d in s.errors] == [(1, f"dbt: models/schema.yml: '{key}' must be a list")]

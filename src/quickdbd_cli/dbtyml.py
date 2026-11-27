@@ -94,12 +94,25 @@ class _Loader(getattr(yaml, "CSafeLoader", yaml.SafeLoader)):  # type: ignore[mi
 _cache: dict[tuple[Path, Callable], tuple[int, object]] = {}
 
 
-def _cached(path: Path, parse: Callable[[str], object]) -> object:
+def _cached(path: Path, root: Path, parse: Callable[[str], object]) -> object:
     mtime = path.stat().st_mtime_ns
     hit = _cache.get((path, parse))
     if hit is None or hit[0] != mtime:
-        hit = _cache[(path, parse)] = (mtime, parse(path.read_text(encoding="utf-8")))
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            raise DbtError(f"{path.relative_to(root).as_posix()}: not valid UTF-8") from None
+        hit = _cache[(path, parse)] = (mtime, parse(text))
     return hit[1]
+
+
+def _list(v: object, rel: str, key: str) -> list:
+    """A yml value dbt requires to be a list (`models:`, `columns:`, ...); missing or null is empty."""
+    if v is None:
+        return []
+    if not isinstance(v, list):
+        raise DbtError(f"{rel}: '{key}' must be a list")
+    return v
 
 
 def _load_yaml(text: str) -> object:
@@ -108,7 +121,7 @@ def _load_yaml(text: str) -> object:
 
 def _yaml(path: Path, root: Path) -> object:
     try:
-        return _cached(path, _load_yaml)
+        return _cached(path, root, _load_yaml)
     except yaml.YAMLError as e:
         mark = getattr(e, "problem_mark", None)
         where = f"{path.relative_to(root).as_posix()}:{mark.line + 1}" if mark else path.relative_to(root).as_posix()
@@ -183,9 +196,9 @@ def load_project(root: Path) -> DbtProject:
     for p in _walk(kinds["seed"], (".csv",)):
         project.known.add(p.stem.lower())
     for p in _walk(kinds["snapshot"], (".sql",)):
-        project.known.update(m.lower() for m in _cached(p, _SNAPSHOT.findall))  # type: ignore[union-attr]
+        project.known.update(m.lower() for m in _cached(p, root, _SNAPSHOT.findall))  # type: ignore[union-attr]
     for p in _walk(doc_dirs, (".md",)):
-        for name, body in _cached(p, _DOCS_BLOCK.findall):  # type: ignore[union-attr]
+        for name, body in _cached(p, root, _DOCS_BLOCK.findall):  # type: ignore[union-attr]
             project.docs[name] = body.strip()
     for p in _walk([d for ds in kinds.values() for d in ds], (".yml", ".yaml")):
         data = _yaml(p, root)
@@ -193,13 +206,13 @@ def load_project(root: Path) -> DbtProject:
             continue
         rel = p.relative_to(root).as_posix()
         for key in ("models", "seeds", "snapshots"):
-            for n in data.get(key) or []:
+            for n in _list(data.get(key), rel, key):
                 if isinstance(n, dict) and n.get("name"):
                     _add(project, _text(n["name"]), n, rel)
-        for src in data.get("sources") or []:
+        for src in _list(data.get("sources"), rel, "sources"):
             if not isinstance(src, dict) or not src.get("name"):
                 continue
-            for n in src.get("tables") or []:
+            for n in _list(src.get("tables"), rel, "tables"):
                 if isinstance(n, dict) and n.get("name"):
                     _add(project, f"{_text(src['name'])}.{_text(n['name'])}", n, rel)
     return project
@@ -211,7 +224,7 @@ def _add(project: DbtProject, name: str, n: dict, rel: str) -> None:
         project.ambiguous.add(key)
         return
     cols: dict[str, DbtColumn] = {}
-    for c in n.get("columns") or []:
+    for c in _list(n.get("columns"), rel, "columns"):
         if isinstance(c, dict) and _column_name(c.get("name")):
             cname = _column_name(c["name"])
             dtype = _text(c.get("data_type")) or None
