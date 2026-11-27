@@ -289,3 +289,13 @@ def test_nullability_keeps_its_meaning_in_both_directions():
     assert "id int [pk]" in out and "email varchar [not null]" in out and "nickname varchar [null]" in out
     back = conv.convert([("u.dbml", "u.dbml", out)], "quickdbd", split_groups=False).files["u.txt"]
     assert back.strip() == qdbd.strip()
+
+
+@pytest.mark.parametrize("value", [".5", "1.", "-.5", ".5e3", "-1.5e-3", "+5"])
+def test_numeric_defaults_dbml_cannot_read_bare_are_quoted(value):
+    """`.5` and `1.` are numbers to QuickDBD but not DBML number literals: write them so DBML reads them back."""
+    sources = [("s.txt", "s.txt", f"a\n-\nid PK int\nr decimal default={value}\n")]
+    out = conv.convert(sources, "dbml", split_groups=False).files["s.dbml"]
+    schema = compile_sources([("s.dbml", out)])
+    assert not schema.diagnostics, [d.format() for d in schema.diagnostics]
+    assert schema.tables["a"].columns["r"].default == value

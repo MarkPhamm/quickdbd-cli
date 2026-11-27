@@ -24,7 +24,7 @@ _PLAIN_DBML = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _PLAIN_QDBD = re.compile(r"[A-Za-z0-9_]+")
 _ARG = r"([+-]*\d+(\.\d+)?|[A-Za-z_]\w*)"  # what dbdiagram.io takes inside a type's parentheses
 _DBML_TYPE = re.compile(rf"[A-Za-z_]\w*(\.[A-Za-z_]\w*)?(\({_ARG}(,{_ARG})*\))?(\[\d*\])*")
-_NUMBER = re.compile(r"[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?")
+_NUMBER = re.compile(r"[+-]?\d+(\.\d+)?([eE][+-]?\d+)?")  # a DBML number literal; `.5` and `1.` are quoted
 _EXPRESSION = re.compile(r"[A-Z][A-Z0-9_]*|.*\(.*\).*")  # CURRENT_TIMESTAMP, now(), GETUTCDATE()
 
 
