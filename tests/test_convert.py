@@ -78,6 +78,19 @@ def test_dbml_only_operator_is_approximated_with_a_warning():
     assert compile_sources(list(res.files.items())).errors == []
 
 
+def test_composite_ref_is_warned_once():
+    text = (
+        "Table orgs {\n  id int\n  region int\n  indexes {\n    (id, region) [pk]\n  }\n}\n"
+        "Table users {\n  id int [pk]\n  org_id int\n  org_region int\n}\n"
+        "Ref: users.(org_id, org_region) > orgs.(id, region)\n"
+    )
+    res = conv.convert([("s.dbml", "s.dbml", text)], "quickdbd", split_groups=False)
+    assert [(w.line, w.message) for w in res.warnings] == [
+        (13, "composite ref: QuickDBD has no multi-column relationship; written as one FK per column")
+    ]
+    assert "org_id int NULL FK >- orgs.id" in res.files["s.txt"]
+
+
 def test_tablegroup_split():
     text = (
         "Table a {\n  id int\n}\nTable b {\n  id int\n}\nTable c {\n  id int\n}\n"

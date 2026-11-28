@@ -88,7 +88,7 @@ The output is recompiled before anything is written, and must give the same tabl
 | From | To | Not carried over |
 |---|---|---|
 | QuickDBD | DBML | table-level links (`rel >- Product`, kept as a `//` comment), a second alias, `[settings]` zoom and position. `[layout]` positions go to the [layout file](layout.md) beside the output. |
-| DBML | QuickDBD | header colours, enums (kept as a `#` comment listing the values), checks, records, composite and expression indexes (drawn as `INDEX` on each column), ref settings, sticky notes, `Project`, the optional (`?`) operators QuickDBD has no symbol for (made required). |
+| DBML | QuickDBD | header colours, enums (kept as a `#` comment listing the values), checks, records, composite and expression indexes (drawn as `INDEX` on each column), composite refs (written as one `FK` per column), ref settings, sticky notes, `Project`, the optional (`?`) operators QuickDBD has no symbol for (made required). |
 
 Nullability keeps its meaning. QuickDBD columns are NOT NULL unless marked `NULL`, DBML columns are nullable unless marked `not null`, so a DBML column with neither gets `NULL` in QuickDBD, and a QuickDBD column without `NULL` gets `[not null]` in DBML (primary keys excepted).
 
