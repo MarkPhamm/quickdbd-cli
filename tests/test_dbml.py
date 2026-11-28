@@ -161,6 +161,22 @@ def test_teammate_style():
     assert schema.tables["visits"].columns["guest_sk"].fk
 
 
+def test_key_column_that_references_is_a_foreign_key():
+    """DBML has no FK keyword: a ref between key columns marks its referencing end, like QuickDBD's `PK int FK`."""
+    _, schema = compile_dbml(
+        "Table playlist { id int [pk] }\n"
+        "Table track { id int [pk] }\n"
+        "Table playlist_track {\n  playlist_id int [pk, ref: > playlist.id]\n  track_id int [pk]\n}\n"
+        "Ref: track.id < playlist_track.track_id\n"
+        "Table person { id int [pk] }\n"
+        "Table employee { id int [pk] }\n"
+        "Ref: employee.id - person.id\n"
+    )
+    assert errors(schema) == []
+    fk = {(t.name, c.name) for t in schema.tables.values() for c in t.columns.values() if c.fk}
+    assert fk == {("playlist_track", "playlist_id"), ("playlist_track", "track_id"), ("employee", "id")}
+
+
 def test_crlf_tabs_bom_no_trailing_newline():
     variant = "﻿" + TEAM.replace("  ", "\t").replace("\n", "\r\n").rstrip()
     _, a = compile_dbml(TEAM)

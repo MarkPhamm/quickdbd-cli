@@ -804,6 +804,11 @@ class _Resolver:
         for c in cols:
             if c is not None and not c.pk and not c.virtual:
                 c.fk = True
+        if names and None not in cols and all(c.pk for c in cols):
+            # DBML has no FK keyword (QuickDBD writes `PK int FK >- ...`): a ref between key columns marks the many
+            # end, else the left one, where `qdbd convert` writes the column that holds the foreign key
+            many = [c for end, c in zip((r.a, r.b), cols, strict=True) if end.card in ("many", "zeroMany")]
+            (many[0] if len(many) == 1 else cols[0]).fk = True
 
     def parse_layout(self) -> None:
         s = self.schema
