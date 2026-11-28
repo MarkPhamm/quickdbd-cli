@@ -269,9 +269,13 @@ def _plan_foreign_keys(schema: Schema, written: set[str], res: ConvertResult) ->
     def warn(r: Relationship, msg: str) -> None:
         res.warnings.append(Diagnostic(r.path, r.line, msg, "warning"))
 
+    composites: set[tuple[str, int]] = set()
     for r in schema.relationships:
         if r.path not in written or id(r) not in valid:
             continue
+        if r.composite is not None and (r.path, r.composite) not in composites:
+            composites.add((r.path, r.composite))
+            warn(r, "composite ref: QuickDBD has no multi-column relationship; written as one FK per column")
         ends = [(r.a, r.b), (r.b, r.a)]
         if schema.tables[r.a.table].columns[r.a.column].pk and not schema.tables[r.b.table].columns[r.b.column].pk:
             ends.reverse()
